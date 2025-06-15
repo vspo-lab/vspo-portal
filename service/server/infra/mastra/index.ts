@@ -51,7 +51,6 @@ type MastraConfig = {
   cfAccessClientSecret: string;
   baseUrl: string;
   agentId: string;
-  apiKey: string;
   retries?: number;
   backoffMs?: number;
   maxBackoffMs?: number;
@@ -66,7 +65,6 @@ export const createMastraService = (config: MastraConfig): IMastraService => {
     backoffMs: config.backoffMs,
     maxBackoffMs: config.maxBackoffMs,
     headers: {
-      "x-api-key": config.apiKey,
       "CF-Access-Client-Id": config.cfAccessClientId,
       "CF-Access-Client-Secret": config.cfAccessClientSecret,
       ...config.headers,

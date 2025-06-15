@@ -3,10 +3,10 @@ import { MastraAgentJudge } from "@mastra/evals/judge";
 import { z } from "zod";
 import type { CategoryInput } from "./prompts";
 import {
+  CATEGORY_INSTRUCTIONS,
   generateCategoryMatchPrompt,
   generateCategoryReasonPrompt,
 } from "./prompts";
-import { CATEGORY_INSTRUCTIONS } from "./prompts";
 
 export class CategoryMatcherJudge extends MastraAgentJudge {
   constructor(model: LanguageModel) {
