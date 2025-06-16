@@ -313,7 +313,7 @@ export default createHandler({
             },
           );
           break;
-        case "0 */3 * * *":
+        case "0 */12 * * *":
           await withTracer(
             "CronJob",
             "fetch-clips-by-creator",
