@@ -1,8 +1,10 @@
 import type { AppError, Result } from "@vspo-lab/error";
 import type { PgTransactionConfig } from "drizzle-orm/pg-core";
 import {
+  type ICreatorClipFetchService,
   type ICreatorService,
   type IStreamService,
+  createCreatorClipFetchService,
   createCreatorService,
   createStreamService,
 } from "../../domain";
@@ -48,6 +50,10 @@ import {
 } from "../../usecase";
 import { type IClipInteractor, createClipInteractor } from "../../usecase/clip";
 import {
+  type ICreatorClipFetchInteractor,
+  createCreatorClipFetchInteractor,
+} from "../../usecase/creatorClipFetch";
+import {
   type IDiscordInteractor,
   createDiscordInteractor,
 } from "../../usecase/discord";
@@ -92,6 +98,7 @@ export interface IServices {
   streamService: IStreamService;
   discordService: IDiscordService;
   clipService: IClipService;
+  creatorClipFetchService: ICreatorClipFetchService;
 }
 
 export function createServices(
@@ -133,6 +140,9 @@ export function createServices(
       youtubeClient,
       twitchClient,
       creatorRepository: repos.creatorRepository,
+    }),
+    creatorClipFetchService: createCreatorClipFetchService({
+      youtubeClient,
     }),
   };
 }
@@ -191,6 +201,7 @@ export interface IContainer {
   readonly creatorInteractor: ICreatorInteractor;
   readonly streamInteractor: IStreamInteractor;
   readonly clipInteractor: IClipInteractor;
+  readonly creatorClipFetchInteractor: ICreatorClipFetchInteractor;
   readonly discordInteractor: IDiscordInteractor;
   readonly eventInteractor: IEventInteractor;
   readonly freechatInteractor: IFreechatInteractor;
@@ -245,6 +256,7 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
   const streamInteractor = createStreamInteractor(context);
   const discordInteractor = createDiscordInteractor(context);
   const clipInteractor = createClipInteractor(context);
+  const creatorClipFetchInteractor = createCreatorClipFetchInteractor(context);
   const eventInteractor = createEventInteractor(context);
   const freechatInteractor = createFreechatInteractor(context);
 
@@ -253,6 +265,7 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
     creatorInteractor,
     streamInteractor,
     clipInteractor,
+    creatorClipFetchInteractor,
     discordInteractor,
     eventInteractor,
     freechatInteractor,

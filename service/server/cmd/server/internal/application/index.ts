@@ -48,6 +48,11 @@ import type {
   ListClipsResponse,
 } from "../../../../usecase/clip";
 import type {
+  FetchClipsByCreatorParams,
+  FetchClipsByCreatorResponse,
+  ICreatorClipFetchInteractor,
+} from "../../../../usecase/creatorClipFetch";
+import type {
   IFreechatInteractor,
   ListFreechatsQuery,
 } from "../../../../usecase/freechat";
@@ -631,6 +636,25 @@ export class FreechatService extends RpcTarget {
   }
 }
 
+export class CreatorClipFetchService extends RpcTarget {
+  #usecase: ICreatorClipFetchInteractor;
+
+  constructor(usecase: ICreatorClipFetchInteractor) {
+    super();
+    this.#usecase = usecase;
+  }
+
+  async fetchClipsByCreator(params: FetchClipsByCreatorParams) {
+    return withTracerResult(
+      "CreatorClipFetchService",
+      "fetchClipsByCreator",
+      async () => {
+        return this.#usecase.fetchClipsByCreator(params);
+      },
+    );
+  }
+}
+
 export class ApplicationService extends WorkerEntrypoint<AppWorkerEnv> {
   newStreamUsecase() {
     const d = this.setup();
@@ -680,6 +704,11 @@ export class ApplicationService extends WorkerEntrypoint<AppWorkerEnv> {
   newFreechatUsecase() {
     const d = this.setup();
     return new FreechatService(d.freechatInteractor);
+  }
+
+  newCreatorClipFetchUsecase() {
+    const d = this.setup();
+    return new CreatorClipFetchService(d.creatorClipFetchInteractor);
   }
 
   private setup() {

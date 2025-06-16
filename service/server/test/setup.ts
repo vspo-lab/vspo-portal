@@ -218,7 +218,8 @@ export const setupTxManager = async () => {
     createMastraService({
       baseUrl: env.MASTRA_BASE_URL,
       agentId: env.MASTRA_AGENT_ID,
-      apiKey: env.MASTRA_API_KEY,
+      cfAccessClientId: env.MASTRA_CF_ACCESS_CLIENT_ID,
+      cfAccessClientSecret: env.MASTRA_CF_ACCESS_CLIENT_SECRET,
     }),
   );
 };

@@ -87,6 +87,11 @@ name = "dev-access-vspo-schedule-site-workflow"
 binding = "ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW"
 class_name = "AccessVspoScheduleSiteWorkflow"
 
+[[workflows]]
+name = "dev-fetch-clips-by-creator-workflow"
+binding = "FETCH_CLIPS_BY_CREATOR_WORKFLOW"
+class_name = "FetchClipsByCreatorWorkflow"
+
 [vars]
 SERVICE_NAME = "dev-vspo-portal-cron"
 ENVIRONMENT = "development"

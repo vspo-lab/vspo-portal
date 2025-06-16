@@ -71,6 +71,13 @@
       "when": 1749990622377,
       "tag": "0009_lethal_red_ghost",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1750088715903,
+      "tag": "0010_good_eddie_brock",
+      "breakpoints": true
     }
   ]
 }

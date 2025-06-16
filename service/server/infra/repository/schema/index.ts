@@ -42,6 +42,34 @@ export const creatorTranslationTable = pgTable(
   }),
 );
 
+// Creator clip fetch status table
+export const creatorClipFetchStatusTable = pgTable(
+  "creator_clip_fetch_status",
+  {
+    id: text("id").primaryKey(),
+    creatorId: text("creator_id")
+      .notNull()
+      .references(() => creatorTable.id, { onDelete: "cascade" }),
+    lastFetchedAt: timestamp("last_fetched_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
+    fetchCount: integer("fetch_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    creatorIdIdx: unique().on(t.creatorId),
+    lastFetchedAtIdx: index("creator_clip_fetch_status_last_fetched_at_idx").on(
+      t.lastFetchedAt.asc().nullsFirst(),
+    ),
+  }),
+);
+
 // Channel information table
 export const channelTable = pgTable(
   "channel",
@@ -300,6 +328,11 @@ export type InsertCreatorTranslation =
   typeof creatorTranslationTable.$inferInsert;
 export type SelectCreatorTranslation =
   typeof creatorTranslationTable.$inferSelect;
+
+export type InsertCreatorClipFetchStatus =
+  typeof creatorClipFetchStatusTable.$inferInsert;
+export type SelectCreatorClipFetchStatus =
+  typeof creatorClipFetchStatusTable.$inferSelect;
 
 export type InsertVideoTranslation = typeof videoTranslationTable.$inferInsert;
 export type SelectVideoTranslation = typeof videoTranslationTable.$inferSelect;

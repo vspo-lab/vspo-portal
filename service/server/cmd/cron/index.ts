@@ -12,6 +12,10 @@ import { searchChannelsWorkflow } from "../../infra/http/workflow/channel/search
 import { translateCreatorsWorkflow } from "../../infra/http/workflow/channel/trasnlate";
 import { existClipsWorkflow } from "../../infra/http/workflow/clip/exist";
 import {
+  type FetchClipsByCreatorParams,
+  fetchClipsByCreatorWorkflow,
+} from "../../infra/http/workflow/clip/fetchByCreator";
+import {
   searchClipsByVspoMemberNameWorkflow,
   searchClipsWorkflow,
 } from "../../infra/http/workflow/clip/search";
@@ -190,6 +194,19 @@ export class AccessVspoScheduleSiteWorkflow extends WorkflowEntrypoint<
   }
 }
 
+export class FetchClipsByCreatorWorkflow extends WorkflowEntrypoint<
+  BindingAppWorkerEnv,
+  FetchClipsByCreatorParams
+> {
+  async run(
+    event: WorkflowEvent<FetchClipsByCreatorParams>,
+    step: WorkflowStep,
+  ) {
+    await setFeatureFlagProvider(this.env);
+    await fetchClipsByCreatorWorkflow().handler()(this.env, event, step);
+  }
+}
+
 export default createHandler({
   scheduled: async (
     controller: ScheduledController,
@@ -292,6 +309,26 @@ export default createHandler({
               );
               await env.SEARCH_CLIPS_BY_VSPO_MEMBER_NAME_WORKFLOW.create({
                 id: createUUID(),
+              });
+            },
+          );
+          break;
+        case "0 */3 * * *":
+          await withTracer(
+            "CronJob",
+            "fetch-clips-by-creator",
+            async (creatorClipsSpan) => {
+              AppLogger.info("fetch-clips-by-creator");
+              creatorClipsSpan.setAttribute(
+                "workflow",
+                "fetch-clips-by-creator",
+              );
+              await env.FETCH_CLIPS_BY_CREATOR_WORKFLOW.create({
+                id: createUUID(),
+                params: {
+                  batchSize: 300,
+                  maxQuotaUsage: 10000,
+                },
               });
             },
           );
