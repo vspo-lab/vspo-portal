@@ -327,7 +327,6 @@ export default createHandler({
                 id: createUUID(),
                 params: {
                   batchSize: 300,
-                  maxQuotaUsage: 10000,
                 },
               });
             },

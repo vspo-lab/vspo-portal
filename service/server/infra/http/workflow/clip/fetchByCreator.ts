@@ -8,7 +8,6 @@ import { withTracer } from "../../trace/cloudflare";
 
 export interface FetchClipsByCreatorParams {
   batchSize?: number;
-  maxQuotaUsage?: number;
   memberType?: string;
 }
 
@@ -46,7 +45,6 @@ export const fetchClipsByCreatorWorkflow = () => {
                 // Fetch clips for creators
                 const result = await ccfu.fetchClipsByCreator({
                   batchSize: params.batchSize,
-                  maxQuotaUsage: params.maxQuotaUsage,
                   memberType: params.memberType,
                 });
 

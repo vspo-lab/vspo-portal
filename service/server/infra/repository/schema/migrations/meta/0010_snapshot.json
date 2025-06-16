@@ -100,12 +100,8 @@
           "name": "channel_creator_id_creator_id_fk",
           "tableFrom": "channel",
           "tableTo": "creator",
-          "columnsFrom": [
-            "creator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["creator_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -115,9 +111,7 @@
         "channel_platform_channel_id_unique": {
           "name": "channel_platform_channel_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "platform_channel_id"
-          ]
+          "columns": ["platform_channel_id"]
         }
       },
       "policies": {},
@@ -191,12 +185,8 @@
           "name": "clip_stats_video_id_video_raw_id_fk",
           "tableFrom": "clip_stats",
           "tableTo": "video",
-          "columnsFrom": [
-            "video_id"
-          ],
-          "columnsTo": [
-            "raw_id"
-          ],
+          "columnsFrom": ["video_id"],
+          "columnsTo": ["raw_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -206,9 +196,7 @@
         "clip_stats_video_id_unique": {
           "name": "clip_stats_video_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "video_id"
-          ]
+          "columns": ["video_id"]
         }
       },
       "policies": {},
@@ -281,12 +269,8 @@
           "name": "creator_clip_fetch_status_creator_id_creator_id_fk",
           "tableFrom": "creator_clip_fetch_status",
           "tableTo": "creator",
-          "columnsFrom": [
-            "creator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["creator_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -296,9 +280,7 @@
         "creator_clip_fetch_status_creator_id_unique": {
           "name": "creator_clip_fetch_status_creator_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "creator_id"
-          ]
+          "columns": ["creator_id"]
         }
       },
       "policies": {},
@@ -437,12 +419,8 @@
           "name": "creator_translation_creator_id_creator_id_fk",
           "tableFrom": "creator_translation",
           "tableTo": "creator",
-          "columnsFrom": [
-            "creator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["creator_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -452,10 +430,7 @@
         "creator_translation_creator_id_lang_code_unique": {
           "name": "creator_translation_creator_id_lang_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "creator_id",
-            "lang_code"
-          ]
+          "columns": ["creator_id", "lang_code"]
         }
       },
       "policies": {},
@@ -511,12 +486,8 @@
           "name": "discord_admin_message_channel_id_discord_channel_discord_channel_id_fk",
           "tableFrom": "discord_admin_message",
           "tableTo": "discord_channel",
-          "columnsFrom": [
-            "channel_id"
-          ],
-          "columnsTo": [
-            "discord_channel_id"
-          ],
+          "columnsFrom": ["channel_id"],
+          "columnsTo": ["discord_channel_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -524,12 +495,8 @@
           "name": "discord_admin_message_message_id_discord_message_id_fk",
           "tableFrom": "discord_admin_message",
           "tableTo": "discord_message",
-          "columnsFrom": [
-            "message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -539,10 +506,7 @@
         "discord_admin_message_discord_admin_message_id_message_id_unique": {
           "name": "discord_admin_message_discord_admin_message_id_message_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "discord_admin_message_id",
-            "message_id"
-          ]
+          "columns": ["discord_admin_message_id", "message_id"]
         }
       },
       "policies": {},
@@ -611,12 +575,8 @@
           "name": "discord_channel_server_id_discord_server_discord_server_id_fk",
           "tableFrom": "discord_channel",
           "tableTo": "discord_server",
-          "columnsFrom": [
-            "server_id"
-          ],
-          "columnsTo": [
-            "discord_server_id"
-          ],
+          "columnsFrom": ["server_id"],
+          "columnsTo": ["discord_server_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -626,17 +586,12 @@
         "discord_channel_discord_channel_id_unique": {
           "name": "discord_channel_discord_channel_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "discord_channel_id"
-          ]
+          "columns": ["discord_channel_id"]
         },
         "discord_channel_discord_channel_id_server_id_unique": {
           "name": "discord_channel_discord_channel_id_server_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "discord_channel_id",
-            "server_id"
-          ]
+          "columns": ["discord_channel_id", "server_id"]
         }
       },
       "policies": {},
@@ -732,9 +687,7 @@
         "discord_server_discord_server_id_unique": {
           "name": "discord_server_discord_server_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "discord_server_id"
-          ]
+          "columns": ["discord_server_id"]
         }
       },
       "policies": {},
@@ -890,12 +843,8 @@
           "name": "stream_status_video_id_video_raw_id_fk",
           "tableFrom": "stream_status",
           "tableTo": "video",
-          "columnsFrom": [
-            "video_id"
-          ],
-          "columnsTo": [
-            "raw_id"
-          ],
+          "columnsFrom": ["video_id"],
+          "columnsTo": ["raw_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -905,9 +854,7 @@
         "stream_status_video_id_unique": {
           "name": "stream_status_video_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "video_id"
-          ]
+          "columns": ["video_id"]
         }
       },
       "policies": {},
@@ -1092,12 +1039,8 @@
           "name": "video_channel_id_channel_platform_channel_id_fk",
           "tableFrom": "video",
           "tableTo": "channel",
-          "columnsFrom": [
-            "channel_id"
-          ],
-          "columnsTo": [
-            "platform_channel_id"
-          ],
+          "columnsFrom": ["channel_id"],
+          "columnsTo": ["platform_channel_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1107,9 +1050,7 @@
         "video_raw_id_unique": {
           "name": "video_raw_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "raw_id"
-          ]
+          "columns": ["raw_id"]
         }
       },
       "policies": {},
@@ -1201,12 +1142,8 @@
           "name": "video_translation_video_id_video_raw_id_fk",
           "tableFrom": "video_translation",
           "tableTo": "video",
-          "columnsFrom": [
-            "video_id"
-          ],
-          "columnsTo": [
-            "raw_id"
-          ],
+          "columnsFrom": ["video_id"],
+          "columnsTo": ["raw_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1216,10 +1153,7 @@
         "video_translation_video_id_lang_code_unique": {
           "name": "video_translation_video_id_lang_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "video_id",
-            "lang_code"
-          ]
+          "columns": ["video_id", "lang_code"]
         }
       },
       "policies": {},

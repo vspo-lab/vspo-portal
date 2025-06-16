@@ -8,7 +8,6 @@ import type { Creators } from "../creator";
 export interface ICreatorClipFetchService {
   fetchClipsForCreators(params: {
     creators: Creators;
-    maxQuotaUsage: number;
   }): Promise<
     Result<{ clips: Clips; processedCreatorIds: string[] }, AppError>
   >;
@@ -21,7 +20,6 @@ export const createCreatorClipFetchService = (deps: {
 
   const fetchClipsForCreators = async (params: {
     creators: Creators;
-    maxQuotaUsage: number;
   }): Promise<
     Result<{ clips: Clips; processedCreatorIds: string[] }, AppError>
   > => {
@@ -29,29 +27,11 @@ export const createCreatorClipFetchService = (deps: {
       SERVICE_NAME,
       "fetchClipsForCreators",
       async () => {
-        const { creators, maxQuotaUsage } = params;
+        const { creators } = params;
         const allClips: Clips = [];
         const processedCreatorIds: string[] = [];
-        let quotaUsed = 0;
-
-        // YouTube API quota costs:
-        // - search: 100 units per request (returns up to 50 items)
-        // - videos.list: 1 unit per request (can batch up to 50 videos)
-        const SEARCH_QUOTA_COST = 100;
-        const VIDEO_LIST_QUOTA_COST = 1;
 
         for (const creator of creators) {
-          if (quotaUsed >= maxQuotaUsage) {
-            AppLogger.info("Reached quota limit, stopping fetch", {
-              service: SERVICE_NAME,
-              quotaUsed,
-              maxQuotaUsage,
-              processedCount: processedCreatorIds.length,
-              totalCreators: creators.length,
-            });
-            break;
-          }
-
           const youtubeChannelId = creator.channel?.youtube?.rawId;
           if (!youtubeChannelId) {
             AppLogger.debug("Creator has no YouTube channel", {
@@ -80,8 +60,6 @@ export const createCreatorClipFetchService = (deps: {
               continue;
             }
 
-            quotaUsed += SEARCH_QUOTA_COST;
-
             if (searchResult.val.length === 0) {
               processedCreatorIds.push(creator.id);
               continue;
@@ -92,10 +70,6 @@ export const createCreatorClipFetchService = (deps: {
             const batchSize = 50; // YouTube API allows up to 50 videos per request
 
             for (let i = 0; i < videoIds.length; i += batchSize) {
-              if (quotaUsed >= maxQuotaUsage) {
-                break;
-              }
-
               const batch = videoIds.slice(i, i + batchSize);
               const videoDetails = await deps.youtubeClient.getClips({
                 videoIds: batch,
@@ -112,7 +86,6 @@ export const createCreatorClipFetchService = (deps: {
               }
 
               allClips.push(...videoDetails.val);
-              quotaUsed += VIDEO_LIST_QUOTA_COST;
             }
 
             processedCreatorIds.push(creator.id);
@@ -122,7 +95,6 @@ export const createCreatorClipFetchService = (deps: {
               creatorId: creator.id,
               creatorName: creator.name,
               clipCount: searchResult.val.length,
-              quotaUsed,
             });
           } catch (error) {
             AppLogger.error("Unexpected error fetching clips for creator", {
@@ -138,8 +110,6 @@ export const createCreatorClipFetchService = (deps: {
           totalClips: allClips.length,
           processedCreators: processedCreatorIds.length,
           totalCreators: creators.length,
-          quotaUsed,
-          maxQuotaUsage,
         });
 
         return Ok({

@@ -67,7 +67,6 @@ export const createCreatorClipFetchInteractor = (
           const fetchResult =
             await services.creatorClipFetchService.fetchClipsForCreators({
               creators: creators.val,
-              maxQuotaUsage,
             });
 
           if (fetchResult.err) {
