@@ -13,9 +13,9 @@ binding = "APP_WORKER"
 service = "dev-vspo-portal-app"
 entrypoint = "ApplicationService"
 
-[triggers]
+# [triggers]
 # crons = [ "0 0,7,18 * * *", "5 0,7,18 * * *", "*/2 * * * *", "*/30 * * * *", "*/1 * * * *" ]
-crons = [ "5 2 * * *" ]
+# crons = [ "5 2 * * *" ]
 
 [[workflows]]
 name = "dev-search-streams-workflow"
