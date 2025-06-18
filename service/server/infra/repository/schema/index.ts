@@ -423,3 +423,13 @@ export const insertEventSchema = createInsertSchema(eventTable);
 export const selectEventSchema = createSelectSchema(eventTable);
 export const createInsertEvent = (data: InsertEvent) =>
   insertEventSchema.parse(data);
+
+// Re-export clip analysis table and types
+export {
+  clipAnalysisTable,
+  type InsertClipAnalysis,
+  type SelectClipAnalysis,
+  insertClipAnalysisSchema,
+  selectClipAnalysisSchema,
+  createInsertClipAnalysis,
+} from "./clipAnalysis";

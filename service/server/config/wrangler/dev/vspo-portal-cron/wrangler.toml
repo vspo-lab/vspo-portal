@@ -92,6 +92,11 @@ name = "dev-fetch-clips-by-creator-workflow"
 binding = "FETCH_CLIPS_BY_CREATOR_WORKFLOW"
 class_name = "FetchClipsByCreatorWorkflow"
 
+[[workflows]]
+name = "dev-analyze-clips-workflow"
+binding = "ANALYZE_CLIPS_WORKFLOW"
+class_name = "AnalyzeClipsWorkflow"
+
 [vars]
 SERVICE_NAME = "dev-vspo-portal-cron"
 ENVIRONMENT = "development"

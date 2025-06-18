@@ -10,6 +10,10 @@ import { setFeatureFlagProvider } from "../../config/featureFlag";
 import { createHandler, withTracer } from "../../infra/http/trace";
 import { searchChannelsWorkflow } from "../../infra/http/workflow/channel/search";
 import { translateCreatorsWorkflow } from "../../infra/http/workflow/channel/trasnlate";
+import {
+  type AnalyzeClipsParams,
+  analyzeClipsWorkflow,
+} from "../../infra/http/workflow/clip/analyze";
 import { existClipsWorkflow } from "../../infra/http/workflow/clip/exist";
 import {
   type FetchClipsByCreatorParams,
@@ -207,6 +211,16 @@ export class FetchClipsByCreatorWorkflow extends WorkflowEntrypoint<
   }
 }
 
+export class AnalyzeClipsWorkflow extends WorkflowEntrypoint<
+  BindingAppWorkerEnv,
+  AnalyzeClipsParams
+> {
+  async run(event: WorkflowEvent<AnalyzeClipsParams>, step: WorkflowStep) {
+    await setFeatureFlagProvider(this.env);
+    await analyzeClipsWorkflow().handler()(this.env, event, step);
+  }
+}
+
 export default createHandler({
   scheduled: async (
     controller: ScheduledController,
@@ -327,6 +341,22 @@ export default createHandler({
                 id: createUUID(),
                 params: {
                   batchSize: 300,
+                },
+              });
+            },
+          );
+          break;
+        case "0 * * * *":
+          await withTracer(
+            "CronJob",
+            "analyze-clips",
+            async (analyzeClipsSpan) => {
+              AppLogger.info("analyze-clips");
+              analyzeClipsSpan.setAttribute("workflow", "analyze-clips");
+              await env.ANALYZE_CLIPS_WORKFLOW.create({
+                id: createUUID(),
+                params: {
+                  batchSize: 100,
                 },
               });
             },

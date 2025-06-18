@@ -37,6 +37,10 @@ import {
   createClipService,
 } from "../../domain/service/clip";
 import {
+  type IClipAnalysisService,
+  createClipAnalysisService,
+} from "../../domain/service/clipAnalysis";
+import {
   type IDiscordService,
   createDiscordService,
 } from "../../domain/service/discord";
@@ -49,6 +53,10 @@ import {
   createStreamInteractor,
 } from "../../usecase";
 import { type IClipInteractor, createClipInteractor } from "../../usecase/clip";
+import {
+  type IClipAnalysisInteractor,
+  createClipAnalysisInteractor,
+} from "../../usecase/clipAnalysis";
 import {
   type ICreatorClipFetchInteractor,
   createCreatorClipFetchInteractor,
@@ -67,6 +75,10 @@ import { type IDiscordClient, createDiscordClient } from "../discord";
 import { type IMastraService, createMastraService } from "../mastra";
 import { type IClipRepository, createClipRepository } from "../repository/clip";
 import {
+  type IClipAnalysisRepository,
+  createClipAnalysisRepository,
+} from "../repository/clipAnalysis";
+import {
   type IEventRepository,
   createEventRepository,
 } from "../repository/event";
@@ -77,6 +89,7 @@ export interface IRepositories {
   discordServerRepository: IDiscordServerRepository;
   discordMessageRepository: IDiscordMessageRepository;
   clipRepository: IClipRepository;
+  clipAnalysisRepository: IClipAnalysisRepository;
   eventRepository: IEventRepository;
   freechatRepository: IFreechatRepository;
 }
@@ -88,6 +101,7 @@ export function createRepositories(tx: DB): IRepositories {
     discordServerRepository: createDiscordServerRepository(tx),
     discordMessageRepository: createDiscordMessageRepository(tx),
     clipRepository: createClipRepository(tx),
+    clipAnalysisRepository: createClipAnalysisRepository(tx),
     eventRepository: createEventRepository(tx),
     freechatRepository: createFreechatRepository(tx),
   };
@@ -98,6 +112,7 @@ export interface IServices {
   streamService: IStreamService;
   discordService: IDiscordService;
   clipService: IClipService;
+  clipAnalysisService: IClipAnalysisService;
   creatorClipFetchService: ICreatorClipFetchService;
 }
 
@@ -140,6 +155,11 @@ export function createServices(
       youtubeClient,
       twitchClient,
       creatorRepository: repos.creatorRepository,
+    }),
+    clipAnalysisService: createClipAnalysisService({
+      mastraService,
+      clipRepository: repos.clipRepository,
+      clipAnalysisRepository: repos.clipAnalysisRepository,
     }),
     creatorClipFetchService: createCreatorClipFetchService({
       youtubeClient,
@@ -201,6 +221,7 @@ export interface IContainer {
   readonly creatorInteractor: ICreatorInteractor;
   readonly streamInteractor: IStreamInteractor;
   readonly clipInteractor: IClipInteractor;
+  readonly clipAnalysisInteractor: IClipAnalysisInteractor;
   readonly creatorClipFetchInteractor: ICreatorClipFetchInteractor;
   readonly discordInteractor: IDiscordInteractor;
   readonly eventInteractor: IEventInteractor;
@@ -256,6 +277,7 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
   const streamInteractor = createStreamInteractor(context);
   const discordInteractor = createDiscordInteractor(context);
   const clipInteractor = createClipInteractor(context);
+  const clipAnalysisInteractor = createClipAnalysisInteractor(context);
   const creatorClipFetchInteractor = createCreatorClipFetchInteractor(context);
   const eventInteractor = createEventInteractor(context);
   const freechatInteractor = createFreechatInteractor(context);
@@ -265,6 +287,7 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
     creatorInteractor,
     streamInteractor,
     clipInteractor,
+    clipAnalysisInteractor,
     creatorClipFetchInteractor,
     discordInteractor,
     eventInteractor,

@@ -47,6 +47,7 @@ import type {
   ListClipsQuery,
   ListClipsResponse,
 } from "../../../../usecase/clip";
+import type { IClipAnalysisInteractor } from "../../../../usecase/clipAnalysis";
 import type {
   FetchClipsByCreatorParams,
   FetchClipsByCreatorResponse,
@@ -655,6 +656,31 @@ export class CreatorClipFetchService extends RpcTarget {
   }
 }
 
+export class ClipAnalysisService extends RpcTarget {
+  #usecase: IClipAnalysisInteractor;
+
+  constructor(usecase: IClipAnalysisInteractor) {
+    super();
+    this.#usecase = usecase;
+  }
+
+  async analyzeClips(limit?: number) {
+    return withTracerResult("ClipAnalysisService", "analyzeClips", async () => {
+      return this.#usecase.analyzeClips(limit);
+    });
+  }
+
+  async getAnalysisStats() {
+    return withTracerResult(
+      "ClipAnalysisService",
+      "getAnalysisStats",
+      async () => {
+        return this.#usecase.getAnalysisStats();
+      },
+    );
+  }
+}
+
 export class ApplicationService extends WorkerEntrypoint<AppWorkerEnv> {
   newStreamUsecase() {
     const d = this.setup();
@@ -709,6 +735,11 @@ export class ApplicationService extends WorkerEntrypoint<AppWorkerEnv> {
   newCreatorClipFetchUsecase() {
     const d = this.setup();
     return new CreatorClipFetchService(d.creatorClipFetchInteractor);
+  }
+
+  newClipAnalysisUsecase() {
+    const d = this.setup();
+    return new ClipAnalysisService(d.clipAnalysisInteractor);
   }
 
   private setup() {

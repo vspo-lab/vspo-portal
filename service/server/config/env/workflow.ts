@@ -17,6 +17,7 @@ export const zBindingWorkflowEnv = z
     SEARCH_CLIPS_BY_VSPO_MEMBER_NAME_WORKFLOW: z.custom<Workflow>(),
     ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW: z.custom<Workflow>(),
     FETCH_CLIPS_BY_CREATOR_WORKFLOW: z.custom<Workflow>(),
+    ANALYZE_CLIPS_WORKFLOW: z.custom<Workflow>(),
   })
   .merge(zFeatureFlagEnv);
 export type BindingWorkflowEnv = z.infer<typeof zBindingWorkflowEnv>;

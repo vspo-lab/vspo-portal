@@ -25,13 +25,6 @@ const ClipAnalysisResponseSchema = z.object({
     hasShortTag: z.boolean(),
     reasoning: z.string(),
   }),
-  category: z.object({
-    primary: z.string(),
-    secondary: z.string().optional(),
-    confidence: z.number().min(0).max(1),
-    suggestedNewCategory: z.string().optional(),
-    reasoning: z.string(),
-  }),
 });
 
 export type ClipAnalysisResponse = z.infer<typeof ClipAnalysisResponseSchema>;
@@ -42,7 +35,6 @@ export interface IMastraService {
     description: string;
     tags: string[];
     duration: number;
-    existingCategories?: string[];
   }): Promise<Result<ClipAnalysisResponse, AppError>>;
 }
 
@@ -76,7 +68,6 @@ export const createMastraService = (config: MastraConfig): IMastraService => {
     description: string;
     tags: string[];
     duration: number;
-    existingCategories?: string[];
   }): Promise<Result<ClipAnalysisResponse, AppError>> => {
     return withTracerResult("mastra", "analyzeClip", async (_span) => {
       // Prepare the message for the agent
@@ -85,7 +76,6 @@ export const createMastraService = (config: MastraConfig): IMastraService => {
         description: params.description,
         tags: params.tags,
         duration: params.duration,
-        existingCategories: params.existingCategories || [],
       });
 
       // Call the Mastra agent
