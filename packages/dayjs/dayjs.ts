@@ -40,6 +40,20 @@ const addDaysAndConvertToUTC = (
   return dayjs.tz(dateStr, tz).add(days, "day").utc().format();
 };
 
+const getEndOfDayUTC = (
+  dateStr: Date | string | number,
+  tz: string,
+): string => {
+  return dayjs.tz(dateStr, tz).endOf("day").utc().format();
+};
+
+const getPreviousDay = (
+  dateStr: Date | string | number,
+  tz: string,
+): string => {
+  return dayjs.tz(dateStr, tz).subtract(1, "day").format("YYYY-MM-DD");
+};
+
 /**
  * Returns a date formatted according to the specified language and time zone.
  * @param input Date | string | number (ISO8601, UNIX timestamp, Date object)
@@ -72,4 +86,6 @@ export {
   formatToLocalizedDate,
   convertToUTCTimestamp,
   addDaysAndConvertToUTC,
+  getEndOfDayUTC,
+  getPreviousDay,
 };

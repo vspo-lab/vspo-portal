@@ -4,6 +4,7 @@ import { fetchLivestreams } from "@/features/shared/api/livestream";
 import { Event, Livestream } from "@/features/shared/domain";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getSessionId } from "@/lib/utils";
+import { getPreviousDay } from "@vspo-lab/dayjs";
 import { SSRConfig } from "next-i18next";
 
 type Schedule = {
@@ -67,10 +68,30 @@ const fetchSchedule = async (
       ? results[0].value.val?.events || []
       : [];
 
-  const livestreams =
+  let livestreams =
     results[1].status === "fulfilled" && !results[1].value.err
       ? results[1].value.val?.livestreams || []
       : [];
+
+  // Fallback logic: if no livestreams found for current date, try previous day
+  if (livestreams.length === 0 && status === "all") {
+    const previousDay = getPreviousDay(startedDate, timeZone);
+    const fallbackResult = await fetchLivestreams({
+      limit,
+      lang: locale ?? "default",
+      status: "all",
+      order: order,
+      timezone: timeZone,
+      startedDate: previousDay,
+      memberType,
+      platform,
+      sessionId,
+    });
+
+    if (!fallbackResult.err && fallbackResult.val?.livestreams) {
+      livestreams = fallbackResult.val.livestreams;
+    }
+  }
 
   const translations =
     results[2].status === "fulfilled"
