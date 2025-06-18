@@ -23,6 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
+import { YouTubeEmbed } from "@next/third-parties/google";
 import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -121,6 +122,24 @@ const VideoPlayerComponent: React.FC<{ video: Video }> = ({ video }) => {
     videoPlayerLink: video.videoPlayerLink ?? "",
     platform: video.platform,
   });
+
+  // For YouTube videos, use YouTubeEmbed from @next/third-parties
+  if (video.platform === "youtube" && video.videoPlayerLink) {
+    // Extract video ID from YouTube embed URL
+    // Format: https://www.youtube.com/embed/VIDEO_ID or https://www.youtube.com/embed/VIDEO_ID?params
+    const videoIdMatch = video.videoPlayerLink.match(/embed\/([^?]+)/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : "";
+
+    if (videoId) {
+      return (
+        <ResponsiveIframeWrapper>
+          <YouTubeEmbed videoid={videoId} height={400} params="controls=1" />
+        </ResponsiveIframeWrapper>
+      );
+    }
+  }
+
+  // For other platforms, use the existing iframe implementation
   return (
     <ResponsiveIframeWrapper>
       <ResponsiveIframe
