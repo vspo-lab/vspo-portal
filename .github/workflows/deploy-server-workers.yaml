@@ -56,9 +56,9 @@ jobs:
             DISCORD_TRANSLATION_SETTING
             DISCORD_BOT_MAINTENANCE
             API_KEY
-            MASTRA_API_KEY
             MASTRA_AGENT_ID
-            MASTRA_BASE_URL
+            MASTRA_CF_ACCESS_CLIENT_ID
+            MASTRA_CF_ACCESS_CLIENT_SECRET
         env:
           ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
           OPENAI_ORGANIZATION: ${{ secrets.OPENAI_ORGANIZATION }}
@@ -76,6 +76,6 @@ jobs:
           DISCORD_TRANSLATION_SETTING: ${{ secrets.DISCORD_TRANSLATION_SETTING }}
           DISCORD_BOT_MAINTENANCE: ${{ secrets.DISCORD_BOT_MAINTENANCE }}
           API_KEY: ${{ secrets.API_KEY }}
-          MASTRA_API_KEY: ${{ secrets.MASTRA_API_KEY }}
           MASTRA_AGENT_ID: ${{ secrets.MASTRA_AGENT_ID }}
-          MASTRA_BASE_URL: ${{ secrets.MASTRA_BASE_URL }}
+          MASTRA_CF_ACCESS_CLIENT_ID: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_ID }}
+          MASTRA_CF_ACCESS_CLIENT_SECRET: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_SECRET }}
