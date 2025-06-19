@@ -1,7 +1,7 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, countDistinct, eq, isNull, sql } from "drizzle-orm";
 import {
   type ClipAnalysis,
   type ClipAnalysisInput,
@@ -202,7 +202,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
       async (span) => {
         const result = await wrap(
           db
-            .select({ count: sql<number>`count(*)::int` })
+            .select({ value: countDistinct(videoTable.id) })
             .from(videoTable)
             .leftJoin(
               clipAnalysisTable,
@@ -229,7 +229,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
           return Err(result.err);
         }
 
-        return Ok(result.val[0]?.count ?? 0);
+        return Ok(result.val[0]?.value ?? 0);
       },
     );
   };

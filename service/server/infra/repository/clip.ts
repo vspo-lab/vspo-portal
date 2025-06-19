@@ -48,6 +48,7 @@ type ListQuery = {
   includeDeleted?: boolean;
   clipType?: "clip" | "short";
   orderKey?: "publishedAt" | "viewCount";
+  videoIds?: string[]; // Filter by specific video IDs
   beforePublishedAtDate?: Date;
   afterPublishedAtDate?: Date;
 };
@@ -84,6 +85,10 @@ function buildFilters(query: ListQuery): SQL[] {
   }
   if (query.channelIds && query.channelIds.length > 0) {
     filters.push(inArray(videoTable.channelId, query.channelIds));
+  }
+
+  if (query.videoIds && query.videoIds.length > 0) {
+    filters.push(inArray(videoTable.id, query.videoIds));
   }
 
   if (query.afterPublishedAtDate) {

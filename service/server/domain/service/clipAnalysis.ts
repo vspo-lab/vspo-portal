@@ -21,6 +21,11 @@ export type ClipAnalysisResults = {
     processed: number;
     skipped: number;
     failed: number;
+    errors: Array<{
+      videoId: string;
+      error: string;
+      stage: "fetch" | "analyze" | "convert" | "save";
+    }>;
   };
 };
 
@@ -30,6 +35,11 @@ export type AnalysisStats = {
   newlyAnalyzed?: number;
   skipped?: number;
   failed?: number;
+  errors?: Array<{
+    videoId: string;
+    error: string;
+    stage: string;
+  }>;
 };
 
 // Configuration for rate limiting
@@ -86,11 +96,48 @@ export const createClipAnalysisService = (deps: {
       limit,
     });
 
+    const analysisResults: Array<{
+      videoId: string;
+      analysisResult: AnalysisResult;
+    }> = [];
+    const errors: Array<{
+      videoId: string;
+      error: string;
+      stage: "fetch" | "analyze" | "convert" | "save";
+    }> = [];
+    let skipped = 0;
+    let failed = 0;
+
     // Get unanalyzed video IDs
     const unanalyzedIds =
       await deps.clipAnalysisRepository.getUnanalyzedVideoIds(limit);
+
+    AppLogger.info("Fetched unanalyzed video IDs", {
+      service: SERVICE_NAME,
+      requestedLimit: limit,
+      actualCount: unanalyzedIds.err ? 0 : unanalyzedIds.val.length,
+    });
+
     if (unanalyzedIds.err) {
-      return unanalyzedIds;
+      AppLogger.error("Failed to get unanalyzed video IDs", {
+        service: SERVICE_NAME,
+        error: unanalyzedIds.err,
+      });
+      return Ok({
+        results: analysisResults,
+        stats: {
+          processed: 0,
+          skipped: 0,
+          failed: 1,
+          errors: [
+            {
+              videoId: "unknown",
+              error: unanalyzedIds.err.message,
+              stage: "fetch",
+            },
+          ],
+        },
+      });
     }
 
     if (unanalyzedIds.val.length === 0) {
@@ -103,11 +150,12 @@ export const createClipAnalysisService = (deps: {
           processed: 0,
           skipped: 0,
           failed: 0,
+          errors: [],
         },
       });
     }
 
-    // Fetch clip details
+    // Fetch clip details using the specific video IDs
     const clips = await deps.clipRepository.list({
       limit: unanalyzedIds.val.length,
       page: 0,
@@ -115,27 +163,31 @@ export const createClipAnalysisService = (deps: {
       includeDeleted: false,
       clipType: "clip",
       platform: "youtube",
+      videoIds: unanalyzedIds.val, // Filter by specific video IDs
     });
+
     if (clips.err) {
-      return clips;
+      AppLogger.error("Failed to fetch clips", {
+        service: SERVICE_NAME,
+        error: clips.err,
+      });
+      errors.push({
+        videoId: "batch",
+        error: clips.err.message,
+        stage: "fetch",
+      });
+      failed++;
     }
 
-    // Filter clips to only those in unanalyzed IDs
-    const clipsToAnalyze = clips.val.filter((clip) =>
-      unanalyzedIds.val.includes(clip.id),
-    );
+    // All fetched clips should be unanalyzed
+    const clipsToAnalyze = clips.err ? [] : clips.val;
 
     AppLogger.info("Clips to analyze", {
       service: SERVICE_NAME,
       count: clipsToAnalyze.length,
+      unanalyzedIdsCount: unanalyzedIds.val.length,
+      fetchedClipsCount: clips.err ? 0 : clips.val.length,
     });
-
-    const analysisResults: Array<{
-      videoId: string;
-      analysisResult: AnalysisResult;
-    }> = [];
-    let skipped = 0;
-    let failed = 0;
 
     // Process clips with rate limiting
     for (let i = 0; i < clipsToAnalyze.length; i++) {
@@ -144,10 +196,15 @@ export const createClipAnalysisService = (deps: {
       // Check if already analyzed (race condition protection)
       const existing = await deps.clipAnalysisRepository.findByVideoId(clip.id);
       if (existing.err) {
-        AppLogger.error("Failed to check existing analysis", {
+        AppLogger.warn("Failed to check existing analysis, continuing", {
           service: SERVICE_NAME,
           error: existing.err,
           clipId: clip.id,
+        });
+        errors.push({
+          videoId: clip.id,
+          error: existing.err.message,
+          stage: "fetch",
         });
         failed++;
         continue;
@@ -171,10 +228,15 @@ export const createClipAnalysisService = (deps: {
       });
 
       if (analysisResult.err) {
-        AppLogger.error("Failed to analyze clip", {
+        AppLogger.warn("Failed to analyze clip, continuing with next", {
           service: SERVICE_NAME,
           error: analysisResult.err,
           clipId: clip.id,
+        });
+        errors.push({
+          videoId: clip.id,
+          error: analysisResult.err.message,
+          stage: "analyze",
         });
         failed++;
         continue;
@@ -183,10 +245,15 @@ export const createClipAnalysisService = (deps: {
       // Convert the result
       const convertedResult = convertAnalysisResult(analysisResult.val);
       if (convertedResult.err) {
-        AppLogger.error("Failed to convert analysis result", {
+        AppLogger.warn("Failed to convert analysis result, continuing", {
           service: SERVICE_NAME,
           error: convertedResult.err,
           clipId: clip.id,
+        });
+        errors.push({
+          videoId: clip.id,
+          error: convertedResult.err.message,
+          stage: "convert",
         });
         failed++;
         continue;
@@ -195,6 +262,12 @@ export const createClipAnalysisService = (deps: {
       analysisResults.push({
         videoId: clip.id,
         analysisResult: convertedResult.val,
+      });
+
+      AppLogger.debug("Successfully analyzed clip", {
+        service: SERVICE_NAME,
+        clipId: clip.id,
+        progress: `${i + 1}/${clipsToAnalyze.length}`,
       });
 
       // Apply rate limiting
@@ -210,13 +283,21 @@ export const createClipAnalysisService = (deps: {
       }
     }
 
+    const finalStats = {
+      processed: analysisResults.length,
+      skipped,
+      failed,
+      errors,
+    };
+
+    AppLogger.info("Clip analysis completed", {
+      service: SERVICE_NAME,
+      stats: finalStats,
+    });
+
     return Ok({
       results: analysisResults,
-      stats: {
-        processed: analysisResults.length,
-        skipped,
-        failed,
-      },
+      stats: finalStats,
     });
   };
 
