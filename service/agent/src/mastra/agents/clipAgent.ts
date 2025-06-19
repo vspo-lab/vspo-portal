@@ -20,7 +20,7 @@ const generateOpenAIModel = (model: string) => {
 
 // Extract member names dynamically from vspoKeywordMap
 const vspoMemberNames = vspoKeywordMap.members
-  .map((member) => member.nameJp)
+  .map((member) => member.searchKeywords.join(", "))
   .join(", ");
 
 export const clipAgent = new Agent({
