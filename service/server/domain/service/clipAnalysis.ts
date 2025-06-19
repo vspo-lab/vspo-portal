@@ -114,6 +114,7 @@ export const createClipAnalysisService = (deps: {
       languageCode: "default",
       includeDeleted: false,
       clipType: "clip",
+      platform: "youtube",
     });
     if (clips.err) {
       return clips;

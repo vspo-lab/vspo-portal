@@ -146,6 +146,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
                 isNull(clipAnalysisTable.id),
                 eq(videoTable.videoType, "clip"),
                 eq(videoTable.deleted, false),
+                eq(videoTable.platformType, "youtube"),
               ),
             )
             .limit(limit)
@@ -212,6 +213,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
                 isNull(clipAnalysisTable.id),
                 eq(videoTable.videoType, "clip"),
                 eq(videoTable.deleted, false),
+                eq(videoTable.platformType, "youtube"),
               ),
             )
             .execute(),
