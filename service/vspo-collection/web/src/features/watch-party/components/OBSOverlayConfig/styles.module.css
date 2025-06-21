@@ -1,0 +1,247 @@
+.configButton {
+  margin-top: 8px;
+}
+
+.configPanel {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 400px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.configHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.configHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.configBody {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(90vh - 80px);
+}
+
+.configGroup {
+  margin-bottom: 20px;
+}
+
+.configGroup label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.configGroup select,
+.configGroup input[type="range"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.configGroup select:focus {
+  outline: none;
+  border-color: #ff0066;
+  box-shadow: 0 0 0 3px rgba(255, 0, 102, 0.1);
+}
+
+.configGroup input[type="range"] {
+  padding: 4px 0;
+}
+
+.toggleGroup {
+  margin-bottom: 20px;
+}
+
+.toggleGroup label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.toggleGroup input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.instructions {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.instructions h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.instructions ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.instructions li {
+  font-size: 13px;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+
+.urlSection {
+  margin-bottom: 20px;
+}
+
+.urlSection label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.urlDisplay {
+  display: flex;
+  gap: 8px;
+}
+
+.urlInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: monospace;
+  color: #374151;
+  background: #f9fafb;
+}
+
+.previewSection {
+  text-align: center;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.previewLink {
+  color: #ff0066;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.previewLink:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .configPanel {
+    background: #1f2937;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .configHeader {
+    border-bottom-color: #374151;
+  }
+
+  .configHeader h3 {
+    color: #f9fafb;
+  }
+
+  .closeButton {
+    color: #9ca3af;
+  }
+
+  .closeButton:hover {
+    background: #374151;
+    color: #f9fafb;
+  }
+
+  .configGroup label,
+  .toggleGroup label {
+    color: #d1d5db;
+  }
+
+  .configGroup select,
+  .urlInput {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .configGroup select:focus {
+    border-color: #ff0066;
+  }
+
+  .instructions {
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .instructions h4 {
+    color: #f9fafb;
+  }
+
+  .instructions li {
+    color: #d1d5db;
+  }
+
+  .urlSection label {
+    color: #d1d5db;
+  }
+
+  .previewSection {
+    border-top-color: #374151;
+  }
+}

@@ -13,12 +13,54 @@ export const AchievementSchema = z.object({
   unlocked: z.boolean(),
 });
 
+export const ActivitySchema = z.object({
+  id: z.string(),
+  type: z.enum(["watch", "like", "comment", "playlist", "watchparty"]),
+  title: z.string(),
+  vtuber: z.string(),
+  timestamp: z.string(),
+  thumbnail: z.string().optional(),
+});
+
+export const CollectionItemSchema = z.object({
+  id: z.string(),
+  type: z.enum(["clip", "playlist", "vtuber"]),
+  title: z.string(),
+  thumbnail: z.string(),
+  addedAt: z.string(),
+  metadata: z.record(z.string(), z.any()).optional(),
+});
+
+export const UserStatsSchema = z.object({
+  totalWatchTime: z.number(),
+  clipsWatched: z.number(),
+  playlistsCreated: z.number(),
+  watchPartiesJoined: z.number(),
+  favoriteVTuber: z.string(),
+  joinedDate: z.string(),
+});
+
 export const UserProfileSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  avatar: z.string(),
   level: z.number(),
   points: z.number(),
   dailyStreak: z.number(),
   onlineUsers: z.number(),
   achievements: z.array(AchievementSchema),
+  stats: UserStatsSchema,
+  recentActivity: z.array(ActivitySchema),
+  collection: z.array(CollectionItemSchema),
+  badges: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      icon: z.string(),
+      description: z.string(),
+      rarity: z.enum(["common", "rare", "epic", "legendary"]),
+    }),
+  ),
 });
 
 // VTuber Schemas
@@ -104,7 +146,11 @@ export const SparkleSchema = z.object({
 // Inferred Types
 export type UserLevel = z.infer<typeof UserLevelSchema>;
 export type Achievement = z.infer<typeof AchievementSchema>;
+export type Activity = z.infer<typeof ActivitySchema>;
+export type CollectionItem = z.infer<typeof CollectionItemSchema>;
+export type UserStats = z.infer<typeof UserStatsSchema>;
 export type UserProfile = z.infer<typeof UserProfileSchema>;
+export type Badge = z.infer<typeof UserProfileSchema>["badges"][0];
 export type VTuber = z.infer<typeof VTuberSchema>;
 export type LiveWatchParty = z.infer<typeof LiveWatchPartySchema>;
 export type Playlist = z.infer<typeof PlaylistSchema>;

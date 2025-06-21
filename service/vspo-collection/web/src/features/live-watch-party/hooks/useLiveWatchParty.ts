@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { LiveWatchParty } from "../../../common/types/schemas";
 
@@ -44,6 +47,7 @@ const initialLiveWatchParties: LiveWatchParty[] = [
 ];
 
 export const useLiveWatchParty = () => {
+  const router = useRouter();
   const [liveWatchParties] = useState<LiveWatchParty[]>(
     initialLiveWatchParties,
   );
@@ -53,20 +57,24 @@ export const useLiveWatchParty = () => {
     onPointsAdd: (points: number) => void,
   ) => {
     onPointsAdd(20);
-    alert(
-      `🎬 同時視聴ルームに参加します！\n\n${room.title}\n\nホスト: ${room.hostUser} ${room.hostBadge}\n参加者: ${room.viewers}人\nルームコード: ${room.roomCode}\n\n+20ポイント獲得！\n\nチャット機能でみんなと盛り上がろう！`,
-    );
+    // Navigate to the watch party room
+    router.push(`/watch-party/${room.id}`);
   };
 
   const handleCreateWatchParty = () => {
-    alert(
-      "🎬 同時視聴ルームを作成します！\n\n・動画を選択\n・ルーム名を設定\n・公開/非公開を選択\n・招待コードを生成\n\nみんなで一緒に推し活を楽しもう！",
-    );
+    // Navigate to the host dashboard
+    router.push("/watch-party/host");
+  };
+
+  const handleLeaveWatchParty = () => {
+    // In a real app, this would handle leaving the room
+    console.log("Leaving watch party...");
   };
 
   return {
     liveWatchParties,
     handleJoinWatchParty,
     handleCreateWatchParty,
+    handleLeaveWatchParty,
   };
 };

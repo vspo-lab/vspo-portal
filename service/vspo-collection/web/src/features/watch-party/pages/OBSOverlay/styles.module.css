@@ -1,0 +1,347 @@
+/* OBS Overlay Styles - Optimized for 1920x1080 */
+
+.obsOverlay {
+  position: fixed;
+  z-index: 9999;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  pointer-events: none;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Position Classes */
+.topLeft {
+  top: 40px;
+  left: 40px;
+}
+
+.topRight {
+  top: 40px;
+  right: 40px;
+}
+
+.bottomLeft {
+  bottom: 40px;
+  left: 40px;
+}
+
+.bottomRight {
+  bottom: 40px;
+  right: 40px;
+}
+
+.topCenter {
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottomCenter {
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Theme Classes */
+.themeDark {
+  color: #ffffff;
+  --bg-primary: rgba(0, 0, 0, 0.8);
+  --bg-secondary: rgba(0, 0, 0, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+}
+
+.themeLight {
+  color: #000000;
+  --bg-primary: rgba(255, 255, 255, 0.9);
+  --bg-secondary: rgba(255, 255, 255, 0.7);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --text-primary: #000000;
+  --text-secondary: rgba(0, 0, 0, 0.7);
+}
+
+.themeTransparent {
+  color: #ffffff;
+  --bg-primary: rgba(0, 0, 0, 0.3);
+  --bg-secondary: rgba(0, 0, 0, 0.2);
+  --border-color: rgba(255, 255, 255, 0.2);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Video Info */
+.videoInfo {
+  display: flex;
+  gap: 16px;
+  background: var(--bg-primary);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  max-width: 400px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.videoThumbnail {
+  position: relative;
+  width: 120px;
+  height: 68px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.videoThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playStatus {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.liveIndicator {
+  color: #ff0000;
+}
+
+.pausedIndicator {
+  color: #ffa500;
+}
+
+.videoDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.videoDetails h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.videoDetails p {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.progressBar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff0066, #ff3366);
+  transition: width 0.3s ease;
+}
+
+/* Viewer Count */
+.viewerCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-primary);
+  backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  border-radius: 24px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.viewerIcon {
+  font-size: 16px;
+}
+
+.viewerNumber {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.viewerLabel {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Reactions Container */
+.reactionsContainer {
+  position: fixed;
+  bottom: 120px;
+  right: 40px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  max-height: 400px;
+}
+
+.reaction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-secondary);
+  backdrop-filter: blur(10px);
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.reactionEmoji {
+  font-size: 24px;
+}
+
+.reactionUser {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Chat Overlay */
+.chatOverlay {
+  background: var(--bg-primary);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  width: 320px;
+  max-height: 400px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.chatHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chatMessages {
+  padding: 16px;
+  height: 300px;
+  overflow-y: auto;
+}
+
+.chatMessages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chatMessages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatMessages::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.chatPlaceholder {
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 100px;
+}
+
+/* Connection Status */
+.connectionStatus {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 12px;
+}
+
+.connected {
+  color: #00ff00;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 0, 0.8));
+}
+
+.disconnected {
+  color: #ff0000;
+  filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.8));
+}
+
+/* Responsive adjustments for smaller OBS canvas */
+@media (max-width: 1280px) {
+  .obsOverlay {
+    transform-origin: top left;
+  }
+
+  .videoInfo {
+    max-width: 320px;
+  }
+
+  .videoThumbnail {
+    width: 100px;
+    height: 56px;
+  }
+
+  .videoDetails h3 {
+    font-size: 12px;
+  }
+
+  .videoDetails p {
+    font-size: 11px;
+  }
+
+  .chatOverlay {
+    width: 280px;
+  }
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

@@ -10,7 +10,6 @@ import type {
 import { useOnlineUsers } from "../../../../shared/hooks/useOnlineUsers";
 import { useSparkleEffect } from "../../../../shared/hooks/useSparkleEffect";
 import { useLiveWatchParty } from "../../../live-watch-party/hooks/useLiveWatchParty";
-import { useNavigation } from "../../../navigation/hooks/useNavigation";
 import { useUserProfile } from "../../../user/hooks/useUserProfile";
 import { HomePagePresenter } from "./presenter";
 
@@ -130,6 +129,32 @@ const popularClips: Clip[] = [
     comments: 67,
     watchPartyActive: false,
   },
+  {
+    id: 5,
+    title: "【るなちゃん】FPSの天才現る！敵が見えてる説",
+    vtuber: "🌙 るなちゃん",
+    thumbnail: "/placeholder.svg?height=80&width=120",
+    duration: "4:15",
+    views: "156K",
+    clipper: "ゲーム切り抜き専門",
+    isExclusive: true,
+    likes: 4532,
+    comments: 298,
+    watchPartyActive: true,
+  },
+  {
+    id: 6,
+    title: "【ななちゃん】料理配信で大爆発www消防車呼んだ？",
+    vtuber: "⭐ ななちゃん",
+    thumbnail: "/placeholder.svg?height=80&width=120",
+    duration: "3:02",
+    views: "203K",
+    clipper: "事故系まとめ",
+    isExclusive: false,
+    likes: 5678,
+    comments: 412,
+    watchPartyActive: false,
+  },
 ];
 
 const recommendations: Recommendation[] = [
@@ -175,7 +200,6 @@ export const HomePageContainer = () => {
     useLiveWatchParty();
   const { sparkles, addSparkles } = useSparkleEffect();
   const onlineUsers = useOnlineUsers();
-  const navigation = useNavigation();
 
   // Event handlers
   const handleSearch = () => {
@@ -238,8 +262,6 @@ export const HomePageContainer = () => {
       trendingPlaylists={trendingPlaylists}
       popularClips={popularClips}
       recommendations={recommendations}
-      // Navigation
-      navigation={navigation}
       // Event handlers
       onSearch={handleSearch}
       onVideoClick={handleVideoClick}

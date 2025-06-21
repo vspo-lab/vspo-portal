@@ -1,0 +1,213 @@
+/* Video Player Container */
+.videoPlayerContainer {
+  position: relative;
+  background-color: black;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Controls fade animation */
+.videoControls {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.videoPlayerContainer:hover .videoControls {
+  opacity: 1;
+}
+
+/* Sync indicator animation */
+@keyframes syncPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.syncIndicator {
+  animation: syncPulse 2s ease-in-out infinite;
+}
+
+/* Buffering spinner */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.bufferingSpinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Quality badge */
+.qualityBadge {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+}
+
+/* Volume slider styling */
+.volumeSlider {
+  appearance: none;
+  width: 80px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volumeSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.volumeSlider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.volumeSlider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s ease;
+}
+
+.volumeSlider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Progress bar styling */
+.progressBar {
+  position: relative;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: height 0.1s ease;
+}
+
+.progressBar:hover {
+  height: 6px;
+}
+
+.progressFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #ef4444; /* Tailwind red-500 */
+  border-radius: 2px;
+  transition: width 0.1s ease-out;
+}
+
+.progressThumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.progressBar:hover .progressThumb {
+  opacity: 1;
+}
+
+/* Sync offset indicator */
+.syncOffset {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(251, 191, 36, 0.9); /* Tailwind amber-400 */
+  color: rgba(0, 0, 0, 0.8);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Host indicator */
+.hostIndicator {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #ef4444;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Settings menu */
+.settingsMenu {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 0.5rem;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  min-width: 200px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Reaction animation */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
+  }
+}
+
+.reaction {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  font-size: 2rem;
+  animation: floatUp 2s ease-out forwards;
+  pointer-events: none;
+}
