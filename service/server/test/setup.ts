@@ -15,6 +15,7 @@ import { createAIService } from "../infra/ai";
 import { createCloudflareKVCacheClient } from "../infra/cache";
 import { createAppContext } from "../infra/dependency";
 import { createDiscordClient } from "../infra/discord";
+import { createMastraService } from "../infra/mastra";
 import {
   type InsertVideo,
   channelTable,
@@ -192,6 +193,10 @@ export const setupTxManager = async () => {
     getArchive: async () => Ok([]),
   };
 
+  const bilibiliService = {
+    getStreams: async () => Ok([]),
+  };
+
   afterEach(async () => {
     await container.stop();
   });
@@ -201,6 +206,7 @@ export const setupTxManager = async () => {
     youtubeService,
     twitchService,
     twitcastingService,
+    bilibiliService,
     createAIService({
       apiKey: env.OPENAI_API_KEY,
       organization: env.OPENAI_ORGANIZATION,
@@ -209,5 +215,11 @@ export const setupTxManager = async () => {
     }),
     createDiscordClient(env),
     createCloudflareKVCacheClient(env.APP_KV),
+    createMastraService({
+      baseUrl: env.MASTRA_BASE_URL,
+      agentId: env.MASTRA_AGENT_ID,
+      cfAccessClientId: env.MASTRA_CF_ACCESS_CLIENT_ID,
+      cfAccessClientSecret: env.MASTRA_CF_ACCESS_CLIENT_SECRET,
+    }),
   );
 };

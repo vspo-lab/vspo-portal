@@ -65,7 +65,7 @@ export const createCreatorService = (deps: {
           memberType: params.memberType,
         });
 
-        AppLogger.info("Searching creators by member type", {
+        AppLogger.debug("Searching creators by member type", {
           service: SERVICE_NAME,
           memberType: params.memberType,
         });
@@ -122,7 +122,7 @@ export const createCreatorService = (deps: {
           })
           .filter((v) => v !== null);
 
-        AppLogger.info("Successfully found creators", {
+        AppLogger.debug("Successfully found creators", {
           service: SERVICE_NAME,
           count: creators.length,
         });
@@ -141,7 +141,7 @@ export const createCreatorService = (deps: {
       SERVICE_NAME,
       "searchCreatorsByChannelIds",
       async (span) => {
-        AppLogger.info("Searching creators by channel IDs", {
+        AppLogger.debug("Searching creators by channel IDs", {
           service: SERVICE_NAME,
           channelCount: params.length,
         });
@@ -180,13 +180,14 @@ export const createCreatorService = (deps: {
               twitCasting: null,
               twitch: null,
               niconico: null,
+              bilibili: null,
             },
             translated: false,
           });
           creators.push(creator);
         }
 
-        AppLogger.info("Successfully created creators", {
+        AppLogger.debug("Successfully created creators", {
           service: SERVICE_NAME,
           count: creators.length,
         });
@@ -203,7 +204,7 @@ export const createCreatorService = (deps: {
     creators: Creators;
   }): Promise<Result<Creators, AppError>> => {
     return withTracerResult(SERVICE_NAME, "translateCreators", async (span) => {
-      AppLogger.info("Translating creators", {
+      AppLogger.debug("Translating creators", {
         service: SERVICE_NAME,
         languageCode,
         creatorCount: creators.length,
@@ -226,7 +227,7 @@ export const createCreatorService = (deps: {
         };
       });
 
-      AppLogger.info("Successfully translated creators", {
+      AppLogger.debug("Successfully translated creators", {
         service: SERVICE_NAME,
         count: translatedCreators.length,
       });

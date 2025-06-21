@@ -10,6 +10,7 @@ import {
 } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { GetServerSideProps } from "next";
+import type { FavoriteSearchCondition } from "../../types/favorite";
 
 export type ScheduleStatusPageProps = {
   livestreams: Livestream[];
@@ -45,6 +46,17 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
     platform: customPlatform,
   } = context.query;
 
+  // Get favorite search conditions from cookie if available
+  let favoriteCondition: FavoriteSearchCondition | null = null;
+  const favoriteCookie = req.cookies["favorite-search-condition"];
+  if (favoriteCookie) {
+    try {
+      favoriteCondition = JSON.parse(favoriteCookie) as FavoriteSearchCondition;
+    } catch {
+      // Invalid JSON, ignore
+    }
+  }
+
   const startedDate =
     typeof customStartedDate === "string"
       ? customStartedDate
@@ -59,11 +71,19 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
 
   const order = status === "archive" ? "desc" : "asc";
 
+  // Use favorite conditions if available and valid, otherwise use query parameters
   const memberType =
-    typeof customMemberType === "string" ? customMemberType : undefined;
+    favoriteCondition?.memberType && favoriteCondition.memberType !== "vspo_all"
+      ? favoriteCondition.memberType
+      : typeof customMemberType === "string"
+        ? customMemberType
+        : undefined;
 
-  const platform =
-    typeof customPlatform === "string" ? customPlatform : undefined;
+  const platform = favoriteCondition?.platform
+    ? favoriteCondition.platform
+    : typeof customPlatform === "string"
+      ? customPlatform
+      : undefined;
 
   // Fetch data using fetchSchedule
   const schedule = await fetchSchedule({

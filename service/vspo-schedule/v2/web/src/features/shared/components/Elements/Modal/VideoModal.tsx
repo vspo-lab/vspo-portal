@@ -121,6 +121,7 @@ const VideoPlayerComponent: React.FC<{ video: Video }> = ({ video }) => {
     videoPlayerLink: video.videoPlayerLink ?? "",
     platform: video.platform,
   });
+
   return (
     <ResponsiveIframeWrapper>
       <ResponsiveIframe

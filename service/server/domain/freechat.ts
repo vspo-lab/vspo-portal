@@ -36,6 +36,8 @@ const FreechatSchema = BaseVideoSchema.transform((clip) => {
         "https://raw.githubusercontent.com/sugar-cat7/vspo-portal/main/service/server/assets/icon/twitcasting.png",
       niconico:
         "https://raw.githubusercontent.com/sugar-cat7/vspo-portal/main/service/server/assets/icon/niconico.png",
+      bilibili:
+        "https://raw.githubusercontent.com/sugar-cat7/vspo-portal/main/service/server/assets/icon/bilibili.png",
       unknown: "",
     };
     return platformIconURLs[platform] ?? "";

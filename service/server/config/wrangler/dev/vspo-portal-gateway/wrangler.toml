@@ -21,7 +21,7 @@ entrypoint = "ApplicationService"
 SERVICE_NAME = "dev-vspo-portal-gateway"
 ENVIRONMENT = "development"
 LOG_TYPE = "json"
-LOG_MINLEVEL = "1"
+LOG_MINLEVEL = "0"
 LOG_HIDE_POSITION = "true"
 
 [observability]

@@ -11,14 +11,6 @@ interface CustomLogger {
   error(message: string, fields?: Fields): void;
 }
 
-interface LogObject {
-  requestId?: string;
-  message?: string;
-  details?: Fields;
-  error?: Error;
-  service?: string;
-}
-
 interface LogContext {
   requestId: string;
   additionalFields?: Fields;
@@ -27,19 +19,59 @@ interface LogContext {
 
 const loggerStorage = new AsyncLocalStorage<LogContext>();
 
+// Add log level constants
+enum LogLevel {
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3,
+}
+
+// Add type for string log levels
+type LogLevelString = "debug" | "info" | "warn" | "error";
+
+// Add function to convert string to LogLevel
+function parseLogLevel(level: string | number): LogLevel {
+  if (typeof level === "number") {
+    return level as LogLevel;
+  }
+
+  const lowerLevel = level.toLowerCase() as LogLevelString;
+  switch (lowerLevel) {
+    case "debug":
+      return LogLevel.DEBUG;
+    case "info":
+      return LogLevel.INFO;
+    case "warn":
+      return LogLevel.WARN;
+    case "error":
+      return LogLevel.ERROR;
+    default:
+      console.warn(`Invalid log level: ${level}. Defaulting to DEBUG.`);
+      return LogLevel.DEBUG;
+  }
+}
+
 class AppLogger implements CustomLogger {
   private static instance: AppLogger;
+  private minLevel: LogLevel = LogLevel.DEBUG; // Default to DEBUG level
 
   private constructor() {}
 
   static getInstance(env?: {
     LOG_TYPE: string;
-    LOG_MINLEVEL: number;
+    LOG_MINLEVEL: string | number;
     LOG_HIDE_POSITION: boolean;
   }): AppLogger {
     if (!AppLogger.instance) {
       AppLogger.instance = new AppLogger();
     }
+
+    // Set minimum log level if provided
+    if (env?.LOG_MINLEVEL !== undefined) {
+      AppLogger.instance.minLevel = parseLogLevel(env.LOG_MINLEVEL);
+    }
+
     return AppLogger.instance;
   }
 
@@ -92,7 +124,13 @@ class AppLogger implements CustomLogger {
     AppLogger.getInstance().error(message, fields);
   }
 
+  private shouldLog(level: LogLevel): boolean {
+    return level >= this.minLevel;
+  }
+
   debug(message: string, fields?: Fields): void {
+    if (!this.shouldLog(LogLevel.DEBUG)) return;
+
     const context = this.getContext();
     console.debug(message, {
       requestId: context.requestId,
@@ -100,15 +138,11 @@ class AppLogger implements CustomLogger {
       ...(context.additionalFields || {}),
       ...fields,
     });
-    // this.loggerInstance.debug(message, {
-    //   requestId: context.requestId,
-    //   service: context.service,
-    //   ...(context.additionalFields || {}),
-    //   ...fields,
-    // });
   }
 
   info(message: string, fields?: Fields): void {
+    if (!this.shouldLog(LogLevel.INFO)) return;
+
     const context = this.getContext();
     console.info(message, {
       requestId: context.requestId,
@@ -116,15 +150,11 @@ class AppLogger implements CustomLogger {
       ...(context.additionalFields || {}),
       ...fields,
     });
-    // this.loggerInstance.info(message, {
-    //   requestId: context.requestId,
-    //   service: context.service,
-    //   ...(context.additionalFields || {}),
-    //   ...fields,
-    // });
   }
 
   warn(message: string, fields?: Fields): void {
+    if (!this.shouldLog(LogLevel.WARN)) return;
+
     const context = this.getContext();
     console.warn(message, {
       requestId: context.requestId,
@@ -132,15 +162,11 @@ class AppLogger implements CustomLogger {
       ...(context.additionalFields || {}),
       ...fields,
     });
-    // this.loggerInstance.warn(message, {
-    //   requestId: context.requestId,
-    //   service: context.service,
-    //   ...(context.additionalFields || {}),
-    //   ...fields,
-    // });
   }
 
   error(message: string, fields?: Fields): void {
+    if (!this.shouldLog(LogLevel.ERROR)) return;
+
     const context = this.getContext();
     console.error(message, {
       requestId: context.requestId,
@@ -148,13 +174,13 @@ class AppLogger implements CustomLogger {
       ...(context.additionalFields || {}),
       ...fields,
     });
-    // this.loggerInstance.error(message, {
-    //   requestId: context.requestId,
-    //   service: context.service,
-    //   ...(context.additionalFields || {}),
-    //   ...fields,
-    // });
   }
 }
 
-export { type CustomLogger, type LogContext, AppLogger };
+export {
+  type CustomLogger,
+  type LogContext,
+  AppLogger,
+  LogLevel,
+  type LogLevelString,
+};

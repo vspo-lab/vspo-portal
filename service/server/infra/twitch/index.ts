@@ -345,6 +345,7 @@ export const createTwitchService = (
               viewCount: clip.view_count,
               thumbnailURL: clip.thumbnail_url,
               link: clip.url,
+              duration: undefined, // Duration not available in Twitch clips API
             }),
           ),
         ),

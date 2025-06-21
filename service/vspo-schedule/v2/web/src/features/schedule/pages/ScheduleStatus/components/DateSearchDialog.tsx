@@ -1,4 +1,6 @@
+import { Delete, Star } from "@mui/icons-material";
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -6,14 +8,17 @@ import {
   DialogTitle,
   FormControl,
   FormGroup,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
   TextField,
+  Typography,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React from "react";
+import type { FavoriteSearchCondition } from "../../../types/favorite";
 
 // Type for date search form data
 export type DateSearchFormData = {
@@ -28,11 +33,17 @@ export type DateSearchDialogProps = {
   dateInputValue: string;
   formData: DateSearchFormData;
   isSearchEnabled: boolean;
+  favorite: FavoriteSearchCondition | null;
+  hasFavorite: boolean;
+  isSaveEnabled: boolean;
   onDateInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onMemberTypeChange: (event: SelectChangeEvent) => void;
   onPlatformChange: (event: SelectChangeEvent) => void;
   onSubmit: () => void;
   onClear: () => void;
+  onSaveFavorite: () => void;
+  onLoadFavorite: () => void;
+  onDeleteFavorite: () => void;
 };
 
 export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
@@ -41,11 +52,17 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
   dateInputValue,
   formData,
   isSearchEnabled,
+  favorite,
+  hasFavorite,
+  isSaveEnabled,
   onDateInputChange,
   onMemberTypeChange,
   onPlatformChange,
   onSubmit,
   onClear,
+  onSaveFavorite,
+  onLoadFavorite,
+  onDeleteFavorite,
 }) => {
   const { t } = useTranslation("schedule");
 
@@ -126,6 +143,70 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
             </Select>
           </FormControl>
         </FormGroup>
+
+        {/* お気に入り管理セクション */}
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            {t("search.favorites.save", "Favorite Search Conditions")}
+          </Typography>
+
+          {!hasFavorite ? (
+            <Button
+              variant="outlined"
+              onClick={onSaveFavorite}
+              disabled={!isSaveEnabled}
+              startIcon={<Star />}
+              fullWidth
+            >
+              {t("search.favorites.saveButton", "Save Current Conditions")}
+            </Button>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box
+                sx={{
+                  p: 2,
+                  border: 1,
+                  borderColor: "divider",
+                  borderRadius: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Star color="primary" />
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t("search.favorites.saved", "Saved Conditions")}
+                  </Typography>
+                  <Typography variant="body1">
+                    {`${t(`search.memberType.${favorite?.memberType === "vspo_all" ? "all" : favorite?.memberType?.replace("vspo_", "")}`, favorite?.memberType || "")} | ${favorite?.platform ? t(`search.platform.${favorite.platform}`, favorite.platform) : t("search.platform.all", "All Platforms")}`}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={onLoadFavorite}
+                  sx={{ flex: 1 }}
+                >
+                  {t("search.favorites.loadButton", "Load")}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={onSaveFavorite}
+                  disabled={!isSaveEnabled}
+                  sx={{ flex: 1 }}
+                >
+                  {t("search.favorites.saveButton", "Update")}
+                </Button>
+                <IconButton onClick={onDeleteFavorite} color="error">
+                  <Delete />
+                </IconButton>
+              </Box>
+            </Box>
+          )}
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClear}>{t("search.clear", "Clear")}</Button>

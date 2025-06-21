@@ -13,9 +13,9 @@ binding = "APP_WORKER"
 service = "dev-vspo-portal-app"
 entrypoint = "ApplicationService"
 
-[triggers]
+# [triggers]
 # crons = [ "0 0,7,18 * * *", "5 0,7,18 * * *", "*/2 * * * *", "*/30 * * * *", "*/1 * * * *" ]
-crons = [ "5 2 * * *" ]
+# crons = [ "5 2 * * *" ]
 
 [[workflows]]
 name = "dev-search-streams-workflow"
@@ -87,11 +87,21 @@ name = "dev-access-vspo-schedule-site-workflow"
 binding = "ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW"
 class_name = "AccessVspoScheduleSiteWorkflow"
 
+[[workflows]]
+name = "dev-fetch-clips-by-creator-workflow"
+binding = "FETCH_CLIPS_BY_CREATOR_WORKFLOW"
+class_name = "FetchClipsByCreatorWorkflow"
+
+[[workflows]]
+name = "dev-analyze-clips-workflow"
+binding = "ANALYZE_CLIPS_WORKFLOW"
+class_name = "AnalyzeClipsWorkflow"
+
 [vars]
 SERVICE_NAME = "dev-vspo-portal-cron"
 ENVIRONMENT = "development"
 LOG_TYPE = "json"
-LOG_MINLEVEL = "1"
+LOG_MINLEVEL = "0"
 LOG_HIDE_POSITION = "true"
 
 [observability]

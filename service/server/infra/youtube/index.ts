@@ -47,7 +47,8 @@ export type GetStreamsByChannelParams = {
 };
 
 export type SearchClipsParams = {
-  query: QueryKeys | string;
+  query?: QueryKeys | string;
+  channelId?: string;
   maxResults?: number;
   order: "relevance" | "date" | "rating" | "title" | "videoCount" | "viewCount";
 };
@@ -327,6 +328,7 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
               twitch: null,
               twitCasting: null,
               niconico: null,
+              bilibili: null,
             }),
           ),
         ),
@@ -412,15 +414,24 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
     params: SearchClipsParams,
   ): Promise<Result<Clips, AppError>> => {
     return withTracerResult("YoutubeService", "searchClips", async (span) => {
+      const searchParams: youtube_v3.Params$Resource$Search$List = {
+        part: ["snippet"],
+        maxResults: params.maxResults || 50,
+        type: ["video"],
+        safeSearch: "none",
+        order: params.order,
+      };
+
+      if (params.query) {
+        searchParams.q = params.query;
+      }
+
+      if (params.channelId) {
+        searchParams.channelId = params.channelId;
+      }
+
       const responseResult = await wrap(
-        youtube.search.list({
-          part: ["snippet"],
-          q: params.query,
-          maxResults: params.maxResults || 50,
-          type: ["video"],
-          safeSearch: "none",
-          order: params.order,
-        }),
+        youtube.search.list(searchParams),
         (err) =>
           new AppError({
             message: `Network error while fetching clips: ${err.message}`,
@@ -488,6 +499,8 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
         createClips(
           items.map((item) => {
             const videoId = item.id || "";
+            const duration = item.contentDetails?.duration || "";
+            const durationInSeconds = parseYoutubeDuration(duration);
             return createClip({
               id: "",
               rawId: videoId,
@@ -507,6 +520,7 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
                 item.snippet?.thumbnails?.high?.url ||
                 "",
               type: isYoutubeShort(item) ? "short" : "clip",
+              duration: durationInSeconds,
             });
           }) ?? [],
         ),

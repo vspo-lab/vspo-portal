@@ -13,6 +13,7 @@ export interface VspoClipMetricResult extends MetricResult {
     hasPermissionNumber: boolean;
     detectedMembers: string[];
     permissionNumber: string | null;
+    confidence: number;
   };
 }
 
@@ -34,6 +35,7 @@ export interface CategoryMatcherMetricResult extends MetricResult {
     confidence: number;
     isNewCategory: boolean;
     suggestedNewCategory: string | null;
+    gameTitle: string | null;
   };
 }
 
@@ -49,7 +51,10 @@ export class VspoClipCheckerMetric extends Metric {
     // Parse the input as VideoInput (assuming it's JSON)
     const videoInput: VideoInput = JSON.parse(input);
     const result = await this.judge.evaluate(videoInput);
-    const score = await this.calculateScore(result.isVspoClip);
+    const score = await this.calculateScore(
+      result.isVspoClip,
+      result.confidence,
+    );
     const reason = await this.judge.getReason(result);
 
     return {
@@ -61,8 +66,14 @@ export class VspoClipCheckerMetric extends Metric {
     };
   }
 
-  async calculateScore(isVspoClip: boolean): Promise<number> {
-    return isVspoClip ? 1 : 0;
+  async calculateScore(
+    isVspoClip: boolean,
+    confidence: number,
+  ): Promise<number> {
+    // Use confidence to weight the score
+    // If it's a vspo clip, return the confidence level
+    // If it's not a vspo clip, return 1 - confidence (higher confidence in "not vspo" = higher score)
+    return isVspoClip ? confidence : 1 - confidence;
   }
 }
 

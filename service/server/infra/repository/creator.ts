@@ -13,6 +13,7 @@ import {
   count as drizzleCount,
   eq,
   inArray,
+  sql,
 } from "drizzle-orm";
 import {
   type Channel,
@@ -27,8 +28,10 @@ import { buildConflictUpdateColumns } from "./helper";
 import {
   type InsertChannel,
   type InsertCreator,
+  type InsertCreatorClipFetchStatus,
   type InsertCreatorTranslation,
   channelTable,
+  creatorClipFetchStatusTable,
   creatorTable,
   creatorTranslationTable,
 } from "./schema";
@@ -41,12 +44,25 @@ type ListQuery = {
   languageCode?: string;
 };
 
+type ListByLastClipFetchQuery = {
+  limit: number;
+  offset: number;
+  memberType?: string;
+  languageCode?: string;
+};
+
 export interface ICreatorRepository {
   list(query: ListQuery): Promise<Result<Creators, AppError>>;
   count(query: ListQuery): Promise<Result<number, AppError>>;
   batchUpsert(creators: Creators): Promise<Result<Creators, AppError>>;
   batchDelete(creatorIds: string[]): Promise<Result<void, AppError>>;
   existsByChannelId(channelId: string): Promise<Result<boolean, AppError>>;
+  listByLastClipFetch(
+    query: ListByLastClipFetchQuery,
+  ): Promise<Result<Creators, AppError>>;
+  updateLastClipFetchedAt(
+    creatorIds: string[],
+  ): Promise<Result<void, AppError>>;
 }
 
 const buildFilters = (query: ListQuery): SQL[] => {
@@ -120,6 +136,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
               twitch: null,
               twitCasting: null,
               niconico: null,
+              bilibili: null,
             },
           });
         }
@@ -160,6 +177,16 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
         }
         if (r.channel.platformType === "niconico") {
           creator.channel.niconico = {
+            rawId: r.channel.platformChannelId,
+            name: r.channel.title,
+            description: r.channel.description,
+            thumbnailURL: r.channel.thumbnailUrl,
+            publishedAt: convertToUTC(r.channel.publishedAt),
+            subscriberCount: r.channel.subscriberCount,
+          };
+        }
+        if (r.channel.platformType === "bilibili") {
+          creator.channel.bilibili = {
             rawId: r.channel.platformChannelId,
             name: r.channel.title,
             description: r.channel.description,
@@ -423,11 +450,255 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
     );
   };
 
+  const listByLastClipFetch = async (
+    query: ListByLastClipFetchQuery,
+  ): Promise<Result<Creators, AppError>> => {
+    return withTracerResult(
+      "CreatorRepository",
+      "listByLastClipFetch",
+      async (span) => {
+        AppLogger.info("CreatorRepository listByLastClipFetch", {
+          query,
+        });
+
+        const filters: SQL[] = [];
+        const languageCode = query.languageCode || "default";
+
+        if (query.memberType) {
+          filters.push(eq(creatorTable.memberType, query.memberType));
+        }
+        filters.push(eq(creatorTranslationTable.languageCode, languageCode));
+
+        const creatorResult = await wrap(
+          db
+            .select()
+            .from(creatorTable)
+            .innerJoin(
+              channelTable,
+              eq(creatorTable.id, channelTable.creatorId),
+            )
+            .innerJoin(
+              creatorTranslationTable,
+              eq(creatorTable.id, creatorTranslationTable.creatorId),
+            )
+            .leftJoin(
+              creatorClipFetchStatusTable,
+              eq(creatorTable.id, creatorClipFetchStatusTable.creatorId),
+            )
+            .where(and(...filters))
+            .limit(query.limit)
+            .offset(query.offset)
+            .orderBy(
+              asc(creatorClipFetchStatusTable.lastFetchedAt),
+              asc(creatorTable.updatedAt),
+            )
+            .execute(),
+          (err) =>
+            new AppError({
+              message: `Database error during creator listByLastClipFetch query: ${err.message}`,
+              code: "INTERNAL_SERVER_ERROR",
+              cause: err,
+            }),
+        );
+
+        if (creatorResult.err) {
+          return Err(creatorResult.err);
+        }
+
+        type CreatorMapValue = {
+          id: string;
+          name: string;
+          memberType:
+            | "vspo_jp"
+            | "vspo_en"
+            | "vspo_ch"
+            | "vspo_all"
+            | "general";
+          languageCode: string;
+          thumbnailURL: string;
+          channels: Channel[];
+        };
+
+        const creatorMap = creatorResult.val.reduce(
+          (acc, row) => {
+            const creatorId = row.creator.id;
+            if (!acc[creatorId]) {
+              acc[creatorId] = {
+                id: creatorId,
+                name: row.creator_translation.name,
+                memberType: MemberTypeSchema.parse(row.creator.memberType),
+                languageCode: row.creator_translation.languageCode,
+                thumbnailURL: row.creator.representativeThumbnailUrl,
+                channels: [],
+              };
+            }
+
+            // Handle different platform types
+            if (
+              row.channel.platformType === "youtube" &&
+              !acc[creatorId].channels.some((c) => c.youtube)
+            ) {
+              acc[creatorId].channels.push({
+                youtube: {
+                  rawId: row.channel.platformChannelId,
+                  name: row.channel.title,
+                  description: row.channel.description,
+                  thumbnailURL: row.channel.thumbnailUrl,
+                  publishedAt: convertToUTC(row.channel.publishedAt),
+                  subscriberCount: row.channel.subscriberCount,
+                },
+              } as Channel);
+            } else if (
+              row.channel.platformType === "twitch" &&
+              !acc[creatorId].channels.some((c) => c.twitch)
+            ) {
+              acc[creatorId].channels.push({
+                twitch: {
+                  rawId: row.channel.platformChannelId,
+                  name: row.channel.title,
+                  description: row.channel.description,
+                  thumbnailURL: row.channel.thumbnailUrl,
+                  publishedAt: convertToUTC(row.channel.publishedAt),
+                  subscriberCount: row.channel.subscriberCount,
+                },
+              } as Channel);
+            } else if (
+              row.channel.platformType === "twitcasting" &&
+              !acc[creatorId].channels.some((c) => c.twitCasting)
+            ) {
+              acc[creatorId].channels.push({
+                twitCasting: {
+                  rawId: row.channel.platformChannelId,
+                  name: row.channel.title,
+                  description: row.channel.description,
+                  thumbnailURL: row.channel.thumbnailUrl,
+                  publishedAt: convertToUTC(row.channel.publishedAt),
+                  subscriberCount: row.channel.subscriberCount,
+                },
+              } as Channel);
+            } else if (
+              row.channel.platformType === "niconico" &&
+              !acc[creatorId].channels.some((c) => c.niconico)
+            ) {
+              acc[creatorId].channels.push({
+                niconico: {
+                  rawId: row.channel.platformChannelId,
+                  name: row.channel.title,
+                  description: row.channel.description,
+                  thumbnailURL: row.channel.thumbnailUrl,
+                  publishedAt: convertToUTC(row.channel.publishedAt),
+                  subscriberCount: row.channel.subscriberCount,
+                },
+              } as Channel);
+            } else if (
+              row.channel.platformType === "bilibili" &&
+              !acc[creatorId].channels.some((c) => c.bilibili)
+            ) {
+              acc[creatorId].channels.push({
+                bilibili: {
+                  rawId: row.channel.platformChannelId,
+                  name: row.channel.title,
+                  description: row.channel.description,
+                  thumbnailURL: row.channel.thumbnailUrl,
+                  publishedAt: convertToUTC(row.channel.publishedAt),
+                  subscriberCount: row.channel.subscriberCount,
+                },
+              } as Channel);
+            }
+
+            return acc;
+          },
+          {} as Record<string, CreatorMapValue>,
+        );
+
+        const creators = Object.values(creatorMap).map((creatorData) => {
+          const mergedChannel = {} as Channel;
+          for (const channel of creatorData.channels) {
+            Object.assign(mergedChannel, channel);
+          }
+
+          return {
+            id: creatorData.id,
+            name: creatorData.name,
+            memberType: creatorData.memberType,
+            languageCode: creatorData.languageCode,
+            thumbnailURL: creatorData.thumbnailURL,
+            channel: mergedChannel,
+          };
+        });
+
+        span.setAttribute("creator_count", creators.length);
+        return Ok(createCreators(creators));
+      },
+    );
+  };
+
+  const updateLastClipFetchedAt = async (
+    creatorIds: string[],
+  ): Promise<Result<void, AppError>> => {
+    return withTracerResult(
+      "CreatorRepository",
+      "updateLastClipFetchedAt",
+      async (span) => {
+        AppLogger.info("CreatorRepository updateLastClipFetchedAt", {
+          creatorIds,
+        });
+
+        if (creatorIds.length === 0) {
+          return Ok(undefined);
+        }
+
+        // Prepare batch upsert data
+        const now = getCurrentUTCDate();
+        const fetchStatusData: InsertCreatorClipFetchStatus[] = creatorIds.map(
+          (creatorId) => ({
+            id: createUUID(),
+            creatorId,
+            lastFetchedAt: now,
+            fetchCount: 1,
+            createdAt: now,
+            updatedAt: now,
+          }),
+        );
+
+        const result = await wrap(
+          db
+            .insert(creatorClipFetchStatusTable)
+            .values(fetchStatusData)
+            .onConflictDoUpdate({
+              target: creatorClipFetchStatusTable.creatorId,
+              set: {
+                lastFetchedAt: now,
+                fetchCount: sql`${creatorClipFetchStatusTable.fetchCount} + 1`,
+                updatedAt: now,
+              },
+            })
+            .execute(),
+          (err) =>
+            new AppError({
+              message: `Database error during updateLastClipFetchedAt: ${err.message}`,
+              code: "INTERNAL_SERVER_ERROR",
+              cause: err,
+            }),
+        );
+
+        if (result.err) {
+          return Err(result.err);
+        }
+
+        span.setAttribute("updated_count", creatorIds.length);
+        return Ok(undefined);
+      },
+    );
+  };
+
   return {
     list,
     count,
     batchUpsert,
     batchDelete,
     existsByChannelId,
+    listByLastClipFetch,
+    updateLastClipFetchedAt,
   };
 };

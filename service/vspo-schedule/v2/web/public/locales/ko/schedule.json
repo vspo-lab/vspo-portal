@@ -15,7 +15,18 @@
     "platform.niconico": "니코니코",
     "clear": "초기화",
     "cancel": "취소",
-    "search": "검색"
+    "search": "검색",
+    "favorites": {
+      "save": "즐곊찾기로 저장",
+      "load": "즐곊찾기 로드",
+      "delete": "즐곊찾기 삭제",
+      "saveButton": "현재 조건 저장",
+      "loadButton": "저장된 조건 로드",
+      "deleteButton": "삭제",
+      "saved": "검색 조건이 저장되었습니다",
+      "loaded": "즐곊찾기 검색 조건을 로드했습니다",
+      "deleted": "즐곊찾기가 삭제되었습니다"
+    }
   },
   "navigation": {
     "previousDay": "전날",

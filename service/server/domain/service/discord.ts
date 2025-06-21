@@ -129,7 +129,7 @@ export const createDiscordService = (dependencies: {
       SERVICE_NAME,
       "sendMessagesToChannel",
       async (span) => {
-        AppLogger.info("Sending messages to channels", {
+        AppLogger.debug("Sending messages to channels", {
           service: SERVICE_NAME,
           channelCount: options.channelIds.length,
           languageCode: options.channelLangaugeCode,
@@ -356,7 +356,7 @@ export const createDiscordService = (dependencies: {
             });
           }
 
-          AppLogger.info("Successfully sent messages to all channels", {
+          AppLogger.debug("Successfully sent messages to all channels", {
             service: SERVICE_NAME,
             successCount: results.filter((r) => r.status === "fulfilled")
               .length,
@@ -375,7 +375,7 @@ export const createDiscordService = (dependencies: {
     options: BotChannelAdjustmentParams,
   ): Promise<Result<DiscordServer, AppError>> => {
     return withTracerResult(SERVICE_NAME, "adjustBotChannel", async (span) => {
-      AppLogger.info("Adjusting bot channel", {
+      AppLogger.debug("Adjusting bot channel", {
         service: SERVICE_NAME,
         type: options.type,
         serverId: options.serverId,
@@ -524,7 +524,7 @@ export const createDiscordService = (dependencies: {
       SERVICE_NAME,
       "deleteAllMessagesInChannel",
       async (span) => {
-        AppLogger.info("Deleting all messages in channel", {
+        AppLogger.debug("Deleting all messages in channel", {
           service: SERVICE_NAME,
           channelId,
         });
@@ -544,7 +544,7 @@ export const createDiscordService = (dependencies: {
         }
         const adminMessages =
           adminMessagesResult.val?.filter((msg) => msg.type === "admin") ?? [];
-        AppLogger.info("Admin messages", {
+        AppLogger.debug("Admin messages", {
           service: SERVICE_NAME,
           channelId,
           adminMessages: adminMessages,
@@ -584,7 +584,7 @@ export const createDiscordService = (dependencies: {
           });
         }
 
-        AppLogger.info("Successfully deleted messages", {
+        AppLogger.debug("Successfully deleted messages", {
           service: SERVICE_NAME,
           channelId,
           successCount: p.filter((r) => r.status === "fulfilled").length,
@@ -647,7 +647,7 @@ export const createDiscordService = (dependencies: {
             channelResult.err.code === "NOT_FOUND" ||
             channelResult.err.code === "FORBIDDEN"
           ) {
-            AppLogger.info("Channel is deleted", {
+            AppLogger.debug("Channel is deleted", {
               service: SERVICE_NAME,
               channelId: options.channelId,
               serverId: options.serverId,

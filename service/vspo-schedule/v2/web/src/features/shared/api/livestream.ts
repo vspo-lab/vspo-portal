@@ -6,7 +6,7 @@ import {
   ListStreamsPlatform,
   VSPOApi,
 } from "@vspo-lab/api";
-import { addDaysAndConvertToUTC, convertToUTCTimestamp } from "@vspo-lab/dayjs";
+import { convertToUTCTimestamp, getEndOfDayUTC } from "@vspo-lab/dayjs";
 import { AppError, wrap } from "@vspo-lab/error";
 import { BaseError, Result } from "@vspo-lab/error";
 import { Livestream, Status, livestreamSchema } from "../domain";
@@ -92,7 +92,7 @@ export const fetchLivestreams = async (
         : undefined;
 
       const startDateTo = params.startedDate
-        ? addDaysAndConvertToUTC(params.startedDate, 1, params.timezone)
+        ? getEndOfDayUTC(params.startedDate, params.timezone)
         : undefined;
 
       const workerParams: {
@@ -159,7 +159,7 @@ export const fetchLivestreams = async (
         : undefined;
 
       const startDateTo = params.startedDate
-        ? addDaysAndConvertToUTC(params.startedDate, 1, params.timezone)
+        ? getEndOfDayUTC(params.startedDate, params.timezone)
         : undefined;
 
       const param: ListStreamsParams = {

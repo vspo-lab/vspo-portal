@@ -15,7 +15,18 @@
     "platform.niconico": "Niconico",
     "clear": "清除",
     "cancel": "取消",
-    "search": "搜尋"
+    "search": "搜尋",
+    "favorites": {
+      "save": "儲存為最愛",
+      "load": "載入最愛",
+      "delete": "刪除最愛",
+      "saveButton": "儲存目前條件",
+      "loadButton": "載入已儲存的條件",
+      "deleteButton": "刪除",
+      "saved": "搜尋條件已儲存",
+      "loaded": "已載入最愛的搜尋條件",
+      "deleted": "最愛已刪除"
+    }
   },
   "navigation": {
     "previousDay": "前一天",

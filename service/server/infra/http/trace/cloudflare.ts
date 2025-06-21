@@ -1,4 +1,3 @@
-import { type ResolveConfigFn, instrument } from "@microlabs/otel-cf-workers";
 import type { Span } from "@opentelemetry/api";
 import * as Sentry from "@sentry/cloudflare";
 import { AppError } from "@vspo-lab/error";
@@ -186,16 +185,6 @@ export const withTracer = async <T>(
   );
 };
 
-const config: ResolveConfigFn = (env: CommonEnv, _trigger) => {
-  return {
-    exporter: {
-      url: env.OTEL_EXPORTER_URL,
-      headers: { "x-api-key": env.BASELIME_API_KEY },
-    },
-    service: { name: env.SERVICE_NAME },
-  };
-};
-
 export type UnifiedEnv = CommonEnv & ApiEnv & AppWorkerEnv & BindingWorkflowEnv;
 
 type Handler<T = unknown, E = UnifiedEnv> = {
@@ -215,7 +204,6 @@ type Handler<T = unknown, E = UnifiedEnv> = {
 export const createHandler = <T, E extends UnifiedEnv = UnifiedEnv>(
   handler: Handler<T, E>,
 ) => {
-  const instrumentedHandler = instrument(handler, config);
   return Sentry.withSentry(
     (env) => ({
       dsn: env.SENTRY_DSN,
@@ -235,6 +223,6 @@ export const createHandler = <T, E extends UnifiedEnv = UnifiedEnv>(
       },
     }),
     // https://docs.sentry.io/platforms/javascript/guides/cloudflare/#setup-cloudflare-workers
-    instrumentedHandler as unknown as ExportedHandler<E>,
+    handler as unknown as ExportedHandler<E>,
   );
 };

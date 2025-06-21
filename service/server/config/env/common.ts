@@ -13,8 +13,6 @@ export const zCommonEnv = z.object({
     .string()
     .transform((s) => s === "true")
     .default("false"),
-  OTEL_EXPORTER_URL: z.string(),
-  BASELIME_API_KEY: z.string(),
   SENTRY_DSN: z.string(),
 });
 

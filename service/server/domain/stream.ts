@@ -48,6 +48,7 @@ const getStreamLink = (
     twitch: "https://www.twitch.tv/", // Base URL, specific paths added below
     twitcasting: "https://twitcasting.tv/",
     niconico: "https://www.nicovideo.jp/watch/",
+    bilibili: "https://live.bilibili.com/",
     unknown: "",
   };
 
@@ -66,6 +67,8 @@ const getStreamLink = (
         : ""; // Cannot construct link without channelId
     case "niconico":
       return `${platformLinks.niconico}${rawId}`;
+    case "bilibili":
+      return `${platformLinks.bilibili}${rawId}`;
     default:
       return "";
   }
@@ -162,6 +165,8 @@ const StreamSchema = BaseVideoSchema.extend({
         "https://raw.githubusercontent.com/sugar-cat7/vspo-portal/main/service/server/assets/icon/twitcasting.png",
       niconico:
         "https://raw.githubusercontent.com/sugar-cat7/vspo-portal/main/service/server/assets/icon/niconico.png",
+      bilibili:
+        "https://raw.githubusercontent.com/sugar-cat7/vspo-portal/main/service/server/assets/icon/bilibili.png",
       unknown: "",
     };
     return platformIconURLs[platform] ?? "";

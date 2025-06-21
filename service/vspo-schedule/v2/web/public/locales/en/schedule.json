@@ -15,7 +15,18 @@
     "platform.niconico": "Niconico",
     "clear": "Clear",
     "cancel": "Cancel",
-    "search": "Search"
+    "search": "Search",
+    "favorites": {
+      "save": "Save as Favorite",
+      "load": "Load Favorite",
+      "delete": "Delete Favorite",
+      "saveButton": "Save Current Conditions",
+      "loadButton": "Load Saved Conditions",
+      "deleteButton": "Delete",
+      "saved": "Search conditions saved",
+      "loaded": "Favorite search conditions loaded",
+      "deleted": "Favorite deleted"
+    }
   },
   "navigation": {
     "previousDay": "Previous Day",

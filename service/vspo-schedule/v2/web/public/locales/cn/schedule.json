@@ -15,7 +15,18 @@
     "platform.niconico": "Niconico",
     "clear": "清除",
     "cancel": "取消",
-    "search": "搜索"
+    "search": "搜索",
+    "favorites": {
+      "save": "保存为收藏",
+      "load": "加载收藏",
+      "delete": "删除收藏",
+      "saveButton": "保存当前条件",
+      "loadButton": "加载已保存的条件",
+      "deleteButton": "删除",
+      "saved": "搜索条件已保存",
+      "loaded": "已加载收藏的搜索条件",
+      "deleted": "收藏已删除"
+    }
   },
   "navigation": {
     "previousDay": "前一天",
