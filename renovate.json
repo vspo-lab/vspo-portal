@@ -1,10 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":semanticCommits",
-    ":dependencyDashboard"
-  ],
+  "extends": ["config:recommended", ":semanticCommits", ":dependencyDashboard"],
   "timezone": "Asia/Tokyo",
   "schedule": ["every weekday"],
   "rangeStrategy": "bump",
@@ -12,17 +8,11 @@
     "enabled": true,
     "schedule": ["before 4am on monday"]
   },
-  "ignorePaths": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/.next/**"
-  ],
+  "ignorePaths": ["**/node_modules/**", "**/dist/**", "**/.next/**"],
   "packageRules": [
     {
       "description": "Group workspace packages together",
-      "matchPackagePatterns": [
-        "^@vspo-lab/"
-      ],
+      "matchPackagePatterns": ["^@vspo-lab/"],
       "groupName": "workspace packages"
     },
     {

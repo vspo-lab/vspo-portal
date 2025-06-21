@@ -236,12 +236,12 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
     clientId: env.TWITCH_CLIENT_ID,
     clientSecret: env.TWITCH_CLIENT_SECRET,
   });
-const bilibiliService = createBilibiliService();
-const twitcastingService = createTwitcastingService({
-  clientId: env.TWITCASTING_CLIENT_ID,
-  clientSecret: env.TWITCASTING_CLIENT_SECRET,
-});
-const txManager = createTxManager({
+  const bilibiliService = createBilibiliService();
+  const twitcastingService = createTwitcastingService({
+    clientId: env.TWITCASTING_CLIENT_ID,
+    clientSecret: env.TWITCASTING_CLIENT_SECRET,
+  });
+  const txManager = createTxManager({
     connectionString:
       env.ENVIRONMENT === "local"
         ? env.DEV_DB_CONNECTION_STRING
