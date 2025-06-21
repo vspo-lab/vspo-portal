@@ -15,8 +15,8 @@
   "license": "MIT",
   "devDependencies": {
     "orval": "^7.9.0",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "dependencies": {
     "@vspo-lab/error": "workspace:^",

@@ -8,7 +8,8 @@ export const zAppWorkerEnv = z
     YOUTUBE_API_KEY: z.string(),
     TWITCH_CLIENT_ID: z.string(),
     TWITCH_CLIENT_SECRET: z.string(),
-    TWITCASTING_ACCESS_TOKEN: z.string(),
+    TWITCASTING_CLIENT_ID: z.string(),
+    TWITCASTING_CLIENT_SECRET: z.string(),
     DEV_DB_CONNECTION_STRING: z
       .string()
       .default("postgres://user:password@localhost:5432/vspo"),

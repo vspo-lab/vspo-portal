@@ -1,0 +1,64 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard"
+  ],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["every weekday"],
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 4am on monday"]
+  },
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.next/**"
+  ],
+  "packageRules": [
+    {
+      "description": "Group workspace packages together",
+      "matchPackagePatterns": [
+        "^@vspo-lab/"
+      ],
+      "groupName": "workspace packages"
+    },
+    {
+      "description": "Group catalog dependencies together",
+      "matchDepTypes": ["catalog"],
+      "groupName": "catalog dependencies"
+    },
+    {
+      "description": "Group minor and patch updates by package directory",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "{{parentDir}} minor updates"
+    },
+    {
+      "description": "Handle major updates separately with monthly schedule",
+      "matchUpdateTypes": ["major"],
+      "groupName": "major updates",
+      "schedule": ["before 4am on the first day of the month"],
+      "dependencyDashboardApproval": true
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update pnpm catalog versions",
+      "fileMatch": ["pnpm-workspace.yaml"],
+      "matchStrings": [
+        "\\s+(?<depName>[^:]+):\\s*['\"]?(?<currentValue>[^'\"\\s]+)['\"]?"
+      ],
+      "datasourceTemplate": "npm"
+    }
+  ],
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "branchPrefix": "renovate/",
+  "onboarding": false,
+  "requireConfig": "optional"
+}

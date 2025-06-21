@@ -44,7 +44,7 @@
     "@vspo-lab/error": "workspace:^",
     "@vspo-lab/logging": "workspace:^",
     "ai": "^4.3.1",
-    "dayjs": "^1.11.13",
+    "dayjs": "catalog:",
     "discord-hono": "^0.16.4",
     "drizzle-orm": "^0.41.0",
     "drizzle-zod": "^0.7.1",
@@ -56,19 +56,22 @@
     "tslog": "^4.9.3",
     "uuid": "^11.1.0",
     "valibot": "1.0.0",
-    "zod": "^3.24.2"
+    "zod": "catalog:",
+    "@vspo-lab/dayjs": "workspace:^",
+    "@vspo-lab/error": "workspace:^",
+    "@vspo-lab/logging": "workspace:^"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250502.0",
+    "@cloudflare/workers-types": "catalog:",
     "@testcontainers/postgresql": "^10.25.0",
     "@types/pg": "^8.11.14",
     "drizzle-kit": "^0.31.0",
     "nx": "20.8.1",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.3",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
     "vite": "^6.3.4",
     "vitest": "^3.1.2",
-    "wrangler": "^4.14.1"
+    "wrangler": "catalog:"
   },
   "nx": {}
 }

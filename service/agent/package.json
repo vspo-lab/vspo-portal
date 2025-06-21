@@ -23,12 +23,12 @@
     "@mastra/evals": "^0.10.1",
     "@mastra/libsql": "^0.10.0",
     "@mastra/memory": "^0.10.1",
-    "zod": "^3.25.36"
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^22.15.24",
+    "@types/node": "catalog:",
     "mastra": "^0.10.1",
-    "typescript": "^5.8.3",
-    "wrangler": "^4.18.0"
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
   }
 }
