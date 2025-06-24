@@ -12,6 +12,7 @@ import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import type { ICreatorRepository } from "../../infra/repository/creator";
 import { createUUID } from "../../pkg/uuid";
 import { type Clips, isVspoClip } from "../clip";
+import type { ICreatorClipFetchService } from "./creatorClipFetch";
 
 export interface IClipService {
   searchNewVspoClipsAndNewCreators(): Promise<
@@ -58,6 +59,7 @@ export const createClipService = (deps: {
   youtubeClient: IYoutubeService;
   twitchClient: ITwitchService;
   creatorRepository: ICreatorRepository;
+  creatorClipFetchService: ICreatorClipFetchService;
 }): IClipService => {
   const SERVICE_NAME = "ClipService";
 

@@ -58,10 +58,6 @@ import {
   createClipAnalysisInteractor,
 } from "../../usecase/clipAnalysis";
 import {
-  type ICreatorClipFetchInteractor,
-  createCreatorClipFetchInteractor,
-} from "../../usecase/creatorClipFetch";
-import {
   type IDiscordInteractor,
   createDiscordInteractor,
 } from "../../usecase/discord";
@@ -127,6 +123,10 @@ export function createServices(
   cacheClient: ICacheClient,
   mastraService: IMastraService,
 ): IServices {
+  const creatorClipFetchService = createCreatorClipFetchService({
+    youtubeClient,
+  });
+
   return {
     creatorService: createCreatorService({
       youtubeClient,
@@ -155,15 +155,14 @@ export function createServices(
       youtubeClient,
       twitchClient,
       creatorRepository: repos.creatorRepository,
+      creatorClipFetchService,
     }),
     clipAnalysisService: createClipAnalysisService({
       mastraService,
       clipRepository: repos.clipRepository,
       clipAnalysisRepository: repos.clipAnalysisRepository,
     }),
-    creatorClipFetchService: createCreatorClipFetchService({
-      youtubeClient,
-    }),
+    creatorClipFetchService,
   };
 }
 
@@ -222,7 +221,6 @@ export interface IContainer {
   readonly streamInteractor: IStreamInteractor;
   readonly clipInteractor: IClipInteractor;
   readonly clipAnalysisInteractor: IClipAnalysisInteractor;
-  readonly creatorClipFetchInteractor: ICreatorClipFetchInteractor;
   readonly discordInteractor: IDiscordInteractor;
   readonly eventInteractor: IEventInteractor;
   readonly freechatInteractor: IFreechatInteractor;
@@ -279,7 +277,6 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
   const discordInteractor = createDiscordInteractor(context);
   const clipInteractor = createClipInteractor(context);
   const clipAnalysisInteractor = createClipAnalysisInteractor(context);
-  const creatorClipFetchInteractor = createCreatorClipFetchInteractor(context);
   const eventInteractor = createEventInteractor(context);
   const freechatInteractor = createFreechatInteractor(context);
 
@@ -289,7 +286,6 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
     streamInteractor,
     clipInteractor,
     clipAnalysisInteractor,
-    creatorClipFetchInteractor,
     discordInteractor,
     eventInteractor,
     freechatInteractor,
