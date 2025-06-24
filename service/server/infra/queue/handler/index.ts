@@ -17,7 +17,8 @@ export type Kind =
   | "discord-send-message"
   | "upsert-discord-server"
   | "delete-message-in-channel"
-  | "upsert-clip";
+  | "upsert-clip"
+  | "fetch-clips-by-creator";
 
 export type MessageParam = unknown & { kind: Kind };
 

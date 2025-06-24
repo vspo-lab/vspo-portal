@@ -40,32 +40,20 @@ export const fetchClipsByCreatorWorkflow = () => {
               "fetch-clips-by-creator",
               async (span) => {
                 const cu = await env.APP_WORKER.newClipUsecase();
-                const ccfu = await env.APP_WORKER.newCreatorClipFetchUsecase();
 
-                // Fetch clips for creators
-                const result = await ccfu.fetchClipsByCreator({
+                // Enqueue the fetch clips by creator operation
+                await cu.fetchClipsByCreatorEnqueue({
                   batchSize: params.batchSize,
                   memberType: params.memberType,
                 });
 
-                if (result.err) {
-                  AppLogger.error("Failed to fetch clips by creator", {
-                    error: result.err,
-                    params,
-                  });
-                  throw result.err;
-                }
+                span.setAttribute("enqueued", true);
+                span.setAttribute("batch_size", params.batchSize || "default");
+                span.setAttribute("member_type", params.memberType || "all");
 
-                const { clips, processedCreatorCount, hasMore } = result.val;
-
-                span.setAttribute("clips_count", clips.length);
-                span.setAttribute("processed_creators", processedCreatorCount);
-                span.setAttribute("has_more", hasMore);
-
-                AppLogger.info("Fetched clips by creator", {
-                  clipsCount: clips.length,
-                  processedCreators: processedCreatorCount,
-                  hasMore,
+                AppLogger.info("Enqueued fetch clips by creator operation", {
+                  batchSize: params.batchSize,
+                  memberType: params.memberType,
                 });
               },
             );
