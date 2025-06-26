@@ -21,7 +21,8 @@
       "list": "스트림",
       "clip": "클립",
       "twitch-clip": "Twitch 클립",
-      "event": "이벤트"
+      "event": "이벤트",
+      "multiview": "멀티뷰"
     }
   },
   "drawer": {
@@ -32,6 +33,7 @@
       "freechat": "프리챗",
       "clip": "클립",
       "twitch-clip": "Twitch 클립",
+      "multiview": "멀티뷰",
       "about": "Spodule 소개",
       "site-news": "사이트 뉴스",
       "qa": "문의하기",

@@ -21,7 +21,8 @@
       "list": "直播列表",
       "clip": "剪辑",
       "twitch-clip": "Twitch 剪辑",
-      "event": "活动"
+      "event": "活动",
+      "multiview": "多窗口视图"
     }
   },
   "drawer": {
@@ -32,6 +33,7 @@
       "freechat": "自由聊天",
       "clip": "剪辑列表",
       "twitch-clip": "Twitch 剪辑列表",
+      "multiview": "多窗口视图",
       "about": "关于Spodule",
       "site-news": "网站新闻",
       "qa": "联系我们",

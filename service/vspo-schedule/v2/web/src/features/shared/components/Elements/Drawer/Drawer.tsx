@@ -33,6 +33,7 @@ const drawerNavigationSections: NavSectionProps[] = [
       { id: "upcoming" },
       { id: "archive" },
       { id: "freechat" },
+      { id: "multiview" },
     ],
   },
   {

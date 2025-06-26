@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "title": "VSPO! 멀티뷰",
+    "description": "여러 VSPO! 멤버의 방송을 동시에 시청할 수 있는 멀티뷰어입니다."
+  },
+  "title": "멀티뷰",
+  "description": "여러 방송을 동시에 시청할 수 있습니다. 최대 9개까지 선택 가능합니다.",
+  "player": {
+    "dragHandle": {
+      "ariaLabel": "{{channelTitle}} 스트림을 드래그하여 이동",
+      "tooltip": "스트림 이동"
+    },
+    "error": {
+      "title": "로딩 오류",
+      "description": "스트림 로딩에 실패했습니다"
+    }
+  },
+  "viewer": {
+    "title": "멀티뷰어",
+    "empty": {
+      "title": "시청할 스트림을 선택하세요",
+      "description": "오른쪽 패널에서 스트림을 선택하여 멀티뷰를 시작하세요"
+    }
+  },
+  "layout": {
+    "title": "레이아웃 설정"
+  },
+  "selector": {
+    "title": "스트림 선택",
+    "status": {
+      "upcoming": "예정"
+    }
+  },
+  "playback": {
+    "title": "재생 컨트롤"
+  },
+  "grid": {
+    "empty": {
+      "title": "스트림을 선택해주세요",
+      "description": "오른쪽 패널에서 스트림을 선택하거나 URL을 입력하여 추가해주세요"
+    }
+  },
+  "urlInput": {
+    "sectionTitle": "URL로 추가",
+    "description": "YouTube, Twitch 등의 플랫폼 URL로 직접 스트림을 추가할 수 있습니다",
+    "placeholder": "스트림 URL을 입력하세요",
+    "add": "추가",
+    "adding": "추가 중...",
+    "maxStreamsReached": "최대 {{count}}개까지 선택할 수 있습니다",
+    "streamCount": "{{current}}/{{max}} 스트림 선택됨",
+    "supportedPlatforms": {
+      "title": "지원 플랫폼:",
+      "list": "YouTube, Twitch"
+    },
+    "error": {
+      "emptyUrl": "URL을 입력해주세요",
+      "maxStreams": "최대 {{max}}개까지 선택할 수 있습니다",
+      "unsupportedUrl": "지원하지 않는 URL입니다",
+      "alreadyAdded": "이미 추가된 스트림입니다",
+      "parseFailed": "URL 분석에 실패했습니다"
+    }
+  },
+  "controls": {
+    "globalVolume": "전체 볼륨",
+    "individualVolume": "개별 볼륨",
+    "streamVolume": "{{title}} 볼륨",
+    "syncMode": "동기화 모드",
+    "twitchNote": "※ Twitch 스트림은 수동으로 제어해야 합니다",
+    "twitchManual": "Twitch는 수동으로 제어해야 합니다",
+    "global": {
+      "playPause": "모두 {{status}}",
+      "mute": "모두 {{status}}"
+    },
+    "stream": {
+      "playPause": "{{status}}",
+      "mute": "{{status}}",
+      "setPrimary": "주 스트림으로 설정",
+      "fullscreen": "전체화면",
+      "pip": "화면 속 화면"
+    },
+    "streams": {
+      "title": "개별 컨트롤",
+      "primary": "주 스트림",
+      "fullscreen": "전체화면",
+      "pip": "PiP"
+    },
+    "fullscreen": {
+      "enter": "전체화면 진입",
+      "exit": "전체화면 종료"
+    },
+    "pip": {
+      "enter": "화면 속 화면",
+      "exit": "PiP 종료"
+    },
+    "sync": {
+      "toggle": "동기화 모드 {{status}}",
+      "enable": "동기화 모드",
+      "syncAll": "모두 동기화"
+    },
+    "audioMix": {
+      "toggle": "믹스 모드 {{status}}",
+      "enable": "오디오 믹스",
+      "primary": "주 오디오"
+    },
+    "advanced": {
+      "toggle": "고급 설정",
+      "title": "고급 설정"
+    },
+    "keyboard": {
+      "title": "키보드 단축키",
+      "playPause": "재생/일시정지",
+      "mute": "음소거",
+      "fullscreen": "전체화면",
+      "pip": "PiP",
+      "sync": "동기화 모드",
+      "audioMix": "믹스 모드",
+      "volumeUp": "볼륨 업",
+      "volumeDown": "볼륨 다운"
+    }
+  },
+  "fullscreen": {
+    "enter": "전체화면 진입",
+    "exit": "전체화면 종료"
+  },
+  "controlPanel": {
+    "show": "레이아웃 설정 표시",
+    "hide": "레이아웃 설정 숨기기"
+  }
+}

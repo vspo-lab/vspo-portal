@@ -14,6 +14,7 @@ const bottomNavigationRoutes = [
   "list",
   "clip",
   "event",
+  "multiview",
 ] satisfies NavigationRouteId[];
 
 const getActiveNavOption = (activePath: string, timeZone: string) => {

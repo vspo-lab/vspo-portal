@@ -328,39 +328,39 @@ export default createHandler({
           );
           break;
         case "0 */12 * * *":
-          await withTracer(
-            "CronJob",
-            "fetch-clips-by-creator",
-            async (creatorClipsSpan) => {
-              AppLogger.info("fetch-clips-by-creator");
-              creatorClipsSpan.setAttribute(
-                "workflow",
-                "fetch-clips-by-creator",
-              );
-              await env.FETCH_CLIPS_BY_CREATOR_WORKFLOW.create({
-                id: createUUID(),
-                params: {
-                  batchSize: 300,
-                },
-              });
-            },
-          );
+          // await withTracer(
+          //   "CronJob",
+          //   "fetch-clips-by-creator",
+          //   async (creatorClipsSpan) => {
+          //     AppLogger.info("fetch-clips-by-creator");
+          //     creatorClipsSpan.setAttribute(
+          //       "workflow",
+          //       "fetch-clips-by-creator",
+          //     );
+          //     await env.FETCH_CLIPS_BY_CREATOR_WORKFLOW.create({
+          //       id: createUUID(),
+          //       params: {
+          //         batchSize: 300,
+          //       },
+          //     });
+          //   },
+          // );
           break;
         case "0 * * * *":
-          await withTracer(
-            "CronJob",
-            "analyze-clips",
-            async (analyzeClipsSpan) => {
-              AppLogger.info("analyze-clips");
-              analyzeClipsSpan.setAttribute("workflow", "analyze-clips");
-              await env.ANALYZE_CLIPS_WORKFLOW.create({
-                id: createUUID(),
-                params: {
-                  batchSize: 100,
-                },
-              });
-            },
-          );
+          // await withTracer(
+          //   "CronJob",
+          //   "analyze-clips",
+          //   async (analyzeClipsSpan) => {
+          //     AppLogger.info("analyze-clips");
+          //     analyzeClipsSpan.setAttribute("workflow", "analyze-clips");
+          //     await env.ANALYZE_CLIPS_WORKFLOW.create({
+          //       id: createUUID(),
+          //       params: {
+          //         batchSize: 100,
+          //       },
+          //     });
+          //   },
+          // );
           break;
         default:
           console.error("Unknown cron", controller.cron);

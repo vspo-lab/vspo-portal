@@ -7,6 +7,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import EventIcon from "@mui/icons-material/Event";
+import GridViewIcon from "@mui/icons-material/GridView";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoIcon from "@mui/icons-material/Info";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
@@ -82,6 +83,8 @@ export const DrawerIcon: React.FC<DrawerIconProps> = ({ id }) => {
       return <InfoIcon />;
     case "discord":
       return <FontAwesomeIcon icon={faDiscord} style={{ height: "20px" }} />;
+    case "multiview":
+      return <GridViewIcon />;
     default:
       return <></>;
   }
