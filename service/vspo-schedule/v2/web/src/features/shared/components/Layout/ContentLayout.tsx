@@ -33,6 +33,12 @@ const StyledContainer = styled(Container, {
     padding: theme.spacing(2),
     paddingTop: padTop ? theme.spacing(3) : 0,
   },
+
+  // Minimal padding for multiview page
+  "&.multiview-container": {
+    padding: 0,
+    paddingTop: 0,
+  },
 })) as OverridableComponent<ContainerTypeMap<StyledContainerProps>>;
 
 export const ContentLayout = ({
@@ -72,7 +78,12 @@ export const ContentLayout = ({
       />
       <Header title={title} />
       <AlertSnackbar open={alertOpen} onClose={handleAlertClose} />
-      <StyledContainer component="main" maxWidth={maxPageWidth} padTop={padTop}>
+      <StyledContainer
+        component="main"
+        maxWidth={maxPageWidth}
+        padTop={padTop}
+        className={path === "/multiview" ? "multiview-container" : ""}
+      >
         {children}
       </StyledContainer>
       {/* <GoogleAd /> */}

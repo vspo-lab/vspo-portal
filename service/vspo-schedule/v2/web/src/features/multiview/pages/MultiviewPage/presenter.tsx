@@ -38,8 +38,8 @@ import { LayoutType, useMultiviewLayout } from "../../hooks/useMultiviewLayout";
 
 // Styled components
 const HeaderSection = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(2),
+  padding: theme.spacing(1.5),
+  marginBottom: theme.spacing(1),
   backgroundColor: "white",
   borderRadius: theme.shape.borderRadius,
   boxShadow: theme.shadows[1],
@@ -53,7 +53,7 @@ const HeaderSection = styled(Paper)(({ theme }) => ({
 const HeaderTitle = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  marginBottom: theme.spacing(1),
+  marginBottom: theme.spacing(0.5),
   color: theme.palette.text.primary,
   [theme.getColorSchemeSelector("dark")]: {
     color: "white",
@@ -76,14 +76,14 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
 const ControlsPanel = styled(Paper)<{ collapsed?: boolean }>(
   ({ theme, collapsed = false }) => ({
     position: "fixed",
-    right: collapsed ? "-500px" : theme.spacing(1), // Move off-screen when collapsed
+    right: collapsed ? "-400px" : theme.spacing(0.5), // Move off-screen when collapsed
     top: "50%",
     transform: "translateY(-50%)",
-    width: "450px",
+    width: "360px",
     maxHeight: "80vh",
     overflowY: "auto",
     overflowX: "hidden",
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
     backgroundColor: "rgba(255, 255, 255, 0.95)",
     backdropFilter: "blur(10px)",
     boxShadow: theme.shadows[8],
@@ -231,10 +231,10 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
       <Container
         maxWidth={false}
         sx={{
-          pt: 2,
-          pb: 1,
+          pt: 1,
+          pb: 0.5,
           backgroundColor: "transparent",
-          px: { xs: 1, sm: 2, md: 3 },
+          px: { xs: 0.5, sm: 1, md: 1.5 },
         }}
       >
         <HeaderSection elevation={1}>
@@ -283,12 +283,12 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         <Box
           sx={{
             width: "100%",
-            px: { xs: 0.5, sm: 1, md: 2 },
-            pb: 2,
+            px: { xs: 0.25, sm: 0.5, md: 0.75 },
+            pb: 1,
             pr:
               isLargeScreen && !controlsPanelCollapsed
-                ? "470px"
-                : { xs: 0.5, sm: 1, md: 2 }, // Space for fixed controls on large screens
+                ? "370px"
+                : { xs: 0.25, sm: 0.5, md: 0.75 }, // Space for fixed controls on large screens
             transition: "padding-right 0.3s ease", // Smooth transition when panel opens/closes
             backgroundColor: "transparent",
           }}
