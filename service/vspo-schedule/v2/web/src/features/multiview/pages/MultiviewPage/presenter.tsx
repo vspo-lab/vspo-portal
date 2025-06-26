@@ -454,9 +454,9 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                   </Box>
                   <Collapse in={!streamSelectorCollapsed}>
                     <StreamSelector
-                      livestreams={livestreams}
+                      streams={livestreams}
                       selectedStreams={selectedStreams}
-                      onStreamSelection={onStreamSelection}
+                      onStreamSelect={onStreamSelection}
                     />
                   </Collapse>
                 </Box>

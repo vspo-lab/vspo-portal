@@ -172,7 +172,32 @@ export const VideoPlayerPresenter = forwardRef<
           // Enable YouTube iframe API with proper parameters
           return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${window.location.origin}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
         } else if (stream.platform === "twitch") {
-          const channelName = stream.channelId || stream.id;
+          // Extract channel name from different sources
+          let channelName = "";
+
+          // Try to extract from videoPlayerLink first
+          if (stream.videoPlayerLink) {
+            const match = stream.videoPlayerLink.match(/channel=([^&]+)/);
+            if (match) {
+              channelName = match[1];
+            }
+          }
+
+          // If not found, try link property
+          if (!channelName && stream.link) {
+            const match = stream.link.match(/twitch\.tv\/([^/?]+)/);
+            if (match) {
+              channelName = match[1];
+            }
+          }
+
+          // Fallback to channelId or id
+          if (!channelName) {
+            channelName = stream.channelId || stream.id;
+          }
+
+          // Debug info removed for production
+
           // Enable Twitch iframe API with proper parent domain
           const parentDomain = window.location.hostname;
           return `https://player.twitch.tv/?channel=${channelName}&parent=${parentDomain}&autoplay=false&muted=${muted}&controls=true`;
