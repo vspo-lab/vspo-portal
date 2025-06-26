@@ -3,51 +3,44 @@ import React, { useState, useMemo } from "react";
 import { StreamSelectorPresenter } from "../presenters";
 
 export type StreamSelectorProps = {
-  livestreams: Livestream[];
+  streams: Livestream[];
   selectedStreams: Livestream[];
-  onStreamSelection: (stream: Livestream) => void;
+  onStreamSelect: (stream: Livestream) => void;
 };
 
 export const StreamSelector: React.FC<StreamSelectorProps> = ({
-  livestreams,
+  streams,
   selectedStreams,
-  onStreamSelection,
+  onStreamSelect,
 }) => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "live" | "upcoming">(
     "all",
   );
 
   const filteredStreams = useMemo(() => {
-    return livestreams.filter((stream) => {
-      // Filter by status
-      if (statusFilter === "live" && stream.status !== "live") return false;
-      if (statusFilter === "upcoming" && stream.status !== "upcoming")
-        return false;
+    let filtered = streams;
 
-      // Filter by search query
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        return (
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((stream) => stream.status === statusFilter);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (stream) =>
           stream.title.toLowerCase().includes(query) ||
-          stream.channelTitle.toLowerCase().includes(query)
-        );
-      }
+          stream.channelTitle.toLowerCase().includes(query),
+      );
+    }
 
-      return true;
-    });
-  }, [livestreams, searchQuery, statusFilter]);
+    return filtered;
+  }, [streams, statusFilter, searchQuery]);
 
   const handleStreamClick = (stream: Livestream) => {
-    onStreamSelection(stream);
-  };
-
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleStatusFilterChange = (status: "all" | "live" | "upcoming") => {
-    setStatusFilter(status);
+    onStreamSelect(stream);
   };
 
   return (
@@ -57,8 +50,8 @@ export const StreamSelector: React.FC<StreamSelectorProps> = ({
       searchQuery={searchQuery}
       statusFilter={statusFilter}
       onStreamClick={handleStreamClick}
-      onSearchChange={handleSearchChange}
-      onStatusFilterChange={handleStatusFilterChange}
+      onSearchChange={setSearchQuery}
+      onStatusFilterChange={setStatusFilter}
     />
   );
 };
