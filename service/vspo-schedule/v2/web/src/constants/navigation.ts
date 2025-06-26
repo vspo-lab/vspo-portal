@@ -11,6 +11,7 @@ const internalRoutes = {
   clip: "/clips",
   event: (timeZone: string) =>
     `/events/${formatDate(getCurrentUTCDate(), "yyyy-MM", { timeZone })}`,
+  multiview: "/multiview",
   about: "/about",
   "site-news": "/site-news",
 } as const;

@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "title": "VSPO! 多視圖",
+    "description": "可以同時觀看多個VSPO!成員直播的多視圖播放器。"
+  },
+  "title": "多視圖",
+  "description": "同時觀看多個直播。最多可選擇9個直播。",
+  "player": {
+    "dragHandle": {
+      "ariaLabel": "拖曳移動{{channelTitle}}的直播",
+      "tooltip": "移動直播"
+    },
+    "error": {
+      "title": "載入錯誤",
+      "description": "直播載入失敗"
+    }
+  },
+  "viewer": {
+    "title": "多視圖播放器",
+    "empty": {
+      "title": "選擇要觀看的直播",
+      "description": "從右側面板選擇直播開始多視圖觀看"
+    }
+  },
+  "layout": {
+    "title": "版面配置設定"
+  },
+  "selector": {
+    "title": "直播選擇",
+    "status": {
+      "upcoming": "預定"
+    }
+  },
+  "playback": {
+    "title": "播放控制"
+  },
+  "grid": {
+    "empty": {
+      "title": "請選擇直播",
+      "description": "從右側面板選擇直播或輸入URL新增"
+    }
+  },
+  "urlInput": {
+    "sectionTitle": "透過URL新增",
+    "description": "直接透過YouTube、Twitch等平台URL新增直播",
+    "placeholder": "輸入直播URL",
+    "add": "新增",
+    "adding": "新增中...",
+    "maxStreamsReached": "最多可選擇{{count}}個直播",
+    "streamCount": "已選擇{{current}}/{{max}}個直播",
+    "supportedPlatforms": {
+      "title": "支援的平台：",
+      "list": "YouTube, Twitch"
+    },
+    "error": {
+      "emptyUrl": "請輸入URL",
+      "maxStreams": "最多可選擇{{max}}個直播",
+      "unsupportedUrl": "不支援的URL",
+      "alreadyAdded": "該直播已經新增",
+      "parseFailed": "URL解析失敗"
+    }
+  },
+  "controls": {
+    "globalVolume": "整體音量",
+    "individualVolume": "個別音量",
+    "streamVolume": "{{title}}的音量",
+    "syncMode": "同步模式",
+    "twitchNote": "※ Twitch直播必須手動控制",
+    "twitchManual": "Twitch必須手動控制",
+    "global": {
+      "playPause": "全部{{status}}",
+      "mute": "全部{{status}}"
+    },
+    "stream": {
+      "playPause": "{{status}}",
+      "mute": "{{status}}",
+      "setPrimary": "設為主直播",
+      "fullscreen": "全螢幕",
+      "pip": "子母畫面"
+    },
+    "streams": {
+      "title": "個別控制",
+      "primary": "主直播",
+      "fullscreen": "全螢幕",
+      "pip": "子母畫面"
+    },
+    "fullscreen": {
+      "enter": "進入全螢幕",
+      "exit": "退出全螢幕"
+    },
+    "pip": {
+      "enter": "子母畫面",
+      "exit": "退出子母畫面"
+    },
+    "sync": {
+      "toggle": "同步模式{{status}}",
+      "enable": "同步模式",
+      "syncAll": "全部同步"
+    },
+    "audioMix": {
+      "toggle": "混音模式{{status}}",
+      "enable": "音訊混合",
+      "primary": "主音訊"
+    },
+    "advanced": {
+      "toggle": "進階設定",
+      "title": "進階設定"
+    },
+    "keyboard": {
+      "title": "鍵盤快捷鍵",
+      "playPause": "播放/暫停",
+      "mute": "靜音",
+      "fullscreen": "全螢幕",
+      "pip": "子母畫面",
+      "sync": "同步模式",
+      "audioMix": "混音模式",
+      "volumeUp": "音量+",
+      "volumeDown": "音量-"
+    }
+  },
+  "fullscreen": {
+    "enter": "進入全螢幕",
+    "exit": "退出全螢幕"
+  },
+  "controlPanel": {
+    "show": "顯示版面配置設定",
+    "hide": "隱藏版面配置設定"
+  }
+}

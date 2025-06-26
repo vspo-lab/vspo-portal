@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "title": "VSPO! Multiview",
+    "description": "A multiviewer that allows you to watch multiple VSPO! member streams simultaneously."
+  },
+  "title": "Multiview",
+  "description": "Watch multiple streams simultaneously. You can select up to 9 streams.",
+  "player": {
+    "dragHandle": {
+      "ariaLabel": "Drag to move {{channelTitle}}'s stream",
+      "tooltip": "Move stream"
+    },
+    "error": {
+      "title": "Loading Error",
+      "description": "Failed to load stream"
+    },
+    "warnings": {
+      "unsupportedPlatform": "Unsupported platform",
+      "autoplayNotSupported": "Autoplay not supported"
+    }
+  },
+  "viewer": {
+    "title": "Multiviewer",
+    "empty": {
+      "title": "Select streams to watch",
+      "description": "Choose streams from the right panel to start multiview"
+    }
+  },
+  "layout": {
+    "title": "Layout Settings"
+  },
+  "selector": {
+    "title": "Stream Selection",
+    "search": {
+      "placeholder": "Search streams..."
+    },
+    "tabs": {
+      "all": "All",
+      "live": "Live",
+      "upcoming": "Upcoming"
+    },
+    "noResults": "No matching streams found",
+    "status": {
+      "live": "LIVE",
+      "upcoming": "Upcoming"
+    }
+  },
+  "playback": {
+    "title": "Playback Controls"
+  },
+  "grid": {
+    "empty": {
+      "title": "Please select streams",
+      "description": "Select streams from the right panel or add by entering a URL"
+    }
+  },
+  "urlInput": {
+    "sectionTitle": "Add from URL",
+    "description": "Add streams directly from YouTube, Twitch, and other platform URLs",
+    "placeholder": "Enter stream URL",
+    "add": "Add",
+    "adding": "Adding...",
+    "maxStreamsReached": "You can select up to {{count}} streams",
+    "streamCount": "{{current}}/{{max}} streams selected",
+    "supportedPlatforms": {
+      "title": "Supported Platforms:",
+      "list": "YouTube, Twitch"
+    },
+    "error": {
+      "emptyUrl": "Please enter a URL",
+      "maxStreams": "You can select up to {{max}} streams",
+      "unsupportedUrl": "Unsupported URL",
+      "alreadyAdded": "This stream has already been added",
+      "parseFailed": "Failed to parse URL"
+    }
+  },
+  "controls": {
+    "globalVolume": "Global Volume",
+    "individualVolume": "Individual Volume",
+    "streamVolume": "{{title}}'s volume",
+    "syncMode": "Sync Mode",
+    "twitchNote": "※ Twitch streams must be controlled manually",
+    "twitchManual": "Twitch must be controlled manually",
+    "global": {
+      "playPause": "{{status}} all",
+      "mute": "{{status}} all"
+    },
+    "stream": {
+      "playPause": "{{status}}",
+      "mute": "{{status}}",
+      "setPrimary": "Set as primary",
+      "fullscreen": "Fullscreen",
+      "pip": "Picture-in-Picture"
+    },
+    "streams": {
+      "title": "Individual Controls",
+      "primary": "Primary",
+      "fullscreen": "Fullscreen",
+      "pip": "PiP"
+    },
+    "fullscreen": {
+      "enter": "Enter fullscreen",
+      "exit": "Exit fullscreen"
+    },
+    "pip": {
+      "enter": "Picture-in-Picture",
+      "exit": "Exit PiP"
+    },
+    "sync": {
+      "toggle": "{{status}} sync mode",
+      "enable": "Sync Mode",
+      "syncAll": "Sync all"
+    },
+    "audioMix": {
+      "toggle": "{{status}} mix mode",
+      "enable": "Audio Mix",
+      "primary": "Primary Audio"
+    },
+    "advanced": {
+      "toggle": "Advanced Settings",
+      "title": "Advanced Settings"
+    },
+    "keyboard": {
+      "title": "Keyboard Shortcuts",
+      "playPause": "Play/Pause",
+      "mute": "Mute",
+      "fullscreen": "Fullscreen",
+      "pip": "PiP",
+      "sync": "Sync Mode",
+      "audioMix": "Mix Mode",
+      "volumeUp": "Volume Up",
+      "volumeDown": "Volume Down"
+    }
+  },
+  "fullscreen": {
+    "enter": "Enter Fullscreen",
+    "exit": "Exit Fullscreen"
+  },
+  "controlPanel": {
+    "show": "Show Layout Settings",
+    "hide": "Hide Layout Settings"
+  },
+  "share": {
+    "button": "Share Layout",
+    "copied": "Share URL copied to clipboard",
+    "copyFailed": "Failed to copy URL"
+  }
+}
