@@ -44,8 +44,8 @@
     "site-theme": "主题"
   },
   "alert": {
-    "title": "通知",
-    "message": "Discord 机器人已更新！请查看 X 获取更多详情！"
+    "title": "新功能发布",
+    "message": "多视角功能已发布！可以同时观看多个直播。"
   },
   "videoModal": {
     "tabLabels": {

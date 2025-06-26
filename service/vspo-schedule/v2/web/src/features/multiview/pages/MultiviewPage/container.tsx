@@ -269,6 +269,8 @@ MultiviewPage.getLayout = (page, pageProps) => {
       lastUpdateTimestamp={pageProps.lastUpdateTimestamp}
       path="/multiview"
       padTop={false}
+      // @ts-expect-error - false is needed to disable max-width constraint
+      maxPageWidth={false}
     >
       {page}
     </ContentLayout>

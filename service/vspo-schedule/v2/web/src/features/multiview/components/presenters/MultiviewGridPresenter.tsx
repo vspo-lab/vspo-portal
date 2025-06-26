@@ -18,7 +18,7 @@ import { VideoPlayer } from "../containers";
 const GridContainer = styled(Paper)<{ isFullscreen?: boolean }>(
   ({ theme, isFullscreen }) => ({
     minHeight: isFullscreen ? "100vh" : "600px",
-    padding: theme.spacing(isFullscreen ? 0 : 1),
+    padding: theme.spacing(isFullscreen ? 0 : 0.1),
     backgroundColor: "white",
     borderRadius: isFullscreen ? 0 : theme.shape.borderRadius * 2,
     boxShadow: isFullscreen ? "none" : theme.shadows[4],
@@ -34,7 +34,7 @@ const GridContainer = styled(Paper)<{ isFullscreen?: boolean }>(
     overflow: "hidden",
     [theme.breakpoints.down("md")]: {
       minHeight: isFullscreen ? "100vh" : "600px",
-      padding: theme.spacing(isFullscreen ? 0 : 0.5),
+      padding: theme.spacing(isFullscreen ? 0 : 0.1),
     },
     [theme.getColorSchemeSelector("dark")]: {
       backgroundColor: theme.vars.palette.customColors.gray,
@@ -416,9 +416,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
             ? Math.floor((window.innerHeight - 20) / (layout.rows || 2))
             : isMobile
               ? 180
-              : Math.floor(
-                  ((containerWidth - 20) / (layout.cols || 2)) * 0.5625,
-                ) // 16:9 aspect ratio
+              : Math.floor(((containerWidth - 8) / (layout.cols || 2)) * 0.5625) // 16:9 aspect ratio
         }
         width={containerWidth}
         isDraggable={!isMobile}
@@ -427,7 +425,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         draggableHandle=".drag-handle"
         compactType={null}
         preventCollision={true}
-        margin={isFullscreen ? [0, 0] : [6, 6]}
+        margin={isFullscreen ? [0, 0] : [2, 2]}
         containerPadding={[0, 0]}
         style={{ minHeight: isFullscreen ? "100vh" : "auto", width: "100%" }}
       >
