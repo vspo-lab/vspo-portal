@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "title": "VSPO! 多视图",
+    "description": "可以同时观看多个VSPO!成员直播的多视图播放器。"
+  },
+  "title": "多视图",
+  "description": "同时观看多个直播。最多可选择9个直播。",
+  "player": {
+    "dragHandle": {
+      "ariaLabel": "拖拽移动{{channelTitle}}的直播",
+      "tooltip": "移动直播"
+    },
+    "error": {
+      "title": "加载错误",
+      "description": "直播加载失败"
+    }
+  },
+  "viewer": {
+    "title": "多视图播放器",
+    "empty": {
+      "title": "选择要观看的直播",
+      "description": "从右侧面板选择直播开始多视图观看"
+    }
+  },
+  "layout": {
+    "title": "布局设置"
+  },
+  "selector": {
+    "title": "直播选择",
+    "status": {
+      "upcoming": "预定"
+    }
+  },
+  "playback": {
+    "title": "播放控制"
+  },
+  "grid": {
+    "empty": {
+      "title": "请选择直播",
+      "description": "从右侧面板选择直播或输入URL添加"
+    }
+  },
+  "urlInput": {
+    "sectionTitle": "通过URL添加",
+    "description": "直接通过YouTube、Twitch等平台URL添加直播",
+    "placeholder": "输入直播URL",
+    "add": "添加",
+    "adding": "添加中...",
+    "maxStreamsReached": "最多可选择{{count}}个直播",
+    "streamCount": "已选择{{current}}/{{max}}个直播",
+    "supportedPlatforms": {
+      "title": "支持的平台：",
+      "list": "YouTube, Twitch"
+    },
+    "error": {
+      "emptyUrl": "请输入URL",
+      "maxStreams": "最多可选择{{max}}个直播",
+      "unsupportedUrl": "不支持的URL",
+      "alreadyAdded": "该直播已经添加",
+      "parseFailed": "URL解析失败"
+    }
+  },
+  "controls": {
+    "globalVolume": "整体音量",
+    "individualVolume": "单独音量",
+    "streamVolume": "{{title}}的音量",
+    "syncMode": "同步模式",
+    "twitchNote": "※ Twitch直播必须手动控制",
+    "twitchManual": "Twitch必须手动控制",
+    "global": {
+      "playPause": "全部{{status}}",
+      "mute": "全部{{status}}"
+    },
+    "stream": {
+      "playPause": "{{status}}",
+      "mute": "{{status}}",
+      "setPrimary": "设为主直播",
+      "fullscreen": "全屏",
+      "pip": "画中画"
+    },
+    "streams": {
+      "title": "单独控制",
+      "primary": "主直播",
+      "fullscreen": "全屏",
+      "pip": "画中画"
+    },
+    "fullscreen": {
+      "enter": "进入全屏",
+      "exit": "退出全屏"
+    },
+    "pip": {
+      "enter": "画中画",
+      "exit": "退出画中画"
+    },
+    "sync": {
+      "toggle": "同步模式{{status}}",
+      "enable": "同步模式",
+      "syncAll": "全部同步"
+    },
+    "audioMix": {
+      "toggle": "混音模式{{status}}",
+      "enable": "音频混合",
+      "primary": "主音频"
+    },
+    "advanced": {
+      "toggle": "高级设置",
+      "title": "高级设置"
+    },
+    "keyboard": {
+      "title": "键盘快捷键",
+      "playPause": "播放/暂停",
+      "mute": "静音",
+      "fullscreen": "全屏",
+      "pip": "画中画",
+      "sync": "同步模式",
+      "audioMix": "混音模式",
+      "volumeUp": "音量+",
+      "volumeDown": "音量-"
+    }
+  },
+  "fullscreen": {
+    "enter": "进入全屏",
+    "exit": "退出全屏"
+  },
+  "controlPanel": {
+    "show": "显示布局设置",
+    "hide": "隐藏布局设置"
+  }
+}

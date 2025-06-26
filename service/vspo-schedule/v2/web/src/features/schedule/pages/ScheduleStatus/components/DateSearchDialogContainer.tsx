@@ -2,6 +2,8 @@ import { SelectChangeEvent } from "@mui/material";
 import { format, isValid, parse } from "date-fns";
 import { useRouter } from "next/router";
 import React from "react";
+import { useFavoriteSearchCondition } from "../../../hooks/useFavoriteSearchConditions";
+import type { FavoriteSearchCondition } from "../../../types/favorite";
 import { DateSearchDialog, DateSearchFormData } from "./DateSearchDialog";
 
 type DateSearchDialogContainerProps = {
@@ -20,6 +22,8 @@ export const DateSearchDialogContainer: React.FC<
   });
 
   const [dateInputValue, setDateInputValue] = React.useState<string>("");
+  const { favorite, saveFavorite, deleteFavorite, hasFavorite } =
+    useFavoriteSearchCondition();
 
   // Initialize form data from URL query parameters if available
   React.useEffect(() => {
@@ -167,6 +171,46 @@ export const DateSearchDialogContainer: React.FC<
     onClose();
   };
 
+  const handleSaveFavorite = () => {
+    const condition = {
+      memberType: formData.memberType as FavoriteSearchCondition["memberType"],
+      platform: formData.platform as FavoriteSearchCondition["platform"],
+    };
+
+    saveFavorite(condition);
+  };
+
+  const handleLoadFavorite = () => {
+    if (!favorite) return;
+
+    // Navigate without query parameters to apply server-side favorite filtering
+    const query = { ...router.query };
+    delete query.date;
+    delete query.memberType;
+    delete query.platform;
+
+    router.push(
+      {
+        pathname: router.pathname,
+        query,
+      },
+      undefined,
+      { shallow: false },
+    );
+
+    onClose();
+  };
+
+  const handleDeleteFavorite = () => {
+    deleteFavorite();
+  };
+
+  const isSaveEnabled = !!(
+    formData.selectedDate ||
+    (formData.memberType && formData.memberType !== "vspo_all") ||
+    formData.platform
+  );
+
   return (
     <DateSearchDialog
       open={open}
@@ -174,11 +218,17 @@ export const DateSearchDialogContainer: React.FC<
       dateInputValue={dateInputValue}
       formData={formData}
       isSearchEnabled={isSearchEnabled}
+      favorite={favorite}
+      hasFavorite={hasFavorite}
+      isSaveEnabled={isSaveEnabled}
       onDateInputChange={handleDateInputChange}
       onMemberTypeChange={handleMemberTypeChange}
       onPlatformChange={handlePlatformChange}
       onSubmit={handleSubmit}
       onClear={handleClear}
+      onSaveFavorite={handleSaveFavorite}
+      onLoadFavorite={handleLoadFavorite}
+      onDeleteFavorite={handleDeleteFavorite}
     />
   );
 };

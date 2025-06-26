@@ -20,6 +20,7 @@ const ChannelSchema = z.object({
   twitch: ChannelDetailSchema,
   twitCasting: ChannelDetailSchema,
   niconico: ChannelDetailSchema,
+  bilibili: ChannelDetailSchema,
 });
 
 const ChannelsSchema = z.array(ChannelSchema);
@@ -44,6 +45,7 @@ export function getPlatformDetail(channel: Channel): {
   const hasTwitch = channel.twitch !== null;
   const hasTwitCasting = channel.twitCasting !== null;
   const hasNiconico = channel.niconico !== null;
+  const hasBilibili = channel.bilibili !== null;
 
   let platform: Platform;
   let detail: ChannelDetail;
@@ -67,6 +69,11 @@ export function getPlatformDetail(channel: Channel): {
     case hasNiconico: {
       platform = "niconico";
       detail = channel.niconico;
+      break;
+    }
+    case hasBilibili: {
+      platform = "bilibili";
+      detail = channel.bilibili;
       break;
     }
     default: {

@@ -21,7 +21,8 @@
       "list": "스트림",
       "clip": "클립",
       "twitch-clip": "Twitch 클립",
-      "event": "이벤트"
+      "event": "이벤트",
+      "multiview": "멀티뷰"
     }
   },
   "drawer": {
@@ -32,6 +33,7 @@
       "freechat": "프리챗",
       "clip": "클립",
       "twitch-clip": "Twitch 클립",
+      "multiview": "멀티뷰",
       "about": "Spodule 소개",
       "site-news": "사이트 뉴스",
       "qa": "문의하기",
@@ -42,8 +44,8 @@
     "site-theme": "테마"
   },
   "alert": {
-    "title": "공지",
-    "message": "Discord 봇이 업데이트되었습니다! 자세한 내용은 X를 확인하세요!"
+    "title": "신기능 출시",
+    "message": "멀티뷰 기능이 출시되었습니다! 여러 방송을 동시에 시청할 수 있습니다."
   },
   "videoModal": {
     "tabLabels": {

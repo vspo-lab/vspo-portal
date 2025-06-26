@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "title": "ぶいすぽっ!マルチビュー",
+    "description": "複数のぶいすぽっ!メンバーの配信を同時に視聴できるマルチビューワーです。"
+  },
+  "title": "マルチビュー",
+  "description": "複数の配信を同時に視聴できます。最大9つまで選択可能です。",
+  "player": {
+    "dragHandle": {
+      "ariaLabel": "{{channelTitle}}の配信をドラッグして移動",
+      "tooltip": "配信を移動"
+    },
+    "error": {
+      "title": "読み込みエラー",
+      "description": "配信の読み込みに失敗しました"
+    },
+    "warnings": {
+      "unsupportedPlatform": "サポートされていないプラットフォームです",
+      "autoplayNotSupported": "自動再生はサポートされていません"
+    }
+  },
+  "viewer": {
+    "title": "マルチビューワー",
+    "empty": {
+      "title": "配信を選択してください",
+      "description": "右側から配信を選択してマルチビューを開始"
+    }
+  },
+  "layout": {
+    "title": "レイアウト設定"
+  },
+  "selector": {
+    "title": "配信選択",
+    "search": {
+      "placeholder": "配信を検索..."
+    },
+    "tabs": {
+      "all": "すべて",
+      "live": "ライブ",
+      "upcoming": "予定"
+    },
+    "noResults": "該当する配信がありません",
+    "status": {
+      "live": "LIVE",
+      "upcoming": "予定"
+    }
+  },
+  "playback": {
+    "title": "再生コントロール"
+  },
+  "grid": {
+    "empty": {
+      "title": "配信を選択してください",
+      "description": "右側のパネルから配信を選択するか、URLを入力して追加してください"
+    }
+  },
+  "urlInput": {
+    "sectionTitle": "URLから追加",
+    "description": "YouTube、Twitch、その他のプラットフォームのURLから直接配信を追加できます",
+    "placeholder": "配信URLを入力してください",
+    "add": "追加",
+    "adding": "追加中...",
+    "maxStreamsReached": "最大{{count}}つまでの配信を選択できます",
+    "streamCount": "{{current}}/{{max}} 配信選択中",
+    "supportedPlatforms": {
+      "title": "対応プラットフォーム:",
+      "list": "YouTube, Twitch"
+    },
+    "error": {
+      "emptyUrl": "URLを入力してください",
+      "maxStreams": "最大{{max}}つまでの配信を選択できます",
+      "unsupportedUrl": "サポートされていないURLです",
+      "alreadyAdded": "この配信は既に追加されています",
+      "parseFailed": "URLの解析に失敗しました"
+    }
+  },
+  "controls": {
+    "globalVolume": "全体音量",
+    "individualVolume": "個別音量", 
+    "streamVolume": "{{title}}の音量",
+    "syncMode": "同期モード",
+    "twitchNote": "※ Twitchの配信は手動で操作してください",
+    "twitchManual": "Twitchは手動で操作してください",
+    "global": {
+      "playPause": "すべて{{status}}",
+      "mute": "すべて{{status}}"
+    },
+    "stream": {
+      "playPause": "{{status}}",
+      "mute": "{{status}}",
+      "setPrimary": "メインに設定",
+      "fullscreen": "フルスクリーン",
+      "pip": "ピクチャーインピクチャー"
+    },
+    "streams": {
+      "title": "個別コントロール",
+      "primary": "メイン",
+      "fullscreen": "フルスクリーン",
+      "pip": "PiP"
+    },
+    "fullscreen": {
+      "enter": "フルスクリーン",
+      "exit": "フルスクリーン終了"
+    },
+    "pip": {
+      "enter": "ピクチャーインピクチャー",
+      "exit": "PiP終了"
+    },
+    "sync": {
+      "toggle": "同期モード{{status}}",
+      "enable": "同期モード",
+      "syncAll": "すべて同期"
+    },
+    "audioMix": {
+      "toggle": "ミックスモード{{status}}",
+      "enable": "オーディオミックス",
+      "primary": "メイン音声"
+    },
+    "advanced": {
+      "toggle": "詳細設定",
+      "title": "詳細設定"
+    },
+    "keyboard": {
+      "title": "キーボードショートカット",
+      "playPause": "再生/一時停止",
+      "mute": "ミュート",
+      "fullscreen": "フルスクリーン",
+      "pip": "PiP",
+      "sync": "同期モード",
+      "audioMix": "ミックスモード",
+      "volumeUp": "音量アップ",
+      "volumeDown": "音量ダウン"
+    }
+  },
+  "fullscreen": {
+    "enter": "全画面表示",
+    "exit": "全画面を終了"
+  },
+  "controlPanel": {
+    "show": "レイアウト設定を表示",
+    "hide": "レイアウト設定を隠す"
+  },
+  "share": {
+    "button": "レイアウトを共有",
+    "copied": "共有URLをコピーしました",
+    "copyFailed": "URLのコピーに失敗しました"
+  }
+}

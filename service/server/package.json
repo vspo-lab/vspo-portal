@@ -31,6 +31,7 @@
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",
     "@langchain/cloudflare": "^0.1.0",
+    "@mastra/client-js": "^0.10.4",
     "@microlabs/otel-cf-workers": "1.0.0-rc.49",
     "@neondatabase/serverless": "^1.0.0",
     "@openfeature/server-sdk": "^1.17.1",
@@ -39,8 +40,11 @@
     "@tsndr/cloudflare-worker-jwt": "3.1.4",
     "@twurple/api": "^7.2.1",
     "@twurple/auth": "^7.2.1",
+    "@vspo-lab/dayjs": "workspace:^",
+    "@vspo-lab/error": "workspace:^",
+    "@vspo-lab/logging": "workspace:^",
     "ai": "^4.3.1",
-    "dayjs": "^1.11.13",
+    "dayjs": "catalog:",
     "discord-hono": "^0.16.4",
     "drizzle-orm": "^0.41.0",
     "drizzle-zod": "^0.7.1",
@@ -52,22 +56,19 @@
     "tslog": "^4.9.3",
     "uuid": "^11.1.0",
     "valibot": "1.0.0",
-    "zod": "^3.24.2",
-    "@vspo-lab/dayjs": "workspace:^",
-    "@vspo-lab/error": "workspace:^",
-    "@vspo-lab/logging": "workspace:^"
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250502.0",
+    "@cloudflare/workers-types": "catalog:",
     "@testcontainers/postgresql": "^10.25.0",
     "@types/pg": "^8.11.14",
     "drizzle-kit": "^0.31.0",
     "nx": "20.8.1",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.3",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
     "vite": "^6.3.4",
     "vitest": "^3.1.2",
-    "wrangler": "^4.14.1"
+    "wrangler": "catalog:"
   },
   "nx": {}
 }

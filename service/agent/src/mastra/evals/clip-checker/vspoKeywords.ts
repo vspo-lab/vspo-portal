@@ -131,17 +131,6 @@ export const vspoKeywordMap = {
       ],
     },
     {
-      nameJp: "ぶいすぽっ",
-      nameEn: "Vspo",
-      searchKeywords: [
-        "ぶいすぽっ",
-        "ぶいすぽ",
-        "Vspo",
-        "切り抜き",
-        "ぶいすぽ切り抜き",
-      ],
-    },
-    {
       nameJp: "夜乃くろむ",
       nameEn: "Kuromu Yano",
       searchKeywords: [

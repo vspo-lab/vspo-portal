@@ -21,7 +21,8 @@
       "list": "直播列表",
       "clip": "剪輯",
       "twitch-clip": "Twitch 剪輯",
-      "event": "活動"
+      "event": "活動",
+      "multiview": "多視窗檢視"
     }
   },
   "drawer": {
@@ -32,6 +33,7 @@
       "freechat": "自由聊天",
       "clip": "剪輯列表",
       "twitch-clip": "Twitch 剪輯列表",
+      "multiview": "多視窗檢視",
       "about": "關於 Spodule",
       "site-news": "網站公告",
       "qa": "聯繫我們",
@@ -42,8 +44,8 @@
     "site-theme": "主題"
   },
   "alert": {
-    "title": "通知",
-    "message": "Discord 機器人已更新！請查看 X 獲取更多詳情！"
+    "title": "新功能發布",
+    "message": "多視角功能已發布！可以同時觀看多個直播。"
   },
   "videoModal": {
     "tabLabels": {

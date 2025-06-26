@@ -31,7 +31,7 @@ localConnectionString = "postgres://user:password@localhost:5432/vspo"
 SERVICE_NAME = "dev-vspo-portal-app"
 ENVIRONMENT = "development"
 LOG_TYPE = "json"
-LOG_MINLEVEL = "1"
+LOG_MINLEVEL = "0"
 LOG_HIDE_POSITION = "true"
 
 [observability]

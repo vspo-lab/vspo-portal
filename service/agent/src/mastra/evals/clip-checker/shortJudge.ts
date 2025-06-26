@@ -2,8 +2,11 @@ import type { LanguageModel } from "@mastra/core/llm";
 import { MastraAgentJudge } from "@mastra/evals/judge";
 import { z } from "zod";
 import type { VideoInput } from "./prompts";
-import { generateShortCheckPrompt, generateShortReasonPrompt } from "./prompts";
-import { SHORT_INSTRUCTIONS } from "./prompts";
+import {
+  SHORT_INSTRUCTIONS,
+  generateShortCheckPrompt,
+  generateShortReasonPrompt,
+} from "./prompts";
 
 export class YouTubeShortCheckerJudge extends MastraAgentJudge {
   constructor(model: LanguageModel) {

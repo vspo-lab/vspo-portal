@@ -21,7 +21,8 @@
       "list": "Streams",
       "clip": "Clips",
       "twitch-clip": "Twitch Clips",
-      "event": "Events"
+      "event": "Events",
+      "multiview": "Multiview"
     }
   },
   "drawer": {
@@ -32,6 +33,7 @@
       "freechat": "Freechats",
       "clip": "Clips",
       "twitch-clip": "Twitch Clips",
+      "multiview": "Multiview",
       "about": "About Spodule",
       "site-news": "Site News",
       "qa": "Contact Us",
@@ -42,8 +44,8 @@
     "site-theme": "Theme"
   },
   "alert": {
-    "title": "Notice",
-    "message": "Discord Bot has been updated! Check X for more details!"
+    "title": "New Feature Release",
+    "message": "Multiview feature released! Watch multiple streams simultaneously."
   },
   "videoModal": {
     "tabLabels": {

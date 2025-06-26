@@ -95,7 +95,7 @@ export const createAIService = (config: AIConfig): IAIService => {
       const systemPrompt = `Please translate the following user message into ${targetLanguage}. Ensure consistency in name translations according to the following mapping: ${keywordMapString}. Return the translation in a JSON object with the key "content".`;
       const responseResult = await wrap(
         openai.chat.completions.create({
-          model: "gpt-4o-mini-2024-07-18",
+          model: "gpt-4.1-mini",
           messages: [
             prompt
               ? { role: "system", content: prompt }

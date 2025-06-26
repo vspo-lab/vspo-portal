@@ -142,6 +142,7 @@ describe.concurrent("CreatorInteractor", () => {
             twitch: null,
             twitCasting: null,
             niconico: null,
+            bilibili: null,
           },
         },
       ]);
@@ -188,6 +189,7 @@ describe.concurrent("CreatorInteractor", () => {
             twitch: null,
             twitCasting: null,
             niconico: null,
+            bilibili: null,
           },
         },
       ]);
@@ -220,6 +222,7 @@ describe.concurrent("CreatorInteractor", () => {
             twitch: null,
             twitCasting: null,
             niconico: null,
+            bilibili: null,
           },
         },
       ]);
@@ -268,6 +271,7 @@ describe.concurrent("CreatorInteractor", () => {
               twitch: null,
               twitCasting: null,
               niconico: null,
+              bilibili: null,
             },
           },
           {
@@ -290,6 +294,7 @@ describe.concurrent("CreatorInteractor", () => {
               },
               twitCasting: null,
               niconico: null,
+              bilibili: null,
             },
           },
         ]);
@@ -346,6 +351,7 @@ describe.concurrent("CreatorInteractor", () => {
             twitch: null,
             twitCasting: null,
             niconico: null,
+            bilibili: null,
           },
         },
         {
@@ -368,6 +374,7 @@ describe.concurrent("CreatorInteractor", () => {
             twitch: null,
             twitCasting: null,
             niconico: null,
+            bilibili: null,
           },
           translated: true,
         },
@@ -391,6 +398,7 @@ describe.concurrent("CreatorInteractor", () => {
             twitch: null,
             twitCasting: null,
             niconico: null,
+            bilibili: null,
           },
           translated: true,
         },

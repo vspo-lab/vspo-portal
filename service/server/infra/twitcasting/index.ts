@@ -1,6 +1,11 @@
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { type Streams, createStream, createStreams } from "../../domain/stream";
 import { withTracerResult } from "../http/trace/cloudflare";
+import {
+  type TwitcastingAuthConfig,
+  type TwitcastingAuthHeader,
+  createBasicAuthHeader,
+} from "./auth";
 
 export type TwitcastingUser = {
   id: string;
@@ -135,7 +140,7 @@ const createStreamModel = (video: TwitCastingStream) => {
 };
 
 const fetchUserStreams = async (
-  accessToken: string,
+  authHeader: TwitcastingAuthHeader,
   userId: string,
 ): Promise<Result<TwitCastingStream[], AppError>> => {
   return withTracerResult(
@@ -147,8 +152,10 @@ const fetchUserStreams = async (
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            ...authHeader,
             "Content-Type": "application/json",
+            "X-Api-Version": "2.0",
+            Accept: "application/json",
           },
         },
       );
@@ -204,7 +211,7 @@ const fetchUserStreams = async (
 };
 
 export const createTwitcastingService = (
-  accessToken: string,
+  authConfig: TwitcastingAuthConfig,
 ): ITwitcastingService => {
   const getStreams = async (
     params: GetStreamsParams,
@@ -213,10 +220,16 @@ export const createTwitcastingService = (
       "TwitcastingService",
       "getStreams",
       async (span) => {
+        const authHeaderResult = createBasicAuthHeader(authConfig);
+        if (authHeaderResult.err) {
+          return Err(authHeaderResult.err);
+        }
+        const authHeader = authHeaderResult.val;
+
         let allStreams: Streams = createStreams([]);
 
         for (const userId of params.userIds) {
-          const result = await fetchUserStreams(accessToken, userId);
+          const result = await fetchUserStreams(authHeader, userId);
           if (result.err) {
             return Err(result.err);
           }

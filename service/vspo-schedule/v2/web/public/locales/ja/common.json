@@ -20,7 +20,8 @@
     "pages": {
       "list": "配信一覧",
       "clip": "切り抜き/ショート",
-      "event": "イベント"
+      "event": "イベント",
+      "multiview": "マルチビュー"
     }
   },
   "drawer": {
@@ -30,6 +31,7 @@
       "archive": "アーカイブ",
       "freechat": "フリーチャット",
       "clip": "切り抜き/ショート一覧",
+      "multiview": "マルチビュー",
       "about": "すぽじゅーるについて",
       "site-news": "お知らせ",
       "qa": "お問い合わせ",
@@ -40,8 +42,8 @@
     "site-theme": "背景のテーマ"
   },
   "alert": {
-    "title": "お知らせ",
-    "message": "Discord Botがアップデートされました！詳しくはXをチェック！"
+    "title": "新機能リリース",
+    "message": "マルチビュー機能をリリースしました！複数配信を同時に視聴できます。"
   },
   "videoModal": {
     "tabLabels": {

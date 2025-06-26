@@ -12,3 +12,44 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* React Grid Layout styles */
+.react-grid-item.react-grid-placeholder {
+  background: rgba(0, 0, 255, 0.1);
+  opacity: 0.5;
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .react-grid-item > .react-resizable-handle::after {
+    border-right: 2px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  }
+}

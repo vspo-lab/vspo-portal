@@ -15,7 +15,18 @@
     "platform.niconico": "ニコニコ",
     "clear": "クリア",
     "cancel": "キャンセル",
-    "search": "検索"
+    "search": "検索",
+    "favorites": {
+      "save": "お気に入りに保存",
+      "load": "お気に入りを読み込み",
+      "delete": "お気に入りを削除",
+      "saveButton": "現在の条件を保存",
+      "loadButton": "保存した条件を読み込み",
+      "deleteButton": "削除",
+      "saved": "検索条件を保存しました",
+      "loaded": "お気に入りの検索条件を読み込みました",
+      "deleted": "お気に入りを削除しました"
+    }
   },
   "navigation": {
     "previousDay": "前日",

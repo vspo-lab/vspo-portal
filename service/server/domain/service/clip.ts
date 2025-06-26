@@ -12,6 +12,7 @@ import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import type { ICreatorRepository } from "../../infra/repository/creator";
 import { createUUID } from "../../pkg/uuid";
 import { type Clips, isVspoClip } from "../clip";
+import type { ICreatorClipFetchService } from "./creatorClipFetch";
 
 export interface IClipService {
   searchNewVspoClipsAndNewCreators(): Promise<
@@ -58,11 +59,12 @@ export const createClipService = (deps: {
   youtubeClient: IYoutubeService;
   twitchClient: ITwitchService;
   creatorRepository: ICreatorRepository;
+  creatorClipFetchService: ICreatorClipFetchService;
 }): IClipService => {
   const SERVICE_NAME = "ClipService";
 
   const searchYoutubeVspoClips = async (): Promise<Result<Clips, AppError>> => {
-    AppLogger.info("Searching Vspo related YouTube clips", {
+    AppLogger.debug("Searching Vspo related YouTube clips", {
       service: SERVICE_NAME,
     });
 
@@ -121,7 +123,7 @@ export const createClipService = (deps: {
   };
 
   const searchTwitchVspoClips = async (): Promise<Result<Clips, AppError>> => {
-    AppLogger.info("Searching Vspo related Twitch clips", {
+    AppLogger.debug("Searching Vspo related Twitch clips", {
       service: SERVICE_NAME,
     });
 
@@ -185,7 +187,7 @@ export const createClipService = (deps: {
           }
         }
 
-        AppLogger.info("Excluding clips from existing Vspo channels", {
+        AppLogger.debug("Excluding clips from existing Vspo channels", {
           service: SERVICE_NAME,
           existingChannelCount: existingChannelIds.size,
         });
@@ -242,7 +244,7 @@ export const createClipService = (deps: {
             !existingChannelIds.has(clip.rawChannelID),
         );
 
-        AppLogger.info("Filtered out clips from existing channels", {
+        AppLogger.debug("Filtered out clips from existing channels", {
           service: SERVICE_NAME,
           initialClipsCount,
           filteredClipsCount: vspoClips.length,
@@ -300,6 +302,7 @@ export const createClipService = (deps: {
                 twitch: null,
                 twitCasting: null,
                 niconico: null,
+                bilibili: null,
                 creatorID: creatorId,
               },
             }),
@@ -333,7 +336,7 @@ export const createClipService = (deps: {
         const notExistsClipIds = clipIds.filter(
           (id) => !clips.some((c) => c.rawId === id),
         );
-        AppLogger.info("Found clips", {
+        AppLogger.debug("Found clips", {
           service: SERVICE_NAME,
           clipsCount: clips.length,
           notExistsClipIdsCount: notExistsClipIds.length,
@@ -357,7 +360,7 @@ export const createClipService = (deps: {
         const orderTypes = ["date", "viewCount", "relevance"];
         const allClips: Clips = [];
 
-        AppLogger.info(
+        AppLogger.debug(
           "Searching Vspo related YouTube clips by member names with different order types",
           {
             service: SERVICE_NAME,
@@ -385,7 +388,7 @@ export const createClipService = (deps: {
           }
         }
 
-        AppLogger.info("Excluding clips from existing Vspo channels", {
+        AppLogger.debug("Excluding clips from existing Vspo channels", {
           service: SERVICE_NAME,
           existingChannelCount: existingChannelIds.size,
         });
@@ -449,7 +452,7 @@ export const createClipService = (deps: {
           new Map(vspoClips.map((clip) => [clip.rawId, clip])).values(),
         );
 
-        AppLogger.info("Found new clips", {
+        AppLogger.debug("Found new clips", {
           service: SERVICE_NAME,
           totalClipsFound: allClips.length,
           vspoClipsFound: vspoClips.length,
@@ -476,7 +479,7 @@ export const createClipService = (deps: {
         );
         const finalClips = [...detailedClips.val, ...nonYoutubeClips];
 
-        AppLogger.info("Retrieved detailed clip information", {
+        AppLogger.debug("Retrieved detailed clip information", {
           service: SERVICE_NAME,
           detailedClipsCount: detailedClips.val.length,
           nonYoutubeClipsCount: nonYoutubeClips.length,
@@ -542,6 +545,7 @@ export const createClipService = (deps: {
                 twitch: null,
                 twitCasting: null,
                 niconico: null,
+                bilibili: null,
                 creatorID: creatorId,
               },
             }),

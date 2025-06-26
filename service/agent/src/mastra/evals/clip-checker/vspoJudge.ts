@@ -3,10 +3,10 @@ import { MastraAgentJudge } from "@mastra/evals/judge";
 import { z } from "zod";
 
 import {
-  CLIP_INSTRUCTIONS,
+  VSPO_CLIP_INSTRUCTIONS,
   type VideoInput,
-  generateReasonPrompt,
   generateVspoClipPrompt,
+  generateVspoClipReasonPrompt,
 } from "./prompts";
 import { vspoKeywordMap } from "./vspoKeywords";
 
@@ -14,7 +14,7 @@ export class VspoClipCheckerJudge extends MastraAgentJudge {
   private vspoKeywords: string[];
 
   constructor(model: LanguageModel) {
-    super("Vspo Clip Checker", CLIP_INSTRUCTIONS, model);
+    super("Vspo Clip Checker", VSPO_CLIP_INSTRUCTIONS, model);
 
     // Extract all search keywords from the vspo keyword map
     this.vspoKeywords = vspoKeywordMap.members.flatMap(
@@ -27,6 +27,7 @@ export class VspoClipCheckerJudge extends MastraAgentJudge {
     hasPermissionNumber: boolean;
     detectedMembers: string[];
     permissionNumber: string | null;
+    confidence: number;
   }> {
     const clipPrompt = generateVspoClipPrompt({
       input,
@@ -47,6 +48,7 @@ export class VspoClipCheckerJudge extends MastraAgentJudge {
         hasPermissionNumber: z.boolean(),
         detectedMembers: z.array(z.string()),
         permissionNumber: z.string().nullable(),
+        confidence: z.number().min(0).max(1),
       }),
     });
 
@@ -60,8 +62,9 @@ export class VspoClipCheckerJudge extends MastraAgentJudge {
     hasPermissionNumber: boolean;
     detectedMembers: string[];
     permissionNumber: string | null;
+    confidence: number;
   }): Promise<string> {
-    const prompt = generateReasonPrompt(args);
+    const prompt = generateVspoClipReasonPrompt(args);
     const result = await this.agent.generate(prompt, {
       output: z.object({
         reason: z.string(),
