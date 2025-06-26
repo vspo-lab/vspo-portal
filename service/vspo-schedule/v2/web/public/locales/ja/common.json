@@ -42,8 +42,8 @@
     "site-theme": "背景のテーマ"
   },
   "alert": {
-    "title": "お知らせ",
-    "message": "Discord Botがアップデートされました！詳しくはXをチェック！"
+    "title": "新機能リリース",
+    "message": "マルチビュー機能をリリースしました！複数配信を同時に視聴できます。"
   },
   "videoModal": {
     "tabLabels": {

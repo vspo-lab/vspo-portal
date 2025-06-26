@@ -44,8 +44,8 @@
     "site-theme": "Theme"
   },
   "alert": {
-    "title": "Notice",
-    "message": "Discord Bot has been updated! Check X for more details!"
+    "title": "New Feature Release",
+    "message": "Multiview feature released! Watch multiple streams simultaneously."
   },
   "videoModal": {
     "tabLabels": {
