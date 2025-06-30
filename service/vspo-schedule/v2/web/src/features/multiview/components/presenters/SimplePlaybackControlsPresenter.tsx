@@ -75,6 +75,9 @@ const ChannelName = styled(Typography)(({ theme }) => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
+  [theme.getColorSchemeSelector("dark")]: {
+    color: theme.palette.text.primary,
+  },
 }));
 
 export type SimplePlaybackControlsPresenterProps = {

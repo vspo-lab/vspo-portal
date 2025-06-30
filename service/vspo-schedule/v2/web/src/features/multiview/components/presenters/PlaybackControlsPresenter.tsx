@@ -515,7 +515,12 @@ export const PlaybackControlsPresenter: React.FC<
                         variant="caption"
                         color="text.secondary"
                         display="block"
-                        sx={{ fontSize: "0.7rem" }}
+                        sx={{
+                          fontSize: "0.7rem",
+                          [theme.getColorSchemeSelector("dark")]: {
+                            color: theme.palette.text.primary,
+                          },
+                        }}
                       >
                         {truncateTitle(stream.title, 25)}
                       </Typography>
