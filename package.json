@@ -22,7 +22,7 @@
     "lefthook": "^1.11.12",
     "turbo": "^2.5.2",
     "typescript": "^5.8.3",
-    "next": "^14.2.26"
+    "next": "^14.2.30"
   },
   "pnpm": {
     "overrides": {}
