@@ -108,6 +108,9 @@ export function createDiscordServerRepository(
                     name: s.name,
                     languageCode: s.languageCode,
                     memberType: s.memberType,
+                    selectedMemberIds: s.selectedMemberIds
+                      ? s.selectedMemberIds.split(",")
+                      : undefined,
                     createdAt: convertToUTC(s.createdAt),
                     updatedAt: convertToUTC(s.updatedAt),
                   };
@@ -234,6 +237,7 @@ export function createDiscordServerRepository(
             name: c.name || "",
             languageCode: c.languageCode,
             memberType: c.memberType,
+            selectedMemberIds: c.selectedMemberIds?.join(",") || null,
             createdAt: convertToUTCDate(c.createdAt ?? getCurrentUTCDate()),
             updatedAt: convertToUTCDate(c.updatedAt ?? getCurrentUTCDate()),
           })),
@@ -252,6 +256,7 @@ export function createDiscordServerRepository(
                 "name",
                 "languageCode",
                 "memberType",
+                "selectedMemberIds",
                 "updatedAt",
               ]),
             })
@@ -283,6 +288,9 @@ export function createDiscordServerRepository(
                     name: ch.name,
                     languageCode: ch.languageCode,
                     memberType: ch.memberType,
+                    selectedMemberIds: ch.selectedMemberIds
+                      ? ch.selectedMemberIds.split(",")
+                      : undefined,
                     createdAt: convertToUTC(ch.createdAt),
                     updatedAt: convertToUTC(ch.updatedAt),
                   })),
@@ -372,6 +380,9 @@ export function createDiscordServerRepository(
         name: c.name,
         languageCode: c.languageCode,
         memberType: c.memberType,
+        selectedMemberIds: c.selectedMemberIds
+          ? c.selectedMemberIds.split(",")
+          : undefined,
         createdAt: convertToUTC(c.createdAt),
         updatedAt: convertToUTC(c.updatedAt),
       }));

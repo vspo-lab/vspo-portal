@@ -11,6 +11,11 @@
     "selectSuccess": "メンバータイプが{{type}}に設定されました。/ The member type has been set to {{type}}.",
     "selectError": "エラーが発生しました。しばらくしてからもう一度お試しください。/ An error has occurred. Please try again after some time."
   },
+  "customMemberSelectComponent": {
+    "label": "表示するメンバーを選択してください。/ Select the members to display.",
+    "success": "{{count}}人のメンバーが選択されました。/ {{count}} members have been selected.",
+    "error": "エラーが発生しました。しばらくしてからもう一度お試しください。/ An error has occurred. Please try again after some time."
+  },
   "botAddComponent": {
     "error": "エラーが発生しました。後でもう一度お試しください。/ An error has occurred. Please try again later."
   },

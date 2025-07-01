@@ -8,6 +8,7 @@ const MemberTypeSchema = z.enum([
   "vspo_ch",
   "vspo_all",
   "general",
+  "custom",
 ]);
 
 const CreatorSchema = z

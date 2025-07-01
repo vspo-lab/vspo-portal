@@ -9,14 +9,14 @@ export type BatchUpsertCreatorsParam = Creators;
 export type SearchByChannelIdsParam = {
   channel: {
     id: string;
-    memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "general";
+    memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
   }[];
 };
 
 export type ListByMemberTypeParam = {
   limit: number;
   page: number;
-  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "general";
+  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
   languageCode?: string;
 };
 
@@ -26,7 +26,9 @@ export type ListCreatorsResponse = {
 };
 
 export type SearchByMemberTypeParam = {
-  memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "general";
+  memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  limit?: number;
+  page?: number;
 };
 
 export type TranslateCreatorParam = {

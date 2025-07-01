@@ -16,6 +16,7 @@ export type ListParam = {
   platform?: string;
   status?: string;
   memberType?: string;
+  creatorIds?: string[];
   startDateFrom?: Date;
   startDateTo?: Date;
   endedAt?: Date;

@@ -22,6 +22,7 @@ const MemberTypeLabelMapping = {
   vspo_en: "VSPO EN Members / ぶいすぽっ！ENメンバー",
   // vspo_ch: "VSPO CH Members / ぶいすぽっ！CHメンバー",
   vspo_all: "All VSPO Members / すべてのぶいすぽっ！メンバー",
+  custom: "Custom Selection / カスタム選択",
   // general: "General / 一般",
 } as const;
 
@@ -378,6 +379,41 @@ export const memberTypeSelectComponent: IDiscordComponentDefinition<DiscordComma
         const selectedValue = c.interaction.data.values.at(
           0,
         ) as keyof typeof MemberTypeLabelMapping;
+
+        // Handle custom member selection
+        if (selectedValue === "custom") {
+          // Show member selection interface
+          const creatorUsecase = await c.env.APP_WORKER.newCreatorUsecase();
+          const creatorsResult = await creatorUsecase.searchByMemberType({
+            memberType: "vspo_all",
+            limit: 100,
+            page: 0,
+          });
+
+          if (creatorsResult.err || !creatorsResult.val) {
+            return c.resUpdate({
+              content: t("memberTypeSettingComponent.selectError"),
+              components: [],
+            });
+          }
+
+          // Create member selection dropdown
+          const memberOptions = creatorsResult.val.map((creator) => ({
+            value: creator.id,
+            label: creator.name || "Unknown",
+          }));
+
+          return c.resUpdate({
+            content: t("customMemberSelectComponent.label"),
+            components: new Components().row(
+              new Select(customMemberSelectComponent.name, "String")
+                .min_values(1)
+                .max_values(memberOptions.length)
+                .options(...memberOptions),
+            ),
+          });
+        }
+
         const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
 
         // Adjust the bot channel with the newly selected member type
@@ -386,6 +422,7 @@ export const memberTypeSelectComponent: IDiscordComponentDefinition<DiscordComma
           serverId: c.interaction.guild_id || c.interaction.guild?.id || "",
           targetChannelId: c.interaction.channel.id,
           memberType: selectedValue,
+          selectedMemberIds: undefined, // Clear custom selection when selecting a preset
         });
 
         if (adjustResult.err) {
@@ -410,6 +447,60 @@ export const memberTypeSelectComponent: IDiscordComponentDefinition<DiscordComma
       }
       return c.resUpdate({
         content: t("memberTypeSettingComponent.selectError"),
+        components: [],
+      });
+    },
+  };
+
+/**
+ * customMemberSelectComponent - Allows users to select specific members.
+ */
+export const customMemberSelectComponent: IDiscordComponentDefinition<DiscordCommandEnv> =
+  {
+    name: "custom-member-select",
+    handler: async (c) => {
+      AppLogger.info("Custom member select component", {
+        server_id: c.interaction.guild_id || c.interaction.guild?.id || "",
+        channel_id: c.interaction.channel.id,
+        selected_values: c.interaction.data,
+      });
+
+      if ("values" in c.interaction.data) {
+        const selectedMemberIds = c.interaction.data.values;
+        const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
+
+        // Adjust the bot channel with the selected member IDs
+        const adjustResult = await discordUsecase.adjustBotChannel({
+          type: "add",
+          serverId: c.interaction.guild_id || c.interaction.guild?.id || "",
+          targetChannelId: c.interaction.channel.id,
+          memberType: "custom",
+          selectedMemberIds: selectedMemberIds,
+        });
+
+        if (adjustResult.err) {
+          return c.resUpdate({
+            content: t("customMemberSelectComponent.error"),
+            components: [],
+          });
+        }
+
+        await discordUsecase.batchUpsertEnqueue([adjustResult.val]);
+        await discordUsecase.deleteMessageInChannelEnqueue(
+          c.interaction.channel.id,
+        );
+
+        return c.resUpdate({
+          content: t("customMemberSelectComponent.success", {
+            translationOptions: {
+              count: selectedMemberIds.length,
+            },
+          }),
+          components: [],
+        });
+      }
+      return c.resUpdate({
+        content: t("customMemberSelectComponent.error"),
         components: [],
       });
     },
