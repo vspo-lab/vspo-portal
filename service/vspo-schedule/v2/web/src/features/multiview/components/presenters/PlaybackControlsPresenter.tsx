@@ -518,7 +518,7 @@ export const PlaybackControlsPresenter: React.FC<
                         sx={{
                           fontSize: "0.7rem",
                           [theme.getColorSchemeSelector("dark")]: {
-                            color: theme.palette.text.primary,
+                            color: theme.palette.grey?.[100] || theme.palette.text.primary,
                           },
                         }}
                       >

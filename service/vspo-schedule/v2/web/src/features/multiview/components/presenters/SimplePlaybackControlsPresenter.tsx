@@ -76,7 +76,7 @@ const ChannelName = styled(Typography)(({ theme }) => ({
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
   [theme.getColorSchemeSelector("dark")]: {
-    color: theme.palette.text.primary,
+    color: theme.palette.grey?.[100] || theme.palette.text.primary,
   },
 }));
 
