@@ -3,16 +3,16 @@ import { useEffect } from "react";
 
 declare global {
   interface Window {
-    adsbygoogle: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    adsbygoogle: unknown[];
   }
 }
 export const GoogleAd: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // eslint-disable-next-line
-    (window.adsbygoogle = window.adsbygoogle || []).push({});
-  }, [router.asPath]);
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adsbygoogle.push({});
+  }, []);
 
   return (
     <div

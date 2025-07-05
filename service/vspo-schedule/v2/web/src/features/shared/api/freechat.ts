@@ -1,7 +1,7 @@
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
-import { ListFreechats200FreechatsItem, VSPOApi } from "@vspo-lab/api";
-import { AppError, BaseError, Result, wrap } from "@vspo-lab/error";
-import { Freechat, freechatSchema } from "../domain/freechat";
+import { type ListFreechats200FreechatsItem, VSPOApi } from "@vspo-lab/api";
+import { AppError, type BaseError, type Result, wrap } from "@vspo-lab/error";
+import { type Freechat, freechatSchema } from "../domain/freechat";
 
 export type FetchFreechatsParams = {
   lang?: string;

@@ -1,10 +1,10 @@
 import { FreechatPage } from "@/features/freechat";
 import {
-  FreechatPageProps,
+  type FreechatPageProps,
   getFreechatServerSideProps,
 } from "@/features/freechat/pages/FreechatPage/serverSideProps";
 import { ContentLayout } from "@/features/shared/components/Layout";
-import { NextPageWithLayout } from "./_app";
+import type { NextPageWithLayout } from "./_app";
 
 const FreechatPageWrapper: NextPageWithLayout<FreechatPageProps> = (
   pageProps,

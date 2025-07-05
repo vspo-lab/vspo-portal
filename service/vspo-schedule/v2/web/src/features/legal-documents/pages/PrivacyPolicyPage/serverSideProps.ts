@@ -1,7 +1,7 @@
 import { DEFAULT_LOCALE } from "@/lib/Const";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getInitializedI18nInstance } from "@/lib/utils";
-import { GetStaticProps } from "next";
+import type { GetStaticProps } from "next";
 
 export type PrivacyPolicyPageProps = {
   meta: {

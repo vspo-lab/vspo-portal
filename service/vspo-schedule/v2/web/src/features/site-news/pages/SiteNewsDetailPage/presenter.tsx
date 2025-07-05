@@ -1,10 +1,10 @@
 import { Breadcrumb, TweetEmbed } from "@/features/shared/components/Elements";
-import { SiteNewsMarkdownItem } from "@/lib/markdown";
+import type { SiteNewsMarkdownItem } from "@/lib/markdown";
 import { getSiteNewsTagColor } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
 import { Box, Chip, Toolbar, Typography } from "@mui/material";
-import { TFunction } from "next-i18next";
-import * as React from "react";
+import type { TFunction } from "next-i18next";
+import type * as React from "react";
 
 type SiteNewsDetailPagePresenterProps = {
   siteNewsItem: SiteNewsMarkdownItem;
@@ -52,6 +52,7 @@ export const SiteNewsDetailPagePresenter: React.FC<
         {siteNewsItem.html ? (
           <Box
             sx={{ marginBottom: "16px" }}
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML content is from trusted source
             dangerouslySetInnerHTML={{
               __html: siteNewsItem.html,
             }}

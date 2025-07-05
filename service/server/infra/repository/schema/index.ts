@@ -237,6 +237,7 @@ export const discordChannelTable = pgTable(
     name: text("name").notNull(), // Channel display name for internal management
     languageCode: text("lang_code").notNull(), // ISO 639-1 language code or [default]
     memberType: text("member_type").notNull().default("vspo_all"), // Member type
+    selectedMemberIds: text("selected_member_ids"), // Comma-separated list of selected creator IDs
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .notNull()
       .defaultNow(),

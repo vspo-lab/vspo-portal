@@ -1,9 +1,9 @@
 import { DEFAULT_LOCALE } from "@/lib/Const";
 import { getInitializedI18nInstance } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import { GetServerSidePropsContext } from "next";
+import type { GetServerSidePropsContext } from "next";
 import { fetchMultiviewService } from "../../api/multiviewService";
-import { MultiviewPageProps } from "./container";
+import type { MultiviewPageProps } from "./container";
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext,

@@ -1,5 +1,5 @@
 import { GoogleAnalytics as NextGoogleAnalytics } from "@next/third-parties/google";
-import { FC } from "react";
+import type { FC } from "react";
 
 export const GoogleAnalytics: FC = () => {
   const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS;

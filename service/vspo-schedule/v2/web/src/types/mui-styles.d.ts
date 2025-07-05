@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
-import { CSSProperties } from "@mui/material/styles/createMixins";
-import { DeepPartial } from "./deep-partial";
+import type { CSSProperties } from "@mui/material/styles/createMixins";
+import type { DeepPartial } from "./deep-partial";
 
 interface CustomPalette {
   customColors: {

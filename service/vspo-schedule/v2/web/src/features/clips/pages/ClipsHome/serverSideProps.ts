@@ -1,9 +1,9 @@
 import { DEFAULT_LOCALE } from "@/lib/Const";
 import { getInitializedI18nInstance } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import { GetServerSidePropsContext } from "next";
+import type { GetServerSidePropsContext } from "next";
 import { fetchClipService } from "../../api/clipService";
-import { ClipsHomeProps } from "./container";
+import type { ClipsHomeProps } from "./container";
 
 // Get date for N days ago in ISO format
 const getDaysAgoISO = (days: number): string => {
@@ -36,7 +36,6 @@ export const getServerSideProps = async (
     case "year":
       afterDate = getDaysAgoISO(365);
       break;
-    case "all":
     default:
       afterDate = undefined;
       break;

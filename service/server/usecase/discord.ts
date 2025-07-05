@@ -14,7 +14,14 @@ import { createUUID } from "../pkg/uuid";
 export type SendMessageParams = {
   channelIds: string[];
   channelLangaugeCode: string;
-  channelMemberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  channelMemberType:
+    | "vspo_jp"
+    | "vspo_en"
+    | "vspo_ch"
+    | "vspo_all"
+    | "general"
+    | "custom";
+  selectedMemberIds?: string[];
 };
 
 export type AdjustBotChannelParams = {
@@ -23,7 +30,14 @@ export type AdjustBotChannelParams = {
   targetChannelId: string;
   serverLangaugeCode?: string;
   channelLangaugeCode?: string;
-  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  memberType?:
+    | "vspo_jp"
+    | "vspo_en"
+    | "vspo_ch"
+    | "vspo_all"
+    | "general"
+    | "custom";
+  selectedMemberIds?: string[];
 };
 
 export type ListDiscordServerParam = {

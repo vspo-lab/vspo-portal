@@ -1,10 +1,10 @@
 import { ScheduleStatus } from "@/features/schedule";
 import {
-  ScheduleStatusPageProps,
+  type ScheduleStatusPageProps,
   getLivestreamsServerSideProps,
 } from "@/features/schedule/pages/ScheduleStatus/serverSideProps";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
-import { NextPageWithLayout } from "../_app";
+import type { NextPageWithLayout } from "../_app";
 
 const SchedulePage: NextPageWithLayout<ScheduleStatusPageProps> = (
   pageProps,

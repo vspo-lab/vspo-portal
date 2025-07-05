@@ -1,4 +1,4 @@
-import { Platform } from "@/features/shared/domain/video";
+import type { Platform } from "@/features/shared/domain/video";
 
 /**
  * Platform-specific URL parsing and embed utilities for multiview

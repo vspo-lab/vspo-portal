@@ -1,6 +1,6 @@
 import { ContentLayout } from "@/features/shared/components/Layout";
-import { Event } from "@/features/shared/domain";
-import { NextPageWithLayout } from "@/pages/_app";
+import type { Event } from "@/features/shared/domain";
+import type { NextPageWithLayout } from "@/pages/_app";
 import dayjs from "dayjs";
 import React, { useState, useEffect, useMemo } from "react";
 import { Presenter } from "./presenter";
@@ -39,7 +39,7 @@ export const MonthEvents: NextPageWithLayout<MonthEventsProps> = (props) => {
 
   useEffect(() => {
     setIsProcessing(false);
-  }, [props.events]);
+  }, []);
 
   // Use the presenter component
   return (

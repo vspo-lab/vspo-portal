@@ -1,4 +1,4 @@
-import { Platform } from "../domain/video";
+import type { Platform } from "../domain/video";
 
 /**
  * Gets the chat embed URL for the livestream in the given color scheme.

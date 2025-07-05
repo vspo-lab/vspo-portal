@@ -67,7 +67,7 @@ export function createEventRepository(db: DB): IEventRepository {
     query: ListQuery,
   ): Promise<Result<VspoEvents, AppError>> => {
     return withTracerResult("EventRepository", "list", async (span) => {
-      AppLogger.info("EventRepository list", {
+      AppLogger.debug("EventRepository list", {
         query,
       });
       const filters = buildFilters(query);

@@ -1,10 +1,6 @@
-import type { NextConfig } from "next";
-import type { RemotePattern } from "next/dist/shared/lib/image-config";
-
-// @ts-expect-error - No type declarations available for next-pwa
 import nextPWA from "next-pwa";
-import ci18n from "./next-i18next.config";
-import pkgJson from "./package.json";
+import ci18n from "./next-i18next.config.js";
+import pkgJson from "./package.json" with { type: "json" };
 
 const withPWA = nextPWA({
   dest: "public",
@@ -33,7 +29,7 @@ const emotionPackages = Object.keys(pkgJson.dependencies).filter((pkg) =>
   pkg.startsWith("@emotion/"),
 );
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["react-tweet"],
   compiler: {
@@ -57,13 +53,13 @@ const nextConfig: NextConfig = {
         protocol: "http",
         port: "3000",
         pathname: "**",
-      } as RemotePattern,
+      },
       {
         hostname: "imagegw03.twitcasting.tv",
         protocol: "http",
         port: "",
         pathname: "**",
-      } as RemotePattern,
+      },
       ...[
         "i.ytimg.com",
         "vod-secure.twitch.tv",
@@ -77,10 +73,10 @@ const nextConfig: NextConfig = {
         (hostname) =>
           ({
             hostname,
-            protocol: "https" as const,
+            protocol: "https",
             port: "",
             pathname: "**",
-          }) as RemotePattern,
+          }),
       ),
     ],
   },

@@ -1,4 +1,4 @@
-import { Clip } from "@/features/shared/domain";
+import type { Clip } from "@/features/shared/domain";
 import { useVideoModalContext } from "@/hooks/video-modal";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
-import React from "react";
+import type React from "react";
 
 // Styled components
 const SectionTitle = styled(Typography)(({ theme }) => ({

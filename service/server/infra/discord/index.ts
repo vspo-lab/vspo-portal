@@ -117,7 +117,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   ): Promise<Result<string, AppError>> => {
     return withTracerResult("discord", "sendMessage", async (span) => {
       const { channelId, content, embeds } = params;
-      AppLogger.info("Sending message to Discord channel", {
+      AppLogger.debug("Sending message to Discord channel", {
         channel_id: channelId,
         has_embeds: embeds ? embeds.length > 0 : false,
       });
@@ -144,7 +144,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
       );
       if (responseResult.err) return Err(responseResult.err);
 
-      AppLogger.info("Successfully sent message to Discord channel", {
+      AppLogger.debug("Successfully sent message to Discord channel", {
         channel_id: channelId,
       });
       return Ok(responseResult.val.id);
@@ -156,7 +156,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   ): Promise<Result<DiscordChannel, AppError>> => {
     return withTracerResult("discord", "getChannel", async (span) => {
       const { channelId, serverId } = params;
-      AppLogger.info("Fetching Discord channel info", {
+      AppLogger.debug("Fetching Discord channel info", {
         channel_id: channelId,
         server_id: serverId,
       });
@@ -194,7 +194,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
         );
       }
 
-      AppLogger.info("Successfully fetched Discord channel info", {
+      AppLogger.debug("Successfully fetched Discord channel info", {
         channel_id: channelId,
         server_id: serverId,
         channel_name: channel.name,
@@ -215,7 +215,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   ): Promise<Result<string, AppError>> => {
     return withTracerResult("discord", "updateMessage", async (span) => {
       const { channelId, messageId, content, embeds } = params;
-      AppLogger.info("Updating Discord message", {
+      AppLogger.debug("Updating Discord message", {
         channel_id: channelId,
         message_id: messageId,
         has_embeds: embeds ? embeds.length > 0 : false,
@@ -244,7 +244,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
       );
       if (responseResult.err) return Err(responseResult.err);
 
-      AppLogger.info("Successfully updated Discord message", {
+      AppLogger.debug("Successfully updated Discord message", {
         channel_id: channelId,
         message_id: messageId,
       });
@@ -257,7 +257,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   ): Promise<Result<string, AppError>> => {
     return withTracerResult("discord", "deleteMessage", async (span) => {
       const { channelId, messageId } = params;
-      AppLogger.info("Deleting Discord message", {
+      AppLogger.debug("Deleting Discord message", {
         channel_id: channelId,
         message_id: messageId,
       });
@@ -317,7 +317,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
       );
       if (deleteResult.err) return Err(deleteResult.err);
 
-      AppLogger.info("Successfully deleted Discord message", {
+      AppLogger.debug("Successfully deleted Discord message", {
         channel_id: channelId,
         message_id: messageId,
       });
@@ -329,7 +329,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
     channelId: string,
   ): Promise<Result<DiscordMessage[], AppError>> => {
     return withTracerResult("discord", "getLatestBotMessages", async (span) => {
-      AppLogger.info("Fetching latest bot messages from Discord channel", {
+      AppLogger.debug("Fetching latest bot messages from Discord channel", {
         channel_id: channelId,
       });
 
@@ -357,10 +357,13 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
         (m) => m.author?.bot && m.author.id === botId,
       );
 
-      AppLogger.info("Successfully fetched bot messages from Discord channel", {
-        channel_id: channelId,
-        message_count: botMessages.length,
-      });
+      AppLogger.debug(
+        "Successfully fetched bot messages from Discord channel",
+        {
+          channel_id: channelId,
+          message_count: botMessages.length,
+        },
+      );
       return Ok(
         discordMessages.parse(
           botMessages.map((m) => ({
@@ -391,7 +394,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   ): Promise<Result<DiscordMessage, AppError>> => {
     return withTracerResult("discord", "getMessage", async (span) => {
       const { channelId, messageId } = params;
-      AppLogger.info("Fetching Discord message", {
+      AppLogger.debug("Fetching Discord message", {
         channel_id: channelId,
         message_id: messageId,
       });
@@ -417,7 +420,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
       if (responseResult.err) return Err(responseResult.err);
       const message = responseResult.val;
 
-      AppLogger.info("Successfully fetched Discord message", {
+      AppLogger.debug("Successfully fetched Discord message", {
         channel_id: channelId,
         message_id: messageId,
       });

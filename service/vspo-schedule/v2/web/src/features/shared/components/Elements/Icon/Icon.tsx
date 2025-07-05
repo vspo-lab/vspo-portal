@@ -1,5 +1,5 @@
-import { NavigationRouteId } from "@/constants/navigation";
-import { Platform } from "@/features/shared/domain/video";
+import type { NavigationRouteId } from "@/constants/navigation";
+import type { Platform } from "@/features/shared/domain/video";
 import { faDiscord, faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AllInboxIcon from "@mui/icons-material/AllInbox";

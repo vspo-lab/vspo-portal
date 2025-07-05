@@ -1,5 +1,5 @@
-import React from "react";
-import { Freechat } from "../../../shared/domain/freechat";
+import type React from "react";
+import type { Freechat } from "../../../shared/domain/freechat";
 import { FreechatCardPresenter } from "../presenters/FreechatCardPresenter";
 
 export type FreechatCardProps = {

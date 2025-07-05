@@ -1,6 +1,6 @@
 import { Grid } from "@mui/material";
-import React from "react";
-import { Freechat } from "../../../shared/domain/freechat";
+import type React from "react";
+import type { Freechat } from "../../../shared/domain/freechat";
 import { FreechatCard } from "../../components";
 
 type FreechatPagePresenterProps = {

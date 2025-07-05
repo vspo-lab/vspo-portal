@@ -1,5 +1,5 @@
 import { Loading } from "@/features/shared/components/Elements";
-import { Livestream } from "@/features/shared/domain";
+import type { Livestream } from "@/features/shared/domain";
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React from "react";
-import GridLayout from "react-grid-layout";
+import type GridLayout from "react-grid-layout";
 import {
   LayoutSelector,
   MultiviewGrid,
@@ -34,7 +34,10 @@ import {
   StreamSelector,
   UrlInput,
 } from "../../components/containers";
-import { LayoutType, useMultiviewLayout } from "../../hooks/useMultiviewLayout";
+import {
+  type LayoutType,
+  useMultiviewLayout,
+} from "../../hooks/useMultiviewLayout";
 
 // Styled components
 const HeaderSection = styled(Paper)(({ theme }) => ({

@@ -14,8 +14,9 @@ import {
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { Clip, Pagination } from "../../../shared/domain/clip";
+import type React from "react";
+import { useState } from "react";
+import type { Clip, Pagination } from "../../../shared/domain/clip";
 import { ClipTabsAndList } from "../../components";
 
 // Styled container for filter section

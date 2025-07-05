@@ -1,5 +1,5 @@
 // i18next.config.js
-const path = require("path");
+import path from "path";
 
 const config = {
   i18n: {
@@ -11,4 +11,4 @@ const config = {
   reloadOnPrerender: process.env.NODE_ENV === "development",
 };
 
-module.exports = config;
+export default config;

@@ -90,7 +90,7 @@ export const createCreatorClipFetchService = (deps: {
 
             processedCreatorIds.push(creator.id);
 
-            AppLogger.info("Fetched clips for creator", {
+            AppLogger.debug("Fetched clips for creator", {
               service: SERVICE_NAME,
               creatorId: creator.id,
               creatorName: creator.name,
@@ -105,7 +105,7 @@ export const createCreatorClipFetchService = (deps: {
           }
         }
 
-        AppLogger.info("Completed clip fetching", {
+        AppLogger.debug("Completed clip fetching", {
           service: SERVICE_NAME,
           totalClips: allClips.length,
           processedCreators: processedCreatorIds.length,

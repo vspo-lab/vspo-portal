@@ -161,7 +161,7 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
     params: GetStreamsParams,
   ): Promise<Result<Streams, AppError>> => {
     return withTracerResult("YoutubeService", "getStreams", async (span) => {
-      AppLogger.info("getStreams", {
+      AppLogger.debug("getStreams", {
         streamIds: params.streamIds,
       });
       const chunks = chunkArray(params.streamIds, 50);

@@ -22,7 +22,7 @@
       "clip": "剪輯",
       "twitch-clip": "Twitch 剪輯",
       "event": "活動",
-      "multiview": "多視窗檢視"
+      "multiview": "多視圖"
     }
   },
   "drawer": {
@@ -33,7 +33,7 @@
       "freechat": "自由聊天",
       "clip": "剪輯列表",
       "twitch-clip": "Twitch 剪輯列表",
-      "multiview": "多視窗檢視",
+      "multiview": "多視圖",
       "about": "關於 Spodule",
       "site-news": "網站公告",
       "qa": "聯繫我們",

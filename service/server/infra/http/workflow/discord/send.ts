@@ -11,7 +11,14 @@ import { withTracer } from "../../../http/trace/cloudflare";
 type DiscordChannelIdsMap = {
   channelIds: string[];
   channelLangaugeCode: string;
-  channelMemberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  channelMemberType:
+    | "vspo_jp"
+    | "vspo_en"
+    | "vspo_ch"
+    | "vspo_all"
+    | "general"
+    | "custom";
+  selectedMemberIds?: string[];
 }[];
 
 type GroupedChannels = {
@@ -22,8 +29,10 @@ type GroupedChannels = {
       | "vspo_en"
       | "vspo_ch"
       | "vspo_all"
-      | "general";
+      | "general"
+      | "custom";
     channelIds: string[];
+    selectedMemberIds?: string[];
   };
 };
 
@@ -115,13 +124,18 @@ export const discordSendMessagesWorkflow = () => {
               // Prioritize the channel-specific language setting; use the server's language setting if none exists
               const channelLang = channel.languageCode || server.languageCode;
               const memberType = channel.memberType || "vspo_all";
-              const compositeKey = `${channelLang}-${memberType}`;
+              const selectedMemberIds = channel.selectedMemberIds;
+              // Create a unique key based on language, member type, and selected members
+              const selectedMembersKey =
+                selectedMemberIds?.sort().join(",") || "";
+              const compositeKey = `${channelLang}-${memberType}-${selectedMembersKey}`;
 
               if (!acc[compositeKey]) {
                 acc[compositeKey] = {
                   channelLangaugeCode: channelLang,
                   channelMemberType: memberType,
                   channelIds: [],
+                  selectedMemberIds: selectedMemberIds,
                 };
               }
 
@@ -213,6 +227,7 @@ export const discordSendMessagesWorkflow = () => {
                         channelIds: channelIdsChunk,
                         channelLangaugeCode: group.channelLangaugeCode,
                         channelMemberType: group.channelMemberType,
+                        selectedMemberIds: group.selectedMemberIds,
                       });
 
                       logger.info(

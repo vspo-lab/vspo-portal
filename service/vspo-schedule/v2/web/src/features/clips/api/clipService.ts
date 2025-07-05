@@ -1,8 +1,8 @@
-import { IncomingMessage } from "http";
-import { Channel, Clip, Pagination } from "@/features/shared/domain";
+import type { IncomingMessage } from "node:http";
+import type { Channel, Clip, Pagination } from "@/features/shared/domain";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getSessionId } from "@/lib/utils";
-import { SSRConfig } from "next-i18next";
+import type { SSRConfig } from "next-i18next";
 import { fetchVspoMembers } from "../../shared/api/channel";
 import { fetchClips } from "../../shared/api/clip";
 

@@ -27,8 +27,15 @@ import type { Stream } from "../stream";
 // Parameters for sending messages to multiple channels
 type ChannelMessageParams = {
   channelLangaugeCode: string;
-  channelMemberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  channelMemberType:
+    | "vspo_jp"
+    | "vspo_en"
+    | "vspo_ch"
+    | "vspo_all"
+    | "general"
+    | "custom";
   channelIds: string[];
+  selectedMemberIds?: string[];
 };
 
 // Parameters for adjusting the bot's channels
@@ -38,7 +45,14 @@ type BotChannelAdjustmentParams = {
   targetChannelId: string;
   serverLangaugeCode?: string;
   channelLangaugeCode?: string;
-  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  memberType?:
+    | "vspo_jp"
+    | "vspo_en"
+    | "vspo_ch"
+    | "vspo_all"
+    | "general"
+    | "custom";
+  selectedMemberIds?: string[];
 };
 
 type SendAdminMessageParams = {
@@ -151,6 +165,7 @@ export const createDiscordService = (dependencies: {
                 getCurrentUTCDate().setDate(getCurrentUTCDate().getDate() - 1),
               ),
               memberType: options.channelMemberType,
+              creatorIds: options.selectedMemberIds,
               status: "live",
               orderBy: "desc",
             },
@@ -181,6 +196,7 @@ export const createDiscordService = (dependencies: {
                 getCurrentUTCDate().setDate(getCurrentUTCDate().getDate() - 1),
               ),
               memberType: options.channelMemberType,
+              creatorIds: options.selectedMemberIds,
               status: "upcoming",
               orderBy: "desc",
             });
@@ -463,12 +479,16 @@ export const createDiscordService = (dependencies: {
                 channels[existingIndex].languageCode,
               memberType:
                 options.memberType ?? channels[existingIndex].memberType,
+              selectedMemberIds:
+                options.selectedMemberIds ??
+                channels[existingIndex].selectedMemberIds,
             };
           } else {
             // Add new channel
             channels.push({
               ...channelResult.val,
               memberType: options.memberType ?? "vspo_all",
+              selectedMemberIds: options.selectedMemberIds,
               isInitialAdd: true,
             });
           }

@@ -1,4 +1,4 @@
-import { Livestream } from "@/features/shared/domain";
+import type { Livestream } from "@/features/shared/domain";
 import {
   Box,
   Chip,
@@ -20,8 +20,9 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useCallback } from "react";
-import { StreamPlaybackState } from "../../hooks/usePlaybackControls";
+import type React from "react";
+import { useCallback, useState } from "react";
+import type { StreamPlaybackState } from "../../hooks/usePlaybackControls";
 
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -306,14 +307,11 @@ export const PlaybackControlsPresenter: React.FC<
     [],
   );
 
-  const truncateTitle = useCallback(
-    (title: string, maxLength: number = 30): string => {
-      return title.length > maxLength
-        ? `${title.substring(0, maxLength)}...`
-        : title;
-    },
-    [],
-  );
+  const truncateTitle = useCallback((title: string, maxLength = 30): string => {
+    return title.length > maxLength
+      ? `${title.substring(0, maxLength)}...`
+      : title;
+  }, []);
 
   return (
     <ControlsContainer
@@ -515,7 +513,14 @@ export const PlaybackControlsPresenter: React.FC<
                         variant="caption"
                         color="text.secondary"
                         display="block"
-                        sx={{ fontSize: "0.7rem" }}
+                        sx={{
+                          fontSize: "0.7rem",
+                          [theme.getColorSchemeSelector("dark")]: {
+                            color:
+                              theme.palette.grey?.[100] ||
+                              theme.palette.text.primary,
+                          },
+                        }}
                       >
                         {truncateTitle(stream.title, 25)}
                       </Typography>

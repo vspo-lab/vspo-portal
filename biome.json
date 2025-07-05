@@ -22,7 +22,10 @@
       "**/.vscode/**",
       "**/gen/**",
       "**/.open-next/**",
-      "**/.mastra/**"
+      "**/.mastra/**",
+      "service/vspo-schedule/v2/web/*.d.ts",
+      "**/.pnpm-store/**",
+      "**/*.css"
     ]
   },
   "formatter": {
@@ -45,12 +48,5 @@
       "quoteStyle": "double"
     }
   },
-  "overrides": [
-    {
-      "include": ["**/service/vspo-schedule/**/**"],
-      "linter": {
-        "enabled": false
-      }
-    }
-  ]
+  "overrides": []
 }

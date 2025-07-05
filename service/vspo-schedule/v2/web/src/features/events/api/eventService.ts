@@ -1,9 +1,9 @@
-import { IncomingMessage } from "http";
+import type { IncomingMessage } from "node:http";
 import { fetchEvents } from "@/features/shared/api/event";
-import { Event } from "@/features/shared/domain";
+import type { Event } from "@/features/shared/domain";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getSessionId } from "@/lib/utils";
-import { SSRConfig } from "next-i18next";
+import type { SSRConfig } from "next-i18next";
 
 type EventService = {
   events: Event[];

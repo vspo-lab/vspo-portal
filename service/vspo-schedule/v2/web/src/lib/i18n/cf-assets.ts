@@ -1,6 +1,11 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { AppError, Err, Ok, Result, wrap } from "@vspo-lab/error";
-import { BackendModule, ReadCallback, ResourceKey, Services } from "i18next";
+import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
+import type {
+  BackendModule,
+  ReadCallback,
+  ResourceKey,
+  Services,
+} from "i18next";
 
 interface BackendOptions {
   loadPath: string;

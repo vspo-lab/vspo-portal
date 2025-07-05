@@ -1,9 +1,9 @@
 import { DEFAULT_LOCALE } from "@/lib/Const";
 import { getInitializedI18nInstance } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import { GetServerSidePropsContext } from "next";
+import type { GetServerSidePropsContext } from "next";
 import { fetchSingleClipService } from "../../api/clipService";
-import { YouTubeClipsProps } from "./container";
+import type { YouTubeClipsProps } from "./container";
 
 // Get date for N days ago in ISO format
 const getDaysAgoISO = (days: number): string => {
@@ -35,7 +35,7 @@ export const getYouTubeClipsServerSideProps = (options: YouTubeClipOptions) => {
         : context.query.orderKey) || "publishedAt";
 
     // Get page number from query params (default to 0)
-    const page = parseInt(
+    const page = Number.parseInt(
       Array.isArray(context.query.page)
         ? context.query.page[0]
         : context.query.page || "0",
@@ -64,7 +64,6 @@ export const getYouTubeClipsServerSideProps = (options: YouTubeClipOptions) => {
       case "year":
         afterDate = getDaysAgoISO(365);
         break;
-      case "all":
       default:
         afterDate = undefined;
         break;

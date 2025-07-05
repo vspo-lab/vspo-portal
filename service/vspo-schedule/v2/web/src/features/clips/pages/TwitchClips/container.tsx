@@ -1,6 +1,6 @@
 import { ContentLayout } from "@/features/shared/components/Layout";
-import { Clip, Pagination } from "@/features/shared/domain";
-import { NextPageWithLayout } from "@/pages/_app";
+import type { Clip, Pagination } from "@/features/shared/domain";
+import type { NextPageWithLayout } from "@/pages/_app";
 import React, { useEffect, useState } from "react";
 import { Presenter } from "./presenter";
 
@@ -23,7 +23,7 @@ export const TwitchClips: NextPageWithLayout<TwitchClipsProps> = (props) => {
 
   useEffect(() => {
     setIsProcessing(false);
-  }, [props.clips]);
+  }, []);
 
   // Use the presenter component
   return (

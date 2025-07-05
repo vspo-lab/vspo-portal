@@ -1,5 +1,5 @@
 import { PlatformIcon } from "@/features/schedule/pages/ScheduleStatus/components/LivestreamContent/PlatformIcon";
-import { Video } from "@/features/shared/domain/video";
+import type { Video } from "@/features/shared/domain/video";
 import { useVideoModalContext } from "@/hooks";
 import { Box, Card, CardActionArea } from "@mui/material";
 import { styled } from "@mui/material/styles";

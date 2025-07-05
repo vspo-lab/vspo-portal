@@ -1,5 +1,5 @@
 import { Loading } from "@/features/shared/components/Elements";
-import { Clip } from "@/features/shared/domain";
+import type { Clip } from "@/features/shared/domain";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import {
@@ -15,7 +15,8 @@ import {
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { ClipCarousel, ClipSection } from "../../components/containers";
 
 // Add responsive styled title component

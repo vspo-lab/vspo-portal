@@ -68,7 +68,7 @@ export function createFreechatRepository(db: DB): IFreechatRepository {
     query: ListQuery,
   ): Promise<Result<Freechats, AppError>> => {
     return withTracerResult("FreechatRepository", "list", async (span) => {
-      AppLogger.info("FreechatRepository list", {
+      AppLogger.debug("FreechatRepository list", {
         query,
       });
       const filters = buildFilters(query);

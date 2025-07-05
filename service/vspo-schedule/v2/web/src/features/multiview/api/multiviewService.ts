@@ -1,6 +1,6 @@
-import { IncomingMessage } from "http";
+import type { IncomingMessage } from "node:http";
 import { fetchLivestreams } from "@/features/shared/api/livestream";
-import { Livestream } from "@/features/shared/domain";
+import type { Livestream } from "@/features/shared/domain";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getSessionId } from "@/lib/utils";
 import { AppError } from "@vspo-lab/error";

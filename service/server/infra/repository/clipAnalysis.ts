@@ -117,7 +117,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
           return Err(result.err);
         }
 
-        AppLogger.info("Clip analyses batch inserted", {
+        AppLogger.debug("Clip analyses batch inserted", {
           count: analyses.length,
         });
 

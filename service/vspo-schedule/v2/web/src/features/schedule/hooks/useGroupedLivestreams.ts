@@ -2,7 +2,7 @@ import { groupBy } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
 import { useTranslation } from "next-i18next";
 import { useMemo } from "react";
-import { Livestream } from "../../shared/domain/livestream";
+import type { Livestream } from "../../shared/domain/livestream";
 
 type StatusFilter = "live" | "upcoming" | "all";
 
@@ -62,13 +62,13 @@ export const useGroupedLivestreams = ({
           const sortedByDate: Record<string, Livestream[]> = {};
           const sortedDates = Object.keys(livestreamsByDate).sort().reverse();
 
-          sortedDates.forEach((date) => {
+          for (const date of sortedDates) {
             sortedByDate[date] = [...livestreamsByDate[date]].sort(
               (a, b) =>
                 new Date(a.scheduledStartTime).getTime() -
                 new Date(b.scheduledStartTime).getTime(),
             );
-          });
+          }
 
           return sortedByDate;
         }
@@ -83,7 +83,7 @@ export const useGroupedLivestreams = ({
             )
           : Object.entries(livestreamsByDate);
 
-      entries.forEach(([date, streams]) => {
+      for (const [date, streams] of entries) {
         let filteredStreams = streams.filter((stream) => {
           if (currentStatusFilter === "live") {
             return stream.status === "live";
@@ -102,7 +102,7 @@ export const useGroupedLivestreams = ({
         if (filteredStreams.length > 0) {
           filtered[date] = filteredStreams;
         }
-      });
+      }
 
       return filtered;
     })();

@@ -1,4 +1,4 @@
-import { Clip } from "@/features/shared/domain";
+import type { Clip } from "@/features/shared/domain";
 import { useVideoModalContext } from "@/hooks";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -10,7 +10,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { alpha, styled } from "@mui/material/styles";
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 const CarouselContainer = styled(Box)(({ theme }) => ({
   position: "relative",

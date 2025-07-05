@@ -47,8 +47,8 @@ function parseLogLevel(level: string | number): LogLevel {
     case "error":
       return LogLevel.ERROR;
     default:
-      console.warn(`Invalid log level: ${level}. Defaulting to DEBUG.`);
-      return LogLevel.DEBUG;
+      // console.warn(`Invalid log level: ${level}. Defaulting to DEBUG.`);
+      return LogLevel.INFO;
   }
 }
 

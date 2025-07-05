@@ -1,7 +1,8 @@
 // Removed notistack dependency - using console.log for feedback
 import { useTranslation } from "next-i18next";
-import React, { useCallback } from "react";
-import { LayoutType } from "../../hooks/useMultiviewLayout";
+import type React from "react";
+import { useCallback } from "react";
+import type { LayoutType } from "../../hooks/useMultiviewLayout";
 import { LayoutSelectorPresenter } from "../presenters/LayoutSelectorPresenter";
 
 export type LayoutSelectorProps = {
@@ -44,7 +45,6 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
           return t("layout.nine", "9分割");
         case "picture-in-picture":
           return t("layout.pip", "ピクチャーインピクチャー");
-        case "auto":
         default:
           return t("layout.auto", "自動");
       }
