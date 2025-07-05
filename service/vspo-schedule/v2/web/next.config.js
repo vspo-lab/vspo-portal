@@ -1,4 +1,4 @@
-import nextPWA from "next-pwa";
+import nextPWA from "@ducanh2912/next-pwa";
 import ci18n from "./next-i18next.config.js";
 import pkgJson from "./package.json" with { type: "json" };
 
