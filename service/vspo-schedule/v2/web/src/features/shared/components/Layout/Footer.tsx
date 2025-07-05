@@ -4,7 +4,7 @@ import { Box, Typography } from "@mui/material";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { useTranslation } from "next-i18next";
 import NextLink from "next/link";
-import React from "react";
+import type React from "react";
 import { Link } from "../Elements";
 
 type Props = {
@@ -48,7 +48,7 @@ export const Footer: React.FC<Props> = ({
         }}
       >
         <Link
-          href={`/schedule/all`}
+          href={"/schedule/all"}
           sx={{
             color: "inherit",
             textDecoration: "none",

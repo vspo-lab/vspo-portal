@@ -1,11 +1,11 @@
 import PrivacyPolicyPageComponent from "@/features/legal-documents/pages/PrivacyPolicyPage";
 import {
-  PrivacyPolicyPageProps,
+  type PrivacyPolicyPageProps,
   getStaticProps as privacyGetStaticProps,
 } from "@/features/legal-documents/pages/PrivacyPolicyPage/serverSideProps";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import React from "react";
-import { NextPageWithLayout } from "./_app";
+import type { NextPageWithLayout } from "./_app";
 
 export const getStaticProps = privacyGetStaticProps;
 

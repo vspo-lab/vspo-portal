@@ -6,7 +6,8 @@ import { styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
 import { useTranslation } from "next-i18next";
 import Image from "next/image";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { CustomDrawer, Link } from "../Elements";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -92,7 +93,7 @@ export const Header: React.FC<Props> = ({ title }) => {
                 display: "flex",
                 width: "100%",
               }}
-              href={`/schedule/all`}
+              href={"/schedule/all"}
             >
               <Image
                 src="/icon-top_transparent.png"

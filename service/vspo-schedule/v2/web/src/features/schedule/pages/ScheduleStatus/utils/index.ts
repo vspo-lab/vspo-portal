@@ -1,4 +1,4 @@
-import { Livestream } from "@/features/shared/domain/livestream";
+import type { Livestream } from "@/features/shared/domain/livestream";
 import { utcToZonedTime } from "date-fns-tz";
 
 // Time blocks for grouping livestreams
@@ -16,16 +16,16 @@ export const groupLivestreamsByTimeBlock = (
 ): Record<string, Record<string, Livestream[]>> => {
   const result: Record<string, Record<string, Livestream[]>> = {};
 
-  Object.entries(livestreamsByDate).forEach(([date, livestreams]) => {
+  for (const [date, livestreams] of Object.entries(livestreamsByDate)) {
     result[date] = {};
 
     // Initialize all time blocks
-    TIME_BLOCKS.forEach((block) => {
+    for (const block of TIME_BLOCKS) {
       result[date][block.label] = [];
-    });
+    }
 
     // Sort livestreams into time blocks using the user's timezone
-    livestreams.forEach((livestream) => {
+    for (const livestream of livestreams) {
       // Convert UTC time to user's timezone
       const startTimeInUserTZ = utcToZonedTime(
         livestream.scheduledStartTime,
@@ -39,20 +39,20 @@ export const groupLivestreamsByTimeBlock = (
           break;
         }
       }
-    });
+    }
 
     // Remove empty time blocks
-    Object.keys(result[date]).forEach((blockLabel) => {
+    for (const blockLabel of Object.keys(result[date])) {
       if (result[date][blockLabel].length === 0) {
         delete result[date][blockLabel];
       }
-    });
+    }
 
     // Remove dates with no livestreams in any time block
     if (Object.keys(result[date]).length === 0) {
       delete result[date];
     }
-  });
+  }
 
   return result;
 };

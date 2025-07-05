@@ -1,7 +1,8 @@
-import { Event } from "@/features/shared/domain";
+import type { Event } from "@/features/shared/domain";
 import { useRouter } from "next/router";
-import React, { useState, useEffect } from "react";
-import { Livestream } from "../../../shared/domain/livestream";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { Livestream } from "../../../shared/domain/livestream";
 import { useGroupedLivestreams } from "../../hooks/useGroupedLivestreams";
 import { ScheduleStatusPresenter } from "./presenter";
 

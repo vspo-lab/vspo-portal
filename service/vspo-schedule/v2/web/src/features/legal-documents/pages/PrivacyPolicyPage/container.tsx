@@ -1,5 +1,5 @@
 import { useTranslation } from "next-i18next";
-import * as React from "react";
+import type * as React from "react";
 import { PrivacyPolicyPagePresenter } from "./presenter";
 
 export const PrivacyPolicyPageContainer: React.FC = () => {

@@ -1,7 +1,7 @@
 import { RpcTarget, WorkerEntrypoint } from "cloudflare:workers";
-import * as _vspo_lab_error from "@vspo-lab/error";
-import { AppError, Result } from "@vspo-lab/error";
-import { z } from "zod";
+import type * as _vspo_lab_error from "@vspo-lab/error";
+import type { AppError, Result } from "@vspo-lab/error";
+import type { z } from "zod";
 
 declare const FreechatsSchema: z.ZodArray<
   z.ZodEffects<

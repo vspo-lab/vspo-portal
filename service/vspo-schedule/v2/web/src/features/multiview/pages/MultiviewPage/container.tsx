@@ -1,12 +1,12 @@
 import { ContentLayout } from "@/features/shared/components/Layout";
-import { Livestream } from "@/features/shared/domain";
-import { NextPageWithLayout } from "@/pages/_app";
+import type { Livestream } from "@/features/shared/domain";
+import type { NextPageWithLayout } from "@/pages/_app";
 import React, { useEffect, useState, useCallback } from "react";
-import GridLayout from "react-grid-layout";
+import type GridLayout from "react-grid-layout";
 import { PlaybackProvider } from "../../context/PlaybackContext";
 import { useUrlConfigurationLoader } from "../../hooks/useConfigurationLoader";
-import { LayoutType } from "../../hooks/useMultiviewLayout";
-import { LoadedConfig } from "../../utils/configLoader";
+import type { LayoutType } from "../../hooks/useMultiviewLayout";
+import type { LoadedConfig } from "../../utils/configLoader";
 import {
   clearUrlState,
   expandCompactState,
@@ -172,7 +172,8 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
       if (isAlreadySelected) {
         const newStreams = prev.filter((s) => s.id !== stream.id);
         return newStreams;
-      } else if (prev.length < 9) {
+      }
+      if (prev.length < 9) {
         // Allow up to 9 streams for 3x3 layout
         const newStreams = [...prev, stream];
         return newStreams;

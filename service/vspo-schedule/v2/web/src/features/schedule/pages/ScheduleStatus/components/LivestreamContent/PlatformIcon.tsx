@@ -1,4 +1,4 @@
-import { Platform } from "@/features/shared/domain/video";
+import type { Platform } from "@/features/shared/domain/video";
 import { faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { styled } from "@mui/material/styles";

@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import * as React from "react";
+import type * as React from "react";
 import { AboutPagePresenter } from "./presenter";
 
 type AboutPageContainerProps = {

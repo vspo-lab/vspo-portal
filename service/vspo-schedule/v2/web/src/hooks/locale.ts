@@ -21,7 +21,7 @@ export const useLocale = () => {
     if (localeCookie !== router.locale) {
       setLocaleCookie(router.locale ?? DEFAULT_LOCALE);
     }
-  }, [router.locale]);
+  }, [router.locale, localeCookie, setLocaleCookie]);
 
   return {
     locale: router.locale ?? DEFAULT_LOCALE,

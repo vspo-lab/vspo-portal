@@ -1,4 +1,4 @@
-import { Livestream } from "@/features/shared/domain/livestream";
+import type { Livestream } from "@/features/shared/domain/livestream";
 import { formatDate } from "@/lib/utils";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import React from "react";
+import type React from "react";
 import { groupLivestreamsByTimeBlock } from "../../utils";
 import { LivestreamCard } from "./LivestreamCard";
 

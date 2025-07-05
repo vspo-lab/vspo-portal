@@ -1,5 +1,5 @@
-import { Clip } from "@/features/shared/domain";
-import React from "react";
+import type { Clip } from "@/features/shared/domain";
+import type React from "react";
 import { ClipSectionPresenter } from "../presenters/ClipSectionPresenter";
 
 export type ClipSectionProps = {

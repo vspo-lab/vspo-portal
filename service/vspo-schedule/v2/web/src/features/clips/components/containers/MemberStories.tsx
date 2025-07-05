@@ -1,5 +1,5 @@
-import { Channel } from "@/features/shared/domain";
-import React from "react";
+import type { Channel } from "@/features/shared/domain";
+import type React from "react";
 import { MemberStoriesPresenter } from "../presenters/MemberStoriesPresenter";
 
 export type MemberStoriesProps = {

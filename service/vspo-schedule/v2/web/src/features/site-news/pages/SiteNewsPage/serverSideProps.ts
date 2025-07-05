@@ -1,8 +1,8 @@
 import { DEFAULT_LOCALE } from "@/lib/Const";
 import { serverSideTranslations } from "@/lib/i18n/server";
-import { SiteNewsMarkdownItem, getAllSiteNewsItems } from "@/lib/markdown";
+import { type SiteNewsMarkdownItem, getAllSiteNewsItems } from "@/lib/markdown";
 import { getInitializedI18nInstance } from "@/lib/utils";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 
 export type SiteNewsPageProps = {
   siteNewsItems: SiteNewsMarkdownItem[];

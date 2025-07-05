@@ -18,6 +18,6 @@
     },
     "types": ["@cloudflare/workers-types/2023-07-01"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "next.config.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "./src/features/shared/types/api.d.ts"]
 }

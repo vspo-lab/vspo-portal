@@ -1,7 +1,7 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { AppError, Err, Ok, Result, wrap } from "@vspo-lab/error";
+import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { remark } from "remark";
 import html from "remark-html";
 
@@ -159,7 +159,7 @@ async function fetchDirectoryFromAssets(
   }
 
   // Fetch the content manifest file
-  const manifestPath = `/content/content-manifest.json`;
+  const manifestPath = "/content/content-manifest.json";
 
   const manifestResponse = await wrap(
     env.ASSETS.fetch(`https://placeholder${manifestPath}`),
@@ -290,16 +290,15 @@ function readDirectoryFromFilesystem(
           context: { locale: actualLocale, category },
         }),
       );
-    } else {
-      return Err(
-        new AppError({
-          message: "Error reading content-manifest.json",
-          code: "INTERNAL_SERVER_ERROR",
-          cause: error,
-          context: { locale: actualLocale, category },
-        }),
-      );
     }
+    return Err(
+      new AppError({
+        message: "Error reading content-manifest.json",
+        code: "INTERNAL_SERVER_ERROR",
+        cause: error,
+        context: { locale: actualLocale, category },
+      }),
+    );
   }
 }
 
@@ -361,7 +360,7 @@ function parseFrontmatter(fileContents: string): {
       data[key] = new Date(value);
     }
     // Handle numbers
-    else if (!isNaN(Number(value)) && value !== "") {
+    else if (!Number.isNaN(Number(value)) && value !== "") {
       data[key] = Number(value);
     }
     // Handle booleans
@@ -491,7 +490,7 @@ export function getMarkdownContentSync(
  */
 export async function getAllMarkdownSlugs(
   category: string,
-  locale: string = "ja",
+  locale = "ja",
 ): Promise<string[]> {
   // Check if running in Cloudflare environment
   if (await isCloudflareEdgeEnvironment()) {
@@ -502,11 +501,10 @@ export async function getAllMarkdownSlugs(
     }
     console.error("Error fetching directory from assets:", result.err);
     return [];
-  } else {
-    // Use filesystem for development
-    const result = readDirectoryFromFilesystem(locale, category);
-    return result.err ? [] : result.val;
   }
+  // Use filesystem for development
+  const result = readDirectoryFromFilesystem(locale, category);
+  return result.err ? [] : result.val;
 }
 
 /**
@@ -514,7 +512,7 @@ export async function getAllMarkdownSlugs(
  */
 export function getAllMarkdownSlugsSync(
   category: string,
-  locale: string = "ja",
+  locale = "ja",
 ): string[] {
   const result = readDirectoryFromFilesystem(locale, category);
   return result.err ? [] : result.val;
@@ -566,8 +564,8 @@ export async function getAllSiteNewsItems(
       );
       if (!markdownContent) return null;
 
-      const id = parseInt(slug, 10);
-      if (isNaN(id)) return null;
+      const id = Number.parseInt(slug, 10);
+      if (Number.isNaN(id)) return null;
 
       return {
         id,
@@ -603,8 +601,8 @@ export function getAllSiteNewsItemsSync(
       const markdownContent = getMarkdownContentSync(locale, "site-news", slug);
       if (!markdownContent) return [];
 
-      const id = parseInt(slug, 10);
-      if (isNaN(id)) return [];
+      const id = Number.parseInt(slug, 10);
+      if (Number.isNaN(id)) return [];
 
       return [
         {
@@ -638,9 +636,9 @@ export async function getSiteNewsItem(
     return null;
   }
 
-  const numericId = parseInt(id, 10);
+  const numericId = Number.parseInt(id, 10);
 
-  if (isNaN(numericId)) {
+  if (Number.isNaN(numericId)) {
     return null;
   }
 

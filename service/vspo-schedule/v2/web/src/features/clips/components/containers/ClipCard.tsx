@@ -1,5 +1,5 @@
-import React from "react";
-import { Clip } from "../../../shared/domain/clip";
+import type React from "react";
+import type { Clip } from "../../../shared/domain/clip";
 import { ClipCardPresenter } from "../presenters";
 
 export type ClipCardProps = {

@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
-import React from "react";
-import { Freechat } from "../../../shared/domain/freechat";
+import type React from "react";
+import type { Freechat } from "../../../shared/domain/freechat";
 
 // Styled components
 const StyledCard = styled(Card)(() => ({
@@ -141,9 +141,9 @@ export const FreechatCardPresenter: React.FC<FreechatCardPresenterProps> = ({
                 {additionalMembers.length > 0 ? (
                   <StyledAvatarGroup max={isMobile ? 3 : 4}>
                     <StyledAvatar src={iconUrl} alt={channelTitle} />
-                    {additionalMembers.map((member, index) => (
+                    {additionalMembers.map((member) => (
                       <StyledAvatar
-                        key={index}
+                        key={member.name}
                         src={member.iconUrl}
                         alt={member.name}
                       />

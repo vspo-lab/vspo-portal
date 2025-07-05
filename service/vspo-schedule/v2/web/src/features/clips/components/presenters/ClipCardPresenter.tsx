@@ -1,8 +1,8 @@
 import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React from "react";
-import { Clip } from "../../../shared/domain/clip";
+import type React from "react";
+import type { Clip } from "../../../shared/domain/clip";
 export type ClipCardPresenterProps = {
   clip: Clip;
 };

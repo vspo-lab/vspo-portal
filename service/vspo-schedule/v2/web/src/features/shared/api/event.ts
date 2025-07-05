@@ -1,9 +1,9 @@
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
-import { ListEvents200EventsItem, VSPOApi } from "@vspo-lab/api";
+import { type ListEvents200EventsItem, VSPOApi } from "@vspo-lab/api";
 import { AppError, wrap } from "@vspo-lab/error";
-import { BaseError, Result } from "@vspo-lab/error";
+import type { BaseError, Result } from "@vspo-lab/error";
 import { eventSchema } from "../domain/event";
-import { Event } from "../domain/event";
+import type { Event } from "../domain/event";
 
 export type FetchEventsParams = {
   lang: string;

@@ -1,5 +1,5 @@
 import { GoogleTagManager as NextGoogleTagManager } from "@next/third-parties/google";
-import { FC } from "react";
+import type { FC } from "react";
 
 export const GoogleTagManager: FC = () => {
   const gtmId = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID;
