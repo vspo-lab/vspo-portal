@@ -61,7 +61,7 @@ export const analyzeClipsWorkflow = () => {
                 span.setAttribute("skipped_count", skipped || 0);
                 span.setAttribute("failed_count", failed || 0);
 
-                AppLogger.info("Analyzed clips", {
+                AppLogger.debug("Analyzed clips", {
                   analyzed,
                   unanalyzed,
                   newlyAnalyzed: newlyAnalyzed || 0,
@@ -71,7 +71,7 @@ export const analyzeClipsWorkflow = () => {
 
                 // If there are more clips to process, we can trigger another workflow
                 if (unanalyzed > 0) {
-                  AppLogger.info("More clips to analyze", {
+                  AppLogger.debug("More clips to analyze", {
                     remainingCount: unanalyzed,
                   });
                 }

@@ -236,7 +236,7 @@ export default createHandler({
             "CronJob",
             "search-channels",
             async (searchChannelsSpan) => {
-              AppLogger.info("search-channels");
+              AppLogger.debug("search-channels");
               searchChannelsSpan.setAttribute("workflow", "search-channels");
               await env.SEARCH_CHANNELS_WORKFLOW.create({ id: createUUID() });
             },
@@ -247,7 +247,7 @@ export default createHandler({
             "CronJob",
             "translate-creators",
             async (translateCreatorsSpan) => {
-              AppLogger.info("translate-creators");
+              AppLogger.debug("translate-creators");
               translateCreatorsSpan.setAttribute(
                 "workflow",
                 "translate-creators",
@@ -263,7 +263,7 @@ export default createHandler({
             "CronJob",
             "search-streams",
             async (searchStreamsSpan) => {
-              AppLogger.info("search-streams");
+              AppLogger.debug("search-streams");
               searchStreamsSpan.setAttribute("workflow", "search-streams");
               await env.SEARCH_STREAMS_WORKFLOW.create({ id: createUUID() });
               await env.ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW.create({
@@ -277,7 +277,7 @@ export default createHandler({
             "CronJob",
             "discord-send-messages",
             async (discordSpan) => {
-              AppLogger.info("discord-send-messages");
+              AppLogger.debug("discord-send-messages");
               discordSpan.setAttribute("workflow", "discord-send-messages");
               await env.TRANSLATE_STREAMS_WORKFLOW.create({ id: createUUID() });
               await env.DISCORD_SEND_MESSAGES_WORKFLOW.create({
@@ -291,7 +291,7 @@ export default createHandler({
             "CronJob",
             "search-member-streams-by-channel",
             async (memberStreamsSpan) => {
-              AppLogger.info("search-member-streams-by-channel");
+              AppLogger.debug("search-member-streams-by-channel");
               memberStreamsSpan.setAttribute(
                 "workflow",
                 "search-member-streams-by-channel",
@@ -305,7 +305,7 @@ export default createHandler({
           break;
         case "15 * * * *":
           await withTracer("CronJob", "clips-hourly", async (clipsSpan) => {
-            AppLogger.info("exist-clips");
+            AppLogger.debug("exist-clips");
             clipsSpan.setAttribute("workflow", "clips-hourly");
             await env.EXIST_CLIPS_WORKFLOW.create({ id: createUUID() });
             await env.SEARCH_CLIPS_WORKFLOW.create({ id: createUUID() });
@@ -316,7 +316,7 @@ export default createHandler({
             "CronJob",
             "search-clips-by-vspo-member-name",
             async (vspoClipsSpan) => {
-              AppLogger.info("search-clips-by-vspo-member-name");
+              AppLogger.debug("search-clips-by-vspo-member-name");
               vspoClipsSpan.setAttribute(
                 "workflow",
                 "search-clips-by-vspo-member-name",
@@ -332,7 +332,7 @@ export default createHandler({
           //   "CronJob",
           //   "fetch-clips-by-creator",
           //   async (creatorClipsSpan) => {
-          //     AppLogger.info("fetch-clips-by-creator");
+          //     AppLogger.debug("fetch-clips-by-creator");
           //     creatorClipsSpan.setAttribute(
           //       "workflow",
           //       "fetch-clips-by-creator",
@@ -351,7 +351,7 @@ export default createHandler({
           //   "CronJob",
           //   "analyze-clips",
           //   async (analyzeClipsSpan) => {
-          //     AppLogger.info("analyze-clips");
+          //     AppLogger.debug("analyze-clips");
           //     analyzeClipsSpan.setAttribute("workflow", "analyze-clips");
           //     await env.ANALYZE_CLIPS_WORKFLOW.create({
           //       id: createUUID(),

@@ -123,7 +123,7 @@ const buildFilters = (query: ListQuery): SQL[] => {
 export const createStreamRepository = (db: DB): IStreamRepository => {
   const list = async (query: ListQuery): Promise<Result<Streams, AppError>> => {
     return withTracerResult("StreamRepository", "list", async (span) => {
-      AppLogger.info("StreamRepository list", {
+      AppLogger.debug("StreamRepository list", {
         query,
       });
       const filters = buildFilters(query);

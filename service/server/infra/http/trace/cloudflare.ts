@@ -41,7 +41,7 @@ export const withTracerResult = async <T, E extends AppError = AppError>(
       const traceId = span.spanContext().traceId;
       const spanId = span.spanContext().spanId;
 
-      AppLogger.info(`${spanName} started`, {
+      AppLogger.debug(`${spanName} started`, {
         trace_id: traceId,
         span_id: spanId,
         tracer_name: `${tracerName}-${spanName}`,
@@ -65,7 +65,7 @@ export const withTracerResult = async <T, E extends AppError = AppError>(
             // Measure performance and add to span
             const timing = measurePerformance(startTime);
 
-            AppLogger.info(`${spanName} completed`, {
+            AppLogger.debug(`${spanName} completed`, {
               trace_id: traceId,
               span_id: spanId,
               performance_duration_ms: timing.duration,
@@ -131,7 +131,7 @@ export const withTracer = async <T>(
       const traceId = span.spanContext().traceId;
       const spanId = span.spanContext().spanId;
 
-      AppLogger.info(`${spanName} started`, {
+      AppLogger.debug(`${spanName} started`, {
         trace_id: traceId,
         span_id: spanId,
         tracer_name: `${tracerName}-${spanName}`,
@@ -155,7 +155,7 @@ export const withTracer = async <T>(
             // Measure performance and add to span
             const timing = measurePerformance(startTime);
 
-            AppLogger.info(`${spanName} completed`, {
+            AppLogger.debug(`${spanName} completed`, {
               trace_id: traceId,
               span_id: spanId,
               performance_duration_ms: timing.duration,

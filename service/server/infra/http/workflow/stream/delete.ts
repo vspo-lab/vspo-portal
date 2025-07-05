@@ -38,14 +38,14 @@ export const deleteStreamsWorkflow = () => {
                   if (result.err) {
                     throw result.err;
                   }
-                  AppLogger.info("after deletedListIds", {
+                  AppLogger.debug("after deletedListIds", {
                     streamIds: result.val,
                   });
                   if (result.val.length === 0) {
                     span.setAttribute("videos_count", 0);
                     return;
                   }
-                  AppLogger.info("batchDeleteByVideoIds", {
+                  AppLogger.debug("batchDeleteByVideoIds", {
                     streamIds: result.val,
                   });
                   span.setAttribute("videos_count", result.val.length);

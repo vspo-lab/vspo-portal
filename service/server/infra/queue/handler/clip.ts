@@ -36,7 +36,7 @@ export function createClipHandler(
   clipInteractor: IClipInteractor,
 ): QueueHandler {
   async function processUpsertClip(messages: UpsertClip[]): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: upsert-clip`,
     );
 
@@ -56,7 +56,7 @@ export function createClipHandler(
   async function processFetchClipsByCreator(
     messages: FetchClipsByCreator[],
   ): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: fetch-clips-by-creator`,
     );
 
@@ -77,7 +77,7 @@ export function createClipHandler(
 
       const { clips, processedCreatorIds, hasMore } = result.val;
 
-      AppLogger.info("Fetched clips by creator via queue", {
+      AppLogger.debug("Fetched clips by creator via queue", {
         clipsCount: clips.length,
         processedCreators: processedCreatorIds.length,
         hasMore,
@@ -93,7 +93,7 @@ export function createClipHandler(
           });
           throw upsertResult.err;
         }
-        AppLogger.info("Successfully upserted clips in queue handler", {
+        AppLogger.debug("Successfully upserted clips in queue handler", {
           clipCount: clips.length,
         });
       }
@@ -115,7 +115,7 @@ export function createClipHandler(
           // Don't throw here - clips were already inserted successfully
           // This is a non-critical error that shouldn't fail the entire job
         } else {
-          AppLogger.info(
+          AppLogger.debug(
             "Successfully updated lastClipFetchedAt in queue handler",
             {
               creatorCount: processedCreatorIds.length,

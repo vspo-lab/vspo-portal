@@ -10,6 +10,14 @@ import {
   customMemberSelectComponent,
   langSelectComponent,
   langSettingComponent,
+  memberGroupSelectComponent,
+  memberGroupSelectConfirmComponent,
+  memberGroupSelectENComponent,
+  memberGroupSelectJPPage1Component,
+  memberGroupSelectJPPage2Component,
+  memberGroupSelectJPPage3Component,
+  memberGroupSelectJPPage4Component,
+  memberGroupSelectJPPage5Component,
   memberTypeSelectComponent,
   memberTypeSettingComponent,
   spoduleSettingCommand,
@@ -56,6 +64,34 @@ const discord = new DiscordHono<DiscordCommandEnv>()
   .component(
     customMemberSelectComponent.name,
     customMemberSelectComponent.handler,
+  )
+  .component(
+    memberGroupSelectJPPage1Component.name,
+    memberGroupSelectJPPage1Component.handler,
+  )
+  .component(
+    memberGroupSelectJPPage2Component.name,
+    memberGroupSelectJPPage2Component.handler,
+  )
+  .component(
+    memberGroupSelectJPPage3Component.name,
+    memberGroupSelectJPPage3Component.handler,
+  )
+  .component(
+    memberGroupSelectJPPage4Component.name,
+    memberGroupSelectJPPage4Component.handler,
+  )
+  .component(
+    memberGroupSelectJPPage5Component.name,
+    memberGroupSelectJPPage5Component.handler,
+  )
+  .component(
+    memberGroupSelectENComponent.name,
+    memberGroupSelectENComponent.handler,
+  )
+  .component(
+    memberGroupSelectConfirmComponent.name,
+    memberGroupSelectConfirmComponent.handler,
   )
   //common
   .component(cancelComponent.name, cancelComponent.handler);

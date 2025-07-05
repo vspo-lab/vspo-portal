@@ -1,5 +1,5 @@
 {
-  "id": "67956096-be86-4357-9e1c-ac8d5a1a0f96",
+  "id": "4804ec0c-ffba-4220-a6c6-463c0ea77706",
   "prevId": "a7a616b5-a921-4cc0-bd0d-b67aea63b106",
   "version": "7",
   "dialect": "postgresql",
@@ -75,9 +75,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "channel_creator_id_idx": {
           "name": "channel_creator_id_idx",
@@ -90,28 +90,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "channel_creator_id_creator_id_fk": {
           "name": "channel_creator_id_creator_id_fk",
           "tableFrom": "channel",
-          "columnsFrom": ["creator_id"],
           "tableTo": "creator",
+          "columnsFrom": ["creator_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "channel_platform_channel_id_unique": {
           "name": "channel_platform_channel_id_unique",
-          "columns": ["platform_channel_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["platform_channel_id"]
         }
       },
       "policies": {},
@@ -186,9 +186,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "clip_analysis_is_short_idx": {
           "name": "clip_analysis_is_short_idx",
@@ -201,9 +201,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "clip_analysis_is_vspo_clip_idx": {
           "name": "clip_analysis_is_vspo_clip_idx",
@@ -216,9 +216,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "clip_analysis_analyzed_at_idx": {
           "name": "clip_analysis_analyzed_at_idx",
@@ -231,28 +231,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "clip_analysis_video_id_video_id_fk": {
           "name": "clip_analysis_video_id_video_id_fk",
           "tableFrom": "clip_analysis",
-          "columnsFrom": ["video_id"],
           "tableTo": "video",
+          "columnsFrom": ["video_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "clip_analysis_video_id_unique": {
           "name": "clip_analysis_video_id_unique",
-          "columns": ["video_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["video_id"]
         }
       },
       "policies": {},
@@ -301,9 +301,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "clip_stats_video_id_idx": {
           "name": "clip_stats_video_id_idx",
@@ -316,28 +316,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "clip_stats_video_id_video_raw_id_fk": {
           "name": "clip_stats_video_id_video_raw_id_fk",
           "tableFrom": "clip_stats",
-          "columnsFrom": ["video_id"],
           "tableTo": "video",
+          "columnsFrom": ["video_id"],
           "columnsTo": ["raw_id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "clip_stats_video_id_unique": {
           "name": "clip_stats_video_id_unique",
-          "columns": ["video_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["video_id"]
         }
       },
       "policies": {},
@@ -400,28 +400,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "creator_clip_fetch_status_creator_id_creator_id_fk": {
           "name": "creator_clip_fetch_status_creator_id_creator_id_fk",
           "tableFrom": "creator_clip_fetch_status",
-          "columnsFrom": ["creator_id"],
           "tableTo": "creator",
+          "columnsFrom": ["creator_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "creator_clip_fetch_status_creator_id_unique": {
           "name": "creator_clip_fetch_status_creator_id_unique",
-          "columns": ["creator_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["creator_id"]
         }
       },
       "policies": {},
@@ -514,9 +514,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "creator_translation_creator_id_idx": {
           "name": "creator_translation_creator_id_idx",
@@ -529,9 +529,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "creator_translation_default_lang_creator_idx": {
           "name": "creator_translation_default_lang_creator_idx",
@@ -550,28 +550,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "creator_translation_creator_id_creator_id_fk": {
           "name": "creator_translation_creator_id_creator_id_fk",
           "tableFrom": "creator_translation",
-          "columnsFrom": ["creator_id"],
           "tableTo": "creator",
+          "columnsFrom": ["creator_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "creator_translation_creator_id_lang_code_unique": {
           "name": "creator_translation_creator_id_lang_code_unique",
-          "columns": ["creator_id", "lang_code"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["creator_id", "lang_code"]
         }
       },
       "policies": {},
@@ -626,28 +626,28 @@
         "discord_admin_message_channel_id_discord_channel_discord_channel_id_fk": {
           "name": "discord_admin_message_channel_id_discord_channel_discord_channel_id_fk",
           "tableFrom": "discord_admin_message",
-          "columnsFrom": ["channel_id"],
           "tableTo": "discord_channel",
+          "columnsFrom": ["channel_id"],
           "columnsTo": ["discord_channel_id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
         "discord_admin_message_message_id_discord_message_id_fk": {
           "name": "discord_admin_message_message_id_discord_message_id_fk",
           "tableFrom": "discord_admin_message",
-          "columnsFrom": ["message_id"],
           "tableTo": "discord_message",
+          "columnsFrom": ["message_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "discord_admin_message_discord_admin_message_id_message_id_unique": {
           "name": "discord_admin_message_discord_admin_message_id_message_id_unique",
-          "columns": ["discord_admin_message_id", "message_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["discord_admin_message_id", "message_id"]
         }
       },
       "policies": {},
@@ -695,6 +695,12 @@
           "notNull": true,
           "default": "'vspo_all'"
         },
+        "selected_member_ids": {
+          "name": "selected_member_ids",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -715,24 +721,24 @@
         "discord_channel_server_id_discord_server_discord_server_id_fk": {
           "name": "discord_channel_server_id_discord_server_discord_server_id_fk",
           "tableFrom": "discord_channel",
-          "columnsFrom": ["server_id"],
           "tableTo": "discord_server",
+          "columnsFrom": ["server_id"],
           "columnsTo": ["discord_server_id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "discord_channel_discord_channel_id_unique": {
           "name": "discord_channel_discord_channel_id_unique",
-          "columns": ["discord_channel_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["discord_channel_id"]
         },
         "discord_channel_discord_channel_id_server_id_unique": {
           "name": "discord_channel_discord_channel_id_server_id_unique",
-          "columns": ["discord_channel_id", "server_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["discord_channel_id", "server_id"]
         }
       },
       "policies": {},
@@ -827,8 +833,8 @@
       "uniqueConstraints": {
         "discord_server_discord_server_id_unique": {
           "name": "discord_server_discord_server_id_unique",
-          "columns": ["discord_server_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["discord_server_id"]
         }
       },
       "policies": {},
@@ -959,9 +965,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "stream_status_started_at_idx": {
           "name": "stream_status_started_at_idx",
@@ -974,28 +980,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "stream_status_video_id_video_raw_id_fk": {
           "name": "stream_status_video_id_video_raw_id_fk",
           "tableFrom": "stream_status",
-          "columnsFrom": ["video_id"],
           "tableTo": "video",
+          "columnsFrom": ["video_id"],
           "columnsTo": ["raw_id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "stream_status_video_id_unique": {
           "name": "stream_status_video_id_unique",
-          "columns": ["video_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["video_id"]
         }
       },
       "policies": {},
@@ -1086,9 +1092,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "video_deleted_idx": {
           "name": "video_deleted_idx",
@@ -1101,9 +1107,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "video_type_deleted_idx": {
           "name": "video_type_deleted_idx",
@@ -1122,9 +1128,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "video_clips_filter_idx": {
           "name": "video_clips_filter_idx",
@@ -1155,9 +1161,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "video_published_at_idx": {
           "name": "video_published_at_idx",
@@ -1170,28 +1176,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "video_channel_id_channel_platform_channel_id_fk": {
           "name": "video_channel_id_channel_platform_channel_id_fk",
           "tableFrom": "video",
-          "columnsFrom": ["channel_id"],
           "tableTo": "channel",
+          "columnsFrom": ["channel_id"],
           "columnsTo": ["platform_channel_id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "video_raw_id_unique": {
           "name": "video_raw_id_unique",
-          "columns": ["raw_id"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["raw_id"]
         }
       },
       "policies": {},
@@ -1252,9 +1258,9 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         },
         "video_translation_lang_video_idx": {
           "name": "video_translation_lang_video_idx",
@@ -1273,28 +1279,28 @@
             }
           ],
           "isUnique": false,
-          "with": {},
+          "concurrently": false,
           "method": "btree",
-          "concurrently": false
+          "with": {}
         }
       },
       "foreignKeys": {
         "video_translation_video_id_video_raw_id_fk": {
           "name": "video_translation_video_id_video_raw_id_fk",
           "tableFrom": "video_translation",
-          "columnsFrom": ["video_id"],
           "tableTo": "video",
+          "columnsFrom": ["video_id"],
           "columnsTo": ["raw_id"],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "video_translation_video_id_lang_code_unique": {
           "name": "video_translation_video_id_lang_code_unique",
-          "columns": ["video_id", "lang_code"],
-          "nullsNotDistinct": false
+          "nullsNotDistinct": false,
+          "columns": ["video_id", "lang_code"]
         }
       },
       "policies": {},
@@ -1304,10 +1310,10 @@
   },
   "enums": {},
   "schemas": {},
-  "views": {},
   "sequences": {},
   "roles": {},
   "policies": {},
+  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},

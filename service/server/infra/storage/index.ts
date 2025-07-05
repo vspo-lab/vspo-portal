@@ -57,7 +57,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
         return Err(result.err);
       }
 
-      AppLogger.info(`Successfully uploaded object with key: ${key}`);
+      AppLogger.debug(`Successfully uploaded object with key: ${key}`);
       return Ok();
     });
   };
@@ -80,7 +80,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
       }
 
       if (!result.val) {
-        AppLogger.info(`Object with key ${key} not found`);
+        AppLogger.debug(`Object with key ${key} not found`);
         return Err(
           new AppError({
             message: `Object with key ${key} not found`,
@@ -89,7 +89,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
         );
       }
 
-      AppLogger.info(`Successfully retrieved object with key: ${key}`);
+      AppLogger.debug(`Successfully retrieved object with key: ${key}`);
       return Ok(result.val);
     });
   };
@@ -111,7 +111,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
         return Err(result.err);
       }
 
-      AppLogger.info(`Successfully deleted object with key: ${key}`);
+      AppLogger.debug(`Successfully deleted object with key: ${key}`);
       return Ok();
     });
   };
@@ -126,7 +126,9 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
         bucket.list(options),
         (error) =>
           new AppError({
-            message: `Failed to list objects${prefix ? ` with prefix ${prefix}` : ""}`,
+            message: `Failed to list objects${
+              prefix ? ` with prefix ${prefix}` : ""
+            }`,
             code: "INTERNAL_SERVER_ERROR",
             cause: error,
           }),
@@ -134,13 +136,17 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
 
       if (result.err) {
         AppLogger.error(
-          `Failed to list objects${prefix ? ` with prefix ${prefix}` : ""}: ${result.err.message}`,
+          `Failed to list objects${prefix ? ` with prefix ${prefix}` : ""}: ${
+            result.err.message
+          }`,
         );
         return Err(result.err);
       }
 
-      AppLogger.info(
-        `Listed ${result.val.objects.length} objects${prefix ? ` with prefix ${prefix}` : ""}`,
+      AppLogger.debug(
+        `Listed ${result.val.objects.length} objects${
+          prefix ? ` with prefix ${prefix}` : ""
+        }`,
       );
       return Ok(result.val);
     });

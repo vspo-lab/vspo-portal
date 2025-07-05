@@ -41,7 +41,7 @@ export function createCreatorHandler(
   async function processUpsertCreator(
     messages: UpsertCreator[],
   ): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: upsert-creator`,
     );
 
@@ -61,7 +61,7 @@ export function createCreatorHandler(
   async function processTranslateCreator(
     messages: TranslateCreator[],
   ): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: translate-creator`,
     );
 
@@ -89,11 +89,11 @@ export function createCreatorHandler(
       creatorsByLang.get(langCode)?.push(creator);
     }
 
-    AppLogger.info(`Grouped creators by ${creatorsByLang.size} languages`);
+    AppLogger.debug(`Grouped creators by ${creatorsByLang.size} languages`);
 
     // Process each language group separately
     for (const [langCode, creators] of creatorsByLang.entries()) {
-      AppLogger.info(
+      AppLogger.debug(
         `Processing ${creators.length} creators for language: ${langCode}`,
       );
 
@@ -110,7 +110,7 @@ export function createCreatorHandler(
       }
 
       if (!tc.val?.length || tc.val.length === 0) {
-        AppLogger.info(`No creators to translate for ${langCode}`);
+        AppLogger.debug(`No creators to translate for ${langCode}`);
         continue;
       }
 

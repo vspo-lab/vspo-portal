@@ -213,7 +213,7 @@ export const createStreamInteractor = (
           if (sv.err) {
             return sv;
           }
-          AppLogger.info("deletedListIds", {
+          AppLogger.debug("deletedListIds", {
             streamIds: sv.val,
           });
           return Ok(sv.val);

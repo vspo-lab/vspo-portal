@@ -12,7 +12,8 @@
     "biome:unsafe-fix": "biome check --fix --unsafe",
     "knip": "knip",
     "tsc": "pnpm -r exec tsc --noEmit",
-    "generate-openapi": "pnpm --filter @vspo-lab/api generate-openapi"
+    "generate-openapi": "pnpm --filter @vspo-lab/api generate-openapi",
+    "dev:vspo-schedule-web": "pnpm --filter vspo-schedule-v2-web dev"
   },
   "author": "sugar-cat7",
   "license": "MIT",

@@ -51,7 +51,7 @@ export const fetchClipsByCreatorWorkflow = () => {
                 span.setAttribute("batch_size", params.batchSize || "default");
                 span.setAttribute("member_type", params.memberType || "all");
 
-                AppLogger.info("Enqueued fetch clips by creator operation", {
+                AppLogger.debug("Enqueued fetch clips by creator operation", {
                   batchSize: params.batchSize,
                   memberType: params.memberType,
                 });

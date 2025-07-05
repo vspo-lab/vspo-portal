@@ -183,7 +183,7 @@ export const createCloudflareKVCacheClient = (
     ttlSeconds?: number,
   ): Promise<Result<T, AppError>> => {
     return withTracerResult("cache", "set", async () => {
-      AppLogger.info("Setting cache value in KV", { key });
+      AppLogger.debug("Setting cache value in KV", { key });
       const options: KVNamespacePutOptions = {};
 
       if (ttlSeconds !== undefined) {
@@ -220,7 +220,7 @@ export const createCloudflareKVCacheClient = (
     options?: { type?: "json" | "text"; cacheTtl?: number },
   ): Promise<Result<T | null, AppError>> => {
     return withTracerResult("cache", "get", async () => {
-      AppLogger.info("Getting cache value from KV", { key });
+      AppLogger.debug("Getting cache value from KV", { key });
 
       const result = await wrap(
         options?.type === "json"
@@ -250,11 +250,11 @@ export const createCloudflareKVCacheClient = (
 
       const value = result.val;
       if (value === null) {
-        AppLogger.info("KV cache miss", { key });
+        AppLogger.debug("KV cache miss", { key });
         return Ok(null);
       }
 
-      AppLogger.info("KV cache hit", { key });
+      AppLogger.debug("KV cache hit", { key });
 
       // If type was "json", KV already parsed it for us
       if (options?.type === "json") {
@@ -271,7 +271,7 @@ export const createCloudflareKVCacheClient = (
     cacheTtl?: number,
   ): Promise<Result<Map<string, T | null>, AppError>> => {
     return withTracerResult("cache", "getBulk", async () => {
-      AppLogger.info("Getting multiple cache values from KV using bulk read", {
+      AppLogger.debug("Getting multiple cache values from KV using bulk read", {
         keys,
         keyCount: keys.length,
       });
@@ -337,7 +337,7 @@ export const createCloudflareKVCacheClient = (
       const hitCount = Array.from(typedMap.values()).filter(
         (v) => v !== null,
       ).length;
-      AppLogger.info("KV bulk read completed", {
+      AppLogger.debug("KV bulk read completed", {
         totalKeys: keys.length,
         hits: hitCount,
         misses: keys.length - hitCount,
@@ -350,7 +350,7 @@ export const createCloudflareKVCacheClient = (
 
   const deleteKey = async (key: string): Promise<Result<boolean, AppError>> => {
     return withTracerResult("cache", "delete", async () => {
-      AppLogger.info("Deleting cache value from KV", { key });
+      AppLogger.debug("Deleting cache value from KV", { key });
 
       // Check if the key exists first
       const exists = await existsKey(key);
@@ -382,7 +382,7 @@ export const createCloudflareKVCacheClient = (
 
   const existsKey = async (key: string): Promise<Result<boolean, AppError>> => {
     return withTracerResult("cache", "exists", async () => {
-      AppLogger.info("Checking if key exists in KV", { key });
+      AppLogger.debug("Checking if key exists in KV", { key });
 
       const result = await wrap(
         kv.get(key, { type: "text" }),

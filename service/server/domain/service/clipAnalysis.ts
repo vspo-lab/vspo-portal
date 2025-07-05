@@ -91,7 +91,7 @@ export const createClipAnalysisService = (deps: {
   const analyzeUnanalyzedClips = async (
     limit: number,
   ): Promise<Result<ClipAnalysisResults, AppError>> => {
-    AppLogger.info("Starting clip analysis", {
+    AppLogger.debug("Starting clip analysis", {
       service: SERVICE_NAME,
       limit,
     });
@@ -112,7 +112,7 @@ export const createClipAnalysisService = (deps: {
     const unanalyzedIds =
       await deps.clipAnalysisRepository.getUnanalyzedVideoIds(limit);
 
-    AppLogger.info("Fetched unanalyzed video IDs", {
+    AppLogger.debug("Fetched unanalyzed video IDs", {
       service: SERVICE_NAME,
       requestedLimit: limit,
       actualCount: unanalyzedIds.err ? 0 : unanalyzedIds.val.length,
@@ -141,7 +141,7 @@ export const createClipAnalysisService = (deps: {
     }
 
     if (unanalyzedIds.val.length === 0) {
-      AppLogger.info("No unanalyzed clips found", {
+      AppLogger.debug("No unanalyzed clips found", {
         service: SERVICE_NAME,
       });
       return Ok({
@@ -182,7 +182,7 @@ export const createClipAnalysisService = (deps: {
     // All fetched clips should be unanalyzed
     const clipsToAnalyze = clips.err ? [] : clips.val;
 
-    AppLogger.info("Clips to analyze", {
+    AppLogger.debug("Clips to analyze", {
       service: SERVICE_NAME,
       count: clipsToAnalyze.length,
       unanalyzedIdsCount: unanalyzedIds.val.length,
@@ -290,7 +290,7 @@ export const createClipAnalysisService = (deps: {
       errors,
     };
 
-    AppLogger.info("Clip analysis completed", {
+    AppLogger.debug("Clip analysis completed", {
       service: SERVICE_NAME,
       stats: finalStats,
     });

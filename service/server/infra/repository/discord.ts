@@ -39,9 +39,9 @@ export interface IDiscordServerRepository {
   ): Promise<Result<void, AppError>>;
   get(query: { serverId: string }): Promise<Result<DiscordServer, AppError>>;
   exists(query: { serverId: string }): Promise<Result<boolean, AppError>>;
-  existsChannel(query: { channelId: string }): Promise<
-    Result<boolean, AppError>
-  >;
+  existsChannel(query: {
+    channelId: string;
+  }): Promise<Result<boolean, AppError>>;
 }
 
 export function createDiscordServerRepository(
@@ -51,7 +51,7 @@ export function createDiscordServerRepository(
     query: ListQuery,
   ): Promise<Result<DiscordServers, AppError>> => {
     return withTracerResult("DiscordServerRepository", "list", async (span) => {
-      AppLogger.info("DiscordServerRepository list", {
+      AppLogger.debug("DiscordServerRepository list", {
         query,
       });
       const discordServerResult = await wrap(
@@ -188,7 +188,7 @@ export function createDiscordServerRepository(
           }
         }
         const uniqueServers = Array.from(serverMap.values());
-        AppLogger.info("DiscordServerRepository batchUpsert", {
+        AppLogger.debug("DiscordServerRepository batchUpsert", {
           uniqueServers,
         });
 
@@ -333,9 +333,9 @@ export function createDiscordServerRepository(
     );
   };
 
-  const get = async (query: { serverId: string }): Promise<
-    Result<DiscordServer, AppError>
-  > => {
+  const get = async (query: {
+    serverId: string;
+  }): Promise<Result<DiscordServer, AppError>> => {
     return withTracerResult("DiscordServerRepository", "get", async (span) => {
       const discordServerResult = await wrap(
         db
@@ -398,9 +398,9 @@ export function createDiscordServerRepository(
     });
   };
 
-  const exists = async (query: { serverId: string }): Promise<
-    Result<boolean, AppError>
-  > => {
+  const exists = async (query: {
+    serverId: string;
+  }): Promise<Result<boolean, AppError>> => {
     return withTracerResult(
       "DiscordServerRepository",
       "exists",
@@ -428,9 +428,9 @@ export function createDiscordServerRepository(
     );
   };
 
-  const existsChannel = async (query: { channelId: string }): Promise<
-    Result<boolean, AppError>
-  > => {
+  const existsChannel = async (query: {
+    channelId: string;
+  }): Promise<Result<boolean, AppError>> => {
     return withTracerResult(
       "DiscordServerRepository",
       "existsChannel",

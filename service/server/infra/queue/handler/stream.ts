@@ -39,7 +39,7 @@ export function createStreamHandler(
   queue: Queue<MessageParam>,
 ): QueueHandler {
   async function processUpsertStream(messages: UpsertStream[]): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: upsert-stream`,
     );
 
@@ -68,7 +68,7 @@ export function createStreamHandler(
   async function processTranslateStream(
     messages: TranslateStream[],
   ): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: translate-stream`,
     );
 
@@ -106,7 +106,7 @@ export function createStreamHandler(
       }
 
       if (!tv.val?.length || tv.val.length === 0) {
-        AppLogger.info(`No streams to translate for ${langCode}`);
+        AppLogger.debug(`No streams to translate for ${langCode}`);
         continue;
       }
 
