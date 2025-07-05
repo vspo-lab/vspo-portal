@@ -11,6 +11,11 @@
     "selectSuccess": "The member type has been set to {{type}}.",
     "selectError": "An error has occurred. Please try again after some time."
   },
+  "customMemberSelectComponent": {
+    "label": "Select the members to display.",
+    "success": "{{count}} members have been selected.",
+    "error": "An error has occurred. Please try again after some time."
+  },
   "botAddComponent": {
     "error": "An error has occurred. Please try again later."
   },

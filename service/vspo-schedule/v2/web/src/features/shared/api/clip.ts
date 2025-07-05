@@ -1,8 +1,13 @@
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
-import { ListClips200ClipsItem, VSPOApi } from "@vspo-lab/api";
-import { AppError, BaseError, Result, wrap } from "@vspo-lab/error";
-import { Clip, Pagination, clipSchema, paginationSchema } from "../domain/clip";
-import { Platform } from "../domain/video";
+import { type ListClips200ClipsItem, VSPOApi } from "@vspo-lab/api";
+import { AppError, type BaseError, type Result, wrap } from "@vspo-lab/error";
+import {
+  type Clip,
+  type Pagination,
+  clipSchema,
+  paginationSchema,
+} from "../domain/clip";
+import type { Platform } from "../domain/video";
 
 export type FetchClipsParams = {
   page: number;

@@ -7,7 +7,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import * as React from "react";
+import type * as React from "react";
 
 type AboutPagePresenterProps = {
   sections: Array<{

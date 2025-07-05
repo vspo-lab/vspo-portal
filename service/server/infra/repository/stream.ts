@@ -52,6 +52,7 @@ type ListQuery = {
   platform?: string;
   status?: string;
   memberType?: string;
+  creatorIds?: string[];
   startDateFrom?: Date;
   startDateTo?: Date;
   endedAt?: Date;
@@ -105,12 +106,15 @@ const buildFilters = (query: ListQuery): SQL[] => {
   filters.push(eq(creatorTranslationTable.languageCode, languageCode));
 
   if (query.memberType) {
-    if (query.memberType !== "vspo_all") {
+    if (query.memberType !== "vspo_all" && query.memberType !== "custom") {
       filters.push(eq(creatorTable.memberType, query.memberType));
     }
   }
   if (query.channelIds && query.channelIds.length > 0) {
     filters.push(inArray(videoTable.channelId, query.channelIds));
+  }
+  if (query.creatorIds && query.creatorIds.length > 0) {
+    filters.push(inArray(creatorTable.id, query.creatorIds));
   }
 
   return filters;
@@ -119,7 +123,7 @@ const buildFilters = (query: ListQuery): SQL[] => {
 export const createStreamRepository = (db: DB): IStreamRepository => {
   const list = async (query: ListQuery): Promise<Result<Streams, AppError>> => {
     return withTracerResult("StreamRepository", "list", async (span) => {
-      AppLogger.info("StreamRepository list", {
+      AppLogger.debug("StreamRepository list", {
         query,
       });
       const filters = buildFilters(query);

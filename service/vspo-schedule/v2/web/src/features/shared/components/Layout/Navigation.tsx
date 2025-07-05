@@ -1,5 +1,5 @@
 import {
-  NavigationRouteId,
+  type NavigationRouteId,
   getNavigationRouteInfo,
 } from "@/constants/navigation";
 import { useTimeZoneContext } from "@/hooks";
@@ -7,7 +7,8 @@ import { BottomNavigation, BottomNavigationAction } from "@mui/material";
 import { Box } from "@mui/system";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { DrawerIcon, Link } from "../Elements";
 
 const bottomNavigationRoutes = [
@@ -32,7 +33,7 @@ const getActiveNavOption = (activePath: string, timeZone: string) => {
 const bottomNavigationHeight = "56px";
 
 const BottomNavigationOffset = () => (
-  <div style={{ height: bottomNavigationHeight }}></div>
+  <div style={{ height: bottomNavigationHeight }} />
 );
 
 export const CustomBottomNavigation: React.FC = () => {

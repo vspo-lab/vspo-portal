@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import {
   DEFAULT_LOCALE,
   DEFAULT_TIME_ZONE,

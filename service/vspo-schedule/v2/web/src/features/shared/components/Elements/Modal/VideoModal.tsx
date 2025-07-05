@@ -1,7 +1,7 @@
-import { Clip } from "@/features/shared/domain/clip";
-import { Freechat } from "@/features/shared/domain/freechat";
-import { Livestream } from "@/features/shared/domain/livestream";
-import { Platform, Video } from "@/features/shared/domain/video";
+import type { Clip } from "@/features/shared/domain/clip";
+import type { Freechat } from "@/features/shared/domain/freechat";
+import type { Livestream } from "@/features/shared/domain/livestream";
+import type { Platform, Video } from "@/features/shared/domain/video";
 import { convertVideoPlayerLink } from "@/features/shared/utils";
 import { useTimeZoneContext, useVideoModalContext } from "@/hooks";
 import { formatDate } from "@/lib/utils";
@@ -289,14 +289,18 @@ const LivestreamInfoTabsPresenter: React.FC<
         <TypographySmallOnMobileDescription variant="body1">
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
-              return <React.Fragment key={index}>{text}</React.Fragment>;
+              return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
+                <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
+              );
             }
             return (
               <MuiLink
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                key={index}
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
+                key={`link-${index}`}
               >
                 {text}
               </MuiLink>
@@ -455,14 +459,18 @@ const FreechatInfoTabsPresenter: React.FC<
         <TypographySmallOnMobileDescription variant="body1">
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
-              return <React.Fragment key={index}>{text}</React.Fragment>;
+              return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
+                <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
+              );
             }
             return (
               <MuiLink
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                key={index}
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
+                key={`link-${index}`}
               >
                 {text}
               </MuiLink>
@@ -587,14 +595,18 @@ const ClipInfoTabsPresenter: React.FC<
         <TypographySmallOnMobileDescription variant="body1">
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
-              return <React.Fragment key={index}>{text}</React.Fragment>;
+              return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
+                <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
+              );
             }
             return (
               <MuiLink
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                key={index}
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
+                key={`link-${index}`}
               >
                 {text}
               </MuiLink>
@@ -625,7 +637,8 @@ const InfoTabsContainer: React.FC<{ video: Video }> = ({ video }) => {
         urlRegex={urlRegex}
       />
     );
-  } else if (video.type === "freechat") {
+  }
+  if (video.type === "freechat") {
     return (
       <FreechatInfoTabsPresenter
         video={video as Freechat}
@@ -634,7 +647,8 @@ const InfoTabsContainer: React.FC<{ video: Video }> = ({ video }) => {
         urlRegex={urlRegex}
       />
     );
-  } else if (video.type === "clip") {
+  }
+  if (video.type === "clip") {
     return (
       <ClipInfoTabsPresenter
         video={video as Clip}
@@ -677,7 +691,7 @@ const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
           <Box
             onClick={onClose}
             component={Link}
-            href={`/schedule/all`}
+            href={"/schedule/all"}
             sx={{
               flexGrow: 1,
               display: "flex",
@@ -764,7 +778,7 @@ const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
             paddingRight: "8px",
           }}
         >
-          {activeVideo && activeVideo.title}
+          {activeVideo?.title}
         </Typography>
       </BottomNavigation>
     </Dialog>
@@ -779,7 +793,7 @@ export const VideoModal: React.FC = () => {
   // Clear video modal on url changes
   useEffect(() => {
     clearVideos();
-  }, [router]);
+  }, [clearVideos]);
 
   return (
     <VideoModalPresenter

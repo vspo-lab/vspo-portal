@@ -12,12 +12,12 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
+  type SelectChangeEvent,
   TextField,
   Typography,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React from "react";
+import type React from "react";
 import type { FavoriteSearchCondition } from "../../../types/favorite";
 
 // Type for date search form data

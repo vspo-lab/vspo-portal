@@ -1,4 +1,4 @@
-import { Livestream } from "@/features/shared/domain";
+import type { Livestream } from "@/features/shared/domain";
 import {
   Box,
   IconButton,
@@ -9,8 +9,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React from "react";
-import { StreamPlaybackState } from "../../hooks/usePlaybackControls";
+import type React from "react";
+import type { StreamPlaybackState } from "../../hooks/usePlaybackControls";
 
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";

@@ -1,8 +1,9 @@
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import React, { useState, useEffect } from "react";
-import { Clip, Pagination } from "../../../shared/domain/clip";
-import { ClipTabsAndListPresenter, TabOption } from "../presenters";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { Clip, Pagination } from "../../../shared/domain/clip";
+import { ClipTabsAndListPresenter, type TabOption } from "../presenters";
 
 export type ClipTabsAndListProps = {
   clips: Clip[];
@@ -39,9 +40,8 @@ export const ClipTabsAndList: React.FC<ClipTabsAndListProps> = ({
   const getInitialTabIndex = () => {
     if (initialOrderKey === "viewCount") {
       return 1; // Popular tab
-    } else {
-      return 0; // New tab (default)
     }
+    return 0; // New tab (default)
   };
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(

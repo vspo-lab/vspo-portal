@@ -61,19 +61,3 @@ jobs:
       - name: Server Check
         run: pnpm run ci
         working-directory: service/server
-
-  web-check:
-    needs: changes
-    if: ${{ needs.changes.outputs.web == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup PNPM
-        uses: ./.github/actions/setup-pnpm
-        
-      - name: Lint
-        run: |
-          pnpm lint
-        working-directory: service/vspo-schedule/v2/web

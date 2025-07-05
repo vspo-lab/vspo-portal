@@ -1,10 +1,10 @@
-import { SelectChangeEvent } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material";
 import { format, isValid, parse } from "date-fns";
 import { useRouter } from "next/router";
 import React from "react";
 import { useFavoriteSearchCondition } from "../../../hooks/useFavoriteSearchConditions";
 import type { FavoriteSearchCondition } from "../../../types/favorite";
-import { DateSearchDialog, DateSearchFormData } from "./DateSearchDialog";
+import { DateSearchDialog, type DateSearchFormData } from "./DateSearchDialog";
 
 type DateSearchDialogContainerProps = {
   open: boolean;
@@ -32,7 +32,7 @@ export const DateSearchDialogContainer: React.FC<
 
     if (router.query.date && typeof router.query.date === "string") {
       const dateFromQuery = new Date(router.query.date);
-      if (!isNaN(dateFromQuery.getTime())) {
+      if (!Number.isNaN(dateFromQuery.getTime())) {
         updateFormData.selectedDate = dateFromQuery;
         setDateInputValue(format(dateFromQuery, "yyyy-MM-dd"));
         hasUpdate = true;
@@ -117,19 +117,19 @@ export const DateSearchDialogContainer: React.FC<
     if (formData.selectedDate) {
       query.date = format(formData.selectedDate, "yyyy-MM-dd");
     } else {
-      delete query.date;
+      query.date = undefined;
     }
 
     if (formData.memberType && formData.memberType !== "vspo_all") {
       query.memberType = formData.memberType;
     } else {
-      delete query.memberType;
+      query.memberType = undefined;
     }
 
     if (formData.platform) {
       query.platform = formData.platform;
     } else {
-      delete query.platform;
+      query.platform = undefined;
     }
 
     // Navigate to the same page with updated query parameters to trigger SSR
@@ -155,9 +155,9 @@ export const DateSearchDialogContainer: React.FC<
 
     // Remove all search parameters and navigate to trigger SSR
     const query = { ...router.query };
-    delete query.date;
-    delete query.memberType;
-    delete query.platform;
+    query.date = undefined;
+    query.memberType = undefined;
+    query.platform = undefined;
 
     router.push(
       {
@@ -185,9 +185,9 @@ export const DateSearchDialogContainer: React.FC<
 
     // Navigate without query parameters to apply server-side favorite filtering
     const query = { ...router.query };
-    delete query.date;
-    delete query.memberType;
-    delete query.platform;
+    query.date = undefined;
+    query.memberType = undefined;
+    query.platform = undefined;
 
     router.push(
       {

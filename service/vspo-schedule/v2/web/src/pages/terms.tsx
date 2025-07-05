@@ -1,11 +1,11 @@
 import TermsPageComponent from "@/features/legal-documents/pages/TermsPage";
 import {
-  TermsPageProps,
+  type TermsPageProps,
   getStaticProps as termsGetStaticProps,
 } from "@/features/legal-documents/pages/TermsPage/serverSideProps";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import React from "react";
-import { NextPageWithLayout } from "./_app";
+import type { NextPageWithLayout } from "./_app";
 
 export const getStaticProps = termsGetStaticProps;
 

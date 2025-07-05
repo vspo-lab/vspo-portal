@@ -1,8 +1,8 @@
-import { Event } from "@/features/shared/domain";
+import type { Event } from "@/features/shared/domain";
 import { Box, List, ListItem, Paper, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
-import React from "react";
+import type React from "react";
 
 const ContentSection = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(6),

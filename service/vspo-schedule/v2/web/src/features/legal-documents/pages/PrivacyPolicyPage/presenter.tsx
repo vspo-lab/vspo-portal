@@ -1,7 +1,7 @@
 import { AgreementDocument } from "@/features/shared/components/Templates";
 import { QA_LINK } from "@/lib/Const";
-import { TFunction } from "next-i18next";
-import React from "react";
+import type { TFunction } from "next-i18next";
+import type React from "react";
 
 type PrivacyPolicyPagePresenterProps = {
   t: TFunction;
@@ -26,8 +26,8 @@ export const PrivacyPolicyPagePresenter: React.FC<
       <p>{t("article3.intro")}</p>
       <ol>
         {(t("article3.purposes", { returnObjects: true }) as string[]).map(
-          (purpose, index) => (
-            <li key={index}>{purpose}</li>
+          (purpose) => (
+            <li key={purpose}>{purpose}</li>
           ),
         )}
       </ol>
@@ -44,8 +44,8 @@ export const PrivacyPolicyPagePresenter: React.FC<
             text: string;
             url: string;
           }>
-        ).map((link, index) => (
-          <li key={index}>
+        ).map((link) => (
+          <li key={link.url}>
             <a href={link.url} target="_blank" rel="noopener noreferrer">
               {link.text}
             </a>
@@ -56,8 +56,8 @@ export const PrivacyPolicyPagePresenter: React.FC<
       <h2>{t("article6.title")}</h2>
       <ol>
         {(t("article6.items", { returnObjects: true }) as string[]).map(
-          (item, index) => (
-            <li key={index}>{item}</li>
+          (item) => (
+            <li key={item}>{item}</li>
           ),
         )}
       </ol>

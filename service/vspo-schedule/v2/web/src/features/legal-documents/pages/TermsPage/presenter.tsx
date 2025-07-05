@@ -1,6 +1,6 @@
 import { AgreementDocument } from "@/features/shared/components/Templates";
-import { TFunction } from "next-i18next";
-import React from "react";
+import type { TFunction } from "next-i18next";
+import type React from "react";
 
 type TermsPagePresenterProps = {
   t: TFunction;
@@ -21,8 +21,8 @@ export const TermsPagePresenter: React.FC<TermsPagePresenterProps> = ({
       <p>{t("article2.intro")}</p>
       <ol>
         {(t("article2.items", { returnObjects: true }) as string[]).map(
-          (item, index) => (
-            <li key={index}>{item}</li>
+          (item) => (
+            <li key={item}>{item}</li>
           ),
         )}
       </ol>
@@ -31,8 +31,8 @@ export const TermsPagePresenter: React.FC<TermsPagePresenterProps> = ({
       <p>{t("article3.intro")}</p>
       <ol>
         {(t("article3.items", { returnObjects: true }) as string[]).map(
-          (item, index) => (
-            <li key={index}>{item}</li>
+          (item) => (
+            <li key={item}>{item}</li>
           ),
         )}
       </ol>
@@ -49,8 +49,8 @@ export const TermsPagePresenter: React.FC<TermsPagePresenterProps> = ({
       <p>{t("article6.intro")}</p>
       <ul>
         {(t("article6.apis", { returnObjects: true }) as string[]).map(
-          (api, index) => (
-            <li key={index}>{api}</li>
+          (api) => (
+            <li key={api}>{api}</li>
           ),
         )}
       </ul>
@@ -61,8 +61,8 @@ export const TermsPagePresenter: React.FC<TermsPagePresenterProps> = ({
             text: string;
             url: string;
           }>
-        ).map((link, index) => (
-          <li key={index}>
+        ).map((link) => (
+          <li key={link.url}>
             <a href={link.url} target="_blank" rel="noopener noreferrer">
               {link.text}
             </a>

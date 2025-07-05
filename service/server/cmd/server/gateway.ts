@@ -7,6 +7,9 @@ import {
   botAddComponent,
   botRemoveComponent,
   cancelComponent,
+  customMemberDirectSelectComponent,
+  customMemberSelectENComponent,
+  customMemberSelectJPComponent,
   langSelectComponent,
   langSettingComponent,
   memberTypeSelectComponent,
@@ -52,6 +55,18 @@ const discord = new DiscordHono<DiscordCommandEnv>()
     memberTypeSettingComponent.handler,
   )
   .component(memberTypeSelectComponent.name, memberTypeSelectComponent.handler)
+  .component(
+    customMemberDirectSelectComponent.name,
+    customMemberDirectSelectComponent.handler,
+  )
+  .component(
+    customMemberSelectJPComponent.name,
+    customMemberSelectJPComponent.handler,
+  )
+  .component(
+    customMemberSelectENComponent.name,
+    customMemberSelectENComponent.handler,
+  )
   //common
   .component(cancelComponent.name, cancelComponent.handler);
 app.use("/interaction", maintenanceMiddleware);

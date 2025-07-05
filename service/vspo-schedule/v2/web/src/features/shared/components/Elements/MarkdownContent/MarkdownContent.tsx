@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
-import React from "react";
-import ReactMarkdown, { Components } from "react-markdown";
+import type React from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 type MarkdownContentProps = {

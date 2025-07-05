@@ -1,10 +1,10 @@
 import { DEFAULT_LOCALE } from "@/lib/Const";
 import { getInitializedI18nInstance } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 import { fetchSingleClipService } from "../../api/clipService";
 import { paginateClips } from "../../utils/clipUtils";
-import { TwitchClipsProps } from "./container";
+import type { TwitchClipsProps } from "./container";
 
 // Get date for N days ago in ISO format
 const getDaysAgoISO = (days: number): string => {
@@ -19,7 +19,9 @@ export const getTwitchClipsServerSideProps: GetServerSideProps<
   TwitchClipsProps
 > = async ({ locale = DEFAULT_LOCALE as string, query, req }) => {
   // Get the current page from query params or default to 1
-  const currentPage = query.page ? parseInt(query.page as string, 10) : 0;
+  const currentPage = query.page
+    ? Number.parseInt(query.page as string, 10)
+    : 0;
 
   // Provide default values to prevent undefined values
   const order = (query.order as "asc" | "desc") || "desc";
@@ -45,7 +47,6 @@ export const getTwitchClipsServerSideProps: GetServerSideProps<
     case "year":
       afterDate = getDaysAgoISO(365);
       break;
-    case "all":
     default:
       afterDate = undefined;
       break;

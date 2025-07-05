@@ -14,6 +14,7 @@ export const discordChannel = z
     name: z.string(),
     languageCode: z.string().optional().default("default"),
     memberType: MemberTypeSchema.optional(),
+    selectedMemberIds: z.array(z.string()).optional(),
     // Flag to indicate if this is the initial addition of the channel
     isInitialAdd: z.boolean().optional(),
     createdAt: z.string().datetime().optional(),

@@ -1,8 +1,8 @@
 import { Box, Grid, Pagination, Tab, Tabs } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
-import React from "react";
-import {
+import type React from "react";
+import type {
   Clip,
   Pagination as PaginationType,
 } from "../../../shared/domain/clip";

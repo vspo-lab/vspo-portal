@@ -1,7 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { AppError, Err, Ok, Result, wrap } from "@vspo-lab/error";
+import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import i18n from "i18next";
-import { SSRConfig } from "next-i18next";
+import type { SSRConfig } from "next-i18next";
 import { serverSideTranslations as originalServerSideTranslations } from "next-i18next/serverSideTranslations";
 import { CloudflareAssetsBackend } from "./cf-assets";
 
@@ -73,10 +73,10 @@ export async function cloudflareServerSideTranslations(
   initialI18nStore[initialLocale] = {};
 
   // Get resources for each namespace
-  namespaces.forEach((ns) => {
+  for (const ns of namespaces) {
     initialI18nStore[initialLocale][ns] =
       i18nInstance.getResourceBundle(initialLocale, ns) || {};
-  });
+  }
 
   // Return in next-i18next expected format
   return Ok({
@@ -233,17 +233,16 @@ export const serverSideTranslations = async (
       return emptyTranslations;
     }
     return result.val;
-  } else {
-    // Use standard implementation in regular environments
-    const result = await wrapOriginalServerSideTranslations(
-      locale,
-      namespaces,
-      i18nConfig,
-    );
-    if (result.err) {
-      console.error("Error loading translations:", result.err);
-      return emptyTranslations;
-    }
-    return result.val;
   }
+  // Use standard implementation in regular environments
+  const result = await wrapOriginalServerSideTranslations(
+    locale,
+    namespaces,
+    i18nConfig,
+  );
+  if (result.err) {
+    console.error("Error loading translations:", result.err);
+    return emptyTranslations;
+  }
+  return result.val;
 };

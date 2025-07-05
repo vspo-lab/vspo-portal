@@ -1,5 +1,5 @@
 import {
-  NavigationRouteId,
+  type NavigationRouteId,
   getNavigationRouteInfo,
 } from "@/constants/navigation";
 import { useTimeZoneContext } from "@/hooks";
@@ -140,7 +140,7 @@ const DrawerNavigation: React.FC<{
     <nav>
       <List>
         {sections.map((sectionProps, index) => (
-          <React.Fragment key={index}>
+          <React.Fragment key={sectionProps.heading}>
             {index !== 0 && <Divider component="li" />}
             <ListItem
               disablePadding

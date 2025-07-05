@@ -1,5 +1,6 @@
-import { Livestream } from "@/features/shared/domain";
-import React, { useState, useCallback, useEffect } from "react";
+import type { Livestream } from "@/features/shared/domain";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isValidMultiviewUrl } from "../../utils/platformUtils";
 import { VideoPlayerPresenter } from "../presenters/VideoPlayerPresenter";
 

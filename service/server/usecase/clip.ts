@@ -48,15 +48,17 @@ export interface IClipInteractor {
   >;
   searchExistVspoClips({
     clipIds,
-  }: { clipIds: string[] }): Promise<
-    Result<{ clips: Clips; notExistsClipIds: string[] }, AppError>
-  >;
+  }: {
+    clipIds: string[];
+  }): Promise<Result<{ clips: Clips; notExistsClipIds: string[] }, AppError>>;
   searchNewClipsByVspoMemberName(): Promise<
     Result<{ newCreators: Creators; clips: Clips }, AppError>
   >;
   deleteClips({
     clipIds,
-  }: { clipIds: string[] }): Promise<Result<void, AppError>>;
+  }: {
+    clipIds: string[];
+  }): Promise<Result<void, AppError>>;
   fetchClipsByCreator(
     params: FetchClipsByCreatorParams,
   ): Promise<Result<FetchClipsByCreatorResponse, AppError>>;
@@ -124,7 +126,9 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
 
   const searchExistVspoClips = async ({
     clipIds,
-  }: { clipIds: string[] }): Promise<
+  }: {
+    clipIds: string[];
+  }): Promise<
     Result<{ clips: Clips; notExistsClipIds: string[] }, AppError>
   > => {
     return await withTracerResult(
@@ -154,7 +158,9 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
 
   const deleteClips = async ({
     clipIds,
-  }: { clipIds: string[] }): Promise<Result<void, AppError>> => {
+  }: {
+    clipIds: string[];
+  }): Promise<Result<void, AppError>> => {
     return await withTracerResult(INTERACTOR_NAME, "deleteClips", async () => {
       return context.runInTx(async (repos, _services) => {
         return repos.clipRepository.batchDelete(clipIds);
@@ -185,7 +191,7 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
           }
 
           if (creators.val.length === 0) {
-            AppLogger.info("No creators found to fetch clips", {
+            AppLogger.debug("No creators found to fetch clips", {
               interactor: INTERACTOR_NAME,
             });
             return Ok({
@@ -210,7 +216,7 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
           // Check if there are more creators to process
           const hasMore = creators.val.length === batchSize;
 
-          AppLogger.info("Fetched clips by creator", {
+          AppLogger.debug("Fetched clips by creator", {
             interactor: INTERACTOR_NAME,
             totalCreators: creators.val.length,
             processedCreators: processedCreatorIds.length,
@@ -252,7 +258,7 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
             return updateResult;
           }
 
-          AppLogger.info("Updated lastClipFetchedAt for creators", {
+          AppLogger.debug("Updated lastClipFetchedAt for creators", {
             interactor: INTERACTOR_NAME,
             creatorCount: creatorIds.length,
           });

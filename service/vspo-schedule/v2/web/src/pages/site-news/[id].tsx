@@ -1,10 +1,10 @@
 import { ContentLayout } from "@/features/shared/components/Layout";
 import SiteNewsDetailPageComponent from "@/features/site-news/pages/SiteNewsDetailPage";
 import {
-  SiteNewsDetailPageProps,
+  type SiteNewsDetailPageProps,
   getServerSideProps as siteNewsDetailGetServerSideProps,
 } from "@/features/site-news/pages/SiteNewsDetailPage/serverSideProps";
-import { NextPageWithLayout } from "../_app";
+import type { NextPageWithLayout } from "../_app";
 
 export const getServerSideProps = siteNewsDetailGetServerSideProps;
 

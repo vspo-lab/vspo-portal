@@ -21,8 +21,9 @@ entrypoint = "ApplicationService"
 SERVICE_NAME = "prd-vspo-portal-gateway"
 ENVIRONMENT = "production"
 LOG_TYPE = "json"
-LOG_MINLEVEL = "1"
+LOG_MINLEVEL = "info"
 LOG_HIDE_POSITION = "true"
 
 [observability]
 enabled = true
+invocation_logs = false

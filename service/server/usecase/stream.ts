@@ -16,6 +16,7 @@ export type ListParam = {
   platform?: string;
   status?: string;
   memberType?: string;
+  creatorIds?: string[];
   startDateFrom?: Date;
   startDateTo?: Date;
   endedAt?: Date;
@@ -212,7 +213,7 @@ export const createStreamInteractor = (
           if (sv.err) {
             return sv;
           }
-          AppLogger.info("deletedListIds", {
+          AppLogger.debug("deletedListIds", {
             streamIds: sv.val,
           });
           return Ok(sv.val);

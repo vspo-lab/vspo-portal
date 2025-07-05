@@ -1,6 +1,6 @@
 import { fetchSchedule } from "@/features/schedule/api/scheduleService";
-import { Event } from "@/features/shared/domain";
-import { Livestream } from "@/features/shared/domain/livestream";
+import type { Event } from "@/features/shared/domain";
+import type { Livestream } from "@/features/shared/domain/livestream";
 import { DEFAULT_TIME_ZONE } from "@/lib/Const";
 import { TIME_ZONE_COOKIE } from "@/lib/Const";
 import {
@@ -9,7 +9,7 @@ import {
   getSetCookieTimeZone,
 } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import { GetServerSideProps } from "next";
+import type { GetServerSideProps } from "next";
 import type { FavoriteSearchCondition } from "../../types/favorite";
 
 export type ScheduleStatusPageProps = {
@@ -64,7 +64,7 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
 
   const limit =
     typeof customLimit === "string"
-      ? parseInt(customLimit, 10)
+      ? Number.parseInt(customLimit, 10)
       : status === "archive"
         ? 300
         : 50;

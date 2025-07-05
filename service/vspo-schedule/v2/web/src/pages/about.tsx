@@ -1,10 +1,10 @@
 import AboutPageComponent from "@/features/about/pages/AboutPage";
 import {
-  AboutPageProps,
+  type AboutPageProps,
   getServerSideProps as aboutGetServerSideProps,
 } from "@/features/about/pages/AboutPage/serverSideProps";
 import { ContentLayout } from "@/features/shared/components/Layout";
-import { NextPageWithLayout } from "./_app";
+import type { NextPageWithLayout } from "./_app";
 
 export const getServerSideProps = aboutGetServerSideProps;
 

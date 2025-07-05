@@ -1,9 +1,9 @@
-import { IncomingMessage } from "http";
+import type { IncomingMessage } from "node:http";
 import { fetchFreechats } from "@/features/shared/api/freechat";
-import { Freechat } from "@/features/shared/domain";
+import type { Freechat } from "@/features/shared/domain";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getSessionId } from "@/lib/utils";
-import { SSRConfig } from "next-i18next";
+import type { SSRConfig } from "next-i18next";
 
 type FreechatService = {
   freechats: Freechat[];

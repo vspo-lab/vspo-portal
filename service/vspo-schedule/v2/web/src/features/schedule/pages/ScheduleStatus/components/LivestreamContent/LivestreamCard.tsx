@@ -1,5 +1,5 @@
 import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
-import { Livestream } from "@/features/shared/domain/livestream";
+import type { Livestream } from "@/features/shared/domain/livestream";
 import { formatDate } from "@/lib/utils";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
@@ -13,7 +13,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
-import React, { useMemo } from "react";
+import type React from "react";
+import { useMemo } from "react";
 
 // VideoCard Component
 const StyledCard = styled(Card)(() => ({
@@ -207,9 +208,9 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
                 {additionalMembers.length > 0 ? (
                   <StyledAvatarGroup max={isMobile ? 3 : 4}>
                     <StyledAvatar src={iconUrl} alt={channelTitle} />
-                    {additionalMembers.map((member, index) => (
+                    {additionalMembers.map((member) => (
                       <StyledAvatar
-                        key={index}
+                        key={member.name}
                         src={member.iconUrl}
                         alt={member.name}
                       />

@@ -1,7 +1,7 @@
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
-import { ListCreators200CreatorsItem, VSPOApi } from "@vspo-lab/api";
-import { AppError, BaseError, Result, wrap } from "@vspo-lab/error";
-import { Channel } from "../domain/channel";
+import { type ListCreators200CreatorsItem, VSPOApi } from "@vspo-lab/api";
+import { AppError, type BaseError, type Result, wrap } from "@vspo-lab/error";
+import type { Channel } from "../domain/channel";
 
 export type FetchVspoMembersResult = Result<
   {
@@ -65,16 +65,16 @@ export const fetchVspoMembers = async ({
 
       // Add Japanese members
       if (vspoJpResult.val?.creators) {
-        vspoJpResult.val.creators.forEach((creator) => {
+        for (const creator of vspoJpResult.val.creators) {
           members.push(mapWorkerResponseToChannel(creator));
-        });
+        }
       }
 
       // Add English members
       if (vspoEnResult.val?.creators) {
-        vspoEnResult.val.creators.forEach((creator) => {
+        for (const creator of vspoEnResult.val.creators) {
           members.push(mapWorkerResponseToChannel(creator));
-        });
+        }
       }
     } else {
       // Use regular VSPO API
@@ -106,14 +106,14 @@ export const fetchVspoMembers = async ({
       }
 
       // Add Japanese members
-      vspoJpResponse.val.creators.forEach((creator) => {
+      for (const creator of vspoJpResponse.val.creators) {
         members.push(mapToChannel(creator));
-      });
+      }
 
       // Add English members
-      vspoEnResponse.val.creators.forEach((creator) => {
+      for (const creator of vspoEnResponse.val.creators) {
         members.push(mapToChannel(creator));
-      });
+      }
     }
 
     return { members };

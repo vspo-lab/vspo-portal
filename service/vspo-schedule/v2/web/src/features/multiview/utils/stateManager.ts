@@ -1,5 +1,5 @@
-import { Livestream } from "@/features/shared/domain";
-import { LayoutType } from "../hooks/useMultiviewLayout";
+import type { Livestream } from "@/features/shared/domain";
+import type { LayoutType } from "../hooks/useMultiviewLayout";
 
 // Grid layout item for react-grid-layout
 export interface GridLayoutItem {

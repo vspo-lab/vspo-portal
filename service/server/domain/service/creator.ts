@@ -9,12 +9,12 @@ import { createUUID } from "../../pkg/uuid";
 
 export interface ICreatorService {
   searchCreatorsByMemberType(params: {
-    memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "general";
+    memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
   }): Promise<Result<Creators, AppError>>;
   searchCreatorsByChannelIds(
     params: {
       channelId: string;
-      memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "general";
+      memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
     }[],
   ): Promise<Result<Creators, AppError>>;
   translateCreators({

@@ -1,8 +1,8 @@
 import { Breadcrumb } from "@/features/shared/components/Elements";
-import { SiteNewsMarkdownItem } from "@/lib/markdown";
+import type { SiteNewsMarkdownItem } from "@/lib/markdown";
 import { getSiteNewsTagColor } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
-import { SiteNewsTag } from "@/types/site-news";
+import type { SiteNewsTag } from "@/types/site-news";
 import {
   Box,
   Chip,
@@ -15,9 +15,9 @@ import {
   TableRow,
   Toolbar,
 } from "@mui/material";
-import { TFunction } from "next-i18next";
+import type { TFunction } from "next-i18next";
 import Link from "next/link";
-import * as React from "react";
+import type * as React from "react";
 
 type SiteNewsPagePresenterProps = {
   siteNewsItems: SiteNewsMarkdownItem[];

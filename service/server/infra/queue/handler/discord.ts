@@ -45,11 +45,11 @@ export function createDiscordHandler(
   async function processUpsertDiscordServer(
     messages: UpsertDiscordServer[],
   ): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: upsert-discord-server`,
     );
 
-    AppLogger.info(`Upserting Discord servers: ${messages.length}`);
+    AppLogger.debug(`Upserting Discord servers: ${messages.length}`);
     AppLogger.debug("Discord servers", {
       servers: messages,
     });
@@ -66,7 +66,7 @@ export function createDiscordHandler(
     );
 
     if (initialAddChannel.length > 0) {
-      AppLogger.info("Initial add channel", {
+      AppLogger.debug("Initial add channel", {
         channels: initialAddChannel,
       });
 
@@ -84,7 +84,7 @@ export function createDiscordHandler(
   async function processDeleteMessageInChannel(
     messages: DeleteMessageInChannel[],
   ): Promise<void> {
-    AppLogger.info(
+    AppLogger.debug(
       `Processing ${messages.length} messages of kind: delete-message-in-channel`,
     );
 
@@ -93,7 +93,7 @@ export function createDiscordHandler(
       return;
     }
 
-    AppLogger.info("Deleting messages in channels", {
+    AppLogger.debug("Deleting messages in channels", {
       channelIds: messages,
     });
 

@@ -1,4 +1,4 @@
-import { EventsByDate } from "@/features/shared/domain";
+import type { EventsByDate } from "@/features/shared/domain";
 import { formatDate } from "@/lib/utils";
 import Timeline from "@mui/lab/Timeline";
 import TimelineConnector from "@mui/lab/TimelineConnector";
@@ -9,7 +9,8 @@ import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import { Typography, useMediaQuery } from "@mui/material";
 import { convertToUTCDate, getCurrentUTCDate } from "@vspo-lab/dayjs";
-import React, { useRef } from "react";
+import type React from "react";
+import { useRef } from "react";
 import { EventCard } from "./EventCard";
 
 export type EventTimelineProps = {
@@ -37,7 +38,7 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({
         const isFutureEvent = convertToUTCDate(date) > currentDate;
 
         return (
-          <TimelineItem key={index}>
+          <TimelineItem key={date}>
             <TimelineOppositeContent
               sx={{
                 maxWidth: matches ? "0px" : "140px",
@@ -71,7 +72,7 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({
 
                 return (
                   <EventCard
-                    key={eventIndex}
+                    key={event.id}
                     event={event}
                     isEventToday={isEventToday}
                     todayRef={isEventToday ? todayEventRef : undefined}

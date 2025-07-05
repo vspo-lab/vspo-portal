@@ -30,7 +30,7 @@ and limitations under the License.
 ***************************************************************************** */
 /* eslint-disable */
 // noinspection JSUnusedGlobalSymbols
-declare var onmessage: never;
+declare let onmessage: never;
 /**
  * An abnormal event (called an exception) which occurs as a result of calling a method or accessing a property of a web API.
  *
@@ -402,7 +402,7 @@ declare const performance: Performance;
 declare const Cloudflare: Cloudflare;
 declare const origin: string;
 declare const navigator: Navigator;
-interface TestController {}
+type TestController = {};
 interface ExecutionContext {
   waitUntil(promise: Promise<any>): void;
   passThroughOnException(): void;
@@ -1607,7 +1607,7 @@ declare abstract class Body {
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Response)
  */
-declare var Response: {
+declare let Response: {
   prototype: Response;
   new (body?: BodyInit | null, init?: ResponseInit): Response;
   error(): Response;
@@ -1655,7 +1655,7 @@ type RequestInfo<CfHostMetadata = unknown, Cf = CfProperties<CfHostMetadata>> =
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Request)
  */
-declare var Request: {
+declare let Request: {
   prototype: Request;
   new <CfHostMetadata = unknown, Cf = CfProperties<CfHostMetadata>>(
     input: RequestInfo<CfProperties> | URL,
@@ -2538,7 +2538,7 @@ interface TraceItem {
 interface TraceItemAlarmEventInfo {
   readonly scheduledTime: Date;
 }
-interface TraceItemCustomEventInfo {}
+type TraceItemCustomEventInfo = {};
 interface TraceItemScheduledEventInfo {
   readonly scheduledTime: number;
   readonly cron: string;
@@ -2851,7 +2851,7 @@ type WebSocketEventMap = {
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebSocket)
  */
-declare var WebSocket: {
+declare let WebSocket: {
   prototype: WebSocket;
   new (url: string, protocols?: string[] | string): WebSocket;
   readonly READY_STATE_CONNECTING: number;
@@ -5611,7 +5611,7 @@ declare abstract class D1PreparedStatement {
 // but this will ensure type checking on older versions still passes.
 // TypeScript's interface merging will ensure our empty interface is effectively
 // ignored when `Disposable` is included in the standard lib.
-interface Disposable {}
+type Disposable = {};
 /**
  * An email message that can be sent from a Worker.
  */
@@ -6064,7 +6064,7 @@ declare namespace Rpc {
   export type Stub<T extends Stubable> = Provider<T> & StubBase<T>;
   // This represents all the types that can be sent as-is over an RPC boundary
   type BaseType =
-    | void
+    | undefined
     | undefined
     | null
     | boolean
@@ -6173,7 +6173,7 @@ declare namespace Rpc {
   };
 }
 declare namespace Cloudflare {
-  interface Env {}
+  type Env = {};
 }
 declare module "cloudflare:workers" {
   export type RpcStub<T extends Rpc.Stubable> = Rpc.Stub<T>;

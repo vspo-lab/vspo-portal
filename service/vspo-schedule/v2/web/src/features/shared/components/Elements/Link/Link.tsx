@@ -1,5 +1,5 @@
 import { useLocale } from "@/hooks";
-import { Link as MuiLink, LinkProps as MuiLinkProps } from "@mui/material";
+import { Link as MuiLink, type LinkProps as MuiLinkProps } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 

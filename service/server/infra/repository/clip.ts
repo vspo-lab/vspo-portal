@@ -112,7 +112,7 @@ function buildFilters(query: ListQuery): SQL[] {
 export function createClipRepository(db: DB): IClipRepository {
   const list = async (query: ListQuery): Promise<Result<Clips, AppError>> => {
     return withTracerResult("ClipRepository", "list", async (span) => {
-      AppLogger.info("ClipRepository list", {
+      AppLogger.debug("ClipRepository list", {
         query,
       });
       const filters = buildFilters(query);

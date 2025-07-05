@@ -1,6 +1,6 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import {
-  ColorSystemOptions,
+  type ColorSystemOptions,
   ThemeProvider,
   createTheme,
 } from "@mui/material/styles";

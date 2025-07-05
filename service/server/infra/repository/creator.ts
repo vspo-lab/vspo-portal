@@ -80,7 +80,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
     query: ListQuery,
   ): Promise<Result<Creators, AppError>> => {
     return withTracerResult("CreatorRepository", "list", async (span) => {
-      AppLogger.info("CreatorRepository list", {
+      AppLogger.debug("CreatorRepository list", {
         query,
       });
       const filters = buildFilters(query);
@@ -127,7 +127,12 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
             id: r.creator.id,
             name: r.creator_translation.name,
             languageCode: r.creator_translation.languageCode,
-            memberType: MemberTypeSchema.parse(r.creator.memberType),
+            memberType: r.creator.memberType as
+              | "vspo_jp"
+              | "vspo_en"
+              | "vspo_ch"
+              | "vspo_all"
+              | "general",
             thumbnailURL: r.creator.representativeThumbnailUrl ?? "",
             channel: {
               id: r.channel.id,
@@ -457,7 +462,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
       "CreatorRepository",
       "listByLastClipFetch",
       async (span) => {
-        AppLogger.info("CreatorRepository listByLastClipFetch", {
+        AppLogger.debug("CreatorRepository listByLastClipFetch", {
           query,
         });
 
@@ -526,7 +531,12 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
               acc[creatorId] = {
                 id: creatorId,
                 name: row.creator_translation.name,
-                memberType: MemberTypeSchema.parse(row.creator.memberType),
+                memberType: row.creator.memberType as
+                  | "vspo_jp"
+                  | "vspo_en"
+                  | "vspo_ch"
+                  | "vspo_all"
+                  | "general",
                 languageCode: row.creator_translation.languageCode,
                 thumbnailURL: row.creator.representativeThumbnailUrl,
                 channels: [],
@@ -640,7 +650,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
       "CreatorRepository",
       "updateLastClipFetchedAt",
       async (span) => {
-        AppLogger.info("CreatorRepository updateLastClipFetchedAt", {
+        AppLogger.debug("CreatorRepository updateLastClipFetchedAt", {
           creatorIds,
         });
 

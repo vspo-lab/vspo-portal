@@ -71,5 +71,18 @@
       "Bash(gunzip:*)",
       "Bash(npm:*)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm biome:unsafe-fix"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -1,4 +1,4 @@
-import { SiteNewsItem } from "@/types/site-news";
+import type { SiteNewsItem } from "@/types/site-news";
 
 export const siteNewsItems: SiteNewsItem[] = [
   {

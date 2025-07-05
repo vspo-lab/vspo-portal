@@ -1,6 +1,6 @@
 import { ContentLayout } from "@/features/shared/components/Layout";
-import { Channel, Clip } from "@/features/shared/domain";
-import { NextPageWithLayout } from "@/pages/_app";
+import type { Channel, Clip } from "@/features/shared/domain";
+import type { NextPageWithLayout } from "@/pages/_app";
 import React, { useEffect, useState } from "react";
 import { Presenter } from "./presenter";
 
@@ -23,11 +23,7 @@ export const ClipsHome: NextPageWithLayout<ClipsHomeProps> = (props) => {
 
   useEffect(() => {
     setIsProcessing(false);
-  }, [
-    props.popularYoutubeClips,
-    props.popularShortsClips,
-    props.popularTwitchClips,
-  ]);
+  }, []);
 
   // Use the presenter component
   return (
