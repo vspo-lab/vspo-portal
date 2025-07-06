@@ -1,4 +1,4 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import { useCallback, useEffect, useState } from "react";
 
 export interface StreamPlaybackState {
@@ -39,7 +39,7 @@ export const usePlaybackControls = ({
       const newStates = { ...prev };
 
       // Add new streams
-      for (const [index, stream] of streams.entries()) {
+      streams.forEach((stream, index) => {
         if (!newStates[stream.id]) {
           newStates[stream.id] = {
             streamId: stream.id,
@@ -48,15 +48,15 @@ export const usePlaybackControls = ({
             isPlaying: false,
           };
         }
-      }
+      });
 
       // Remove old streams
       const currentIds = new Set(streams.map((s) => s.id));
-      for (const id of Object.keys(newStates)) {
+      Object.keys(newStates).forEach((id) => {
         if (!currentIds.has(id)) {
           delete newStates[id];
         }
-      }
+      });
 
       return newStates;
     });
@@ -68,9 +68,9 @@ export const usePlaybackControls = ({
 
     setStreamStates((prev) => {
       const newStates = { ...prev };
-      for (const id of Object.keys(newStates)) {
+      Object.keys(newStates).forEach((id) => {
         newStates[id] = { ...newStates[id], isPlaying: newPlaying };
-      }
+      });
       return newStates;
     });
   }, [streamStates]);
@@ -81,11 +81,11 @@ export const usePlaybackControls = ({
 
     setStreamStates((prev) => {
       const newStates = { ...prev };
-      for (const id of Object.keys(newStates)) {
+      Object.keys(newStates).forEach((id) => {
         if (!newStates[id].isMuted) {
           newStates[id] = { ...newStates[id], volume: clampedVolume };
         }
-      }
+      });
       return newStates;
     });
   }, []);
@@ -96,9 +96,9 @@ export const usePlaybackControls = ({
 
     setStreamStates((prev) => {
       const newStates = { ...prev };
-      for (const id of Object.keys(newStates)) {
+      Object.keys(newStates).forEach((id) => {
         newStates[id] = { ...newStates[id], isMuted: newMuted };
-      }
+      });
       return newStates;
     });
   }, [isGlobalMuted]);

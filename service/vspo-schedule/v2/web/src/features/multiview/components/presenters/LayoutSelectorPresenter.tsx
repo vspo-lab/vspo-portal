@@ -22,7 +22,7 @@ import {
 import { useTranslation } from "next-i18next";
 import type { TFunction } from "next-i18next";
 import React from "react";
-import type { LayoutType } from "../../hooks/useMultiviewLayout";
+import { LayoutType } from "../../hooks/useMultiviewLayout";
 
 const SelectorContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2.5),
@@ -166,6 +166,7 @@ const getLayoutIcon = (layoutType: LayoutType) => {
       return <ViewModuleOutlined fontSize="small" />;
     case "picture-in-picture":
       return <PictureInPictureOutlined fontSize="small" />;
+    case "auto":
     default:
       return <AutoAwesome fontSize="small" />;
   }
@@ -241,6 +242,7 @@ const getLayoutPreview = (layoutType: LayoutType) => {
           <PipIndicator />
         </LayoutPreview>
       );
+    case "auto":
     default:
       return (
         <LayoutPreview>
@@ -275,6 +277,7 @@ const getLayoutName = (layoutType: LayoutType, t: TFunction) => {
       return t("layout.nine", "Nine");
     case "picture-in-picture":
       return t("layout.pip", "PiP");
+    case "auto":
     default:
       return t("layout.auto", "Auto");
   }

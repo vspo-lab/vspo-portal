@@ -1,6 +1,5 @@
-import type { Livestream } from "@/features/shared/domain";
-import type React from "react";
-import { useCallback } from "react";
+import { Livestream } from "@/features/shared/domain";
+import React, { useCallback } from "react";
 import { usePlaybackContext } from "../../context/PlaybackContext";
 import { usePlaybackControls } from "../../hooks/usePlaybackControls";
 import { SimplePlaybackControlsPresenter } from "../presenters";

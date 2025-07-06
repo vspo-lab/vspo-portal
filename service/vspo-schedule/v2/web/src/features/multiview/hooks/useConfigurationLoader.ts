@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type LoadedConfig, loadConfigFromUrl } from "../utils/configLoader";
+import { LoadedConfig, loadConfigFromUrl } from "../utils/configLoader";
 
 export interface UseConfigurationLoaderOptions {
   onConfigLoaded?: (config: LoadedConfig) => void;

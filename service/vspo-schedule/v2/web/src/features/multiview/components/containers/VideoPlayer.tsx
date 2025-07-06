@@ -1,4 +1,4 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import React, {
   useEffect,
   useState,
@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import {
-  type VideoPlayerRef,
+  VideoPlayerRef,
   usePlaybackContext,
 } from "../../context/PlaybackContext";
 import { VideoPlayerPresenter } from "../presenters";
@@ -48,7 +48,7 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
           return;
         }
 
-        if (iframeRef.current?.contentWindow) {
+        if (iframeRef.current && iframeRef.current.contentWindow) {
           const message = {
             event: "command",
             func: command,
@@ -93,7 +93,7 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
           }
         }
       },
-      [stream.platform, isPlayerReady],
+      [stream.platform, isPlayerReady, stream.id],
     );
 
     // Create player interface
@@ -168,12 +168,12 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
       return () => {
         unregisterPlayer(stream.id);
       };
-    }, [stream.id, registerPlayer, unregisterPlayer]);
+    }, [stream.id, registerPlayer, unregisterPlayer, playerRef.current]);
 
     useEffect(() => {
       setIsLoading(true);
       setHasError(false);
-    }, []);
+    }, [stream.id]);
 
     const handlePlayerReady = useCallback(() => {
       setIsLoading(false);

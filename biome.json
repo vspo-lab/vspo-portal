@@ -25,7 +25,8 @@
       "**/.mastra/**",
       "service/vspo-schedule/v2/web/*.d.ts",
       "**/.pnpm-store/**",
-      "**/*.css"
+      "**/*.css",
+      "service/vspo-schedule/v2/web/src/features/multiview/**"
     ]
   },
   "formatter": {

@@ -1,4 +1,4 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import {
   Box,
   Paper,
@@ -8,18 +8,17 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import type { MultiviewLayout } from "../../hooks/useMultiviewLayout";
+import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
 import { VideoPlayer } from "../containers";
 
 const GridContainer = styled(Paper)<{ isFullscreen?: boolean }>(
   ({ theme, isFullscreen }) => ({
     minHeight: isFullscreen ? "100vh" : "600px",
-    padding: theme.spacing(isFullscreen ? 0 : 0.1),
+    padding: theme.spacing(isFullscreen ? 0 : 1),
     backgroundColor: "white",
     borderRadius: isFullscreen ? 0 : theme.shape.borderRadius * 2,
     boxShadow: isFullscreen ? "none" : theme.shadows[4],
@@ -35,7 +34,7 @@ const GridContainer = styled(Paper)<{ isFullscreen?: boolean }>(
     overflow: "hidden",
     [theme.breakpoints.down("md")]: {
       minHeight: isFullscreen ? "100vh" : "600px",
-      padding: theme.spacing(isFullscreen ? 0 : 0.1),
+      padding: theme.spacing(isFullscreen ? 0 : 0.5),
     },
     [theme.getColorSchemeSelector("dark")]: {
       backgroundColor: theme.vars.palette.customColors.gray,
@@ -56,6 +55,7 @@ const PipContainer = styled(Box)<{
         return { top: theme.spacing(2), right: theme.spacing(2) };
       case "bottom-left":
         return { bottom: theme.spacing(2), left: theme.spacing(2) };
+      case "bottom-right":
       default:
         return { bottom: theme.spacing(2), right: theme.spacing(2) };
     }
@@ -169,8 +169,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       if (containerRef.current) {
         // Account for padding when calculating width
         const computedStyle = window.getComputedStyle(containerRef.current);
-        const paddingLeft = Number.parseFloat(computedStyle.paddingLeft) || 0;
-        const paddingRight = Number.parseFloat(computedStyle.paddingRight) || 0;
+        const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+        const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
         const actualWidth = isFullscreen
           ? window.innerWidth
           : containerRef.current.offsetWidth - paddingLeft - paddingRight;
@@ -258,17 +258,18 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
             minW: 8,
             minH: 2,
           };
+        } else {
+          // PiP videos
+          return {
+            i: `stream-${index}`,
+            x: 9,
+            y: (index - 1) * 0.5,
+            w: 3,
+            h: 0.5,
+            minW: 2,
+            minH: 0.5,
+          };
         }
-        // PiP videos
-        return {
-          i: `stream-${index}`,
-          x: 9,
-          y: (index - 1) * 0.5,
-          w: 3,
-          h: 0.5,
-          minW: 2,
-          minH: 0.5,
-        };
       });
     }
 
@@ -302,9 +303,9 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
 
     // Create a map of new positions based on grid coordinates
     const newPositions = new Map<string, { x: number; y: number }>();
-    for (const item of newLayout) {
+    newLayout.forEach((item) => {
       newPositions.set(item.i, { x: item.x, y: item.y });
-    }
+    });
 
     // Sort items by their new positions (y first, then x)
     const sortedIds = Array.from(newPositions.entries())
@@ -316,12 +317,12 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
 
     // Build the new order of streams
     const newStreamOrder: Livestream[] = [];
-    for (const id of sortedIds) {
+    sortedIds.forEach((id) => {
       const currentIndex = currentPositions.get(id);
       if (currentIndex !== undefined && selectedStreams[currentIndex]) {
         newStreamOrder.push(selectedStreams[currentIndex]);
       }
-    }
+    });
 
     // Check if order changed
     const orderChanged = newStreamOrder.some(
@@ -415,7 +416,9 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
             ? Math.floor((window.innerHeight - 20) / (layout.rows || 2))
             : isMobile
               ? 180
-              : Math.floor(((containerWidth - 8) / (layout.cols || 2)) * 0.5625) // 16:9 aspect ratio
+              : Math.floor(
+                  ((containerWidth - 20) / (layout.cols || 2)) * 0.5625,
+                ) // 16:9 aspect ratio
         }
         width={containerWidth}
         isDraggable={!isMobile}
@@ -424,13 +427,13 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         draggableHandle=".drag-handle"
         compactType={null}
         preventCollision={true}
-        margin={isFullscreen ? [0, 0] : [2, 2]}
+        margin={isFullscreen ? [0, 0] : [6, 6]}
         containerPadding={[0, 0]}
         style={{ minHeight: isFullscreen ? "100vh" : "auto", width: "100%" }}
       >
-        {selectedStreams.map((stream) => (
+        {selectedStreams.map((stream, index) => (
           <div
-            key={stream.id}
+            key={`stream-${index}`}
             style={{
               display: "flex",
               height: "100%",

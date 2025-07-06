@@ -1,4 +1,4 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import { parseUrl } from "./urlParser";
 
 export interface MultiviewConfig {
