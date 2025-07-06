@@ -57,6 +57,7 @@ const getLayoutConfig = (
         isPip: true,
         pipPosition: "bottom-right",
       };
+    case "auto":
     default:
       // Auto layout based on stream count
       if (streamCount <= 1) return { rows: 1, cols: 1, aspectRatio: "16 / 9" };

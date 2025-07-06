@@ -1,7 +1,6 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import { useTranslation } from "next-i18next";
-import type React from "react";
-import { useCallback, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { UrlInputPresenter } from "../presenters";
 
 export interface UrlInputProps {

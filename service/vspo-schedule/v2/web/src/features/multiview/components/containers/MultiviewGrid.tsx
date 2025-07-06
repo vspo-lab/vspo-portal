@@ -1,12 +1,8 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import { useMediaQuery, useTheme } from "@mui/material";
-import type React from "react";
-import { useCallback } from "react";
-import type GridLayout from "react-grid-layout";
-import {
-  type LayoutType,
-  useMultiviewLayout,
-} from "../../hooks/useMultiviewLayout";
+import React, { useCallback } from "react";
+import GridLayout from "react-grid-layout";
+import { LayoutType, useMultiviewLayout } from "../../hooks/useMultiviewLayout";
 import { MultiviewGridPresenter } from "../presenters";
 
 export type MultiviewGridProps = {

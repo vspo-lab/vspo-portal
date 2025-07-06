@@ -1,4 +1,4 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SearchIcon from "@mui/icons-material/Search";
@@ -20,7 +20,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import type React from "react";
+import React from "react";
 
 const SelectorContainer = styled(Paper)(({ theme }) => ({
   backgroundColor: "white",

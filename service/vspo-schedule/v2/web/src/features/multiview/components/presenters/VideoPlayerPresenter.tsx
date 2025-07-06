@@ -1,4 +1,4 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import CloseIcon from "@mui/icons-material/Close";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -171,8 +171,7 @@ export const VideoPlayerPresenter = forwardRef<
             stream.id;
           // Enable YouTube iframe API with proper parameters
           return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${window.location.origin}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
-        }
-        if (stream.platform === "twitch") {
+        } else if (stream.platform === "twitch") {
           // Extract channel name from different sources
           let channelName = "";
 
@@ -225,7 +224,7 @@ export const VideoPlayerPresenter = forwardRef<
       }
     };
 
-    const truncateTitle = (title: string, maxLength = 40) => {
+    const truncateTitle = (title: string, maxLength: number = 40) => {
       return title.length > maxLength
         ? `${title.substring(0, maxLength)}...`
         : title;
@@ -233,7 +232,6 @@ export const VideoPlayerPresenter = forwardRef<
 
     return (
       <PlayerContainer
-        // biome-ignore lint/a11y/useSemanticElements: This container needs to be draggable which requires a div
         role="button"
         aria-label={t(
           "player.dragHandle.ariaLabel",

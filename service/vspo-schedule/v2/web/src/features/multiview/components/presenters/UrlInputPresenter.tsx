@@ -1,4 +1,4 @@
-import type { Livestream } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
 import LinkIcon from "@mui/icons-material/Link";
@@ -15,7 +15,7 @@ import {
   styled,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import type React from "react";
+import React from "react";
 
 const UrlInputContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),

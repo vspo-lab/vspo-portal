@@ -1,4 +1,4 @@
-import type { Platform } from "@/features/shared/domain/video";
+import { Platform } from "@/features/shared/domain/video";
 import { z } from "zod";
 
 // URL validation schema
@@ -131,7 +131,7 @@ export const determineStreamType = (
       // Standard YouTube videos could be either - we'd need to check the API
       return "unknown";
 
-    case "twitch": {
+    case "twitch":
       const twitchId = extractTwitchId(url);
       if (twitchId) {
         if (twitchId.type === "channel") {
@@ -142,7 +142,6 @@ export const determineStreamType = (
         }
       }
       return "unknown";
-    }
 
     default:
       return "unknown";
@@ -169,23 +168,21 @@ export const parseUrl = (url: string): ParsedUrl => {
   let isValid = false;
 
   switch (platform) {
-    case "youtube": {
+    case "youtube":
       const youtubeId = extractYouTubeVideoId(url);
       if (youtubeId) {
         videoId = youtubeId;
         isValid = true;
       }
       break;
-    }
 
-    case "twitch": {
+    case "twitch":
       const twitchId = extractTwitchId(url);
       if (twitchId) {
         videoId = twitchId.clipId || twitchId.id;
         isValid = true;
       }
       break;
-    }
 
     default:
       isValid = false;
@@ -216,16 +213,14 @@ export const generateEmbedUrl = (parsedUrl: ParsedUrl): string | null => {
     case "youtube":
       return `https://www.youtube.com/embed/${parsedUrl.videoId}?autoplay=0&origin=${encodeURIComponent(`https://${domain}`)}`;
 
-    case "twitch": {
+    case "twitch":
       const twitchId = extractTwitchId(parsedUrl.url);
       if (twitchId?.type === "channel") {
         return `https://player.twitch.tv/?channel=${parsedUrl.videoId}&parent=${domain}&autoplay=false`;
-      }
-      if (twitchId?.type === "video") {
+      } else if (twitchId?.type === "video") {
         return `https://player.twitch.tv/?video=${parsedUrl.videoId}&parent=${domain}&autoplay=false`;
       }
       return null;
-    }
 
     default:
       return null;
@@ -245,19 +240,17 @@ export const generateChatUrl = (
     typeof window !== "undefined" ? window.location.hostname : "localhost";
 
   switch (parsedUrl.platform) {
-    case "youtube": {
+    case "youtube":
       const themeParam = isDarkMode ? "&dark_theme=1" : "";
       return `https://www.youtube.com/live_chat?v=${parsedUrl.videoId}&embed_domain=${domain}${themeParam}`;
-    }
 
-    case "twitch": {
+    case "twitch":
       const twitchId = extractTwitchId(parsedUrl.url);
       if (twitchId?.type === "channel") {
         const darkParam = isDarkMode ? "&darkpopout" : "";
         return `https://www.twitch.tv/embed/${parsedUrl.videoId}/chat?parent=${domain}${darkParam}`;
       }
       return null; // VODs don't have live chat
-    }
 
     default:
       return null;

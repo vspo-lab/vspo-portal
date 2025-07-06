@@ -1,5 +1,4 @@
-import type React from "react";
-import { createContext, useCallback, useContext, useRef } from "react";
+import React, { createContext, useContext, useCallback, useRef } from "react";
 
 export interface VideoPlayerRef {
   play: () => void;
@@ -62,33 +61,33 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const playAll = useCallback(() => {
-    for (const player of playersRef.current.values()) {
+    playersRef.current.forEach((player) => {
       player.play();
-    }
+    });
   }, []);
 
   const pauseAll = useCallback(() => {
-    for (const player of playersRef.current.values()) {
+    playersRef.current.forEach((player) => {
       player.pause();
-    }
+    });
   }, []);
 
   const muteAll = useCallback(() => {
-    for (const player of playersRef.current.values()) {
+    playersRef.current.forEach((player) => {
       player.mute();
-    }
+    });
   }, []);
 
   const unmuteAll = useCallback(() => {
-    for (const player of playersRef.current.values()) {
+    playersRef.current.forEach((player) => {
       player.unmute();
-    }
+    });
   }, []);
 
   const setAllVolume = useCallback((volume: number) => {
-    for (const player of playersRef.current.values()) {
+    playersRef.current.forEach((player) => {
       player.setVolume(volume);
-    }
+    });
   }, []);
 
   const contextValue: PlaybackContextType = {

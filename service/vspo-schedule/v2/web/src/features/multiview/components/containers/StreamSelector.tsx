@@ -1,6 +1,5 @@
-import type { Livestream } from "@/features/shared/domain";
-import type React from "react";
-import { useMemo, useState } from "react";
+import { Livestream } from "@/features/shared/domain";
+import React, { useState, useMemo } from "react";
 import { StreamSelectorPresenter } from "../presenters";
 
 export type StreamSelectorProps = {
