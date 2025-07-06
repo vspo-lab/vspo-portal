@@ -7,7 +7,7 @@ import type { OverridableComponent } from "@mui/material/OverridableComponent";
 import { styled } from "@mui/material/styles";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { AlertSnackbar, GoogleAd } from "../Elements";
+import { AlertSnackbar } from "../Elements";
 import { CustomHead } from "../Head/Head";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -91,7 +91,6 @@ export const ContentLayout = ({
       >
         {children}
       </StyledContainer>
-      <GoogleAd />
       <Footer
         lastUpdateTimestamp={lastUpdateTimestamp}
         description={footerMessage}
