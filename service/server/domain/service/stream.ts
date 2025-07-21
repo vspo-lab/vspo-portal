@@ -2,13 +2,6 @@ import { convertToUTCDate, getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { type AppError, Ok, type OkResult, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import {
-  type Creator,
-  MemberTypeSchema,
-  PlatformSchema,
-  StatusSchema,
-  type Streams,
-} from "..";
-import {
   type IBilibiliService,
   type IStreamRepository,
   type ITwitcastingService,
@@ -20,6 +13,13 @@ import type { IAIService } from "../../infra/ai";
 import type { ICacheClient } from "../../infra/cache";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import type { ICreatorRepository } from "../../infra/repository/creator";
+import {
+  type Creator,
+  MemberTypeSchema,
+  PlatformSchema,
+  StatusSchema,
+  type Streams,
+} from "..";
 import { TargetLangSchema } from "../translate";
 
 export interface IStreamService {
@@ -142,7 +142,7 @@ export const createStreamService = (deps: {
     youtubeStreamIds: string[];
     twitchStreamIds: string[];
   }): Promise<Result<Streams, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "getStreamsByIDs", async (span) => {
+    return withTracerResult(SERVICE_NAME, "getStreamsByIDs", async (_span) => {
       const results: PromiseSettledResult<Result<Streams, AppError>>[] =
         await Promise.allSettled([
           ...(youtubeStreamIds.length > 0
@@ -306,7 +306,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchLiveTwitchStreams",
-      async (span) => {
+      async (_span) => {
         AppLogger.debug("Searching live Twitch streams", {
           service: SERVICE_NAME,
         });
@@ -425,7 +425,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchLiveTwitCastingStreams",
-      async (span) => {
+      async (_span) => {
         AppLogger.debug("Searching live TwitCasting streams", {
           service: SERVICE_NAME,
         });
@@ -472,7 +472,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchLiveBilibiliStreams",
-      async (span) => {
+      async (_span) => {
         AppLogger.debug("Searching live Bilibili streams", {
           service: SERVICE_NAME,
         });
@@ -531,7 +531,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchAllLiveStreams",
-      async (span) => {
+      async (_span) => {
         AppLogger.debug("Searching all live streams", {
           service: SERVICE_NAME,
         });
@@ -581,7 +581,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchExistStreams",
-      async (span) => {
+      async (_span) => {
         const liveStreams = await deps.streamRepository.list({
           limit: 1000,
           page: 0,
@@ -658,7 +658,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchDeletedStreams",
-      async (span) => {
+      async (_span) => {
         const existingStreams = await deps.streamRepository.list({
           limit: 500,
           page: 0,
@@ -733,7 +733,7 @@ export const createStreamService = (deps: {
     languageCode: string;
     streams: Streams;
   }): Promise<Result<Streams, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "translateStreams", async (span) => {
+    return withTracerResult(SERVICE_NAME, "translateStreams", async (_span) => {
       AppLogger.debug("Translating streams", {
         service: SERVICE_NAME,
         languageCode,
@@ -766,7 +766,7 @@ export const createStreamService = (deps: {
   };
 
   const getMemberStreams = async (): Promise<Result<Streams, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "getMemberStreams", async (span) => {
+    return withTracerResult(SERVICE_NAME, "getMemberStreams", async (_span) => {
       // Check if the channel exists in our creators
       const creators = await masterCreators({
         creatorRepository: deps.creatorRepository,
@@ -843,7 +843,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "getStreamsByChannel",
-      async (span) => {
+      async (_span) => {
         AppLogger.debug("Fetching streams by channel ID", {
           service: SERVICE_NAME,
           channelId,
@@ -896,7 +896,7 @@ export const createStreamService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "getStreamsByStreamIds",
-      async (span) => {
+      async (_span) => {
         return deps.youtubeClient.getStreams({
           streamIds: params.streamIds,
         });

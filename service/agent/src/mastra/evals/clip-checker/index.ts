@@ -47,7 +47,7 @@ export class VspoClipCheckerMetric extends Metric {
     this.judge = new VspoClipCheckerJudge(model);
   }
 
-  async measure(input: string, output: string): Promise<VspoClipMetricResult> {
+  async measure(input: string, _output: string): Promise<VspoClipMetricResult> {
     // Parse the input as VideoInput (assuming it's JSON)
     const videoInput: VideoInput = JSON.parse(input);
     const result = await this.judge.evaluate(videoInput);
@@ -87,7 +87,7 @@ export class YouTubeShortCheckerMetric extends Metric {
 
   async measure(
     input: string,
-    output: string,
+    _output: string,
   ): Promise<YouTubeShortMetricResult> {
     // Parse the input as VideoInput (assuming it's JSON)
     const videoInput: VideoInput = JSON.parse(input);
@@ -126,7 +126,7 @@ export class CategoryMatcherMetric extends Metric {
 
   async measure(
     input: string,
-    output: string,
+    _output: string,
   ): Promise<CategoryMatcherMetricResult> {
     // Parse the input as CategoryInput (assuming it's JSON)
     const categoryInput: CategoryInput = JSON.parse(input);

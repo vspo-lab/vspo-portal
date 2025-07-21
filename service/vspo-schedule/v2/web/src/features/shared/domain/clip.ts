@@ -1,5 +1,5 @@
-import { videoSchema } from "@/features/shared/domain/video";
 import { z } from "zod";
+import { videoSchema } from "@/features/shared/domain/video";
 
 /**
  * Zod schema for clips

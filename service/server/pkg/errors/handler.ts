@@ -1,12 +1,11 @@
 import { z } from "@hono/zod-openapi";
+import { AppError, type ErrorCode, ErrorCodeSchema } from "@vspo-lab/error";
+import { AppLogger } from "@vspo-lab/logging";
 import type { Context } from "hono";
 import { env } from "hono/adapter";
 import { HTTPException } from "hono/http-exception";
-import type { ZodError } from "zod";
-
-import { AppError, type ErrorCode, ErrorCodeSchema } from "@vspo-lab/error";
-import { AppLogger } from "@vspo-lab/logging";
 import type { ContentfulStatusCode, StatusCode } from "hono/utils/http-status";
+import type { ZodError } from "zod";
 import type { CommonEnv } from "../../config/env/common";
 import type { AppContext } from "../../infra/http/hono";
 import type { HonoEnv } from "../../infra/http/hono/env";
@@ -24,7 +23,7 @@ const parseZodErrorMessage = (err: z.ZodError): string => {
   }
 };
 
-// biome-ignore lint:
+// biome-ignore lint: ignore any
 export const errorSchemaFactory = (code: z.ZodEnum<any>) => {
   return z.object({
     error: z.object({

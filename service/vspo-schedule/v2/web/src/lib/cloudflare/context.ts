@@ -2,8 +2,8 @@ import {
   type CloudflareContext,
   getCloudflareContext,
 } from "@opennextjs/cloudflare";
-import { AppError, type Result, wrap } from "@vspo-lab/error";
 import type { BaseError } from "@vspo-lab/error";
+import { AppError, type Result, wrap } from "@vspo-lab/error";
 import type { ApplicationService } from "../../features/shared/types/api";
 
 // Define Service type

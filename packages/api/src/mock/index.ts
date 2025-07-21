@@ -1,8 +1,5 @@
-// Import dependencies
-import type { AxiosRequestConfig } from "axios";
-import type * as apiGen from "../gen/openapi";
-
 import type { VSPOApiOptions } from "../client";
+import type * as apiGen from "../gen/openapi";
 import { creators } from "./data/creators";
 import { events } from "./data/events";
 import { freechats } from "./data/freechats";
@@ -50,7 +47,7 @@ export const MockHandler = {
   /**
    * Returns mock stream data for the streams.list endpoint
    */
-  getStreams(params: apiGen.ListStreamsParams): apiGen.ListStreams200 {
+  getStreams(_params: apiGen.ListStreamsParams): apiGen.ListStreams200 {
     return getMockData("streams");
   },
 
@@ -73,7 +70,7 @@ export const MockHandler = {
   /**
    * Returns mock creator data for the creators.list endpoint
    */
-  getCreators(params: apiGen.ListCreatorsParams): apiGen.ListCreators200 {
+  getCreators(_params: apiGen.ListCreatorsParams): apiGen.ListCreators200 {
     return getMockData("creators");
   },
 
@@ -101,7 +98,7 @@ export const MockHandler = {
   /**
    * Returns mock events data for the events.list endpoint
    */
-  getEvents(params: apiGen.ListEventsParams): apiGen.ListEvents200 {
+  getEvents(_params: apiGen.ListEventsParams): apiGen.ListEvents200 {
     return getMockData("events");
   },
 
@@ -122,7 +119,7 @@ export const MockHandler = {
   /**
    * Returns mock freechats data for the freechats.list endpoint
    */
-  getFreechats(params: apiGen.ListFreechatsParams): apiGen.ListFreechats200 {
+  getFreechats(_params: apiGen.ListFreechatsParams): apiGen.ListFreechats200 {
     return getMockData("freechats");
   },
 };

@@ -5,7 +5,7 @@ import {
 } from "@vspo-lab/dayjs";
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { type Clips, createClip, createClips } from "../../domain/clip";
-import { type Streams, createStream, createStreams } from "../../domain/stream";
+import { createStream, createStreams, type Streams } from "../../domain/stream";
 import { withTracerResult } from "../http/trace/cloudflare";
 import type { paths } from "./twitch-api.generated";
 
@@ -32,7 +32,7 @@ const getAccessToken = async (
   config: TwitchServiceConfig,
   cachedToken: { current: string | null },
 ): Promise<Result<string, AppError>> => {
-  return withTracerResult("TwitchService", "getAccessToken", async (span) => {
+  return withTracerResult("TwitchService", "getAccessToken", async (_span) => {
     if (cachedToken.current) return Ok(cachedToken.current);
 
     const result = await wrap(
@@ -84,7 +84,7 @@ const fetchFromTwitch = async <T>(
   endpoint: string,
   params: Record<string, string | string[]>,
 ): Promise<Result<T, AppError>> => {
-  return withTracerResult("TwitchService", "fetchFromTwitch", async (span) => {
+  return withTracerResult("TwitchService", "fetchFromTwitch", async (_span) => {
     const tokenResult = await getAccessToken(config, cachedToken);
     if (tokenResult.err) return Err(tokenResult.err);
 
@@ -152,7 +152,7 @@ export const createTwitchService = (
   const getStreams = async (
     params: GetStreamsParams,
   ): Promise<Result<Streams, AppError>> => {
-    return withTracerResult("TwitchService", "getStreams", async (span) => {
+    return withTracerResult("TwitchService", "getStreams", async (_span) => {
       type StreamsResponse =
         paths["/streams"]["get"]["responses"]["200"]["content"]["application/json"];
       const result = await fetchFromTwitch<StreamsResponse>(
@@ -199,7 +199,7 @@ export const createTwitchService = (
     return withTracerResult(
       "TwitchService",
       "getStreamsByIDs",
-      async (span) => {
+      async (_span) => {
         type StreamsResponse =
           paths["/videos"]["get"]["responses"]["200"]["content"]["application/json"];
         const result = await fetchFromTwitch<StreamsResponse>(
@@ -242,7 +242,7 @@ export const createTwitchService = (
   const getArchive = async (
     params: GetArchiveParams,
   ): Promise<Result<Streams, AppError>> => {
-    return withTracerResult("TwitchService", "getArchive", async (span) => {
+    return withTracerResult("TwitchService", "getArchive", async (_span) => {
       type ArchiveResponse =
         paths["/videos"]["get"]["responses"]["200"]["content"]["application/json"];
 
@@ -304,7 +304,7 @@ export const createTwitchService = (
   const getClipsByUserID = async (
     params: GetClipsParams,
   ): Promise<Result<Clips, AppError>> => {
-    return withTracerResult("TwitchService", "getClips", async (span) => {
+    return withTracerResult("TwitchService", "getClips", async (_span) => {
       // Calculate dates for the 7-day window
       const current = getCurrentUTCString();
       const sevenDaysAgo = convertToUTC(

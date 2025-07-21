@@ -1,4 +1,3 @@
-import type { RestManager } from "@discordeno/rest";
 import { createRestManager } from "@discordeno/rest";
 import type { DiscordEmbed } from "@discordeno/types";
 import { getCurrentUTCString } from "@vspo-lab/dayjs";
@@ -115,7 +114,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   const sendMessage = async (
     params: SendMessageParams,
   ): Promise<Result<string, AppError>> => {
-    return withTracerResult("discord", "sendMessage", async (span) => {
+    return withTracerResult("discord", "sendMessage", async (_span) => {
       const { channelId, content, embeds } = params;
       AppLogger.debug("Sending message to Discord channel", {
         channel_id: channelId,
@@ -154,7 +153,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   const getChannel = async (
     params: GetChannelInfoParams,
   ): Promise<Result<DiscordChannel, AppError>> => {
-    return withTracerResult("discord", "getChannel", async (span) => {
+    return withTracerResult("discord", "getChannel", async (_span) => {
       const { channelId, serverId } = params;
       AppLogger.debug("Fetching Discord channel info", {
         channel_id: channelId,
@@ -213,7 +212,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   const updateMessage = async (
     params: UpdateMessageParams,
   ): Promise<Result<string, AppError>> => {
-    return withTracerResult("discord", "updateMessage", async (span) => {
+    return withTracerResult("discord", "updateMessage", async (_span) => {
       const { channelId, messageId, content, embeds } = params;
       AppLogger.debug("Updating Discord message", {
         channel_id: channelId,
@@ -255,7 +254,7 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   const deleteMessage = async (
     params: DeleteMessageParams,
   ): Promise<Result<string, AppError>> => {
-    return withTracerResult("discord", "deleteMessage", async (span) => {
+    return withTracerResult("discord", "deleteMessage", async (_span) => {
       const { channelId, messageId } = params;
       AppLogger.debug("Deleting Discord message", {
         channel_id: channelId,
@@ -328,71 +327,75 @@ export const createDiscordClient = (env: DiscordEnv): IDiscordClient => {
   const getLatestBotMessages = async (
     channelId: string,
   ): Promise<Result<DiscordMessage[], AppError>> => {
-    return withTracerResult("discord", "getLatestBotMessages", async (span) => {
-      AppLogger.debug("Fetching latest bot messages from Discord channel", {
-        channel_id: channelId,
-      });
-
-      const query = { limit: 100 };
-      const responseResult = await wrap(
-        rest.getMessages(channelId, query),
-        (err: Error) => {
-          AppLogger.error("Failed to fetch messages from Discord channel", {
-            channel_id: channelId,
-            error: err,
-          });
-
-          const errorCode = getErrorCodeFromDiscordError(err);
-
-          return new AppError({
-            message: `Failed to fetch messages in channel ${channelId}: ${err.message}`,
-            code: errorCode,
-            cause: err.cause,
-          });
-        },
-      );
-      if (responseResult.err) return Err(responseResult.err);
-      const messages = responseResult.val;
-      const botMessages = messages.filter(
-        (m) => m.author?.bot && m.author.id === botId,
-      );
-
-      AppLogger.debug(
-        "Successfully fetched bot messages from Discord channel",
-        {
+    return withTracerResult(
+      "discord",
+      "getLatestBotMessages",
+      async (_span) => {
+        AppLogger.debug("Fetching latest bot messages from Discord channel", {
           channel_id: channelId,
-          message_count: botMessages.length,
-        },
-      );
-      return Ok(
-        discordMessages.parse(
-          botMessages.map((m) => ({
-            id: createUUID(),
-            type: "bot",
-            rawId: m.id,
-            channelId,
-            content: m.content ?? "",
-            createdAt: getCurrentUTCString(),
-            updatedAt: getCurrentUTCString(),
-            embedStreams:
-              m.embeds.map((e) => ({
-                identifier: e.url,
-                title: e.title,
-                url: e.url,
-                thumbnail: e.image?.url ?? "",
-                startedAt: e.fields?.[0]?.value ?? "",
-                status: getStatusFromColor(e.color ?? 0),
-              })) ?? [],
-          })),
-        ),
-      );
-    });
+        });
+
+        const query = { limit: 100 };
+        const responseResult = await wrap(
+          rest.getMessages(channelId, query),
+          (err: Error) => {
+            AppLogger.error("Failed to fetch messages from Discord channel", {
+              channel_id: channelId,
+              error: err,
+            });
+
+            const errorCode = getErrorCodeFromDiscordError(err);
+
+            return new AppError({
+              message: `Failed to fetch messages in channel ${channelId}: ${err.message}`,
+              code: errorCode,
+              cause: err.cause,
+            });
+          },
+        );
+        if (responseResult.err) return Err(responseResult.err);
+        const messages = responseResult.val;
+        const botMessages = messages.filter(
+          (m) => m.author?.bot && m.author.id === botId,
+        );
+
+        AppLogger.debug(
+          "Successfully fetched bot messages from Discord channel",
+          {
+            channel_id: channelId,
+            message_count: botMessages.length,
+          },
+        );
+        return Ok(
+          discordMessages.parse(
+            botMessages.map((m) => ({
+              id: createUUID(),
+              type: "bot",
+              rawId: m.id,
+              channelId,
+              content: m.content ?? "",
+              createdAt: getCurrentUTCString(),
+              updatedAt: getCurrentUTCString(),
+              embedStreams:
+                m.embeds.map((e) => ({
+                  identifier: e.url,
+                  title: e.title,
+                  url: e.url,
+                  thumbnail: e.image?.url ?? "",
+                  startedAt: e.fields?.[0]?.value ?? "",
+                  status: getStatusFromColor(e.color ?? 0),
+                })) ?? [],
+            })),
+          ),
+        );
+      },
+    );
   };
 
   const getMessage = async (
     params: GetMessageParams,
   ): Promise<Result<DiscordMessage, AppError>> => {
-    return withTracerResult("discord", "getMessage", async (span) => {
+    return withTracerResult("discord", "getMessage", async (_span) => {
       const { channelId, messageId } = params;
       AppLogger.debug("Fetching Discord message", {
         channel_id: channelId,

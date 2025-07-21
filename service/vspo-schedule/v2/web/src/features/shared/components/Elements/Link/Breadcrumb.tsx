@@ -1,7 +1,7 @@
 // components/Elements/Breadcrumb.tsx
 import { Breadcrumbs, Typography } from "@mui/material";
-import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import { Link } from "./Link";
 
 export const Breadcrumb = () => {

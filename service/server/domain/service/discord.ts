@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/cloudflare";
 import {
   convertToUTCDate,
   getCurrentUTCDate,
@@ -11,14 +10,14 @@ import type {
   IDiscordServerRepository,
   IStreamRepository,
 } from "../../infra";
-import { type ICacheClient, cacheKey } from "../../infra/cache";
+import { cacheKey, type ICacheClient } from "../../infra/cache";
 import type { IDiscordClient } from "../../infra/discord";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import { createUUID } from "../../pkg/uuid";
 import {
-  type DiscordServer,
   createDiscordServer,
   createStreamEmbed,
+  type DiscordServer,
   discordServer,
 } from "../discord";
 import { runWithLanguage } from "../service/i18n";
@@ -390,7 +389,7 @@ export const createDiscordService = (dependencies: {
   const adjustBotChannel = async (
     options: BotChannelAdjustmentParams,
   ): Promise<Result<DiscordServer, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "adjustBotChannel", async (span) => {
+    return withTracerResult(SERVICE_NAME, "adjustBotChannel", async (_span) => {
       AppLogger.debug("Adjusting bot channel", {
         service: SERVICE_NAME,
         type: options.type,
@@ -543,7 +542,7 @@ export const createDiscordService = (dependencies: {
     return withTracerResult(
       SERVICE_NAME,
       "deleteAllMessagesInChannel",
-      async (span) => {
+      async (_span) => {
         AppLogger.debug("Deleting all messages in channel", {
           service: SERVICE_NAME,
           channelId,

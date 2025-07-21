@@ -4,7 +4,6 @@ import {
   getStaticProps as termsGetStaticProps,
 } from "@/features/legal-documents/pages/TermsPage/serverSideProps";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
-import React from "react";
 import type { NextPageWithLayout } from "./_app";
 
 export const getStaticProps = termsGetStaticProps;

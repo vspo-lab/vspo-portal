@@ -3,7 +3,6 @@ import { AppLogger } from "@vspo-lab/logging";
 import {
   Button,
   type CommandHandler,
-  type ComponentContext,
   type ComponentHandler,
   Components,
   Select,
@@ -11,8 +10,8 @@ import {
 import type { ApplicationService } from "../../../cmd/server/internal/application";
 import type { DiscordServer } from "../../../domain";
 import {
-  type SupportedLanguage,
   runWithLanguage,
+  type SupportedLanguage,
   t,
 } from "../../../domain/service/i18n";
 import { LangCodeLabelMapping } from "../../../domain/translate";

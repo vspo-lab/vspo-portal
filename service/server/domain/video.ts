@@ -1,4 +1,3 @@
-import { formatToLocalizedDate, getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { z } from "zod";
 import { ThumbnailURLSchema } from "./thumbnail";
 import { TargetLangSchema } from "./translate";

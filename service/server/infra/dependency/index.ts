@@ -1,15 +1,59 @@
 import type { AppError, Result } from "@vspo-lab/error";
 import type { PgTransactionConfig } from "drizzle-orm/pg-core";
+import type { AppWorkerEnv } from "../../config/env/internal";
 import {
-  type ICreatorClipFetchService,
-  type ICreatorService,
-  type IStreamService,
   createCreatorClipFetchService,
   createCreatorService,
   createStreamService,
+  type ICreatorClipFetchService,
+  type ICreatorService,
+  type IStreamService,
 } from "../../domain";
-import { type IBilibiliService, createBilibiliService } from "../bilibili";
 import {
+  createClipService,
+  type IClipService,
+} from "../../domain/service/clip";
+import {
+  createClipAnalysisService,
+  type IClipAnalysisService,
+} from "../../domain/service/clipAnalysis";
+import {
+  createDiscordService,
+  type IDiscordService,
+} from "../../domain/service/discord";
+import {
+  createCreatorInteractor,
+  createEventInteractor,
+  createStreamInteractor,
+  type ICreatorInteractor,
+  type IEventInteractor,
+  type IStreamInteractor,
+} from "../../usecase";
+import { createClipInteractor, type IClipInteractor } from "../../usecase/clip";
+import {
+  createClipAnalysisInteractor,
+  type IClipAnalysisInteractor,
+} from "../../usecase/clipAnalysis";
+import {
+  createDiscordInteractor,
+  type IDiscordInteractor,
+} from "../../usecase/discord";
+import {
+  createFreechatInteractor,
+  type IFreechatInteractor,
+} from "../../usecase/freechat";
+import { createAIService, type IAIService } from "../ai";
+import { createBilibiliService, type IBilibiliService } from "../bilibili";
+import { createCloudflareKVCacheClient, type ICacheClient } from "../cache";
+import { createDiscordClient, type IDiscordClient } from "../discord";
+import { createMastraService, type IMastraService } from "../mastra";
+import {
+  createCreatorRepository,
+  createDiscordMessageRepository,
+  createDiscordServerRepository,
+  createFreechatRepository,
+  createStreamRepository,
+  createTxManager,
   type DB,
   type ICreatorRepository,
   type IDiscordMessageRepository,
@@ -17,67 +61,22 @@ import {
   type IFreechatRepository,
   type IStreamRepository,
   type ITxManager,
-  createCreatorRepository,
-  createDiscordMessageRepository,
-  createDiscordServerRepository,
-  createFreechatRepository,
-  createStreamRepository,
-  createTxManager,
 } from "../repository";
+import { createClipRepository, type IClipRepository } from "../repository/clip";
 import {
-  type ITwitcastingService,
-  createTwitcastingService,
-} from "../twitcasting";
-import { type ITwitchService, createTwitchService } from "../twitch";
-import { type IYoutubeService, createYoutubeService } from "../youtube";
-
-import type { AppWorkerEnv } from "../../config/env/internal";
-import {
-  type IClipService,
-  createClipService,
-} from "../../domain/service/clip";
-import {
-  type IClipAnalysisService,
-  createClipAnalysisService,
-} from "../../domain/service/clipAnalysis";
-import {
-  type IDiscordService,
-  createDiscordService,
-} from "../../domain/service/discord";
-import {
-  type ICreatorInteractor,
-  type IEventInteractor,
-  type IStreamInteractor,
-  createCreatorInteractor,
-  createEventInteractor,
-  createStreamInteractor,
-} from "../../usecase";
-import { type IClipInteractor, createClipInteractor } from "../../usecase/clip";
-import {
-  type IClipAnalysisInteractor,
-  createClipAnalysisInteractor,
-} from "../../usecase/clipAnalysis";
-import {
-  type IDiscordInteractor,
-  createDiscordInteractor,
-} from "../../usecase/discord";
-import {
-  type IFreechatInteractor,
-  createFreechatInteractor,
-} from "../../usecase/freechat";
-import { type IAIService, createAIService } from "../ai";
-import { type ICacheClient, createCloudflareKVCacheClient } from "../cache";
-import { type IDiscordClient, createDiscordClient } from "../discord";
-import { type IMastraService, createMastraService } from "../mastra";
-import { type IClipRepository, createClipRepository } from "../repository/clip";
-import {
-  type IClipAnalysisRepository,
   createClipAnalysisRepository,
+  type IClipAnalysisRepository,
 } from "../repository/clipAnalysis";
 import {
-  type IEventRepository,
   createEventRepository,
+  type IEventRepository,
 } from "../repository/event";
+import {
+  createTwitcastingService,
+  type ITwitcastingService,
+} from "../twitcasting";
+import { createTwitchService, type ITwitchService } from "../twitch";
+import { createYoutubeService, type IYoutubeService } from "../youtube";
 
 export interface IRepositories {
   creatorRepository: ICreatorRepository;

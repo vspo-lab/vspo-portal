@@ -137,7 +137,7 @@ export const createCreatorTranslations = (
 ): CreatorTranslationData[] => {
   console.log("Generating creator translations...");
 
-  const languages = ["en", "ja", "fr", "de", "es", "cn", "tw", "ko"];
+  const _languages = ["en", "ja", "fr", "de", "es", "cn", "tw", "ko"];
   const result: CreatorTranslationData[] = [];
 
   for (const creatorId of creatorIds) {
@@ -424,7 +424,7 @@ export const createDiscordChannels = (
 ): DiscordChannelData[] => {
   console.log("Generating Discord channels...");
 
-  const languages = ["en", "ja", "fr", "de", "es", "cn", "tw", "ko"];
+  const _languages = ["en", "ja", "fr", "de", "es", "cn", "tw", "ko"];
   const result: DiscordChannelData[] = [];
 
   for (const server of servers) {

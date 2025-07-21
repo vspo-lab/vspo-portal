@@ -2,7 +2,7 @@ import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import type { Clips } from "../domain/clip";
 import type { Creators } from "../domain/creator";
-import { type Page, createPage } from "../domain/pagination";
+import { createPage, type Page } from "../domain/pagination";
 import type { IAppContext } from "../infra/dependency";
 import { withTracerResult } from "../infra/http/trace";
 

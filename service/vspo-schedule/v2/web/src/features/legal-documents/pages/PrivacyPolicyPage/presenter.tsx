@@ -1,7 +1,7 @@
-import { AgreementDocument } from "@/features/shared/components/Templates";
-import { QA_LINK } from "@/lib/Const";
 import type { TFunction } from "next-i18next";
 import type React from "react";
+import { AgreementDocument } from "@/features/shared/components/Templates";
+import { QA_LINK } from "@/lib/Const";
 
 type PrivacyPolicyPagePresenterProps = {
   t: TFunction;

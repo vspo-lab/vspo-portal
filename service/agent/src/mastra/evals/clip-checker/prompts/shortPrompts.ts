@@ -56,11 +56,7 @@ const SHORT_OUTPUT_FORMAT = `Return your response in this format:
 }`;
 
 // Main prompt generation function for Short detection
-export const generateShortCheckPrompt = ({
-  input,
-}: {
-  input: VideoInput;
-}) => {
+export const generateShortCheckPrompt = ({ input }: { input: VideoInput }) => {
   const videoInfo = `Video Information to analyze:
 Title: ${input.title}
 Description: ${input.description || "No description provided"}

@@ -1,5 +1,4 @@
-import { AppError } from "@vspo-lab/error";
-import { Err, Ok, type Result, wrap } from "@vspo-lab/error";
+import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import { withTracerResult } from "../http/trace/cloudflare";
 
@@ -41,7 +40,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
     key: string,
     body: ReadableStream | ArrayBuffer | string,
   ): Promise<Result<void, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "put", async (span) => {
+    return withTracerResult(SERVICE_NAME, "put", async (_span) => {
       const result = await wrap(bucket.put(key, body), (error) => {
         AppLogger.error(
           `Failed to upload object with key ${key}: ${error.message}`,
@@ -63,7 +62,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
   };
 
   const get = async (key: string): Promise<Result<R2ObjectBody, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "get", async (span) => {
+    return withTracerResult(SERVICE_NAME, "get", async (_span) => {
       const result = await wrap(
         bucket.get(key),
         (error) =>
@@ -95,7 +94,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
   };
 
   const deleteObject = async (key: string): Promise<Result<void, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "delete", async (span) => {
+    return withTracerResult(SERVICE_NAME, "delete", async (_span) => {
       const result = await wrap(bucket.delete(key), (error) => {
         AppLogger.error(
           `Failed to delete object with key ${key}: ${error.message}`,
@@ -119,7 +118,7 @@ export const createR2Storage = (bucket: R2Bucket): IStorage => {
   const list = async (
     prefix?: string,
   ): Promise<Result<R2Objects, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "list", async (span) => {
+    return withTracerResult(SERVICE_NAME, "list", async (_span) => {
       const options: R2ListOptions = prefix ? { prefix } : {};
 
       const result = await wrap(

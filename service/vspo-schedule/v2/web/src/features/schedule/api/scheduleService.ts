@@ -1,11 +1,11 @@
 import type { IncomingMessage } from "node:http";
+import { getPreviousDay } from "@vspo-lab/dayjs";
+import type { SSRConfig } from "next-i18next";
 import { fetchEvents } from "@/features/shared/api/event";
 import { fetchLivestreams } from "@/features/shared/api/livestream";
 import type { Event, Livestream } from "@/features/shared/domain";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getSessionId } from "@/lib/utils";
-import { getPreviousDay } from "@vspo-lab/dayjs";
-import type { SSRConfig } from "next-i18next";
 
 type Schedule = {
   events: Event[];

@@ -7,19 +7,19 @@ import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import { asc, count, eq, inArray } from "drizzle-orm";
 import {
+  createDiscordServers,
   type DiscordServer,
   type DiscordServers,
-  createDiscordServers,
   discordChannels,
 } from "../../domain";
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 import { buildConflictUpdateColumns } from "./helper";
 import {
-  type SelectDiscordChannel,
   createInsertDiscordServer,
   discordChannelTable,
   discordServerTable,
+  type SelectDiscordChannel,
 } from "./schema";
 import type { DB } from "./transaction";
 
@@ -50,89 +50,93 @@ export function createDiscordServerRepository(
   const list = async (
     query: ListQuery,
   ): Promise<Result<DiscordServers, AppError>> => {
-    return withTracerResult("DiscordServerRepository", "list", async (span) => {
-      AppLogger.debug("DiscordServerRepository list", {
-        query,
-      });
-      const discordServerResult = await wrap(
-        db
-          .select()
-          .from(discordServerTable)
-          .leftJoin(
-            discordChannelTable,
-            eq(discordServerTable.serverId, discordChannelTable.serverId),
-          )
-          // .where(and(...filters))
-          .limit(query.limit)
-          .offset(query.page * query.limit)
-          .orderBy(asc(discordServerTable.createdAt))
-          .execute(),
-        (err) =>
-          new AppError({
-            message: `Database error during discordServer list query: ${err.message}`,
-            code: "INTERNAL_SERVER_ERROR",
-            cause: err,
-          }),
-      );
+    return withTracerResult(
+      "DiscordServerRepository",
+      "list",
+      async (_span) => {
+        AppLogger.debug("DiscordServerRepository list", {
+          query,
+        });
+        const discordServerResult = await wrap(
+          db
+            .select()
+            .from(discordServerTable)
+            .leftJoin(
+              discordChannelTable,
+              eq(discordServerTable.serverId, discordChannelTable.serverId),
+            )
+            // .where(and(...filters))
+            .limit(query.limit)
+            .offset(query.page * query.limit)
+            .orderBy(asc(discordServerTable.createdAt))
+            .execute(),
+          (err) =>
+            new AppError({
+              message: `Database error during discordServer list query: ${err.message}`,
+              code: "INTERNAL_SERVER_ERROR",
+              cause: err,
+            }),
+        );
 
-      if (discordServerResult.err) {
-        return Err(discordServerResult.err);
-      }
-
-      const discordServersHasChannelIdsMap = new Map<
-        string,
-        SelectDiscordChannel[]
-      >();
-      for (const row of discordServerResult.val) {
-        const serverId = row.discord_server.serverId;
-        const channels = discordServersHasChannelIdsMap.get(serverId) ?? [];
-        if (row.discord_channel) {
-          channels.push(row.discord_channel);
+        if (discordServerResult.err) {
+          return Err(discordServerResult.err);
         }
-        discordServersHasChannelIdsMap.set(serverId, channels);
-      }
 
-      return Ok(
-        createDiscordServers(
-          discordServerResult.val.map((row) => ({
-            id: row.discord_server.id,
-            rawId: row.discord_server.serverId,
-            discordChannels: discordChannels.parse(
-              discordServersHasChannelIdsMap
-                .get(row.discord_server.serverId)
-                ?.map((s) => {
-                  return {
-                    id: s.id,
-                    rawId: s.channelId,
-                    serverId: s.serverId,
-                    name: s.name,
-                    languageCode: s.languageCode,
-                    memberType: s.memberType,
-                    selectedMemberIds: s.selectedMemberIds
-                      ? s.selectedMemberIds.split(",")
-                      : undefined,
-                    createdAt: convertToUTC(s.createdAt),
-                    updatedAt: convertToUTC(s.updatedAt),
-                  };
-                }) ?? [],
-            ),
-            name: row.discord_server.name,
-            languageCode: row.discord_server.languageCode,
-            createdAt: convertToUTC(row.discord_server.createdAt),
-            updatedAt: convertToUTC(row.discord_server.updatedAt),
-          })),
-        ),
-      );
-    });
+        const discordServersHasChannelIdsMap = new Map<
+          string,
+          SelectDiscordChannel[]
+        >();
+        for (const row of discordServerResult.val) {
+          const serverId = row.discord_server.serverId;
+          const channels = discordServersHasChannelIdsMap.get(serverId) ?? [];
+          if (row.discord_channel) {
+            channels.push(row.discord_channel);
+          }
+          discordServersHasChannelIdsMap.set(serverId, channels);
+        }
+
+        return Ok(
+          createDiscordServers(
+            discordServerResult.val.map((row) => ({
+              id: row.discord_server.id,
+              rawId: row.discord_server.serverId,
+              discordChannels: discordChannels.parse(
+                discordServersHasChannelIdsMap
+                  .get(row.discord_server.serverId)
+                  ?.map((s) => {
+                    return {
+                      id: s.id,
+                      rawId: s.channelId,
+                      serverId: s.serverId,
+                      name: s.name,
+                      languageCode: s.languageCode,
+                      memberType: s.memberType,
+                      selectedMemberIds: s.selectedMemberIds
+                        ? s.selectedMemberIds.split(",")
+                        : undefined,
+                      createdAt: convertToUTC(s.createdAt),
+                      updatedAt: convertToUTC(s.updatedAt),
+                    };
+                  }) ?? [],
+              ),
+              name: row.discord_server.name,
+              languageCode: row.discord_server.languageCode,
+              createdAt: convertToUTC(row.discord_server.createdAt),
+              updatedAt: convertToUTC(row.discord_server.updatedAt),
+            })),
+          ),
+        );
+      },
+    );
   };
 
   const countFunc = async (
-    query: ListQuery,
+    _query: ListQuery,
   ): Promise<Result<number, AppError>> => {
     return withTracerResult(
       "DiscordServerRepository",
       "count",
-      async (span) => {
+      async (_span) => {
         const discordServerResult = await wrap(
           db
             .select({ count: count() })
@@ -162,7 +166,7 @@ export function createDiscordServerRepository(
     return withTracerResult(
       "DiscordServerRepository",
       "batchUpsert",
-      async (span) => {
+      async (_span) => {
         // Deduplicate servers and merge their channels
         const serverMap = new Map<string, DiscordServer>();
         for (const server of discordServers) {
@@ -312,7 +316,7 @@ export function createDiscordServerRepository(
     return withTracerResult(
       "DiscordServerRepository",
       "batchDeleteChannelsByRowChannelIds",
-      async (span) => {
+      async (_span) => {
         const discordChannelResult = await wrap(
           db
             .delete(discordChannelTable)
@@ -336,7 +340,7 @@ export function createDiscordServerRepository(
   const get = async (query: {
     serverId: string;
   }): Promise<Result<DiscordServer, AppError>> => {
-    return withTracerResult("DiscordServerRepository", "get", async (span) => {
+    return withTracerResult("DiscordServerRepository", "get", async (_span) => {
       const discordServerResult = await wrap(
         db
           .select()
@@ -404,7 +408,7 @@ export function createDiscordServerRepository(
     return withTracerResult(
       "DiscordServerRepository",
       "exists",
-      async (span) => {
+      async (_span) => {
         const discordServerResult = await wrap(
           db
             .select()
@@ -434,7 +438,7 @@ export function createDiscordServerRepository(
     return withTracerResult(
       "DiscordServerRepository",
       "existsChannel",
-      async (span) => {
+      async (_span) => {
         const discordChannelResult = await wrap(
           db
             .select()

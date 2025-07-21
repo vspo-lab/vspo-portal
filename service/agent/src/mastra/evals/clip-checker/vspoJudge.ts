@@ -3,10 +3,10 @@ import { MastraAgentJudge } from "@mastra/evals/judge";
 import { z } from "zod";
 
 import {
-  VSPO_CLIP_INSTRUCTIONS,
-  type VideoInput,
   generateVspoClipPrompt,
   generateVspoClipReasonPrompt,
+  type VideoInput,
+  VSPO_CLIP_INSTRUCTIONS,
 } from "./prompts";
 import { vspoKeywordMap } from "./vspoKeywords";
 

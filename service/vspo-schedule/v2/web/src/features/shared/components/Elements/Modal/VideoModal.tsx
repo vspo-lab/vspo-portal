@@ -1,10 +1,3 @@
-import type { Clip } from "@/features/shared/domain/clip";
-import type { Freechat } from "@/features/shared/domain/freechat";
-import type { Livestream } from "@/features/shared/domain/livestream";
-import type { Platform, Video } from "@/features/shared/domain/video";
-import { convertVideoPlayerLink } from "@/features/shared/utils";
-import { useTimeZoneContext, useVideoModalContext } from "@/hooks";
-import { formatDate } from "@/lib/utils";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import ShareIcon from "@mui/icons-material/Share";
@@ -23,10 +16,17 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import React, { useEffect } from "react";
+import type { Clip } from "@/features/shared/domain/clip";
+import type { Freechat } from "@/features/shared/domain/freechat";
+import type { Livestream } from "@/features/shared/domain/livestream";
+import type { Platform, Video } from "@/features/shared/domain/video";
+import { convertVideoPlayerLink } from "@/features/shared/utils";
+import { useTimeZoneContext, useVideoModalContext } from "@/hooks";
+import { formatDate } from "@/lib/utils";
 import { Link, PlatformIcon } from "..";
 import { ChatEmbed } from "../ChatEmbed";
 import { HighlightedVideoChip } from "../Chip";
@@ -623,7 +623,7 @@ const InfoTabsContainer: React.FC<{ video: Video }> = ({ video }) => {
   const [tabValue, setTabValue] = React.useState(0);
   const urlRegex = /(https?:\/\/\S+)/;
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -787,7 +787,7 @@ const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
 
 // Container component for the entire VideoModal
 export const VideoModal: React.FC = () => {
-  const router = useRouter();
+  const _router = useRouter();
   const { activeVideo, popVideo, clearVideos } = useVideoModalContext();
 
   // Clear video modal on url changes

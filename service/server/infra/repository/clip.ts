@@ -6,7 +6,6 @@ import {
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import {
-  type SQL,
   and,
   asc,
   countDistinct,
@@ -15,23 +14,24 @@ import {
   gte,
   inArray,
   lte,
+  type SQL,
 } from "drizzle-orm";
-import { ClipTypeSchema, type Clips, createClips } from "../../domain/clip";
+import { type Clips, ClipTypeSchema, createClips } from "../../domain/clip";
 import { TargetLangSchema } from "../../domain/translate";
 import { PlatformSchema } from "../../domain/video";
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 import { buildConflictUpdateColumns } from "./helper";
 import {
-  type InsertClipStats,
-  type InsertVideo,
-  type InsertVideoTranslation,
   channelTable,
   clipStatsTable,
   createInsertClipStats,
   createInsertVideo,
   creatorTable,
   creatorTranslationTable,
+  type InsertClipStats,
+  type InsertVideo,
+  type InsertVideoTranslation,
   videoTable,
   videoTranslationTable,
 } from "./schema";
@@ -111,7 +111,7 @@ function buildFilters(query: ListQuery): SQL[] {
 
 export function createClipRepository(db: DB): IClipRepository {
   const list = async (query: ListQuery): Promise<Result<Clips, AppError>> => {
-    return withTracerResult("ClipRepository", "list", async (span) => {
+    return withTracerResult("ClipRepository", "list", async (_span) => {
       AppLogger.debug("ClipRepository list", {
         query,
       });
@@ -201,7 +201,7 @@ export function createClipRepository(db: DB): IClipRepository {
   };
 
   const count = async (query: ListQuery): Promise<Result<number, AppError>> => {
-    return withTracerResult("ClipRepository", "count", async (span) => {
+    return withTracerResult("ClipRepository", "count", async (_span) => {
       const filters = buildFilters(query);
 
       const clipResult = await wrap(
@@ -246,7 +246,7 @@ export function createClipRepository(db: DB): IClipRepository {
   const batchUpsert = async (
     clips: Clips,
   ): Promise<Result<Clips, AppError>> => {
-    return withTracerResult("ClipRepository", "batchUpsert", async (span) => {
+    return withTracerResult("ClipRepository", "batchUpsert", async (_span) => {
       const dbVideos: InsertVideo[] = [];
       const dbClipStats: InsertClipStats[] = [];
       const dbVideoTranslation: InsertVideoTranslation[] = [];
@@ -437,7 +437,7 @@ export function createClipRepository(db: DB): IClipRepository {
   const batchDelete = async (
     clipIds: string[],
   ): Promise<Result<void, AppError>> => {
-    return withTracerResult("ClipRepository", "batchDelete", async (span) => {
+    return withTracerResult("ClipRepository", "batchDelete", async (_span) => {
       const result = await wrap(
         db.delete(videoTable).where(inArray(videoTable.id, clipIds)).execute(),
         (err) =>

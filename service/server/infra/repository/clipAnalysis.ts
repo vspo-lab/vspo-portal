@@ -10,9 +10,9 @@ import {
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 import {
-  type InsertClipAnalysis,
   clipAnalysisTable,
   createInsertClipAnalysis,
+  type InsertClipAnalysis,
   videoTable,
 } from "./schema";
 import type { DB } from "./transaction";
@@ -34,7 +34,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
     return withTracerResult(
       "ClipAnalysisRepository",
       "findByVideoId",
-      async (span) => {
+      async (_span) => {
         const result = await wrap(
           db
             .select()
@@ -81,7 +81,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
     return withTracerResult(
       "ClipAnalysisRepository",
       "batchInsert",
-      async (span) => {
+      async (_span) => {
         if (analyses.length === 0) {
           return Ok();
         }
@@ -132,7 +132,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
     return withTracerResult(
       "ClipAnalysisRepository",
       "getUnanalyzedVideoIds",
-      async (span) => {
+      async (_span) => {
         const result = await wrap(
           db
             .select({ videoId: videoTable.id })
@@ -172,7 +172,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
     return withTracerResult(
       "ClipAnalysisRepository",
       "countAnalyzed",
-      async (span) => {
+      async (_span) => {
         const result = await wrap(
           db
             .select({ count: sql<number>`count(*)::int` })
@@ -199,7 +199,7 @@ export function createClipAnalysisRepository(db: DB): IClipAnalysisRepository {
     return withTracerResult(
       "ClipAnalysisRepository",
       "countUnanalyzed",
-      async (span) => {
+      async (_span) => {
         const result = await wrap(
           db
             .select({ value: countDistinct(videoTable.id) })

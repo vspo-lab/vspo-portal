@@ -8,7 +8,7 @@ import {
   createChannels,
 } from "../../domain/channel";
 import { type Clips, createClip, createClips } from "../../domain/clip";
-import { type Streams, createStream, createStreams } from "../../domain/stream";
+import { createStream, createStreams, type Streams } from "../../domain/stream";
 import { withTracerResult } from "../http/trace/cloudflare";
 
 type GetStreamsParams = {
@@ -160,7 +160,7 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
   const getStreams = async (
     params: GetStreamsParams,
   ): Promise<Result<Streams, AppError>> => {
-    return withTracerResult("YoutubeService", "getStreams", async (span) => {
+    return withTracerResult("YoutubeService", "getStreams", async (_span) => {
       AppLogger.debug("getStreams", {
         streamIds: params.streamIds,
       });
@@ -228,62 +228,67 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
   const searchStreams = async (
     params: SearchStreamsParams,
   ): Promise<Result<Streams, AppError>> => {
-    return withTracerResult("YoutubeService", "searchStreams", async (span) => {
-      const responseResult = await wrap(
-        youtube.search.list({
-          part: ["snippet"],
-          q: params.query,
-          maxResults: 50,
-          eventType: params.eventType,
-          type: ["video"],
-          safeSearch: "none",
-          order: "relevance",
-        }),
-        (err) =>
-          new AppError({
-            message: `Network error while searching videos: ${err.message}`,
-            code: "INTERNAL_SERVER_ERROR",
+    return withTracerResult(
+      "YoutubeService",
+      "searchStreams",
+      async (_span) => {
+        const responseResult = await wrap(
+          youtube.search.list({
+            part: ["snippet"],
+            q: params.query,
+            maxResults: 50,
+            eventType: params.eventType,
+            type: ["video"],
+            safeSearch: "none",
+            order: "relevance",
           }),
-      );
-
-      if (responseResult.err) {
-        return Err(responseResult.err);
-      }
-
-      const response = responseResult.val;
-      return Ok(
-        createStreams(
-          response.data.items?.map((video) =>
-            createStream({
-              id: "",
-              rawId: video.id?.videoId || "",
-              languageCode: "default",
-              title: video.snippet?.title || "",
-              description: video.snippet?.description || "",
-              rawChannelID:
-                video.snippet?.channelId || video.id?.channelId || "",
-              publishedAt: video.snippet?.publishedAt || getCurrentUTCString(),
-              startedAt: null,
-              endedAt: null,
-              platform: "youtube",
-              status: params.eventType === "live" ? "live" : "upcoming",
-              tags: [],
-              viewCount: 0,
-              thumbnailURL:
-                video.snippet?.thumbnails?.default?.url ||
-                video.snippet?.thumbnails?.standard?.url ||
-                "",
+          (err) =>
+            new AppError({
+              message: `Network error while searching videos: ${err.message}`,
+              code: "INTERNAL_SERVER_ERROR",
             }),
-          ) || [],
-        ),
-      );
-    });
+        );
+
+        if (responseResult.err) {
+          return Err(responseResult.err);
+        }
+
+        const response = responseResult.val;
+        return Ok(
+          createStreams(
+            response.data.items?.map((video) =>
+              createStream({
+                id: "",
+                rawId: video.id?.videoId || "",
+                languageCode: "default",
+                title: video.snippet?.title || "",
+                description: video.snippet?.description || "",
+                rawChannelID:
+                  video.snippet?.channelId || video.id?.channelId || "",
+                publishedAt:
+                  video.snippet?.publishedAt || getCurrentUTCString(),
+                startedAt: null,
+                endedAt: null,
+                platform: "youtube",
+                status: params.eventType === "live" ? "live" : "upcoming",
+                tags: [],
+                viewCount: 0,
+                thumbnailURL:
+                  video.snippet?.thumbnails?.default?.url ||
+                  video.snippet?.thumbnails?.standard?.url ||
+                  "",
+              }),
+            ) || [],
+          ),
+        );
+      },
+    );
   };
 
   const getChannels = async (
     params: GetChannelsParams,
   ): Promise<Result<Channels, AppError>> => {
-    return withTracerResult("YoutubeService", "getChannels", async (span) => {
+    return withTracerResult("YoutubeService", "getChannels", async (_span) => {
       const chunks = chunkArray(params.channelIds, 50);
       const channels: youtube_v3.Schema$Channel[] = [];
 
@@ -342,7 +347,7 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
     return withTracerResult(
       "YoutubeService",
       "getStreamsByChannel",
-      async (span) => {
+      async (_span) => {
         const option: youtube_v3.Params$Resource$Search$List = {
           part: ["snippet"],
           channelId: params.channelId,
@@ -413,7 +418,7 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
   const searchClips = async (
     params: SearchClipsParams,
   ): Promise<Result<Clips, AppError>> => {
-    return withTracerResult("YoutubeService", "searchClips", async (span) => {
+    return withTracerResult("YoutubeService", "searchClips", async (_span) => {
       const searchParams: youtube_v3.Params$Resource$Search$List = {
         part: ["snippet"],
         maxResults: params.maxResults || 50,
@@ -469,7 +474,7 @@ export const createYoutubeService = (apiKey: string): IYoutubeService => {
   const getClips = async (
     params: GetClipsParams,
   ): Promise<Result<Clips, AppError>> => {
-    return withTracerResult("YoutubeService", "getClips", async (span) => {
+    return withTracerResult("YoutubeService", "getClips", async (_span) => {
       const chunks = chunkArray(params.videoIds, 50);
       const items: youtube_v3.Schema$Video[] = [];
 

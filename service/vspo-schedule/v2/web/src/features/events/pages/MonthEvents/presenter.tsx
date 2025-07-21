@@ -1,11 +1,11 @@
+import { Box, TextField, Toolbar } from "@mui/material";
+import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import type React from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { Event, EventsByDate } from "@/features/shared/domain";
 import { useTimeZoneContext } from "@/hooks";
 import { DEFAULT_LOCALE } from "@/lib/Const";
-import { Box, TextField, Toolbar } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { useRouter } from "next/router";
-import type React from "react";
-import { useEffect, useMemo, useRef } from "react";
 import { EventTimeline, YearMonthSelector } from "../../components/presenters";
 
 export type MonthEventsPresenterProps = {

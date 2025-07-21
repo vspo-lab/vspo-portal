@@ -1,12 +1,12 @@
 import { getCurrentUTCString } from "@vspo-lab/dayjs";
 import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import {
+  createDiscordMessage,
   type DiscordMessage,
   type DiscordServer,
   type DiscordServers,
-  createDiscordMessage,
 } from "../domain";
-import { type Page, createPage } from "../domain/pagination";
+import { createPage, type Page } from "../domain/pagination";
 import type { IAppContext } from "../infra/dependency";
 import { withTracerResult } from "../infra/http/trace";
 import { createUUID } from "../pkg/uuid";
@@ -291,7 +291,7 @@ export const createDiscordInteractor = (
       INTERACTOR_NAME,
       "isDeletedChannel",
       async () => {
-        return context.runInTx(async (repos, services) => {
+        return context.runInTx(async (_repos, services) => {
           const sv = await services.discordService.isDeletedChannel(params);
           if (sv.err) {
             return sv;

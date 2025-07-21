@@ -8,8 +8,7 @@ import { inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Client } from "pg";
-import { afterEach } from "vitest";
-import { vi } from "vitest";
+import { afterEach, vi } from "vitest";
 import { zAppWorkerEnv } from "../config/env/internal";
 import { createAIService } from "../infra/ai";
 import { createCloudflareKVCacheClient } from "../infra/cache";
@@ -17,26 +16,26 @@ import { createAppContext } from "../infra/dependency";
 import { createDiscordClient } from "../infra/discord";
 import { createMastraService } from "../infra/mastra";
 import {
-  type InsertVideo,
   channelTable,
   creatorTable,
   creatorTranslationTable,
   discordChannelTable,
   discordServerTable,
+  type InsertVideo,
   streamStatusTable,
   videoTable,
   videoTranslationTable,
 } from "../infra/repository/schema";
 import {
-  VSPO_MEMBER_CHANNEL_IDS,
-  VSPO_MEMBER_NAMES,
   batchInsert,
   createCreatorTranslations,
   createDiscordChannels,
   createDiscordServers,
   createStreamStatuses,
-  createVideoTranslations,
   createVideosForChannel,
+  createVideoTranslations,
+  VSPO_MEMBER_CHANNEL_IDS,
+  VSPO_MEMBER_NAMES,
 } from "./fixtures";
 import { mockDiscordClient } from "./mock/discord";
 import { TestTxManager } from "./mock/transaction";

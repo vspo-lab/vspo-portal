@@ -1,5 +1,3 @@
-import type { EventsByDate } from "@/features/shared/domain";
-import { formatDate } from "@/lib/utils";
 import Timeline from "@mui/lab/Timeline";
 import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
@@ -11,6 +9,8 @@ import { Typography, useMediaQuery } from "@mui/material";
 import { convertToUTCDate, getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type React from "react";
 import { useRef } from "react";
+import type { EventsByDate } from "@/features/shared/domain";
+import { formatDate } from "@/lib/utils";
 import { EventCard } from "./EventCard";
 
 export type EventTimelineProps = {
@@ -64,7 +64,7 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({
               )}
             </TimelineSeparator>
             <TimelineContent sx={{ py: matches ? "40px" : "20px", px: 2 }}>
-              {eventsOnDate.map((event, eventIndex) => {
+              {eventsOnDate.map((event, _eventIndex) => {
                 const today = formatDate(getCurrentUTCDate(), "yyyy-MM-dd", {
                   timeZone,
                 });

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Channel } from "../../domain";
 import {
-  type TestCase,
   mockYoutubeClient,
   mockYoutubeResponses,
+  type TestCase,
 } from "../../test/mock/youtube";
-import { type IYoutubeService, createYoutubeService, query } from "./index";
+import { createYoutubeService, type IYoutubeService, query } from "./index";
 
 type QueryEventType = "completed" | "live" | "upcoming";
 

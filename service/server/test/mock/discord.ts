@@ -1,8 +1,5 @@
 import type { DiscordEmbed } from "@discordeno/types";
-import { getCurrentUTCString } from "@vspo-lab/dayjs";
 import { vi } from "vitest";
-import type { DiscordChannel, DiscordMessage } from "../../domain";
-import { createUUID } from "../../pkg/uuid";
 
 export type MockResponse =
   | {
@@ -124,7 +121,7 @@ export const mockDiscordClient = {
     getMessages: vi
       .fn()
       .mockImplementation(
-        async (channelId: string, query: { limit: number }) => {
+        async (channelId: string, _query: { limit: number }) => {
           if (channelId === "error_channel") {
             throw mockDiscordResponses.networkError;
           }

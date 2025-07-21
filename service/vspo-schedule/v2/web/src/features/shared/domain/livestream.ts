@@ -1,5 +1,5 @@
-import { videoSchema } from "@/features/shared/domain/video";
 import { z } from "zod";
+import { videoSchema } from "@/features/shared/domain/video";
 
 // Status types
 export const statusSchema = z.enum(["live", "upcoming", "ended", "unknown"]);
