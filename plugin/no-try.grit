@@ -1,0 +1,8 @@
+language js
+
+`try { $body }` where {
+  register_diagnostic(
+    span = `try { $body }`,
+    message = "Try statements are not allowed. Use Result<T, AppError> pattern instead for error handling"
+  )
+}

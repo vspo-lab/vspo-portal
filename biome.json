@@ -65,5 +65,9 @@
       "quoteStyle": "double"
     }
   },
+  "plugins": [
+    "./plugin/result.grit",
+    "./plugin/no-try.grit"
+  ],
   "overrides": []
 }

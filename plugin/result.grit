@@ -1,0 +1,9 @@
+language js
+
+`Promise<$type>` where {
+  $type <: not `Result<$_, $_>`,
+  register_diagnostic(
+    span = $type,
+    message = "Promise return type must use Result<T, AppError>. Use Promise<Result<T, AppError>> instead of Promise<T>"
+  )
+}
