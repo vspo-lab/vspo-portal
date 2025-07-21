@@ -1,5 +1,5 @@
-import type { Livestream } from "@/features/shared/domain/livestream";
 import { utcToZonedTime } from "date-fns-tz";
+import type { Livestream } from "@/features/shared/domain/livestream";
 
 // Time blocks for grouping livestreams
 const TIME_BLOCKS = [

@@ -1,4 +1,3 @@
-import { MarkdownContent } from "@/features/shared/components/Elements/MarkdownContent";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
@@ -8,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import type * as React from "react";
+import { MarkdownContent } from "@/features/shared/components/Elements/MarkdownContent";
 
 type AboutPagePresenterProps = {
   sections: Array<{

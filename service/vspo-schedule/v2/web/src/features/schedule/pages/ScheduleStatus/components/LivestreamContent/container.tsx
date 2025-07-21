@@ -1,7 +1,7 @@
+import type React from "react";
 import { LivestreamContentPresenter } from "@/features/schedule/pages/ScheduleStatus/components/LivestreamContent/presenter";
 import type { Event } from "@/features/shared/domain";
 import type { Livestream } from "@/features/shared/domain/livestream";
-import type React from "react";
 
 type LivestreamContentContainerProps = {
   livestreamsByDate: Record<string, Livestream[]>;

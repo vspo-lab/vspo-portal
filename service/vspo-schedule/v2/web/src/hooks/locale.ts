@@ -1,6 +1,6 @@
-import { DEFAULT_LOCALE, LOCALE_COOKIE } from "@/lib/Const";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { DEFAULT_LOCALE, LOCALE_COOKIE } from "@/lib/Const";
 import { useCookie } from "./cookie";
 
 export const useLocale = () => {

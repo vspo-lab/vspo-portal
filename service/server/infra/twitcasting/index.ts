@@ -1,10 +1,10 @@
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
-import { type Streams, createStream, createStreams } from "../../domain/stream";
+import { createStream, createStreams, type Streams } from "../../domain/stream";
 import { withTracerResult } from "../http/trace/cloudflare";
 import {
+  createBasicAuthHeader,
   type TwitcastingAuthConfig,
   type TwitcastingAuthHeader,
-  createBasicAuthHeader,
 } from "./auth";
 
 export type TwitcastingUser = {
@@ -66,16 +66,18 @@ const isObject = (value: unknown): value is Record<PropertyKey, unknown> => {
 const hasMoviesProperty = (
   obj: Record<PropertyKey, unknown>,
 ): obj is { movies: unknown } => {
-  return Object.prototype.hasOwnProperty.call(obj, "movies");
+  return Object.hasOwn(obj, "movies");
 };
 
 const hasTotalCountProperty = (
   obj: Record<PropertyKey, unknown>,
 ): obj is { total_count: unknown } => {
-  return Object.prototype.hasOwnProperty.call(obj, "total_count");
+  return Object.hasOwn(obj, "total_count");
 };
 
-const isMoviesArray = (obj: { movies: unknown }): obj is {
+const isMoviesArray = (obj: {
+  movies: unknown;
+}): obj is {
   movies: unknown[];
 } => {
   return Array.isArray(obj.movies);
@@ -146,7 +148,7 @@ const fetchUserStreams = async (
   return withTracerResult(
     "TwitcastingService",
     "fetchUserStreams",
-    async (span) => {
+    async (_span) => {
       const fetchPromise = fetch(
         `https://apiv2.twitcasting.tv/users/${userId}/movies?limit=3`,
         {
@@ -219,7 +221,7 @@ export const createTwitcastingService = (
     return withTracerResult(
       "TwitcastingService",
       "getStreams",
-      async (span) => {
+      async (_span) => {
         const authHeaderResult = createBasicAuthHeader(authConfig);
         if (authHeaderResult.err) {
           return Err(authHeaderResult.err);

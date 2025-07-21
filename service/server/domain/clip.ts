@@ -1,12 +1,11 @@
 import { z } from "zod";
-import { ThumbnailURLSchema } from "./thumbnail";
 import { BaseVideoSchema, type Platform, PlatformSchema } from "./video";
 
 // Function to get clip link
 const getClipLink = (
   rawId: string,
   platform: Platform,
-  channelId?: string, // May be needed for some platforms
+  _channelId?: string, // May be needed for some platforms
 ): string => {
   switch (platform) {
     case "youtube": // YouTube clips might have /clip/ path, needs verification
@@ -27,7 +26,10 @@ const getClipLink = (
 const getClipEmbedUrl = ({
   rawId,
   platform,
-}: { rawId: string; platform: Platform }): string | null => {
+}: {
+  rawId: string;
+  platform: Platform;
+}): string | null => {
   switch (platform) {
     case "youtube":
       return `https://www.youtube.com/embed/${rawId}`;

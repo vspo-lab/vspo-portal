@@ -1,8 +1,8 @@
+import { styled, useColorScheme } from "@mui/material/styles";
+import React from "react";
 import type { Freechat } from "@/features/shared/domain/freechat";
 import type { Livestream } from "@/features/shared/domain/livestream";
 import { convertChatPlayerLink } from "@/features/shared/utils";
-import { styled, useColorScheme } from "@mui/material/styles";
-import React from "react";
 import { Loading } from "..";
 
 // Styled components

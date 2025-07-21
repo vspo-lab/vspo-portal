@@ -1,6 +1,3 @@
-import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
-import type { Livestream } from "@/features/shared/domain/livestream";
-import { formatDate } from "@/lib/utils";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
   Avatar,
@@ -15,6 +12,9 @@ import { styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
 import type React from "react";
 import { useMemo } from "react";
+import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
+import type { Livestream } from "@/features/shared/domain/livestream";
+import { formatDate } from "@/lib/utils";
 
 // VideoCard Component
 const StyledCard = styled(Card)(() => ({

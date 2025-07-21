@@ -15,7 +15,11 @@ const createPage = ({
   totalCount,
   limit,
   currentPage,
-}: { totalCount: number; limit: number; currentPage: number }): Page => {
+}: {
+  totalCount: number;
+  limit: number;
+  currentPage: number;
+}): Page => {
   const totalPage = Math.ceil(totalCount / limit);
   const hasNext = currentPage * limit < totalCount;
 

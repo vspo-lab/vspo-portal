@@ -1,6 +1,6 @@
-import type { Event } from "@/features/shared/domain";
 import { Card, CardContent, Typography } from "@mui/material";
 import type React from "react";
+import type { Event } from "@/features/shared/domain";
 
 export type EventCardProps = {
   event: Event;

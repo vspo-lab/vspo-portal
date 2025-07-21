@@ -1,7 +1,6 @@
-import { groupBy } from "@/lib/utils";
-import { formatDate } from "@/lib/utils";
 import { useTranslation } from "next-i18next";
 import { useMemo } from "react";
+import { formatDate, groupBy } from "@/lib/utils";
 import type { Livestream } from "../../shared/domain/livestream";
 
 type StatusFilter = "live" | "upcoming" | "all";

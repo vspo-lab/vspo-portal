@@ -1,14 +1,14 @@
-import {
-  type NavigationRouteId,
-  getNavigationRouteInfo,
-} from "@/constants/navigation";
-import { useTimeZoneContext } from "@/hooks";
 import { BottomNavigation, BottomNavigationAction } from "@mui/material";
 import { Box } from "@mui/system";
-import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import type React from "react";
 import { useEffect, useState } from "react";
+import {
+  getNavigationRouteInfo,
+  type NavigationRouteId,
+} from "@/constants/navigation";
+import { useTimeZoneContext } from "@/hooks";
 import { DrawerIcon, Link } from "../Elements";
 
 const bottomNavigationRoutes = [

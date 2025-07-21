@@ -1,4 +1,4 @@
 export * from "./base";
-export * from "./result";
-export * from "./error";
 export * from "./code";
+export * from "./error";
+export * from "./result";

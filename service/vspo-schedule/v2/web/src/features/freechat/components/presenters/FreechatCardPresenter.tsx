@@ -1,4 +1,3 @@
-import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
 import {
   Avatar,
   AvatarGroup,
@@ -11,6 +10,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
 import type React from "react";
+import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
 import type { Freechat } from "../../../shared/domain/freechat";
 
 // Styled components

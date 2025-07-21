@@ -1,6 +1,5 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { type AppError, Ok, type Result } from "@vspo-lab/error";
-import { AppLogger } from "@vspo-lab/logging";
 import type { ClipAnalysisInput } from "../domain/clipAnalysis";
 import type { AnalysisStats } from "../domain/service/clipAnalysis";
 import type { IAppContext } from "../infra/dependency";

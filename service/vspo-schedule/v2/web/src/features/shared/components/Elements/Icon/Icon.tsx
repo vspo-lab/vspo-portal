@@ -1,5 +1,3 @@
-import type { NavigationRouteId } from "@/constants/navigation";
-import type { Platform } from "@/features/shared/domain/video";
 import { faDiscord, faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
@@ -14,6 +12,8 @@ import LiveTvIcon from "@mui/icons-material/LiveTv";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { styled } from "@mui/material/styles";
 import Image from "next/image";
+import type { NavigationRouteId } from "@/constants/navigation";
+import type { Platform } from "@/features/shared/domain/video";
 
 const StyledFontAwesomeIcon = styled(FontAwesomeIcon)(({ theme }) => ({
   color: "black",

@@ -1,5 +1,3 @@
-import { Loading } from "@/features/shared/components/Elements";
-import type { Clip, Pagination } from "@/features/shared/domain/clip";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import {
@@ -8,15 +6,17 @@ import {
   Container,
   Grid,
   Paper,
-  Typography,
   styled,
+  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import type React from "react";
 import { useState } from "react";
+import { Loading } from "@/features/shared/components/Elements";
+import type { Clip, Pagination } from "@/features/shared/domain/clip";
 import { ClipTabsAndList } from "../../components";
 
 // Styled container for filter section

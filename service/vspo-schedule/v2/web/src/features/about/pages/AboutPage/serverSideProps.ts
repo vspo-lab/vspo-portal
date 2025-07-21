@@ -1,8 +1,8 @@
+import type { GetServerSideProps } from "next";
 import { DEFAULT_LOCALE } from "@/lib/Const";
 import { serverSideTranslations } from "@/lib/i18n/server";
 import { getAllMarkdownSlugs, getMarkdownContent } from "@/lib/markdown";
 import { getInitializedI18nInstance } from "@/lib/utils";
-import type { GetServerSideProps } from "next";
 
 export type AboutPageProps = {
   meta: {

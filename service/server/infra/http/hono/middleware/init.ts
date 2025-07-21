@@ -1,4 +1,3 @@
-import { OpenFeature } from "@openfeature/server-sdk";
 import { AppError, ErrorCodeSchema } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import { env } from "hono/adapter";

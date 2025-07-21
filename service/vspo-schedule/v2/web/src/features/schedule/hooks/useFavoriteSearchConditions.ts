@@ -1,5 +1,5 @@
-import { useCookie } from "@/hooks/cookie";
 import { useCallback } from "react";
+import { useCookie } from "@/hooks/cookie";
 import type { FavoriteSearchCondition } from "../types/favorite";
 
 const FAVORITE_SEARCH_CONDITION_COOKIE = "favorite-search-condition";

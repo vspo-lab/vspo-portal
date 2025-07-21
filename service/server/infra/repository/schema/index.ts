@@ -428,9 +428,9 @@ export const createInsertEvent = (data: InsertEvent) =>
 // Re-export clip analysis table and types
 export {
   clipAnalysisTable,
-  type InsertClipAnalysis,
-  type SelectClipAnalysis,
-  insertClipAnalysisSchema,
-  selectClipAnalysisSchema,
   createInsertClipAnalysis,
+  type InsertClipAnalysis,
+  insertClipAnalysisSchema,
+  type SelectClipAnalysis,
+  selectClipAnalysisSchema,
 } from "./clipAnalysis";

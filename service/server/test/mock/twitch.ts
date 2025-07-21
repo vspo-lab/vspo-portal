@@ -1,6 +1,7 @@
 import { vi } from "vitest";
 import type { Stream } from "../../domain";
 import type { paths } from "../../infra/twitch/twitch-api.generated";
+
 type StreamsResponse =
   paths["/streams"]["get"]["responses"]["200"]["content"]["application/json"];
 type VideosResponse =

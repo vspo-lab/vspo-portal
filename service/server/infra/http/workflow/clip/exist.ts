@@ -173,13 +173,19 @@ export const existClipsWorkflow = () => {
             timeout: "2 minutes",
           },
           async () => {
-            return withTracer("clip-workflow", "delete-clips", async (span) => {
-              const cu = await env.APP_WORKER.newClipUsecase();
-              const deletedClips = combinedClips.filter((clip) => clip.deleted);
-              await cu.deleteClips({
-                clipIds: deletedClips.map((clip) => clip.id),
-              });
-            });
+            return withTracer(
+              "clip-workflow",
+              "delete-clips",
+              async (_span) => {
+                const cu = await env.APP_WORKER.newClipUsecase();
+                const deletedClips = combinedClips.filter(
+                  (clip) => clip.deleted,
+                );
+                await cu.deleteClips({
+                  clipIds: deletedClips.map((clip) => clip.id),
+                });
+              },
+            );
           },
         );
 
@@ -194,7 +200,7 @@ export const existClipsWorkflow = () => {
               return withTracer(
                 "clip-workflow",
                 "batch-upsert-clips",
-                async (span) => {
+                async (_span) => {
                   const cu = await env.APP_WORKER.newClipUsecase();
 
                   await cu.batchUpsertEnqueue(r1.result.clips);
@@ -212,7 +218,7 @@ export const existClipsWorkflow = () => {
               return withTracer(
                 "clip-workflow",
                 "batch-upsert-clips",
-                async (span) => {
+                async (_span) => {
                   const cu = await env.APP_WORKER.newClipUsecase();
                   const deletedClips = combinedClips
                     .filter((clip) =>

@@ -1,19 +1,4 @@
 // Export all prompt types
-export type { VideoInput, CategoryInput } from "./types";
-
-// Export VSPO clip prompts
-export {
-  VSPO_CLIP_INSTRUCTIONS,
-  generateVspoClipPrompt,
-  generateVspoClipReasonPrompt,
-} from "./vspoClipPrompts";
-
-// Export YouTube Short prompts
-export {
-  SHORT_INSTRUCTIONS,
-  generateShortCheckPrompt,
-  generateShortReasonPrompt,
-} from "./shortPrompts";
 
 // Export Category matching prompts
 export {
@@ -21,3 +6,16 @@ export {
   generateCategoryMatchPrompt,
   generateCategoryReasonPrompt,
 } from "./categoryPrompts";
+// Export YouTube Short prompts
+export {
+  generateShortCheckPrompt,
+  generateShortReasonPrompt,
+  SHORT_INSTRUCTIONS,
+} from "./shortPrompts";
+export type { CategoryInput, VideoInput } from "./types";
+// Export VSPO clip prompts
+export {
+  generateVspoClipPrompt,
+  generateVspoClipReasonPrompt,
+  VSPO_CLIP_INSTRUCTIONS,
+} from "./vspoClipPrompts";

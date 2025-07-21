@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ThumbnailURLSchema } from "./thumbnail";
-import { type Platform, PlatformSchema } from "./video";
+import type { Platform } from "./video";
 
 const ChannelDetailSchema = z
   .object({

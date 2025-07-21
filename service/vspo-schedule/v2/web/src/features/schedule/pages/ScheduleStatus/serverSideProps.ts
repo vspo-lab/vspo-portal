@@ -1,15 +1,14 @@
+import { getCurrentUTCDate } from "@vspo-lab/dayjs";
+import type { GetServerSideProps } from "next";
 import { fetchSchedule } from "@/features/schedule/api/scheduleService";
 import type { Event } from "@/features/shared/domain";
 import type { Livestream } from "@/features/shared/domain/livestream";
-import { DEFAULT_TIME_ZONE } from "@/lib/Const";
-import { TIME_ZONE_COOKIE } from "@/lib/Const";
+import { DEFAULT_TIME_ZONE, TIME_ZONE_COOKIE } from "@/lib/Const";
 import {
   formatDate,
   getInitializedI18nInstance,
   getSetCookieTimeZone,
 } from "@/lib/utils";
-import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import type { GetServerSideProps } from "next";
 import type { FavoriteSearchCondition } from "../../types/favorite";
 
 export type ScheduleStatusPageProps = {

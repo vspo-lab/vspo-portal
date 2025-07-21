@@ -6,19 +6,18 @@ import {
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import {
-  type SQL,
   and,
   asc,
   countDistinct,
   count as drizzleCount,
   eq,
   inArray,
+  type SQL,
   sql,
 } from "drizzle-orm";
 import {
   type Channel,
   type Creators,
-  MemberTypeSchema,
   createCreators,
   getPlatformDetail,
 } from "../../domain";
@@ -26,14 +25,14 @@ import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 import { buildConflictUpdateColumns } from "./helper";
 import {
-  type InsertChannel,
-  type InsertCreator,
-  type InsertCreatorClipFetchStatus,
-  type InsertCreatorTranslation,
   channelTable,
   creatorClipFetchStatusTable,
   creatorTable,
   creatorTranslationTable,
+  type InsertChannel,
+  type InsertCreator,
+  type InsertCreatorClipFetchStatus,
+  type InsertCreatorTranslation,
 } from "./schema";
 import type { DB } from "./transaction";
 
@@ -79,7 +78,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
   const list = async (
     query: ListQuery,
   ): Promise<Result<Creators, AppError>> => {
-    return withTracerResult("CreatorRepository", "list", async (span) => {
+    return withTracerResult("CreatorRepository", "list", async (_span) => {
       AppLogger.debug("CreatorRepository list", {
         query,
       });
@@ -207,7 +206,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
   };
 
   const count = async (query: ListQuery): Promise<Result<number, AppError>> => {
-    return withTracerResult("CreatorRepository", "count", async (span) => {
+    return withTracerResult("CreatorRepository", "count", async (_span) => {
       const filters = buildFilters(query);
 
       const creatorResult = await wrap(
@@ -243,7 +242,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
     return withTracerResult(
       "CreatorRepository",
       "batchUpsert",
-      async (span) => {
+      async (_span) => {
         const dbCreatorss: InsertCreator[] = [];
         const dbCreatorTranslations: InsertCreatorTranslation[] = [];
         const dbChannels: InsertChannel[] = [];
@@ -402,7 +401,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
     return withTracerResult(
       "CreatorRepository",
       "batchDelete",
-      async (span) => {
+      async (_span) => {
         const creatorResult = await wrap(
           db
             .delete(creatorTable)
@@ -431,7 +430,7 @@ export const createCreatorRepository = (db: DB): ICreatorRepository => {
     return withTracerResult(
       "CreatorRepository",
       "existsByChannelId",
-      async (span) => {
+      async (_span) => {
         const result = await wrap(
           db
             .select({ count: drizzleCount() })

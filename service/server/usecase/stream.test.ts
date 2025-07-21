@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  createStreams,
   PlatformSchema,
   StatusSchema,
   type Streams,
-  createStreams,
 } from "../domain";
 import type { Page } from "../domain/pagination";
 import { TargetLangSchema } from "../domain/translate";
@@ -16,9 +16,9 @@ import {
 } from "../test/fixtures";
 import { setupTxManager } from "../test/setup";
 import {
+  createStreamInteractor,
   type IStreamInteractor,
   type ListParam,
-  createStreamInteractor,
 } from "./stream";
 
 describe.concurrent("StreamInteractor", () => {
@@ -402,7 +402,7 @@ describe.concurrent("StreamInteractor", () => {
     };
 
     // Common assertion function for checking pagination
-    const assertPagination = (
+    const _assertPagination = (
       pagination: Page,
       params: ListParam,
       totalItems: number,

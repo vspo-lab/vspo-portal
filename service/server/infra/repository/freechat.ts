@@ -2,15 +2,15 @@ import { convertToUTC } from "@vspo-lab/dayjs";
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import {
-  type SQL,
   and,
   asc,
   countDistinct,
   desc,
   eq,
   inArray,
+  type SQL,
 } from "drizzle-orm";
-import { type Freechats, createFreechats } from "../../domain/freechat";
+import { createFreechats, type Freechats } from "../../domain/freechat";
 import { TargetLangSchema } from "../../domain/translate";
 import { PlatformSchema } from "../../domain/video";
 import { withTracerResult } from "../http/trace/cloudflare";
@@ -67,7 +67,7 @@ export function createFreechatRepository(db: DB): IFreechatRepository {
   const list = async (
     query: ListQuery,
   ): Promise<Result<Freechats, AppError>> => {
-    return withTracerResult("FreechatRepository", "list", async (span) => {
+    return withTracerResult("FreechatRepository", "list", async (_span) => {
       AppLogger.debug("FreechatRepository list", {
         query,
       });
@@ -147,7 +147,7 @@ export function createFreechatRepository(db: DB): IFreechatRepository {
   };
 
   const count = async (query: ListQuery): Promise<Result<number, AppError>> => {
-    return withTracerResult("FreechatRepository", "count", async (span) => {
+    return withTracerResult("FreechatRepository", "count", async (_span) => {
       const filters = buildFilters(query);
 
       const freechatResult = await wrap(

@@ -6,40 +6,31 @@ import {
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import {
-  type SQL,
   and,
   asc,
-  count,
   countDistinct,
   desc,
   eq,
   gte,
   inArray,
-  isNull,
   lte,
-  or,
+  type SQL,
 } from "drizzle-orm";
-import {
-  StatusSchema,
-  type Stream,
-  type Streams,
-  createStream,
-  createStreams,
-} from "../../domain/stream";
+import { createStreams, StatusSchema, type Streams } from "../../domain/stream";
 import { TargetLangSchema } from "../../domain/translate";
 import { PlatformSchema } from "../../domain/video";
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 import { buildConflictUpdateColumns } from "./helper";
 import {
-  type InsertStreamStatus,
-  type InsertVideo,
-  type InsertVideoTranslation,
   channelTable,
   createInsertStreamStatus,
   createInsertVideo,
   creatorTable,
   creatorTranslationTable,
+  type InsertStreamStatus,
+  type InsertVideo,
+  type InsertVideoTranslation,
   streamStatusTable,
   videoTable,
   videoTranslationTable,
@@ -122,7 +113,7 @@ const buildFilters = (query: ListQuery): SQL[] => {
 
 export const createStreamRepository = (db: DB): IStreamRepository => {
   const list = async (query: ListQuery): Promise<Result<Streams, AppError>> => {
-    return withTracerResult("StreamRepository", "list", async (span) => {
+    return withTracerResult("StreamRepository", "list", async (_span) => {
       AppLogger.debug("StreamRepository list", {
         query,
       });
@@ -209,7 +200,7 @@ export const createStreamRepository = (db: DB): IStreamRepository => {
   };
 
   const count = async (query: ListQuery): Promise<Result<number, AppError>> => {
-    return withTracerResult("StreamRepository", "count", async (span) => {
+    return withTracerResult("StreamRepository", "count", async (_span) => {
       const filters = buildFilters(query);
 
       const streamResult = await wrap(
@@ -254,234 +245,244 @@ export const createStreamRepository = (db: DB): IStreamRepository => {
   const batchUpsert = async (
     streams: Streams,
   ): Promise<Result<Streams, AppError>> => {
-    return withTracerResult("StreamRepository", "batchUpsert", async (span) => {
-      const dbVideos: InsertVideo[] = [];
-      const dbStreamStatus: InsertStreamStatus[] = [];
-      const dbVideoTranslation: InsertVideoTranslation[] = [];
+    return withTracerResult(
+      "StreamRepository",
+      "batchUpsert",
+      async (_span) => {
+        const dbVideos: InsertVideo[] = [];
+        const dbStreamStatus: InsertStreamStatus[] = [];
+        const dbVideoTranslation: InsertVideoTranslation[] = [];
 
-      for (const v of streams) {
-        const videoId = v.id || createUUID();
-        const existingVideo = dbVideos.find((video) => video.rawId === v.rawId);
-        if (!existingVideo && !v.translated) {
-          dbVideos.push(
-            createInsertVideo({
-              id: videoId,
-              rawId: v.rawId,
-              channelId: v.rawChannelID,
-              platformType: v.platform,
-              videoType: "vspo_stream",
-              publishedAt: convertToUTCDate(v.publishedAt),
-              tags: v.tags.join(","),
-              thumbnailUrl: v.thumbnailURL,
-              link: v.link,
-              deleted: v.deleted,
-            }),
+        for (const v of streams) {
+          const videoId = v.id || createUUID();
+          const existingVideo = dbVideos.find(
+            (video) => video.rawId === v.rawId,
           );
-        }
+          if (!existingVideo && !v.translated) {
+            dbVideos.push(
+              createInsertVideo({
+                id: videoId,
+                rawId: v.rawId,
+                channelId: v.rawChannelID,
+                platformType: v.platform,
+                videoType: "vspo_stream",
+                publishedAt: convertToUTCDate(v.publishedAt),
+                tags: v.tags.join(","),
+                thumbnailUrl: v.thumbnailURL,
+                link: v.link,
+                deleted: v.deleted,
+              }),
+            );
+          }
 
-        const existingStreamStatus = dbStreamStatus.find(
-          (status) => status.videoId === v.rawId,
-        );
-        if (!existingStreamStatus && !v.translated) {
-          dbStreamStatus.push(
-            createInsertStreamStatus({
+          const existingStreamStatus = dbStreamStatus.find(
+            (status) => status.videoId === v.rawId,
+          );
+          if (!existingStreamStatus && !v.translated) {
+            dbStreamStatus.push(
+              createInsertStreamStatus({
+                id: createUUID(),
+                videoId: v.rawId,
+                status: v.status,
+                startedAt: v.startedAt ? convertToUTCDate(v.startedAt) : null,
+                endedAt: v.endedAt ? convertToUTCDate(v.endedAt) : null,
+                viewCount: v.viewCount,
+                updatedAt: getCurrentUTCDate(),
+              }),
+            );
+          }
+
+          const existingTranslation = dbVideoTranslation.find(
+            (translation) =>
+              translation.videoId === v.rawId &&
+              translation.languageCode === v.languageCode,
+          );
+          if (!existingTranslation) {
+            dbVideoTranslation.push({
               id: createUUID(),
               videoId: v.rawId,
-              status: v.status,
-              startedAt: v.startedAt ? convertToUTCDate(v.startedAt) : null,
-              endedAt: v.endedAt ? convertToUTCDate(v.endedAt) : null,
-              viewCount: v.viewCount,
+              languageCode: v.languageCode,
+              title: v.title,
+              description: v.description,
               updatedAt: getCurrentUTCDate(),
-            }),
+            });
+          }
+        }
+
+        let videoResult: Result<(typeof videoTable.$inferSelect)[], AppError> =
+          Ok([]);
+        if (dbVideos.length > 0) {
+          videoResult = await wrap(
+            db
+              .insert(videoTable)
+              .values(dbVideos)
+              .onConflictDoUpdate({
+                target: videoTable.rawId,
+                set: buildConflictUpdateColumns(videoTable, [
+                  "publishedAt",
+                  "tags",
+                  "thumbnailUrl",
+                  "deleted",
+                ]),
+              })
+              .returning()
+              .execute(),
+            (err) =>
+              new AppError({
+                message: `Database error during video batch upsert: ${err.message}`,
+                code: "INTERNAL_SERVER_ERROR",
+                cause: err,
+              }),
           );
+
+          if (videoResult.err) {
+            return Err(videoResult.err);
+          }
         }
 
-        const existingTranslation = dbVideoTranslation.find(
-          (translation) =>
-            translation.videoId === v.rawId &&
-            translation.languageCode === v.languageCode,
-        );
-        if (!existingTranslation) {
-          dbVideoTranslation.push({
-            id: createUUID(),
-            videoId: v.rawId,
-            languageCode: v.languageCode,
-            title: v.title,
-            description: v.description,
-            updatedAt: getCurrentUTCDate(),
-          });
-        }
-      }
+        let streamStatusResult: Result<
+          (typeof streamStatusTable.$inferSelect)[],
+          AppError
+        > = Ok([]);
+        if (dbStreamStatus.length > 0) {
+          streamStatusResult = await wrap(
+            db
+              .insert(streamStatusTable)
+              .values(dbStreamStatus)
+              .onConflictDoUpdate({
+                target: streamStatusTable.videoId,
+                set: buildConflictUpdateColumns(streamStatusTable, [
+                  "status",
+                  "startedAt",
+                  "endedAt",
+                  "viewCount",
+                  "updatedAt",
+                ]),
+              })
+              .returning()
+              .execute(),
+            (err) =>
+              new AppError({
+                message: `Database error during stream status batch upsert: ${err.message}`,
+                code: "INTERNAL_SERVER_ERROR",
+                cause: err,
+              }),
+          );
 
-      let videoResult: Result<(typeof videoTable.$inferSelect)[], AppError> =
-        Ok([]);
-      if (dbVideos.length > 0) {
-        videoResult = await wrap(
-          db
-            .insert(videoTable)
-            .values(dbVideos)
-            .onConflictDoUpdate({
-              target: videoTable.rawId,
-              set: buildConflictUpdateColumns(videoTable, [
-                "publishedAt",
-                "tags",
-                "thumbnailUrl",
-                "deleted",
-              ]),
-            })
-            .returning()
-            .execute(),
-          (err) =>
-            new AppError({
-              message: `Database error during video batch upsert: ${err.message}`,
-              code: "INTERNAL_SERVER_ERROR",
-              cause: err,
+          if (streamStatusResult.err) {
+            return Err(streamStatusResult.err);
+          }
+        }
+
+        let videoTranslationResult: Result<
+          (typeof videoTranslationTable.$inferSelect)[],
+          AppError
+        > = Ok([]);
+        if (dbVideoTranslation.length > 0) {
+          videoTranslationResult = await wrap(
+            db
+              .insert(videoTranslationTable)
+              .values(dbVideoTranslation)
+              .onConflictDoUpdate({
+                target: [
+                  videoTranslationTable.videoId,
+                  videoTranslationTable.languageCode,
+                ],
+                set: buildConflictUpdateColumns(videoTranslationTable, [
+                  "title",
+                  "description",
+                  "updatedAt",
+                ]),
+              })
+              .returning()
+              .execute(),
+            (err) =>
+              new AppError({
+                message: `Database error during video translation batch upsert: ${err.message}`,
+                code: "INTERNAL_SERVER_ERROR",
+                cause: err,
+              }),
+          );
+
+          if (videoTranslationResult.err) {
+            return Err(videoTranslationResult.err);
+          }
+        }
+
+        return Ok(
+          createStreams(
+            videoResult.val.map((r) => {
+              const streamStatus = streamStatusResult.val.find(
+                (s) => s.videoId === r.rawId,
+              );
+              const videoTranslation = videoTranslationResult.val.find(
+                (t) => t.videoId === r.rawId,
+              );
+
+              return {
+                id: r.id,
+                rawId: r.rawId,
+                rawChannelID: r.channelId,
+                title: videoTranslation?.title ?? "",
+                description: videoTranslation?.description ?? "",
+                languageCode: TargetLangSchema.parse(
+                  videoTranslation?.languageCode ?? "default",
+                ),
+                publishedAt: convertToUTC(r.publishedAt),
+                startedAt: streamStatus?.startedAt
+                  ? convertToUTC(streamStatus.startedAt)
+                  : null,
+                endedAt: streamStatus?.endedAt
+                  ? convertToUTC(streamStatus.endedAt)
+                  : null,
+                platform: PlatformSchema.parse(r.platformType),
+                status: StatusSchema.parse(streamStatus?.status ?? "unknown"),
+                tags: r.tags.split(","),
+                viewCount: streamStatus?.viewCount ?? 0,
+                thumbnailURL: r.thumbnailUrl,
+                link: r.link ?? "",
+              };
             }),
+          ),
         );
-
-        if (videoResult.err) {
-          return Err(videoResult.err);
-        }
-      }
-
-      let streamStatusResult: Result<
-        (typeof streamStatusTable.$inferSelect)[],
-        AppError
-      > = Ok([]);
-      if (dbStreamStatus.length > 0) {
-        streamStatusResult = await wrap(
-          db
-            .insert(streamStatusTable)
-            .values(dbStreamStatus)
-            .onConflictDoUpdate({
-              target: streamStatusTable.videoId,
-              set: buildConflictUpdateColumns(streamStatusTable, [
-                "status",
-                "startedAt",
-                "endedAt",
-                "viewCount",
-                "updatedAt",
-              ]),
-            })
-            .returning()
-            .execute(),
-          (err) =>
-            new AppError({
-              message: `Database error during stream status batch upsert: ${err.message}`,
-              code: "INTERNAL_SERVER_ERROR",
-              cause: err,
-            }),
-        );
-
-        if (streamStatusResult.err) {
-          return Err(streamStatusResult.err);
-        }
-      }
-
-      let videoTranslationResult: Result<
-        (typeof videoTranslationTable.$inferSelect)[],
-        AppError
-      > = Ok([]);
-      if (dbVideoTranslation.length > 0) {
-        videoTranslationResult = await wrap(
-          db
-            .insert(videoTranslationTable)
-            .values(dbVideoTranslation)
-            .onConflictDoUpdate({
-              target: [
-                videoTranslationTable.videoId,
-                videoTranslationTable.languageCode,
-              ],
-              set: buildConflictUpdateColumns(videoTranslationTable, [
-                "title",
-                "description",
-                "updatedAt",
-              ]),
-            })
-            .returning()
-            .execute(),
-          (err) =>
-            new AppError({
-              message: `Database error during video translation batch upsert: ${err.message}`,
-              code: "INTERNAL_SERVER_ERROR",
-              cause: err,
-            }),
-        );
-
-        if (videoTranslationResult.err) {
-          return Err(videoTranslationResult.err);
-        }
-      }
-
-      return Ok(
-        createStreams(
-          videoResult.val.map((r) => {
-            const streamStatus = streamStatusResult.val.find(
-              (s) => s.videoId === r.rawId,
-            );
-            const videoTranslation = videoTranslationResult.val.find(
-              (t) => t.videoId === r.rawId,
-            );
-
-            return {
-              id: r.id,
-              rawId: r.rawId,
-              rawChannelID: r.channelId,
-              title: videoTranslation?.title ?? "",
-              description: videoTranslation?.description ?? "",
-              languageCode: TargetLangSchema.parse(
-                videoTranslation?.languageCode ?? "default",
-              ),
-              publishedAt: convertToUTC(r.publishedAt),
-              startedAt: streamStatus?.startedAt
-                ? convertToUTC(streamStatus.startedAt)
-                : null,
-              endedAt: streamStatus?.endedAt
-                ? convertToUTC(streamStatus.endedAt)
-                : null,
-              platform: PlatformSchema.parse(r.platformType),
-              status: StatusSchema.parse(streamStatus?.status ?? "unknown"),
-              tags: r.tags.split(","),
-              viewCount: streamStatus?.viewCount ?? 0,
-              thumbnailURL: r.thumbnailUrl,
-              link: r.link ?? "",
-            };
-          }),
-        ),
-      );
-    });
+      },
+    );
   };
 
   const batchDelete = async (
     streamIds: string[],
   ): Promise<Result<void, AppError>> => {
-    return withTracerResult("StreamRepository", "batchDelete", async (span) => {
-      const result = await wrap(
-        db
-          .delete(videoTable)
-          .where(inArray(videoTable.id, streamIds))
-          .execute(),
-        (err) =>
-          new AppError({
-            message: `Database error during stream batch delete: ${err.message}`,
-            code: "INTERNAL_SERVER_ERROR",
-            cause: err,
-          }),
-      );
+    return withTracerResult(
+      "StreamRepository",
+      "batchDelete",
+      async (_span) => {
+        const result = await wrap(
+          db
+            .delete(videoTable)
+            .where(inArray(videoTable.id, streamIds))
+            .execute(),
+          (err) =>
+            new AppError({
+              message: `Database error during stream batch delete: ${err.message}`,
+              code: "INTERNAL_SERVER_ERROR",
+              cause: err,
+            }),
+        );
 
-      if (result.err) {
-        return Err(result.err);
-      }
+        if (result.err) {
+          return Err(result.err);
+        }
 
-      return Ok();
-    });
+        return Ok();
+      },
+    );
   };
 
   const deletedListIds = async (): Promise<Result<string[], AppError>> => {
     return withTracerResult(
       "StreamRepository",
       "deletedListIds",
-      async (span) => {
+      async (_span) => {
         const result = await wrap(
           db
             .select({ rawId: videoTable.rawId })

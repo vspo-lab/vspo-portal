@@ -30,7 +30,10 @@ export const convertChatPlayerLink = (
 export const convertVideoPlayerLink = ({
   videoPlayerLink,
   platform,
-}: { videoPlayerLink: string; platform: Platform }) => {
+}: {
+  videoPlayerLink: string;
+  platform: Platform;
+}) => {
   const domain = document.location.hostname;
   if (platform === "twitch") {
     return `${videoPlayerLink}&parent=${domain}&autoplay=false`;

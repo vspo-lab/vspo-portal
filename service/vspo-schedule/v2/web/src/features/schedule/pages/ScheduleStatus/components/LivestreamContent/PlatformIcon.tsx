@@ -1,8 +1,8 @@
-import type { Platform } from "@/features/shared/domain/video";
 import { faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { styled } from "@mui/material/styles";
 import Image from "next/image";
+import type { Platform } from "@/features/shared/domain/video";
 
 const StyledFontAwesomeIcon = styled(FontAwesomeIcon)(() => ({
   color: "black",

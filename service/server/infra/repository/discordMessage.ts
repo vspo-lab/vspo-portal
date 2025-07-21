@@ -6,10 +6,10 @@ import {
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { count, desc, eq } from "drizzle-orm";
 import {
-  type DiscordMessage,
-  type DiscordMessages,
   createDiscordMessage,
   createDiscordMessages,
+  type DiscordMessage,
+  type DiscordMessages,
 } from "../../domain";
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
@@ -43,7 +43,7 @@ export function createDiscordMessageRepository(
     return withTracerResult(
       "DiscordMessageRepository",
       "create",
-      async (span) => {
+      async (_span) => {
         const id = message.id || createUUID();
         const now = getCurrentUTCDate();
 
@@ -129,7 +129,7 @@ export function createDiscordMessageRepository(
     return withTracerResult(
       "DiscordMessageRepository",
       "getById",
-      async (span) => {
+      async (_span) => {
         const messageResult = await wrap(
           db
             .select({
@@ -189,7 +189,7 @@ export function createDiscordMessageRepository(
     return withTracerResult(
       "DiscordMessageRepository",
       "list",
-      async (span) => {
+      async (_span) => {
         const messagesResult = await wrap(
           db
             .select({
@@ -240,12 +240,12 @@ export function createDiscordMessageRepository(
   };
 
   const countFunc = async (
-    query: ListQuery,
+    _query: ListQuery,
   ): Promise<Result<number, AppError>> => {
     return withTracerResult(
       "DiscordMessageRepository",
       "count",
-      async (span) => {
+      async (_span) => {
         const countResult = await wrap(
           db.select({ count: count() }).from(discordMessageTable).execute(),
           (err) =>

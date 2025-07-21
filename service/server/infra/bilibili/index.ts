@@ -1,5 +1,5 @@
 import { type AppError, Ok, type Result } from "@vspo-lab/error";
-import { type Streams, createStreams } from "../../domain/stream";
+import { createStreams, type Streams } from "../../domain/stream";
 import { withTracerResult } from "../http/trace/cloudflare";
 
 type GetStreamsParams = {
@@ -12,9 +12,9 @@ export interface IBilibiliService {
 
 export const createBilibiliService = (): IBilibiliService => {
   const getStreams = async (
-    params: GetStreamsParams,
+    _params: GetStreamsParams,
   ): Promise<Result<Streams, AppError>> => {
-    return withTracerResult("BilibiliService", "getStreams", async (span) => {
+    return withTracerResult("BilibiliService", "getStreams", async (_span) => {
       return Ok(createStreams([]));
     });
   };

@@ -225,7 +225,7 @@ export default createHandler({
   scheduled: async (
     controller: ScheduledController,
     env: BindingWorkflowEnv,
-    ctx: ExecutionContext,
+    _ctx: ExecutionContext,
   ) => {
     return await withTracer("ScheduledHandler", "scheduled", async (span) => {
       span.setAttribute("cron", controller.cron);

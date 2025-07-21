@@ -1,11 +1,11 @@
 import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
-import { type Creator, type Creators, createCreator } from "..";
 import type { ICreatorRepository, IYoutubeService } from "../../infra";
 import type { IAIService } from "../../infra/ai";
 import type { ICacheClient } from "../../infra/cache";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import { createUUID } from "../../pkg/uuid";
+import { type Creator, type Creators, createCreator } from "..";
 
 export interface ICreatorService {
   searchCreatorsByMemberType(params: {
@@ -140,7 +140,7 @@ export const createCreatorService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchCreatorsByChannelIds",
-      async (span) => {
+      async (_span) => {
         AppLogger.debug("Searching creators by channel IDs", {
           service: SERVICE_NAME,
           channelCount: params.length,
@@ -203,36 +203,40 @@ export const createCreatorService = (deps: {
     languageCode: string;
     creators: Creators;
   }): Promise<Result<Creators, AppError>> => {
-    return withTracerResult(SERVICE_NAME, "translateCreators", async (span) => {
-      AppLogger.debug("Translating creators", {
-        service: SERVICE_NAME,
-        languageCode,
-        creatorCount: creators.length,
-      });
+    return withTracerResult(
+      SERVICE_NAME,
+      "translateCreators",
+      async (_span) => {
+        AppLogger.debug("Translating creators", {
+          service: SERVICE_NAME,
+          languageCode,
+          creatorCount: creators.length,
+        });
 
-      const translatePromises = creators.map((creator) =>
-        deps.aiService.translateText(creator.name ?? "", languageCode),
-      );
-      const translatedResults = await Promise.allSettled(translatePromises);
-      const translatedCreators = creators.map((creator, i) => {
-        const translatedText =
-          translatedResults[i].status === "fulfilled"
-            ? (translatedResults[i].value.val?.translatedText ?? creator.name)
-            : creator.name;
-        return {
-          ...creator,
-          name: translatedText,
-          languageCode: languageCode,
-          translated: true,
-        };
-      });
+        const translatePromises = creators.map((creator) =>
+          deps.aiService.translateText(creator.name ?? "", languageCode),
+        );
+        const translatedResults = await Promise.allSettled(translatePromises);
+        const translatedCreators = creators.map((creator, i) => {
+          const translatedText =
+            translatedResults[i].status === "fulfilled"
+              ? (translatedResults[i].value.val?.translatedText ?? creator.name)
+              : creator.name;
+          return {
+            ...creator,
+            name: translatedText,
+            languageCode: languageCode,
+            translated: true,
+          };
+        });
 
-      AppLogger.debug("Successfully translated creators", {
-        service: SERVICE_NAME,
-        count: translatedCreators.length,
-      });
-      return Ok(translatedCreators);
-    });
+        AppLogger.debug("Successfully translated creators", {
+          service: SERVICE_NAME,
+          count: translatedCreators.length,
+        });
+        return Ok(translatedCreators);
+      },
+    );
   };
 
   return {

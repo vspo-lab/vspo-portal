@@ -1,5 +1,5 @@
 import { BaseError, type ErrorContext } from "./base";
-import { type ErrorCode, codeToStatus } from "./code";
+import { codeToStatus, type ErrorCode } from "./code";
 
 export class AppError extends BaseError {
   public readonly name = "AppError";
