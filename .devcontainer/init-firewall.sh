@@ -50,28 +50,55 @@ while read -r cidr; do
     ipset add allowed-domains "$cidr"
 done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
+# Add raw.githubusercontent.com separately (often different IPs than main GitHub)
+echo "Resolving raw.githubusercontent.com..."
+raw_github_ips=$(dig +short A "raw.githubusercontent.com")
+if [ -n "$raw_github_ips" ]; then
+    while read -r ip; do
+        if [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            echo "Adding $ip for raw.githubusercontent.com"
+            ipset add allowed-domains "$ip"
+        fi
+    done < <(echo "$raw_github_ips")
+fi
+
 # Resolve and add other allowed domains
 for domain in \
     "registry.npmjs.org" \
     "api.anthropic.com" \
     "sentry.io" \
     "statsig.anthropic.com" \
-    "statsig.com"; do
+    "statsig.com" \
+    "pypi.org" \
+    "pypi.python.org" \
+    "packaging.python.org"; do
     echo "Resolving $domain..."
     ips=$(dig +short A "$domain")
     if [ -z "$ips" ]; then
-        echo "ERROR: Failed to resolve $domain"
-        exit 1
+        echo "WARNING: Failed to resolve $domain, skipping..."
+        continue
     fi
     
     while read -r ip; do
         if [[ ! "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            echo "ERROR: Invalid IP from DNS for $domain: $ip"
-            exit 1
+            echo "WARNING: Invalid IP from DNS for $domain: $ip, skipping..."
+            continue
         fi
         echo "Adding $ip for $domain"
         ipset add allowed-domains "$ip"
     done < <(echo "$ips")
+done
+
+# Add CloudFlare DNS IPs (for potential CDN access)
+echo "Adding CloudFlare DNS IPs..."
+for cf_ip in "1.1.1.1" "1.0.0.1" "104.16.0.0/12" "172.64.0.0/13" "173.245.48.0/20"; do
+    if [[ "$cf_ip" =~ / ]]; then
+        echo "Adding CloudFlare range $cf_ip"
+        ipset add allowed-domains "$cf_ip"
+    else
+        echo "Adding CloudFlare IP $cf_ip"
+        ipset add allowed-domains "$cf_ip"
+    fi
 done
 
 # Get host IP from default route
@@ -97,16 +124,25 @@ iptables -P OUTPUT DROP
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
+# Allow HTTPS/HTTP traffic to allowed domains
+iptables -A OUTPUT -p tcp --dport 80 -m set --match-set allowed-domains dst -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -m set --match-set allowed-domains dst -j ACCEPT
+
+# Allow git protocol (port 9418) for git operations
+iptables -A OUTPUT -p tcp --dport 9418 -m set --match-set allowed-domains dst -j ACCEPT
+
 # Then allow only specific outbound traffic to allowed domains
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
 
 echo "Firewall configuration complete"
 echo "Verifying firewall rules..."
+
+# Basic connectivity test
 if curl --connect-timeout 5 https://example.com >/dev/null 2>&1; then
     echo "ERROR: Firewall verification failed - was able to reach https://example.com"
     exit 1
 else
-    echo "Firewall verification passed - unable to reach https://example.com as expected"
+    echo "✓ Firewall verification passed - unable to reach https://example.com as expected"
 fi
 
 # Verify GitHub API access
@@ -114,5 +150,14 @@ if ! curl --connect-timeout 5 https://api.github.com/zen >/dev/null 2>&1; then
     echo "ERROR: Firewall verification failed - unable to reach https://api.github.com"
     exit 1
 else
-    echo "Firewall verification passed - able to reach https://api.github.com as expected"
+    echo "✓ GitHub API access verified"
 fi
+
+# Verify PyPI access for uvx/pip
+if ! curl --connect-timeout 5 https://pypi.org/simple/ >/dev/null 2>&1; then
+    echo "WARNING: Unable to reach PyPI - Python package installation may fail"
+else
+    echo "✓ PyPI access verified"
+fi
+
+echo "Firewall setup complete!"

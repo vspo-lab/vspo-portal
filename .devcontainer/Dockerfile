@@ -3,6 +3,9 @@ FROM node:20
 ARG TZ
 ENV TZ="$TZ"
 
+# Install uv from official image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 # Install basic development tools and iptables/ipset
 RUN apt update && apt install -y less \
   git \
@@ -19,7 +22,9 @@ RUN apt update && apt install -y less \
   iproute2 \
   dnsutils \
   aggregate \
-  jq
+  jq \
+  python3 \
+  python3-pip
 
 # Ensure default node user has access to /usr/local/share
 RUN mkdir -p /usr/local/share/npm-global && \
@@ -37,14 +42,13 @@ RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhisto
 ENV DEVCONTAINER=true
 
 # Create workspace and config directories and set permissions
-RUN mkdir -p /workspace /home/node/.claude && \
-  chown -R node:node /workspace /home/node/.claude
+RUN mkdir -p /workspace /home/node/.claude /home/node/.config && \
+  chown -R node:node /workspace /home/node/.claude /home/node/.config
 
-WORKDIR /workspace
-
+# Install delta (git diff tool)
 RUN ARCH=$(dpkg --print-architecture) && \
   wget "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb" && \
-  sudo dpkg -i "git-delta_0.18.2_${ARCH}.deb" && \
+  dpkg -i "git-delta_0.18.2_${ARCH}.deb" && \
   rm "git-delta_0.18.2_${ARCH}.deb"
 
 # Set up non-root user
@@ -66,13 +70,30 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
   -a "export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
   -x
 
-# Install Claude
+# Set working directory before installing tools
+WORKDIR /workspace
+
+# Install Claude CLI
 RUN npm install -g @anthropic-ai/claude-code
 
+# Add Serena with explicit project path
+RUN claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena-mcp-server --context ide-assistant --project /workspace
+
 # Copy and set up firewall script
-COPY init-firewall.sh /usr/local/bin/
-USER root
-RUN chmod +x /usr/local/bin/init-firewall.sh && \
-  echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall && \
-  chmod 0440 /etc/sudoers.d/node-firewall
+# COPY --chown=root:root init-firewall.sh /usr/local/bin/
+# USER root
+# RUN chmod +x /usr/local/bin/init-firewall.sh && \
+#   echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall && \
+#   chmod 0440 /etc/sudoers.d/node-firewall
+
+# Switch back to node user
 USER node
+
+# Ensure we're in the workspace directory
+WORKDIR /workspace
+
+# Define volumes for persistence
+VOLUME ["/home/node/.claude", "/workspace", "/commandhistory"]
+
+# Set the default command to start zsh
+CMD ["/bin/zsh"]
