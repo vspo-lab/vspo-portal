@@ -187,13 +187,6 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
               <Box sx={{ display: "flex", gap: 1 }}>
                 <Button
                   variant="outlined"
-                  onClick={onLoadFavorite}
-                  sx={{ flex: 1 }}
-                >
-                  {t("search.favorites.loadButton", "Load")}
-                </Button>
-                <Button
-                  variant="outlined"
                   onClick={onSaveFavorite}
                   disabled={!isSaveEnabled}
                   sx={{ flex: 1 }}
