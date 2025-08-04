@@ -1,6 +1,6 @@
 import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
-import { type Page, createPage } from "../domain/pagination";
+import { createPage, type Page } from "../domain/pagination";
 import type { Streams } from "../domain/stream";
 import type { IAppContext } from "../infra/dependency";
 import { withTracerResult } from "../infra/http/trace";
@@ -139,7 +139,7 @@ export const createStreamInteractor = (
       INTERACTOR_NAME,
       "searchDeletedCheck",
       async () => {
-        return context.runInTx(async (repos, services) => {
+        return context.runInTx(async (_repos, services) => {
           const sv = await services.streamService.searchDeletedStreams();
           if (sv.err) {
             return sv;

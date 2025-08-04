@@ -1,5 +1,5 @@
-import { VideoModalContext } from "@/context/VideoModalContext";
 import { useContext } from "react";
+import { VideoModalContext } from "@/context/VideoModalContext";
 
 export const useVideoModalContext = () => {
   const context = useContext(VideoModalContext);

@@ -1,7 +1,6 @@
 import type { Span } from "@opentelemetry/api";
 import * as Sentry from "@sentry/cloudflare";
-import { AppError } from "@vspo-lab/error";
-import { Err, type Result } from "@vspo-lab/error";
+import { AppError, Err, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import type { ApiEnv } from "../../../config/env/api";
 import type { CommonEnv } from "../../../config/env/common";

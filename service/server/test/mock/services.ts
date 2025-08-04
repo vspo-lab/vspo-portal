@@ -17,26 +17,26 @@ export class MockYoutubeService implements IYoutubeService {
   youtube = null;
   chunkArray = () => [];
 
-  async getChannels(params: { channelIds: string[] }): Promise<
-    Result<Channel[], AppError>
-  > {
+  async getChannels(_params: {
+    channelIds: string[];
+  }): Promise<Result<Channel[], AppError>> {
     return Ok([]);
   }
 
-  async getStreams(params: { streamIds: string[] }): Promise<
-    Result<Stream[], AppError>
-  > {
+  async getStreams(_params: {
+    streamIds: string[];
+  }): Promise<Result<Stream[], AppError>> {
     return Ok([]);
   }
 
-  async searchStreams(params: {
+  async searchStreams(_params: {
     query: string;
     eventType: "completed" | "live" | "upcoming";
   }): Promise<Result<Stream[], AppError>> {
     return Ok([]);
   }
 
-  async getStreamsByChannel(params: {
+  async getStreamsByChannel(_params: {
     channelId: string;
     maxResults?: number;
     order?:
@@ -51,14 +51,14 @@ export class MockYoutubeService implements IYoutubeService {
   }
 
   async searchClips(
-    params: SearchClipsParams,
+    _params: SearchClipsParams,
   ): Promise<Result<Clip[], AppError>> {
     return Ok([]);
   }
 
-  async getClips(params: { videoIds: string[] }): Promise<
-    Result<Clip[], AppError>
-  > {
+  async getClips(_params: {
+    videoIds: string[];
+  }): Promise<Result<Clip[], AppError>> {
     return Ok([]);
   }
 }
@@ -76,27 +76,27 @@ export class MockTwitchService implements ITwitchService {
     return Ok({} as T);
   }
 
-  async getStreams(params: { userIds: string[] }): Promise<
-    Result<Stream[], AppError>
-  > {
+  async getStreams(_params: {
+    userIds: string[];
+  }): Promise<Result<Stream[], AppError>> {
     return Ok([]);
   }
 
-  async getStreamsByIDs(params: { streamIds: string[] }): Promise<
-    Result<Stream[], AppError>
-  > {
+  async getStreamsByIDs(_params: {
+    streamIds: string[];
+  }): Promise<Result<Stream[], AppError>> {
     return Ok([]);
   }
 
-  async getArchive(params: { userIds: string[] }): Promise<
-    Result<Stream[], AppError>
-  > {
+  async getArchive(_params: {
+    userIds: string[];
+  }): Promise<Result<Stream[], AppError>> {
     return Ok([]);
   }
 
-  async getClipsByUserID(params: { userId: string }): Promise<
-    Result<Clip[], AppError>
-  > {
+  async getClipsByUserID(_params: {
+    userId: string;
+  }): Promise<Result<Clip[], AppError>> {
     return Ok([]);
   }
 }
@@ -105,24 +105,24 @@ export class MockTwitcastingService implements ITwitcastingService {
   accessToken = "";
 
   async fetchUserStreams(
-    userId: string,
+    _userId: string,
   ): Promise<Result<TwitCastingStream[], AppError>> {
     return Ok([]);
   }
 
   async mapToTwitCastingStream(
-    movie: TwitcastingMovie,
+    _movie: TwitcastingMovie,
   ): Promise<TwitCastingStream> {
     return {} as TwitCastingStream;
   }
 
-  async createStreamModel(video: TwitCastingStream): Promise<Stream> {
+  async createStreamModel(_video: TwitCastingStream): Promise<Stream> {
     return {} as Stream;
   }
 
-  async getStreams(params: { userIds: string[] }): Promise<
-    Result<Stream[], AppError>
-  > {
+  async getStreams(_params: {
+    userIds: string[];
+  }): Promise<Result<Stream[], AppError>> {
     return Ok([]);
   }
 }

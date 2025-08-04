@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { type TestCase, mockTwitchResponses } from "../../test/mock/twitch";
-import { type ITwitchService, createTwitchService } from "./index";
+import { mockTwitchResponses, type TestCase } from "../../test/mock/twitch";
+import { createTwitchService, type ITwitchService } from "./index";
 
 const mockConfig = {
   clientId: "dummy_client_id",

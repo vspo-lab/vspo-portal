@@ -1,8 +1,8 @@
 import { AppLogger } from "@vspo-lab/logging";
-import type { MessageParam } from ".";
 import { batchEnqueueWithChunks } from "../../../cmd/server/internal/application";
 import { type Creator, CreatorsSchema } from "../../../domain";
 import type { ICreatorInteractor } from "../../../usecase";
+import type { MessageParam } from ".";
 import type { QueueHandler } from "./base";
 
 type TranslateCreator = Creator & {

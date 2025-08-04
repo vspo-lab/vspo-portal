@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Creators } from "../domain/creator";
-import { MemberTypeSchema, createCreators } from "../domain/creator";
+import { createCreators, MemberTypeSchema } from "../domain/creator";
 import { TargetLangSchema } from "../domain/translate";
 import type { IAppContext } from "../infra/dependency";
 import { createUUID } from "../pkg/uuid";
 import { setupTxManager } from "../test/setup";
-import { type ICreatorInteractor, createCreatorInteractor } from "./creator";
+import { createCreatorInteractor, type ICreatorInteractor } from "./creator";
 
 describe.concurrent("CreatorInteractor", () => {
   let context: IAppContext;

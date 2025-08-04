@@ -1,16 +1,16 @@
 import { type AppError, Ok, type OkResult, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
-import {
-  type Creator,
-  type Creators,
-  MemberTypeSchema,
-  createCreator,
-} from "..";
 import { vspoKeywordMap } from "../../config/data/keyword";
 import { type ITwitchService, type IYoutubeService, query } from "../../infra";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import type { ICreatorRepository } from "../../infra/repository/creator";
 import { createUUID } from "../../pkg/uuid";
+import {
+  type Creator,
+  type Creators,
+  createCreator,
+  MemberTypeSchema,
+} from "..";
 import { type Clips, isVspoClip } from "../clip";
 import type { ICreatorClipFetchService } from "./creatorClipFetch";
 
@@ -20,9 +20,9 @@ export interface IClipService {
   >;
   searchExistVspoClips({
     clipIds,
-  }: { clipIds: string[] }): Promise<
-    Result<{ clips: Clips; notExistsClipIds: string[] }, AppError>
-  >;
+  }: {
+    clipIds: string[];
+  }): Promise<Result<{ clips: Clips; notExistsClipIds: string[] }, AppError>>;
   searchNewClipsByVspoMemberName(): Promise<
     Result<{ newCreators: Creators; clips: Clips }, AppError>
   >;
@@ -167,7 +167,7 @@ export const createClipService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchNewVspoClipsAndNewCreators",
-      async (span) => {
+      async (_span) => {
         // Get existing creators to exclude their channels
         const existingCreators = await masterCreators({
           creatorRepository: deps.creatorRepository,
@@ -319,13 +319,15 @@ export const createClipService = (deps: {
 
   const searchExistVspoClips = async ({
     clipIds,
-  }: { clipIds: string[] }): Promise<
+  }: {
+    clipIds: string[];
+  }): Promise<
     Result<{ clips: Clips; notExistsClipIds: string[] }, AppError>
   > => {
     return withTracerResult(
       SERVICE_NAME,
       "searchExistVspoClips",
-      async (span) => {
+      async (_span) => {
         const clipsResult = await deps.youtubeClient.getClips({
           videoIds: clipIds,
         });
@@ -355,7 +357,7 @@ export const createClipService = (deps: {
     return withTracerResult(
       SERVICE_NAME,
       "searchNewClipsByVspoMemberName",
-      async (span) => {
+      async (_span) => {
         const members = vspoKeywordMap.members.map((m) => m.nameJp);
         const orderTypes = ["date", "viewCount", "relevance"];
         const allClips: Clips = [];

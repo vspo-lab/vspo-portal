@@ -1,6 +1,6 @@
+import { useEffect, useState } from "react";
 import { ContentLayout } from "@/features/shared/components/Layout";
 import type { NextPageWithLayout } from "@/pages/_app";
-import React, { useEffect, useState } from "react";
 import type { Clip, Pagination } from "../../../shared/domain/clip";
 import { Presenter } from "./presenter";
 

@@ -1,16 +1,16 @@
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "@/styles/globals.css";
 import "@/styles/normalize.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import { AppCacheProvider } from "@mui/material-nextjs/v14-pagesRouter";
+import type { NextPage } from "next";
+import type { AppProps } from "next/app";
+import { appWithTranslation } from "next-i18next";
+import type { ReactElement, ReactNode } from "react";
 import { ThemeModeProvider } from "@/context/Theme";
 import { TimeZoneContextProvider } from "@/context/TimeZoneContext";
 import { VideoModalContextProvider } from "@/context/VideoModalContext";
 import { GoogleAnalytics } from "@/features/shared/components/Elements";
-import { config } from "@fortawesome/fontawesome-svg-core";
-import { AppCacheProvider } from "@mui/material-nextjs/v14-pagesRouter";
-import type { NextPage } from "next";
-import { appWithTranslation } from "next-i18next";
-import type { AppProps } from "next/app";
-import type { ReactElement, ReactNode } from "react";
 import "@/lib/i18n";
 
 config.autoAddCss = false;

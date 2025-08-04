@@ -75,7 +75,7 @@ export const createAIService = (config: AIConfig): IAIService => {
     targetLang: string,
     prompt?: string,
   ): Promise<Result<{ translatedText: string }, AppError>> => {
-    return withTracerResult("ai", "translateText", async (span) => {
+    return withTracerResult("ai", "translateText", async (_span) => {
       const parseResult = TargetLangSchema.safeParse(targetLang);
       if (!parseResult.success) {
         return Err(

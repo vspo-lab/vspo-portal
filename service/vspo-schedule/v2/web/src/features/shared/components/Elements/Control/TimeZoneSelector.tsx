@@ -1,9 +1,9 @@
+import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
+import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
+import React, { useMemo } from "react";
 import { useTimeZoneContext } from "@/hooks";
 import { formatDate } from "@/lib/utils";
-import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { useRouter } from "next/router";
-import React, { useMemo } from "react";
 
 export const TimeZoneSelector = () => {
   const router = useRouter();
@@ -41,7 +41,7 @@ export const TimeZoneSelector = () => {
         <TextField {...params} size="small" label={t("drawer.timeZone")} />
       )}
       value={timeZone}
-      onChange={(event, newValue) => {
+      onChange={(_event, newValue) => {
         const value = newValue ?? timeZone;
         setTimeZone(value);
         if (

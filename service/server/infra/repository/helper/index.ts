@@ -1,4 +1,4 @@
-import { type SQL, getTableColumns, sql } from "drizzle-orm";
+import { getTableColumns, type SQL, sql } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
 
 export const buildConflictUpdateColumns = <

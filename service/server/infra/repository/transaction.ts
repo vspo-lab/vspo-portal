@@ -7,7 +7,7 @@ import {
 } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
-import { type NodePgQueryResultHKT, drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, type NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import type { PgTransaction, PgTransactionConfig } from "drizzle-orm/pg-core";
 
 export interface IDbConfig {

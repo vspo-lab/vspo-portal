@@ -1,15 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { DiscordServer, DiscordServers } from "../domain";
 import type { Page } from "../domain/pagination";
 import type { IAppContext } from "../infra/dependency";
-import { createUUID } from "../pkg/uuid";
 import { setupTxManager } from "../test/setup";
 import {
-  type BatchUpsertDiscordServersParam,
+  createDiscordInteractor,
   type IDiscordInteractor,
   type ListDiscordServerParam,
   type ListDiscordServerResponse,
-  createDiscordInteractor,
 } from "./discord";
 
 describe.concurrent("DiscordInteractor", () => {

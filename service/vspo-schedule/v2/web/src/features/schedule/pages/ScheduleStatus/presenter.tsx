@@ -1,10 +1,10 @@
-import { Loading } from "@/features/shared/components/Elements/Loading/Loading";
-import type { Event } from "@/features/shared/domain";
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, Container, Fab, Paper, Tab, Tabs } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
 import type React from "react";
+import { Loading } from "@/features/shared/components/Elements/Loading/Loading";
+import type { Event } from "@/features/shared/domain";
 import type { Livestream } from "../../../shared/domain/livestream";
 import {
   DateSearchDialogContainer,

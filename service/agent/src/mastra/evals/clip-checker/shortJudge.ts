@@ -3,9 +3,9 @@ import { MastraAgentJudge } from "@mastra/evals/judge";
 import { z } from "zod";
 import type { VideoInput } from "./prompts";
 import {
-  SHORT_INSTRUCTIONS,
   generateShortCheckPrompt,
   generateShortReasonPrompt,
+  SHORT_INSTRUCTIONS,
 } from "./prompts";
 
 export class YouTubeShortCheckerJudge extends MastraAgentJudge {

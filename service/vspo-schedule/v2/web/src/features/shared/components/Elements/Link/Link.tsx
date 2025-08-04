@@ -1,7 +1,7 @@
-import { useLocale } from "@/hooks";
 import { Link as MuiLink, type LinkProps as MuiLinkProps } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
+import { useLocale } from "@/hooks";
 
 export const Link = React.forwardRef<HTMLAnchorElement, MuiLinkProps>(
   function Link({ children, href, sx, onClick, ...props }, ref) {

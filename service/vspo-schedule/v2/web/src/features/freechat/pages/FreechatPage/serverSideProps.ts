@@ -1,7 +1,7 @@
-import { DEFAULT_LOCALE } from "@/lib/Const";
-import { getInitializedI18nInstance } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type { GetServerSideProps } from "next";
+import { DEFAULT_LOCALE } from "@/lib/Const";
+import { getInitializedI18nInstance } from "@/lib/utils";
 import type { Freechat } from "../../../shared/domain/freechat";
 import { fetchFreechatService } from "../../api/freechatService";
 

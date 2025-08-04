@@ -85,7 +85,7 @@ const formatTwitchThumbnail = (url: string): string =>
 // Helper function to extract TwitCasting user ID from URL
 const extractTwitcastingUserId = (url: string): string | null => {
   // Match patterns like "http://twitcasting.tv/twitcasting_jp/movie/189037369"
-  const match = url.match(/twitcasting\.tv\/([^\/]+)\/movie/);
+  const match = url.match(/twitcasting\.tv\/([^/]+)\/movie/);
   return match ? match[1] : null;
 };
 

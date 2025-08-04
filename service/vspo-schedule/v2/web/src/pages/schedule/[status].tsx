@@ -1,7 +1,7 @@
 import { ScheduleStatus } from "@/features/schedule";
 import {
-  type ScheduleStatusPageProps,
   getLivestreamsServerSideProps,
+  type ScheduleStatusPageProps,
 } from "@/features/schedule/pages/ScheduleStatus/serverSideProps";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import type { NextPageWithLayout } from "../_app";

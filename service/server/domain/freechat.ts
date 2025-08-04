@@ -6,7 +6,7 @@ import { BaseVideoSchema, type Platform } from "./video";
 const getFreechatLink = (
   rawId: string,
   platform: Platform,
-  channelId?: string, // May be needed for some platforms
+  _channelId?: string, // May be needed for some platforms
 ): string => {
   switch (platform) {
     case "youtube": // YouTube clips might have /clip/ path, needs verification

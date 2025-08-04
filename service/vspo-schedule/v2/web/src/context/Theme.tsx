@@ -1,12 +1,9 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import {
   type ColorSystemOptions,
-  ThemeProvider,
   createTheme,
+  ThemeProvider,
 } from "@mui/material/styles";
-// Module augmentation to enable type-safe use of Theme variables with ThemeProvider
-// https://mui.com/material-ui/customization/css-theme-variables/usage/#typescript
-import type {} from "@mui/material/themeCssVarsAugmentation";
 
 type ThemeProviderProps = {
   children: React.ReactNode;

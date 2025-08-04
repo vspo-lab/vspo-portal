@@ -1,12 +1,12 @@
-import type { Channel } from "@/features/shared/domain";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Avatar, Box, IconButton, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import type React from "react";
 import { useRef } from "react";
+import type { Channel } from "@/features/shared/domain";
 
 // Styled components
 const StoryContainer = styled(Box)(({ theme }) => ({

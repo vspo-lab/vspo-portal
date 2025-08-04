@@ -6,12 +6,11 @@ import {
 } from "@vspo-lab/error";
 import { drizzle } from "drizzle-orm/node-postgres";
 import type { PgTransactionConfig } from "drizzle-orm/pg-core";
-import { Client } from "pg";
 import {
   type DB,
+  defaultConfig,
   type IDbConfig,
   type ITxManager,
-  defaultConfig,
 } from "../../infra";
 
 export class TestTxManager implements ITxManager {

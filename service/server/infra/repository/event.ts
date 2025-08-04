@@ -2,7 +2,6 @@ import { convertToUTC, getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import {
-  type SQL,
   and,
   asc,
   countDistinct,
@@ -11,14 +10,15 @@ import {
   gte,
   inArray,
   lte,
+  type SQL,
 } from "drizzle-orm";
 import {
+  createVspoEvent,
+  createVspoEvents,
   type EventVisibility,
   EventVisibilitySchema,
   type VspoEvent,
   type VspoEvents,
-  createVspoEvent,
-  createVspoEvents,
 } from "../../domain/event";
 import { withTracerResult } from "../http/trace/cloudflare";
 import { buildConflictUpdateColumns } from "./helper";
@@ -66,7 +66,7 @@ export function createEventRepository(db: DB): IEventRepository {
   const list = async (
     query: ListQuery,
   ): Promise<Result<VspoEvents, AppError>> => {
-    return withTracerResult("EventRepository", "list", async (span) => {
+    return withTracerResult("EventRepository", "list", async (_span) => {
       AppLogger.debug("EventRepository list", {
         query,
       });
@@ -125,7 +125,7 @@ export function createEventRepository(db: DB): IEventRepository {
   const get = async (
     id: string,
   ): Promise<Result<VspoEvent | null, AppError>> => {
-    return withTracerResult("EventRepository", "get", async (span) => {
+    return withTracerResult("EventRepository", "get", async (_span) => {
       const eventResult = await wrap(
         db.select().from(eventTable).where(eq(eventTable.id, id)).execute(),
         (err) =>
@@ -160,7 +160,7 @@ export function createEventRepository(db: DB): IEventRepository {
   };
 
   const count = async (query: ListQuery): Promise<Result<number, AppError>> => {
-    return withTracerResult("EventRepository", "count", async (span) => {
+    return withTracerResult("EventRepository", "count", async (_span) => {
       const filters = buildFilters(query);
 
       const countResult = await wrap(
@@ -188,7 +188,7 @@ export function createEventRepository(db: DB): IEventRepository {
   const upsert = async (
     event: VspoEvent,
   ): Promise<Result<VspoEvent, AppError>> => {
-    return withTracerResult("EventRepository", "upsert", async (span) => {
+    return withTracerResult("EventRepository", "upsert", async (_span) => {
       const dbEvent = createInsertEvent({
         id: event.id,
         title: event.title,
@@ -247,7 +247,7 @@ export function createEventRepository(db: DB): IEventRepository {
   const deleteFunc = async (
     eventId: string,
   ): Promise<Result<void, AppError>> => {
-    return withTracerResult("EventRepository", "delete", async (span) => {
+    return withTracerResult("EventRepository", "delete", async (_span) => {
       const result = await wrap(
         db.delete(eventTable).where(eq(eventTable.id, eventId)).execute(),
         (err) =>
@@ -269,7 +269,7 @@ export function createEventRepository(db: DB): IEventRepository {
   const batchDelete = async (
     eventIds: string[],
   ): Promise<Result<void, AppError>> => {
-    return withTracerResult("EventRepository", "batchDelete", async (span) => {
+    return withTracerResult("EventRepository", "batchDelete", async (_span) => {
       const result = await wrap(
         db.delete(eventTable).where(inArray(eventTable.id, eventIds)).execute(),
         (err) =>
@@ -291,7 +291,7 @@ export function createEventRepository(db: DB): IEventRepository {
   const batchUpsert = async (
     events: VspoEvent[],
   ): Promise<Result<VspoEvents, AppError>> => {
-    return withTracerResult("EventRepository", "batchUpsert", async (span) => {
+    return withTracerResult("EventRepository", "batchUpsert", async (_span) => {
       const dbEvents = events.map((event) =>
         createInsertEvent({
           id: event.id,

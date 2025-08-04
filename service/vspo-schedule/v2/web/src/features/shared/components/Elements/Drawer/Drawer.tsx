@@ -1,9 +1,4 @@
 import {
-  type NavigationRouteId,
-  getNavigationRouteInfo,
-} from "@/constants/navigation";
-import { useTimeZoneContext } from "@/hooks";
-import {
   Badge,
   Box,
   Chip,
@@ -20,6 +15,11 @@ import {
 import { styled } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
 import React from "react";
+import {
+  getNavigationRouteInfo,
+  type NavigationRouteId,
+} from "@/constants/navigation";
+import { useTimeZoneContext } from "@/hooks";
 import { ThemeToggleButton } from "../Button";
 import { LanguageSelector, TimeZoneSelector } from "../Control";
 import { DrawerIcon } from "../Icon";

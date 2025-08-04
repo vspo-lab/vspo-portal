@@ -69,7 +69,7 @@ export const ThemeToggleButton: React.FC = () => {
   const { t } = useTranslation("common");
 
   const handleModeChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    _event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean,
   ) => {
     setMode(checked ? "dark" : "light");

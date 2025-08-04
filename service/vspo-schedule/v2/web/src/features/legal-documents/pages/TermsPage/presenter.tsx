@@ -1,6 +1,6 @@
-import { AgreementDocument } from "@/features/shared/components/Templates";
 import type { TFunction } from "next-i18next";
 import type React from "react";
+import { AgreementDocument } from "@/features/shared/components/Templates";
 
 type TermsPagePresenterProps = {
   t: TFunction;

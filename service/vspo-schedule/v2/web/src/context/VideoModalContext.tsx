@@ -1,7 +1,7 @@
-import type { Clip } from "@/features/shared/domain";
-import type { Video } from "@/features/shared/domain/video";
 import dynamic from "next/dynamic";
 import { createContext, useCallback, useState } from "react";
+import type { Clip } from "@/features/shared/domain";
+import type { Video } from "@/features/shared/domain/video";
 
 const VideoModal = dynamic(
   () =>

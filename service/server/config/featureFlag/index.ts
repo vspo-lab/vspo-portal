@@ -1,5 +1,4 @@
 import { InMemoryProvider, OpenFeature } from "@openfeature/server-sdk";
-import { z } from "zod";
 import type { FeatureFlagEnv } from "../env/flag";
 import { zFeatureFlagEnv } from "../env/flag";
 /**

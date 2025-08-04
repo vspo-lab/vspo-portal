@@ -1,5 +1,5 @@
-import { TimeZoneContext } from "@/context/TimeZoneContext";
 import { useContext } from "react";
+import { TimeZoneContext } from "@/context/TimeZoneContext";
 
 export const useTimeZoneContext = () => {
   const context = useContext(TimeZoneContext);

@@ -2,7 +2,7 @@ import { AppError, Err, Ok, type Result } from "@vspo-lab/error";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import type * as apiGen from "./gen/openapi";
-import { MockHandler, isLocalEnv } from "./mock";
+import { isLocalEnv, MockHandler } from "./mock";
 
 interface ApiErrorResponse {
   error: {
@@ -347,7 +347,7 @@ export class VSPOApi {
           try {
             const mockData = MockHandler.getEvent(id);
             return Promise.resolve(Ok(mockData));
-          } catch (error) {
+          } catch (_error) {
             // If event not found, return a NOT_FOUND error
             return Promise.resolve(
               Err(

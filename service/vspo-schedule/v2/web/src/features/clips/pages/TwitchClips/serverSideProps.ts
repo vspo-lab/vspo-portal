@@ -1,7 +1,7 @@
-import { DEFAULT_LOCALE } from "@/lib/Const";
-import { getInitializedI18nInstance } from "@/lib/utils";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type { GetServerSideProps } from "next";
+import { DEFAULT_LOCALE } from "@/lib/Const";
+import { getInitializedI18nInstance } from "@/lib/utils";
 import { fetchSingleClipService } from "../../api/clipService";
 import { paginateClips } from "../../utils/clipUtils";
 import type { TwitchClipsProps } from "./container";

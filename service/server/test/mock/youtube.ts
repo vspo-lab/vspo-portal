@@ -140,26 +140,26 @@ vi.mock("googleapis", () => ({
 }));
 
 export const mockYoutubeService: IYoutubeService = {
-  getChannels: async (params: { channelIds: string[] }): Promise<
-    Result<Channel[], AppError>
-  > => {
+  getChannels: async (_params: {
+    channelIds: string[];
+  }): Promise<Result<Channel[], AppError>> => {
     return Ok([]);
   },
 
-  getStreams: async (params: { streamIds: string[] }): Promise<
-    Result<Stream[], AppError>
-  > => {
+  getStreams: async (_params: {
+    streamIds: string[];
+  }): Promise<Result<Stream[], AppError>> => {
     return Ok([]);
   },
 
-  searchStreams: async (params: {
+  searchStreams: async (_params: {
     query: string;
     eventType: "completed" | "live" | "upcoming";
   }): Promise<Result<Stream[], AppError>> => {
     return Ok([]);
   },
 
-  getStreamsByChannel: async (params: {
+  getStreamsByChannel: async (_params: {
     channelId: string;
     maxResults?: number;
     order?:
@@ -174,14 +174,14 @@ export const mockYoutubeService: IYoutubeService = {
   },
 
   searchClips: async (
-    params: SearchClipsParams,
+    _params: SearchClipsParams,
   ): Promise<Result<Clip[], AppError>> => {
     return Ok([]);
   },
 
-  getClips: async (params: { videoIds: string[] }): Promise<
-    Result<Clip[], AppError>
-  > => {
+  getClips: async (_params: {
+    videoIds: string[];
+  }): Promise<Result<Clip[], AppError>> => {
     return Ok([]);
   },
 };
