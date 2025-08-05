@@ -54,7 +54,7 @@ function parseLogLevel(level: string | number): LogLevel {
 
 class AppLogger implements CustomLogger {
   private static instance: AppLogger;
-  private minLevel: LogLevel = LogLevel.DEBUG; // Default to DEBUG level
+  private minLevel: LogLevel = LogLevel.INFO; // Default to INFO level
 
   private constructor() {}
 
