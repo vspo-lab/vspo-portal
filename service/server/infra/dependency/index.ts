@@ -1,4 +1,5 @@
 import type { AppError, Result } from "@vspo-lab/error";
+import { AppLogger } from "@vspo-lab/logging";
 import type { PgTransactionConfig } from "drizzle-orm/pg-core";
 import type { AppWorkerEnv } from "../../config/env/internal";
 import {
@@ -278,7 +279,8 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
   const clipAnalysisInteractor = createClipAnalysisInteractor(context);
   const eventInteractor = createEventInteractor(context);
   const freechatInteractor = createFreechatInteractor(context);
-
+  // init
+  const _ = AppLogger.getInstance(env);
   return {
     cacheClient,
     creatorInteractor,
