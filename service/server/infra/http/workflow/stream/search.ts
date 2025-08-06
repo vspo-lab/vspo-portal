@@ -33,8 +33,7 @@ export const searchStreamsWorkflow = () => {
                 "stream-workflow",
                 "search-live-streams",
                 async (span) => {
-                  const vu = await env.APP_WORKER.newStreamUsecase();
-                  const result = await vu.searchLive();
+                  const result = await env.STREAM_QUERY_SERVICE.searchLive();
                   if (result.err) {
                     throw result.err;
                   }
@@ -43,7 +42,9 @@ export const searchStreamsWorkflow = () => {
                     return;
                   }
                   span.setAttribute("videos_count", result.val.length);
-                  const _ = await vu.batchUpsertEnqueue(result.val);
+                  const _ = await env.STREAM_COMMAND_SERVICE.batchUpsertEnqueue(
+                    result.val,
+                  );
                 },
               );
             },
@@ -59,8 +60,7 @@ export const searchStreamsWorkflow = () => {
                 "stream-workflow",
                 "search-existing-streams",
                 async (span) => {
-                  const vu = await env.APP_WORKER.newStreamUsecase();
-                  const result = await vu.searchExist();
+                  const result = await env.STREAM_QUERY_SERVICE.searchExist();
                   if (result.err) {
                     throw result.err;
                   }
@@ -69,7 +69,9 @@ export const searchStreamsWorkflow = () => {
                     return;
                   }
                   span.setAttribute("videos_count", result.val.length);
-                  const _ = await vu.batchUpsertEnqueue(result.val);
+                  const _ = await env.STREAM_COMMAND_SERVICE.batchUpsertEnqueue(
+                    result.val,
+                  );
                 },
               );
             },
@@ -85,8 +87,8 @@ export const searchStreamsWorkflow = () => {
                 "stream-workflow",
                 "search-deleted-streams",
                 async (span) => {
-                  const vu = await env.APP_WORKER.newStreamUsecase();
-                  const result = await vu.searchDeletedCheck();
+                  const result =
+                    await env.STREAM_QUERY_SERVICE.searchDeletedCheck();
                   if (result.err) {
                     throw result.err;
                   }
@@ -95,7 +97,9 @@ export const searchStreamsWorkflow = () => {
                     return;
                   }
                   span.setAttribute("videos_count", result.val.length);
-                  const _ = await vu.batchUpsertEnqueue(result.val);
+                  const _ = await env.STREAM_COMMAND_SERVICE.batchUpsertEnqueue(
+                    result.val,
+                  );
                 },
               );
             },

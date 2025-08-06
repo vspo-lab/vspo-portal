@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { Page } from "../domain/pagination";
 import {
   createStreams,
   PlatformSchema,
   StatusSchema,
   type Streams,
-} from "../domain";
-import type { Page } from "../domain/pagination";
+} from "../domain/stream";
 import { TargetLangSchema } from "../domain/translate";
 import type { IAppContext } from "../infra/dependency";
 import { createUUID } from "../pkg/uuid";

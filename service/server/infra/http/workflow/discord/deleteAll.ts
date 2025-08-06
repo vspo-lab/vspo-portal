@@ -4,7 +4,7 @@ import {
   type BindingAppWorkerEnv,
   zBindingAppWorkerEnv,
 } from "../../../../config/env/worker";
-import type { DiscordServers } from "../../../../domain";
+import type { DiscordServers } from "../../../../domain/discord";
 import { withTracer } from "../../../http/trace/cloudflare";
 
 type DiscordChannelIdsMap = {
@@ -45,13 +45,13 @@ export const discordDeleteAllWorkflow = () => {
               "discord-workflow",
               "fetch-discord-servers",
               async (span) => {
-                const du = await env.APP_WORKER.newDiscordUsecase();
+                const queryService = env.DISCORD_QUERY_SERVICE;
                 const allDiscordServers: DiscordServers = [];
                 let currentPage = 0;
                 let hasNext = true;
 
                 while (hasNext) {
-                  const result = await du.list({
+                  const result = await queryService.list({
                     limit: 100,
                     page: currentPage,
                   });
@@ -133,7 +133,7 @@ export const discordDeleteAllWorkflow = () => {
                     "discord-workflow",
                     `delete-messages-channel-${channelId}`,
                     async (span) => {
-                      const vu = await env.APP_WORKER.newDiscordUsecase();
+                      const commandService = env.DISCORD_COMMAND_SERVICE;
                       logger.info(
                         `Deleting all messages in channel ${channelId} with language: ${group.channelLangaugeCode}`,
                         {
@@ -150,7 +150,9 @@ export const discordDeleteAllWorkflow = () => {
                         `${randomSleepSeconds} seconds`,
                       );
                       // Delete all messages in the specified channel
-                      await vu.deleteAllMessagesInChannel(channelId);
+                      await commandService.deleteAllMessagesInChannel(
+                        channelId,
+                      );
                       logger.info(
                         `Successfully deleted all messages in channel ${channelId} with language: ${group.channelLangaugeCode}`,
                       );

@@ -11,7 +11,7 @@ import {
   defaultConfig,
   type IDbConfig,
   type ITxManager,
-} from "../../infra";
+} from "../../infra/repository/transaction";
 
 export class TestTxManager implements ITxManager {
   constructor(private readonly dbConfig: IDbConfig) {}

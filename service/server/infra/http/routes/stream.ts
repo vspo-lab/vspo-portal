@@ -65,7 +65,7 @@ const postStreamRoute = createRoute({
 export const registerStreamListApi = (app: App) =>
   app.openapi(listStreamsRoute, async (c) => {
     const p = ListStreamRequestSchema.parse(c.req.query());
-    const r = await c.env.APP_WORKER.newStreamUsecase().list({
+    const r = await c.env.STREAM_QUERY_SERVICE.list({
       limit: Number.parseInt(p.limit),
       page: Number.parseInt(p.page),
       platform: p.platform,
@@ -90,10 +90,9 @@ export const registerStreamListApi = (app: App) =>
 export const registerStreamPostApi = (app: App) =>
   app.openapi(postStreamRoute, async (c) => {
     const p = await c.req.json();
-    const r =
-      await c.env.APP_WORKER.newStreamUsecase().searchByStreamsIdsAndCreate({
-        streamIds: p.streamIds,
-      });
+    const r = await c.env.STREAM_COMMAND_SERVICE.searchByStreamsIdsAndCreate({
+      streamIds: p.streamIds,
+    });
 
     if (r.err) {
       throw r.err;

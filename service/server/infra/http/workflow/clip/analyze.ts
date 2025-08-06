@@ -39,10 +39,9 @@ export const analyzeClipsWorkflow = () => {
               "clip-workflow",
               "analyze-clips",
               async (span) => {
-                const cau = await env.APP_WORKER.newClipAnalysisUsecase();
-
                 // Analyze clips
-                const result = await cau.analyzeClips(batchSize);
+                const result =
+                  await env.CLIP_ANALYSIS_QUERY_SERVICE.analyzeClips(batchSize);
 
                 if (result.err) {
                   AppLogger.error("Failed to analyze clips", {

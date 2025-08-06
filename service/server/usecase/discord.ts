@@ -5,7 +5,7 @@ import {
   type DiscordMessage,
   type DiscordServer,
   type DiscordServers,
-} from "../domain";
+} from "../domain/discord";
 import { createPage, type Page } from "../domain/pagination";
 import type { IAppContext } from "../infra/dependency";
 import { withTracerResult } from "../infra/http/trace";

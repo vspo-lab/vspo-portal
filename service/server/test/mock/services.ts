@@ -4,14 +4,11 @@ import type { Clip } from "../../domain/clip";
 import type { Stream } from "../../domain/stream";
 import type {
   ITwitcastingService,
-  ITwitchService,
-  IYoutubeService,
-  SearchClipsParams,
-} from "../../infra";
-import type {
   TwitCastingStream,
   TwitcastingMovie,
 } from "../../infra/twitcasting";
+import type { ITwitchService } from "../../infra/twitch";
+import type { IYoutubeService, SearchClipsParams } from "../../infra/youtube";
 
 export class MockYoutubeService implements IYoutubeService {
   youtube = null;

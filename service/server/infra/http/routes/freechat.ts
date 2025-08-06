@@ -31,7 +31,7 @@ const listFreechatsRoute = createRoute({
 export const registerFreechatListApi = (app: App) =>
   app.openapi(listFreechatsRoute, async (c) => {
     const p = ListFreechatRequestSchema.parse(c.req.query());
-    const r = await c.env.APP_WORKER.newFreechatUsecase().list({
+    const r = await c.env.FREECHAT_QUERY_SERVICE.list({
       limit: Number.parseInt(p.limit),
       page: Number.parseInt(p.page),
       languageCode: p.languageCode,

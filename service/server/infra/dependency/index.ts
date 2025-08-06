@@ -1,15 +1,9 @@
 import type { AppError, Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import type { PgTransactionConfig } from "drizzle-orm/pg-core";
+// Temporary import for CQRS migration
+import { StreamInteractorCQRSAdapter } from "../../cmd/server/internal/cqrs/stream";
 import type { AppWorkerEnv } from "../../config/env/internal";
-import {
-  createCreatorClipFetchService,
-  createCreatorService,
-  createStreamService,
-  type ICreatorClipFetchService,
-  type ICreatorService,
-  type IStreamService,
-} from "../../domain";
 import {
   createClipService,
   type IClipService,
@@ -19,59 +13,85 @@ import {
   type IClipAnalysisService,
 } from "../../domain/service/clipAnalysis";
 import {
+  createCreatorService,
+  type ICreatorService,
+} from "../../domain/service/creator";
+import {
+  createCreatorClipFetchService,
+  type ICreatorClipFetchService,
+} from "../../domain/service/creatorClipFetch";
+import {
   createDiscordService,
   type IDiscordService,
 } from "../../domain/service/discord";
 import {
-  createCreatorInteractor,
-  createEventInteractor,
-  createStreamInteractor,
-  type ICreatorInteractor,
-  type IEventInteractor,
-  type IStreamInteractor,
-} from "../../usecase";
+  createStreamService,
+  type IStreamService,
+} from "../../domain/service/stream";
 import { createClipInteractor, type IClipInteractor } from "../../usecase/clip";
 import {
   createClipAnalysisInteractor,
   type IClipAnalysisInteractor,
 } from "../../usecase/clipAnalysis";
 import {
+  createCreatorInteractor,
+  type ICreatorInteractor,
+} from "../../usecase/creator";
+import {
   createDiscordInteractor,
   type IDiscordInteractor,
 } from "../../usecase/discord";
 import {
+  createEventInteractor,
+  type IEventInteractor,
+} from "../../usecase/event";
+import {
   createFreechatInteractor,
   type IFreechatInteractor,
 } from "../../usecase/freechat";
+import {
+  createStreamInteractor,
+  type IStreamInteractor,
+} from "../../usecase/stream";
 import { createAIService, type IAIService } from "../ai";
 import { createBilibiliService, type IBilibiliService } from "../bilibili";
 import { createCloudflareKVCacheClient, type ICacheClient } from "../cache";
 import { createDiscordClient, type IDiscordClient } from "../discord";
 import { createMastraService, type IMastraService } from "../mastra";
-import {
-  createCreatorRepository,
-  createDiscordMessageRepository,
-  createDiscordServerRepository,
-  createFreechatRepository,
-  createStreamRepository,
-  createTxManager,
-  type DB,
-  type ICreatorRepository,
-  type IDiscordMessageRepository,
-  type IDiscordServerRepository,
-  type IFreechatRepository,
-  type IStreamRepository,
-  type ITxManager,
-} from "../repository";
 import { createClipRepository, type IClipRepository } from "../repository/clip";
 import {
   createClipAnalysisRepository,
   type IClipAnalysisRepository,
 } from "../repository/clipAnalysis";
 import {
+  createCreatorRepository,
+  type ICreatorRepository,
+} from "../repository/creator";
+import {
+  createDiscordServerRepository,
+  type IDiscordServerRepository,
+} from "../repository/discord";
+import {
+  createDiscordMessageRepository,
+  type IDiscordMessageRepository,
+} from "../repository/discordMessage";
+import {
   createEventRepository,
   type IEventRepository,
 } from "../repository/event";
+import {
+  createFreechatRepository,
+  type IFreechatRepository,
+} from "../repository/freechat";
+import {
+  createStreamRepository,
+  type IStreamRepository,
+} from "../repository/stream";
+import {
+  createTxManager,
+  type DB,
+  type ITxManager,
+} from "../repository/transaction";
 import {
   createTwitcastingService,
   type ITwitcastingService,
@@ -273,7 +293,10 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
     mastraService,
   );
   const creatorInteractor = createCreatorInteractor(context);
-  const streamInteractor = createStreamInteractor(context);
+  // Use CQRS adapter for stream if feature flag is enabled
+  const streamInteractor = env.USE_CQRS_STREAM
+    ? new StreamInteractorCQRSAdapter(context)
+    : createStreamInteractor(context);
   const discordInteractor = createDiscordInteractor(context);
   const clipInteractor = createClipInteractor(context);
   const clipAnalysisInteractor = createClipAnalysisInteractor(context);

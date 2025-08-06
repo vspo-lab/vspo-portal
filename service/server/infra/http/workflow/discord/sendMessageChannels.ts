@@ -40,13 +40,13 @@ export const discordSendMessageChannelsWorkflow = () => {
                   "discord-workflow",
                   `send-admin-message-channel-${channelId}`,
                   async (span) => {
-                    const vu = await env.APP_WORKER.newDiscordUsecase();
+                    const commandService = env.DISCORD_COMMAND_SERVICE;
                     logger.info(`Sending message to channel ${channelId}`, {
                       channelId,
                     });
                     span.setAttribute("channel_id", channelId);
                     // Send message to the specified channel
-                    await vu.sendAdminMessage({
+                    await commandService.sendAdminMessage({
                       channelId,
                       content: event.payload.content,
                     });

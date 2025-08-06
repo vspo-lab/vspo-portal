@@ -33,8 +33,7 @@ export const translateStreamsWorkflow = () => {
               "stream-workflow",
               "fetch-default-language-streams",
               async (span) => {
-                const vu = await env.APP_WORKER.newStreamUsecase();
-                const liveStreams = await vu.list({
+                const liveStreams = await env.STREAM_QUERY_SERVICE.list({
                   limit: 100,
                   page: 0,
                   languageCode: "default",
@@ -47,7 +46,7 @@ export const translateStreamsWorkflow = () => {
                   throw liveStreams.err;
                 }
 
-                const upcomingStreams = await vu.list({
+                const upcomingStreams = await env.STREAM_QUERY_SERVICE.list({
                   limit: 100,
                   page: 0,
                   languageCode: "default",
@@ -83,8 +82,7 @@ export const translateStreamsWorkflow = () => {
           return;
         }
         const target = TargetLangSchema.options.map(async (lang) => {
-          const vu = await env.APP_WORKER.newStreamUsecase();
-          const liveStreams = await vu.list({
+          const liveStreams = await env.STREAM_QUERY_SERVICE.list({
             limit: 100,
             page: 0,
             languageCode: lang,
@@ -97,7 +95,7 @@ export const translateStreamsWorkflow = () => {
             throw liveStreams.err;
           }
 
-          const upcomingStreams = await vu.list({
+          const upcomingStreams = await env.STREAM_QUERY_SERVICE.list({
             limit: 100,
             page: 0,
             languageCode: lang,
@@ -129,13 +127,12 @@ export const translateStreamsWorkflow = () => {
                 "stream-workflow",
                 `translate-streams-to-${lang}`,
                 async (span) => {
-                  const vu = await env.APP_WORKER.newStreamUsecase();
                   span.setAttribute("language", lang);
                   span.setAttribute(
                     "videos_count",
                     notTranslatedStreams.length,
                   );
-                  await vu.translateStreamEnqueue({
+                  await env.STREAM_COMMAND_SERVICE.translateStreamEnqueue({
                     languageCode: lang,
                     streams: notTranslatedStreams,
                   });

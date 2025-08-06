@@ -33,8 +33,8 @@ export const searchMemberStreamsByChannelWorkflow = () => {
                 "stream-workflow",
                 "search-member-streams",
                 async (span) => {
-                  const vu = await env.APP_WORKER.newStreamUsecase();
-                  const result = await vu.getMemberStreams();
+                  const qs = await env.STREAM_QUERY_SERVICE
+                  const result = await qs.getMemberStreams();
                   if (result.err) {
                     throw result.err;
                   }
@@ -43,7 +43,8 @@ export const searchMemberStreamsByChannelWorkflow = () => {
                     return;
                   }
                   span.setAttribute("videos_count", result.val.length);
-                  const _ = await vu.batchUpsertEnqueue(result.val);
+                  const cs = await env.STREAM_COMMAND_SERVICE
+                  const _ = await cs.batchUpsertEnqueue(result.val);
                 },
               );
             },

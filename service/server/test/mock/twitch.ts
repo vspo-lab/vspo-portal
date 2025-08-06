@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { Stream } from "../../domain";
+import type { Stream } from "../../domain/stream";
 import type { paths } from "../../infra/twitch/twitch-api.generated";
 
 type StreamsResponse =

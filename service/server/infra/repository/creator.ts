@@ -15,12 +15,8 @@ import {
   type SQL,
   sql,
 } from "drizzle-orm";
-import {
-  type Channel,
-  type Creators,
-  createCreators,
-  getPlatformDetail,
-} from "../../domain";
+import { type Channel, getPlatformDetail } from "../../domain/channel";
+import { type Creators, createCreators } from "../../domain/creator";
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 import { buildConflictUpdateColumns } from "./helper";

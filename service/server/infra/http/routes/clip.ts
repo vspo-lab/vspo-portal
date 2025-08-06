@@ -29,7 +29,7 @@ const listClipsRoute = createRoute({
 export const registerClipListApi = (app: App) =>
   app.openapi(listClipsRoute, async (c) => {
     const p = ListClipRequestSchema.parse(c.req.query());
-    const r = await c.env.APP_WORKER.newClipUsecase().list({
+    const r = await c.env.CLIP_QUERY_SERVICE.list({
       limit: Number.parseInt(p.limit),
       page: Number.parseInt(p.page),
       platform: p.platform,

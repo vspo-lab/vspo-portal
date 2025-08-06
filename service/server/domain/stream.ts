@@ -2,6 +2,9 @@ import { formatToLocalizedDate } from "@vspo-lab/dayjs";
 import { z } from "zod";
 import { BaseVideoSchema, type Platform, PlatformSchema } from "./video";
 
+// Re-export PlatformSchema for external use
+export { PlatformSchema } from "./video";
+
 const StatusSchema = z.enum(["live", "upcoming", "ended", "unknown"]); // Specific to Streams
 
 // Discord Embed colors for each status (Stream specific)

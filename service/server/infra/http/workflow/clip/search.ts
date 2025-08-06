@@ -30,9 +30,8 @@ export const searchClipsWorkflow = () => {
               "stream-workflow",
               "search-live-streams",
               async (span) => {
-                const cu = await env.APP_WORKER.newClipUsecase();
-                const cru = await env.APP_WORKER.newCreatorUsecase();
-                const result = await cu.searchNewVspoClipsAndNewCreators();
+                const result =
+                  await env.CLIP_QUERY_SERVICE.searchNewVspoClipsAndNewCreators();
                 if (result.err) {
                   throw result.err;
                 }
@@ -41,13 +40,16 @@ export const searchClipsWorkflow = () => {
                     "creators_count",
                     result.val.newCreators.length,
                   );
-                  const _ = await cru.batchUpsertEnqueue(
-                    result.val.newCreators,
-                  );
+                  const _ =
+                    await env.CREATOR_COMMAND_SERVICE.batchUpsertEnqueue(
+                      result.val.newCreators,
+                    );
                 }
                 if (result.val.clips.length !== 0) {
                   span.setAttribute("videos_count", result.val.clips.length);
-                  const _ = await cu.batchUpsertEnqueue(result.val.clips);
+                  const _ = await env.CLIP_COMMAND_SERVICE.batchUpsertEnqueue(
+                    result.val.clips,
+                  );
                 }
               },
             );
@@ -82,20 +84,22 @@ export const searchClipsByVspoMemberNameWorkflow = () => {
               "stream-workflow",
               "search-live-streams",
               async (span) => {
-                const cu = await env.APP_WORKER.newClipUsecase();
-                const cru = await env.APP_WORKER.newCreatorUsecase();
-                const result = await cu.searchNewClipsByVspoMemberName();
+                const result =
+                  await env.CLIP_QUERY_SERVICE.searchNewClipsByVspoMemberName();
                 if (result.err) {
                   throw result.err;
                 }
                 if (result.val.newCreators.length !== 0) {
-                  const _ = await cru.batchUpsertEnqueue(
-                    result.val.newCreators,
-                  );
+                  const _ =
+                    await env.CREATOR_COMMAND_SERVICE.batchUpsertEnqueue(
+                      result.val.newCreators,
+                    );
                 }
                 if (result.val.clips.length !== 0) {
                   span.setAttribute("videos_count", result.val.clips.length);
-                  const _ = await cu.batchUpsertEnqueue(result.val.clips);
+                  const _ = await env.CLIP_COMMAND_SERVICE.batchUpsertEnqueue(
+                    result.val.clips,
+                  );
                 }
               },
             );
