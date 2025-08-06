@@ -1,11 +1,11 @@
 import { z } from "@hono/zod-openapi";
+import { MemberTypeSchema } from "../../../../domain/creator";
 import {
   PlatformSchema,
   StatusSchema,
   StreamSchema,
 } from "../../../../domain/stream";
 import { PaginationQuerySchema, PaginationResponseSchema } from "./common";
-import { MemberTypeSchema } from "../../../../domain/creator";
 
 const StreamResponseSchema = StreamSchema.openapi({
   description: "Stream",

@@ -57,9 +57,9 @@ export const fetchEvents = async ({
     let events: Event[] = [];
 
     if (cfEnv) {
-      const { APP_WORKER } = cfEnv;
+      const { EVENT_QUERY_SERVICE } = cfEnv;
 
-      const result = await APP_WORKER.newEventUsecase().list({
+      const result = await EVENT_QUERY_SERVICE.list({
         limit: 50,
         page: 0,
         visibility: "public",

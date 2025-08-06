@@ -64,7 +64,7 @@ export const discordSendMessageAllChannelWorkflow = () => {
                     throw result.err;
                   }
 
-                  allDiscordServers.push(...result.val.discordServers);
+                  allDiscordServers.push(...result.val.servers);
                   currentPage++;
                   hasNext = result.val.pagination.hasNext;
                 }

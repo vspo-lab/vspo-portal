@@ -1,6 +1,6 @@
-import { type AppError, Ok, type Result } from "@vspo-lab/error";
+import type { AppError, Result } from "@vspo-lab/error";
 import type { EventVisibility, VspoEvent, VspoEvents } from "../domain/event";
-import { createPage, type Page } from "../domain/pagination";
+import type { Page } from "../domain/pagination";
 import type { IAppContext } from "../infra/dependency";
 import { withTracerResult } from "../infra/http/trace";
 
@@ -22,9 +22,7 @@ export type ListEventsResponse = {
 };
 
 export interface IEventInteractor {
-  list(query: ListEventsQuery): Promise<Result<ListEventsResponse, AppError>>;
   upsert(params: UpsertEventParam): Promise<Result<VspoEvent, AppError>>;
-  get(id: string): Promise<Result<VspoEvent | null, AppError>>;
   delete(eventId: string): Promise<Result<void, AppError>>;
   batchUpsert(
     events: BatchUpsertEventParam,
@@ -37,51 +35,13 @@ export const createEventInteractor = (
 ): IEventInteractor => {
   const INTERACTOR_NAME = "EventInteractor";
 
-  const list = async (
-    query: ListEventsQuery,
-  ): Promise<Result<ListEventsResponse, AppError>> => {
-    return await withTracerResult(INTERACTOR_NAME, "list", async () => {
-      return context.runInTx(async (repos, _services) => {
-        const events = await repos.eventRepository.list(query);
-
-        if (events.err) {
-          return events;
-        }
-
-        const pagination = await repos.eventRepository.count(query);
-
-        if (pagination.err) {
-          return pagination;
-        }
-
-        return Ok({
-          events: events.val,
-          pagination: createPage({
-            currentPage: query.page,
-            limit: query.limit,
-            totalCount: pagination.val,
-          }),
-        });
-      });
-    });
-  };
-
+  // Write operations only
   const upsert = async (
     params: UpsertEventParam,
   ): Promise<Result<VspoEvent, AppError>> => {
     return await withTracerResult(INTERACTOR_NAME, "upsert", async () => {
       return context.runInTx(async (repos, _services) => {
         return repos.eventRepository.upsert(params);
-      });
-    });
-  };
-
-  const get = async (
-    id: string,
-  ): Promise<Result<VspoEvent | null, AppError>> => {
-    return await withTracerResult(INTERACTOR_NAME, "get", async () => {
-      return context.runInTx(async (repos, _services) => {
-        return repos.eventRepository.get(id);
       });
     });
   };
@@ -117,9 +77,7 @@ export const createEventInteractor = (
   };
 
   return {
-    list,
     upsert,
-    get,
     delete: deleteEvent,
     batchUpsert,
     batchDelete,

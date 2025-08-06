@@ -9,9 +9,5 @@ export const zFeatureFlagEnv = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
-  USE_CQRS_STREAM: z
-    .string()
-    .optional()
-    .transform((v) => v === "true"),
 });
 export type FeatureFlagEnv = z.infer<typeof zFeatureFlagEnv>;

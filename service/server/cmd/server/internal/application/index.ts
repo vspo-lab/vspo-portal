@@ -7,9 +7,14 @@ import {
 import type { DiscordServer } from "../../../../domain/discord";
 import { TargetLangSchema } from "../../../../domain/translate";
 import { cacheKey } from "../../../../infra/cache";
-import { createContainer } from "../../../../infra/dependency";
 import { withTracer, withTracerResult } from "../../../../infra/http/trace";
 import { queueHandler } from "../../../../infra/queue/handler";
+import * as clipQueryService from "../../../../query-service/clip";
+import * as creatorQueryService from "../../../../query-service/creator";
+import * as discordQueryService from "../../../../query-service/discord";
+import * as eventQueryService from "../../../../query-service/event";
+import * as freechatQueryService from "../../../../query-service/freechat";
+import * as streamQueryService from "../../../../query-service/stream";
 import type {
   BatchUpsertClipsParam,
   FetchClipsByCreatorParams,
@@ -125,14 +130,14 @@ export class StreamQueryService extends WorkerEntrypoint<AppWorkerEnv> {
   async searchLive() {
     return withTracerResult("StreamQueryService", "searchLive", async () => {
       const d = this.setup();
-      return d.streamInteractor.searchLive();
+      return streamQueryService.searchLiveStreams(d.appContext);
     });
   }
 
   async searchExist() {
     return withTracerResult("StreamQueryService", "searchExist", async () => {
       const d = this.setup();
-      return d.streamInteractor.searchExist();
+      return streamQueryService.searchExistStreams(d.appContext);
     });
   }
 
@@ -140,14 +145,15 @@ export class StreamQueryService extends WorkerEntrypoint<AppWorkerEnv> {
     return withTracerResult("StreamQueryService", "list", async () => {
       const d = this.setup();
       const key = cacheKey.streamList(params);
-      const cache = await d.cacheClient.get<ListResponse>(key, {
+      const cache = await d.cacheClient.get(key, {
         type: "json",
       });
-      if (!cache.err && cache.val) {
-        return Ok(cache.val);
+      const cacheVal = cache.val as ListResponse | null;
+      if (!cache.err && cacheVal) {
+        return Ok(cacheVal);
       }
 
-      const result = await d.streamInteractor.list(params);
+      const result = await streamQueryService.listStreams(d.appContext, params);
       if (result.err) {
         return result;
       }
@@ -163,7 +169,7 @@ export class StreamQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "searchDeletedCheck",
       async () => {
         const d = this.setup();
-        return d.streamInteractor.searchDeletedCheck();
+        return streamQueryService.searchDeletedStreams(d.appContext);
       },
     );
   }
@@ -174,7 +180,7 @@ export class StreamQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "getMemberStreams",
       async () => {
         const d = this.setup();
-        return d.streamInteractor.getMemberStreams();
+        return streamQueryService.getMemberStreams(d.appContext);
       },
     );
   }
@@ -185,7 +191,7 @@ export class StreamQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "deletedListIds",
       async () => {
         const d = this.setup();
-        return d.streamInteractor.deletedListIds();
+        return streamQueryService.getDeletedStreamIds(d.appContext);
       },
     );
   }
@@ -195,7 +201,9 @@ export class StreamQueryService extends WorkerEntrypoint<AppWorkerEnv> {
     if (!e.success) {
       throw new Error(e.error.message);
     }
-    return createContainer(e.data);
+    // Query Services need appContext
+    const { createQueryContainer } = require("../../../../infra/dependency");
+    return createQueryContainer(e.data);
   }
 }
 
@@ -271,24 +279,36 @@ export class StreamCommandService extends WorkerEntrypoint<AppWorkerEnv> {
     if (!e.success) {
       throw new Error(e.error.message);
     }
-    return createContainer(e.data);
+    // Command Services need interactors
+    const { createCommandContainer } = require("../../../../infra/dependency");
+    return createCommandContainer(e.data);
   }
 }
 
 // Clip Query Service
 export class ClipQueryService extends WorkerEntrypoint<AppWorkerEnv> {
+  private setup() {
+    const e = zAppWorkerEnv.safeParse(this.env);
+    if (!e.success) {
+      throw new Error(e.error.message);
+    }
+    // Query Services need appContext
+    const { createQueryContainer } = require("../../../../infra/dependency");
+    return createQueryContainer(e.data);
+  }
   async list(params: ListClipsQuery) {
     return withTracerResult("ClipQueryService", "list", async () => {
       const d = this.setup();
       const key = cacheKey.clipList(params);
-      const cache = await d.cacheClient.get<ListClipsResponse>(key, {
+      const cache = await d.cacheClient.get(key, {
         type: "json",
       });
-      if (!cache.err && cache.val) {
-        return Ok(cache.val);
+      const cacheVal = cache.val as ListClipsResponse | null;
+      if (!cache.err && cacheVal) {
+        return Ok(cacheVal);
       }
 
-      const result = await d.clipInteractor.list(params);
+      const result = await clipQueryService.listClips(d.appContext, params);
       if (result.err) {
         return result;
       }
@@ -304,7 +324,27 @@ export class ClipQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "searchNewVspoClipsAndNewCreators",
       async () => {
         const d = this.setup();
-        return d.clipInteractor.searchNewVspoClipsAndNewCreators();
+        const clips = await clipQueryService.searchNewVspoClipsAndNewCreators(
+          d.appContext,
+        );
+        if (clips.err) {
+          return clips;
+        }
+        // Note: The query service returns only clips, not newCreators
+        // The interactor needs the full response for backward compatibility
+        const channelIds = clips.val
+          .map((clip) => clip.rawChannelID)
+          .filter(Boolean);
+        const creators = await creatorQueryService.searchByChannelIds(
+          d.appContext,
+          {
+            channelIds,
+          },
+        );
+        if (creators.err) {
+          return creators;
+        }
+        return Ok({ newCreators: creators.val, clips: clips.val });
       },
     );
   }
@@ -315,7 +355,17 @@ export class ClipQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "searchExistVspoClips",
       async () => {
         const d = this.setup();
-        return d.clipInteractor.searchExistVspoClips({ clipIds });
+        const clips = await clipQueryService.searchExistVspoClips(
+          d.appContext,
+          { clipIds },
+        );
+        if (clips.err) {
+          return clips;
+        }
+        // Calculate notExistsClipIds
+        const existingIds = new Set(clips.val.map((clip) => clip.id));
+        const notExistsClipIds = clipIds.filter((id) => !existingIds.has(id));
+        return Ok({ clips: clips.val, notExistsClipIds });
       },
     );
   }
@@ -326,7 +376,27 @@ export class ClipQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "searchNewClipsByVspoMemberName",
       async () => {
         const d = this.setup();
-        return d.clipInteractor.searchNewClipsByVspoMemberName();
+        const clips = await clipQueryService.searchNewClipsByVspoMemberName(
+          d.appContext,
+        );
+        if (clips.err) {
+          return clips;
+        }
+        // Note: The query service returns only clips, not newCreators
+        // The interactor needs the full response for backward compatibility
+        const channelIds = clips.val
+          .map((clip) => clip.rawChannelID)
+          .filter(Boolean);
+        const creators = await creatorQueryService.searchByChannelIds(
+          d.appContext,
+          {
+            channelIds,
+          },
+        );
+        if (creators.err) {
+          return creators;
+        }
+        return Ok({ newCreators: creators.val, clips: clips.val });
       },
     );
   }
@@ -340,14 +410,6 @@ export class ClipQueryService extends WorkerEntrypoint<AppWorkerEnv> {
         return d.clipInteractor.fetchClipsByCreator(params);
       },
     );
-  }
-
-  private setup() {
-    const e = zAppWorkerEnv.safeParse(this.env);
-    if (!e.success) {
-      throw new Error(e.error.message);
-    }
-    return createContainer(e.data);
   }
 }
 
@@ -396,19 +458,34 @@ export class ClipCommandService extends WorkerEntrypoint<AppWorkerEnv> {
     if (!e.success) {
       throw new Error(e.error.message);
     }
-    return createContainer(e.data);
+    // Command Services need interactors
+    const { createCommandContainer } = require("../../../../infra/dependency");
+    return createCommandContainer(e.data);
   }
 }
 
 // Creator Query Service
 export class CreatorQueryService extends WorkerEntrypoint<AppWorkerEnv> {
+  private setup() {
+    const e = zAppWorkerEnv.safeParse(this.env);
+    if (!e.success) {
+      throw new Error(e.error.message);
+    }
+    // Query Services need appContext
+    const { createQueryContainer } = require("../../../../infra/dependency");
+    return createQueryContainer(e.data);
+  }
   async searchByChannelIds(params: SearchByChannelIdsParam) {
     return withTracerResult(
       "CreatorQueryService",
       "searchByChannelIds",
       async () => {
         const d = this.setup();
-        return d.creatorInteractor.searchByChannelIds(params);
+        // Convert from usecase format to query-service format
+        const channelIds = params.channel.map((ch) => ch.id);
+        return creatorQueryService.searchByChannelIds(d.appContext, {
+          channelIds,
+        });
       },
     );
   }
@@ -419,7 +496,7 @@ export class CreatorQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "searchByMemberType",
       async () => {
         const d = this.setup();
-        return d.creatorInteractor.searchByMemberType(params);
+        return creatorQueryService.searchByMemberType(d.appContext, params);
       },
     );
   }
@@ -428,14 +505,18 @@ export class CreatorQueryService extends WorkerEntrypoint<AppWorkerEnv> {
     return withTracerResult("CreatorQueryService", "list", async () => {
       const d = this.setup();
       const key = cacheKey.creatorList(params);
-      const cache = await d.cacheClient.get<ListCreatorsResponse>(key, {
+      const cache = await d.cacheClient.get(key, {
         type: "json",
       });
-      if (!cache.err && cache.val) {
-        return Ok(cache.val);
+      const cacheVal = cache.val as ListCreatorsResponse | null;
+      if (!cache.err && cacheVal) {
+        return Ok(cacheVal);
       }
 
-      const result = await d.creatorInteractor.list(params);
+      const result = await creatorQueryService.listCreators(d.appContext, {
+        ...params,
+        languageCode: params.languageCode || "ja",
+      });
       if (result.err) {
         return result;
       }
@@ -443,14 +524,6 @@ export class CreatorQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       this.ctx.waitUntil(d.cacheClient.set(key, result.val, 3600));
       return result;
     });
-  }
-
-  private setup() {
-    const e = zAppWorkerEnv.safeParse(this.env);
-    if (!e.success) {
-      throw new Error(e.error.message);
-    }
-    return createContainer(e.data);
   }
 }
 
@@ -499,27 +572,43 @@ export class CreatorCommandService extends WorkerEntrypoint<AppWorkerEnv> {
     if (!e.success) {
       throw new Error(e.error.message);
     }
-    return createContainer(e.data);
+    // Command Services need interactors
+    const { createCommandContainer } = require("../../../../infra/dependency");
+    return createCommandContainer(e.data);
   }
 }
 
 // Discord Query Service
 export class DiscordQueryService extends WorkerEntrypoint<AppWorkerEnv> {
+  private setup() {
+    const e = zAppWorkerEnv.safeParse(this.env);
+    if (!e.success) {
+      throw new Error(e.error.message);
+    }
+    // Query Services need appContext
+    const { createQueryContainer } = require("../../../../infra/dependency");
+    return createQueryContainer(e.data);
+  }
   async get(serverId: string) {
     return withTracerResult("DiscordQueryService", "get", async () => {
       const d = this.setup();
       const key = cacheKey.discordServer(serverId);
-      const cache = await d.cacheClient.get<DiscordServer>(key, {
+      const cache = await d.cacheClient.get(key, {
         type: "json",
       });
-      if (!cache.err && cache.val) {
-        return Ok(cache.val);
+      const cacheVal = cache.val as DiscordServer | null;
+      if (!cache.err && cacheVal) {
+        return Ok(cacheVal);
       }
 
-      const result = await d.discordInteractor.get(serverId);
+      const result = await discordQueryService.getDiscordServer(
+        d.appContext,
+        serverId,
+      );
       if (result.err) {
         return result;
       }
+      this.ctx.waitUntil(d.cacheClient.set(key, result.val, 3600));
       return result;
     });
   }
@@ -527,14 +616,14 @@ export class DiscordQueryService extends WorkerEntrypoint<AppWorkerEnv> {
   async list(params: ListDiscordServerParam) {
     return withTracerResult("DiscordQueryService", "list", async () => {
       const d = this.setup();
-      return d.discordInteractor.list(params);
+      return discordQueryService.listDiscordServers(d.appContext, params);
     });
   }
 
   async exists(serverId: string) {
     return withTracerResult("DiscordQueryService", "exists", async () => {
       const d = this.setup();
-      return d.discordInteractor.exists(serverId);
+      return discordQueryService.existsDiscordServer(d.appContext, serverId);
     });
   }
 
@@ -544,17 +633,12 @@ export class DiscordQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "existsChannel",
       async () => {
         const d = this.setup();
-        return d.discordInteractor.existsChannel(channelId);
+        return discordQueryService.existsDiscordChannel(
+          d.appContext,
+          channelId,
+        );
       },
     );
-  }
-
-  private setup() {
-    const e = zAppWorkerEnv.safeParse(this.env);
-    if (!e.success) {
-      throw new Error(e.error.message);
-    }
-    return createContainer(e.data);
   }
 }
 
@@ -654,24 +738,39 @@ export class DiscordCommandService extends WorkerEntrypoint<AppWorkerEnv> {
     if (!e.success) {
       throw new Error(e.error.message);
     }
-    return createContainer(e.data);
+    // Command Services need interactors
+    const { createCommandContainer } = require("../../../../infra/dependency");
+    return createCommandContainer(e.data);
   }
 }
 
 // Event Query Service
 export class EventQueryService extends WorkerEntrypoint<AppWorkerEnv> {
+  private setup() {
+    const e = zAppWorkerEnv.safeParse(this.env);
+    if (!e.success) {
+      throw new Error(e.error.message);
+    }
+    // Query Services need appContext
+    const { createQueryContainer } = require("../../../../infra/dependency");
+    return createQueryContainer(e.data);
+  }
   async list(params: ListEventsQuery) {
     return withTracerResult("EventQueryService", "list", async () => {
       const d = this.setup();
       const key = cacheKey.eventList(params);
-      const cache = await d.cacheClient.get<ListEventsResponse>(key, {
+      const cache = await d.cacheClient.get(key, {
         type: "json",
       });
-      if (!cache.err && cache.val) {
-        return Ok(cache.val);
+      const cacheVal = cache.val as ListEventsResponse | null;
+      if (!cache.err && cacheVal) {
+        return Ok(cacheVal);
       }
 
-      const result = await d.eventInteractor.list(params);
+      const result = await eventQueryService.listEvents(d.appContext, {
+        ...params,
+        languageCode: "ja",
+      });
       if (result.err) {
         return result;
       }
@@ -684,16 +783,8 @@ export class EventQueryService extends WorkerEntrypoint<AppWorkerEnv> {
   async get(id: string) {
     return withTracerResult("EventQueryService", "get", async () => {
       const d = this.setup();
-      return d.eventInteractor.get(id);
+      return eventQueryService.getEvent(d.appContext, id);
     });
-  }
-
-  private setup() {
-    const e = zAppWorkerEnv.safeParse(this.env);
-    if (!e.success) {
-      throw new Error(e.error.message);
-    }
-    return createContainer(e.data);
   }
 }
 
@@ -732,37 +823,58 @@ export class EventCommandService extends WorkerEntrypoint<AppWorkerEnv> {
     if (!e.success) {
       throw new Error(e.error.message);
     }
-    return createContainer(e.data);
+    // Command Services need interactors
+    const { createCommandContainer } = require("../../../../infra/dependency");
+    return createCommandContainer(e.data);
   }
 }
 
 // Freechat Query Service
 export class FreechatQueryService extends WorkerEntrypoint<AppWorkerEnv> {
-  async list(params: ListFreechatsQuery) {
-    return withTracerResult("FreechatQueryService", "list", async () => {
-      const d = this.setup();
-      return d.freechatInteractor.list(params);
-    });
-  }
-
   private setup() {
     const e = zAppWorkerEnv.safeParse(this.env);
     if (!e.success) {
       throw new Error(e.error.message);
     }
-    return createContainer(e.data);
+    // Query Services need appContext
+    const { createQueryContainer } = require("../../../../infra/dependency");
+    return createQueryContainer(e.data);
+  }
+
+  async list(params: ListFreechatsQuery) {
+    return withTracerResult("FreechatQueryService", "list", async () => {
+      const d = this.setup();
+      return freechatQueryService.listFreechats(d.appContext, params);
+    });
   }
 }
 
 // ClipAnalysis Query Service
 export class ClipAnalysisQueryService extends WorkerEntrypoint<AppWorkerEnv> {
+  private setup() {
+    const e = zAppWorkerEnv.safeParse(this.env);
+    if (!e.success) {
+      throw new Error(e.error.message);
+    }
+    // Query Services need appContext
+    const { createQueryContainer } = require("../../../../infra/dependency");
+    return createQueryContainer(e.data);
+  }
+
   async analyzeClips(limit?: number) {
     return withTracerResult(
       "ClipAnalysisQueryService",
       "analyzeClips",
       async () => {
-        const d = this.setup();
-        return d.clipAnalysisInteractor.analyzeClips(limit);
+        const e = zAppWorkerEnv.safeParse(this.env);
+        if (!e.success) {
+          throw new Error(e.error.message);
+        }
+        const {
+          createCommandContainer,
+        } = require("../../../../infra/dependency");
+        const commandContainer = createCommandContainer(e.data);
+        return commandContainer.clipAnalysisInteractor.analyzeClips(limit);
       },
     );
   }
@@ -772,18 +884,17 @@ export class ClipAnalysisQueryService extends WorkerEntrypoint<AppWorkerEnv> {
       "ClipAnalysisQueryService",
       "getAnalysisStats",
       async () => {
-        const d = this.setup();
-        return d.clipAnalysisInteractor.getAnalysisStats();
+        const e = zAppWorkerEnv.safeParse(this.env);
+        if (!e.success) {
+          throw new Error(e.error.message);
+        }
+        const {
+          createCommandContainer,
+        } = require("../../../../infra/dependency");
+        const commandContainer = createCommandContainer(e.data);
+        return commandContainer.clipAnalysisInteractor.getAnalysisStats();
       },
     );
-  }
-
-  private setup() {
-    const e = zAppWorkerEnv.safeParse(this.env);
-    if (!e.success) {
-      throw new Error(e.error.message);
-    }
-    return createContainer(e.data);
   }
 }
 

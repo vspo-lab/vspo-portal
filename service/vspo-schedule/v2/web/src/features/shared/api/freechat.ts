@@ -75,9 +75,9 @@ export const fetchFreechats = async (
     let freechats: Freechat[] = [];
 
     if (cfEnv) {
-      const { APP_WORKER } = cfEnv;
+      const { FREECHAT_QUERY_SERVICE } = cfEnv;
 
-      const result = await APP_WORKER.newFreechatUsecase().list({
+      const result = await FREECHAT_QUERY_SERVICE.list({
         limit: 100,
         page: 0,
         languageCode:

@@ -1,0 +1,54 @@
+/**
+ * Auto-generated Wrangler configuration for translate-creators
+ * Generated at 2025-08-06T15:48:49.844Z
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "translate-creators",
+  "compatibility_date": "2024-10-22",
+  "send_metrics": false,
+  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "main": "cmd/workflows/translate-creators/index.ts",
+  "logpush": true,
+  "kv_namespaces": [
+    {
+      "binding": "APP_KV",
+      "id": "PRODUCTION_KV_ID_HERE"
+    }
+  ],
+  "hyperdrive": [
+    {
+      "binding": "DB",
+      "id": "PRODUCTION_HYPERDRIVE_ID_HERE"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "queue": "write-queue",
+        "binding": "WRITE_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "write-queue",
+        "max_batch_size": 100,
+        "max_batch_timeout": 3,
+        "dead_letter_queue": "write-queue-dead-letter"
+      }
+    ]
+  },
+  "vars": {
+    "SERVICE_NAME": "translate-creators",
+    "ENVIRONMENT": "production",
+    "LOG_TYPE": "json",
+    "LOG_MINLEVEL": "info",
+    "LOG_HIDE_POSITION": "true"
+  },
+  "observability": {
+    "enabled": true,
+    "invocation_logs": false
+  }
+}

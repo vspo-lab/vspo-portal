@@ -10,7 +10,8 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:deploy": "opennextjs-cloudflare deploy",
     "cf:preview": "opennextjs-cloudflare preview",
-    "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "tools:generate-wrangler-config": "node tools/generate-wrangler-config.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

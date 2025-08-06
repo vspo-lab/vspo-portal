@@ -1,5 +1,4 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { convertToUTCDate } from "@vspo-lab/dayjs";
 import { openApiErrorResponses } from "../../../pkg/errors";
 import type { App } from "../hono";
 import {
@@ -70,11 +69,6 @@ export const registerStreamListApi = (app: App) =>
       page: Number.parseInt(p.page),
       platform: p.platform,
       status: p.status,
-      startDateFrom: p.startDateFrom
-        ? convertToUTCDate(p.startDateFrom)
-        : undefined,
-      startDateTo: p.startDateTo ? convertToUTCDate(p.startDateTo) : undefined,
-      endedAt: p.endedAt ? convertToUTCDate(p.endedAt) : undefined,
       languageCode: p.languageCode,
       orderBy: p.orderBy,
       memberType: p.memberType,

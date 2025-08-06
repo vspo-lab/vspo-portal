@@ -1,0 +1,199 @@
+/**
+ * Cron configuration with workflow bindings
+ * Generated at 2025-08-06T15:48:49.845Z
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vspo-portal-cron",
+  "compatibility_date": "2024-10-22",
+  "send_metrics": false,
+  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "main": "cmd/cron/index.ts",
+  "logpush": true,
+  "services": [
+    {
+      "binding": "SEARCH_STREAMS_WORKFLOW",
+      "service": "search-streams",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_CHANNELS_WORKFLOW",
+      "service": "search-channels",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "TRANSLATE_STREAMS_WORKFLOW",
+      "service": "translate-streams",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "TRANSLATE_CREATORS_WORKFLOW",
+      "service": "translate-creators",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_SEND_MESSAGES_WORKFLOW",
+      "service": "discord-send-messages",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_MEMBER_STREAMS_BY_CHANNEL_WORKFLOW",
+      "service": "search-member-streams-by-channel",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DELETE_STREAMS_WORKFLOW",
+      "service": "delete-streams",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_DELETE_ALL_WORKFLOW",
+      "service": "discord-delete-all",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_SEND_MESSAGE_ALL_CHANNEL_WORKFLOW",
+      "service": "discord-send-message-all-channel",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_SEND_MESSAGE_CHANNELS_WORKFLOW",
+      "service": "discord-send-message-channels",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "EXIST_CLIPS_WORKFLOW",
+      "service": "exist-clips",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_CLIPS_WORKFLOW",
+      "service": "search-clips",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_CLIPS_BY_VSPO_MEMBER_NAME_WORKFLOW",
+      "service": "search-clips-by-vspo-member-name",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW",
+      "service": "access-vspo-schedule-site",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "FETCH_CLIPS_BY_CREATOR_WORKFLOW",
+      "service": "fetch-clips-by-creator",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "ANALYZE_CLIPS_WORKFLOW",
+      "service": "analyze-clips",
+      "entrypoint": "WorkflowService"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "search-streams-workflow",
+      "binding": "SEARCH_STREAMS_WORKFLOW",
+      "class_name": "SearchStreamsWorkflow"
+    },
+    {
+      "name": "search-channels-workflow",
+      "binding": "SEARCH_CHANNELS_WORKFLOW",
+      "class_name": "SearchChannelsWorkflow"
+    },
+    {
+      "name": "translate-streams-workflow",
+      "binding": "TRANSLATE_STREAMS_WORKFLOW",
+      "class_name": "TranslateStreamsWorkflow"
+    },
+    {
+      "name": "translate-creators-workflow",
+      "binding": "TRANSLATE_CREATORS_WORKFLOW",
+      "class_name": "TranslateCreatorsWorkflow"
+    },
+    {
+      "name": "discord-send-messages-workflow",
+      "binding": "DISCORD_SEND_MESSAGES_WORKFLOW",
+      "class_name": "DiscordSendMessagesWorkflow"
+    },
+    {
+      "name": "search-member-streams-by-channel-workflow",
+      "binding": "SEARCH_MEMBER_STREAMS_BY_CHANNEL_WORKFLOW",
+      "class_name": "SearchMemberStreamsByChannelWorkflow"
+    },
+    {
+      "name": "delete-streams-workflow",
+      "binding": "DELETE_STREAMS_WORKFLOW",
+      "class_name": "DeleteStreamsWorkflow"
+    },
+    {
+      "name": "discord-delete-all-workflow",
+      "binding": "DISCORD_DELETE_ALL_WORKFLOW",
+      "class_name": "DiscordDeleteAllWorkflow"
+    },
+    {
+      "name": "discord-send-message-all-channel-workflow",
+      "binding": "DISCORD_SEND_MESSAGE_ALL_CHANNEL_WORKFLOW",
+      "class_name": "DiscordSendMessageAllChannelWorkflow"
+    },
+    {
+      "name": "discord-send-message-channels-workflow",
+      "binding": "DISCORD_SEND_MESSAGE_CHANNELS_WORKFLOW",
+      "class_name": "DiscordSendMessageChannelsWorkflow"
+    },
+    {
+      "name": "exist-clips-workflow",
+      "binding": "EXIST_CLIPS_WORKFLOW",
+      "class_name": "ExistClipsWorkflow"
+    },
+    {
+      "name": "search-clips-workflow",
+      "binding": "SEARCH_CLIPS_WORKFLOW",
+      "class_name": "SearchClipsWorkflow"
+    },
+    {
+      "name": "search-clips-by-vspo-member-name-workflow",
+      "binding": "SEARCH_CLIPS_BY_VSPO_MEMBER_NAME_WORKFLOW",
+      "class_name": "SearchClipsByVspoMemberNameWorkflow"
+    },
+    {
+      "name": "access-vspo-schedule-site-workflow",
+      "binding": "ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW",
+      "class_name": "AccessVspoScheduleSiteWorkflow"
+    },
+    {
+      "name": "fetch-clips-by-creator-workflow",
+      "binding": "FETCH_CLIPS_BY_CREATOR_WORKFLOW",
+      "class_name": "FetchClipsByCreatorWorkflow"
+    },
+    {
+      "name": "analyze-clips-workflow",
+      "binding": "ANALYZE_CLIPS_WORKFLOW",
+      "class_name": "AnalyzeClipsWorkflow"
+    }
+  ],
+  "vars": {
+    "SERVICE_NAME": "vspo-portal-cron",
+    "ENVIRONMENT": "production",
+    "LOG_TYPE": "json",
+    "LOG_MINLEVEL": "info",
+    "LOG_HIDE_POSITION": "true"
+  },
+  "observability": {
+    "enabled": true,
+    "invocation_logs": false
+  },
+  "triggers": {
+    "crons": [
+      "0 0,7,18 * * *",
+      "5 0,7,18 * * *",
+      "*/2 * * * *",
+      "*/30 * * * *",
+      "*/1 * * * *"
+    ]
+  }
+}

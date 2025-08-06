@@ -1,0 +1,117 @@
+/**
+ * Gateway configuration with workflow bindings
+ * Generated at 2025-08-11T12:49:18.926Z
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dev-vspo-portal-gateway",
+  "compatibility_date": "2024-10-22",
+  "send_metrics": false,
+  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "main": "cmd/server/gateway.ts",
+  "logpush": true,
+  "kv_namespaces": [
+    {
+      "binding": "APP_KV",
+      "id": "0b6b968c69fc406c8d55aaf2cd657c2b"
+    }
+  ],
+  "dev": {
+    "port": 3000
+  },
+  "services": [
+    {
+      "binding": "SEARCH_STREAMS_WORKFLOW",
+      "service": "dev-search-streams",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_CHANNELS_WORKFLOW",
+      "service": "dev-search-channels",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "TRANSLATE_STREAMS_WORKFLOW",
+      "service": "dev-translate-streams",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "TRANSLATE_CREATORS_WORKFLOW",
+      "service": "dev-translate-creators",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_SEND_MESSAGES_WORKFLOW",
+      "service": "dev-discord-send-messages",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_MEMBER_STREAMS_BY_CHANNEL_WORKFLOW",
+      "service": "dev-search-member-streams-by-channel",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DELETE_STREAMS_WORKFLOW",
+      "service": "dev-delete-streams",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_DELETE_ALL_WORKFLOW",
+      "service": "dev-discord-delete-all",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_SEND_MESSAGE_ALL_CHANNEL_WORKFLOW",
+      "service": "dev-discord-send-message-all-channel",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "DISCORD_SEND_MESSAGE_CHANNELS_WORKFLOW",
+      "service": "dev-discord-send-message-channels",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "EXIST_CLIPS_WORKFLOW",
+      "service": "dev-exist-clips",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_CLIPS_WORKFLOW",
+      "service": "dev-search-clips",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "SEARCH_CLIPS_BY_VSPO_MEMBER_NAME_WORKFLOW",
+      "service": "dev-search-clips-by-vspo-member-name",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW",
+      "service": "dev-access-vspo-schedule-site",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "FETCH_CLIPS_BY_CREATOR_WORKFLOW",
+      "service": "dev-fetch-clips-by-creator",
+      "entrypoint": "WorkflowService"
+    },
+    {
+      "binding": "ANALYZE_CLIPS_WORKFLOW",
+      "service": "dev-analyze-clips",
+      "entrypoint": "WorkflowService"
+    }
+  ],
+  "vars": {
+    "SERVICE_NAME": "dev-vspo-portal-gateway",
+    "ENVIRONMENT": "development",
+    "LOG_TYPE": "json",
+    "LOG_MINLEVEL": "info",
+    "LOG_HIDE_POSITION": "true"
+  },
+  "observability": {
+    "enabled": true,
+    "invocation_logs": false
+  }
+}

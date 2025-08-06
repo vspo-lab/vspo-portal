@@ -83,9 +83,9 @@ export const fetchClips = async (
     let clips: Clip[] = [];
     let pagination: Pagination;
     if (cfEnv) {
-      const { APP_WORKER } = cfEnv;
+      const { CLIP_QUERY_SERVICE } = cfEnv;
 
-      const result = await APP_WORKER.newClipUsecase().list({
+      const result = await CLIP_QUERY_SERVICE.list({
         limit: params.limit,
         page: params.page,
         platform: params.platform,

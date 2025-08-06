@@ -25,10 +25,10 @@ import { cacheKey, createCloudflareKVCacheClient } from "../../cache";
 const MemberTypeLabelMapping = {
   vspo_jp: "VSPO JP Members / ぶいすぽっ！JPメンバー",
   vspo_en: "VSPO EN Members / ぶいすぽっ！ENメンバー",
-  // vspo_ch: "VSPO CH Members / ぶいすぽっ！CHメンバー",
+  // vspo_ch: "VSPO CH Members",
   vspo_all: "All VSPO Members / すべてのぶいすぽっ！メンバー",
   custom: "Select Specific Members / 特定のメンバーを個別に選択",
-  // general: "General / 一般",
+  // general: "General",
 } as const;
 
 // Discord select menu can show up to 25 options
@@ -106,7 +106,7 @@ export const spoduleSettingCommand: IDiscordSlashDefinition<DiscordCommandEnv> =
         server = serverResult.val;
       }
 
-      const targetChannel = server.discordChannels.find(
+      const targetChannel = server?.discordChannels.find(
         (channel) => channel.rawId === c.interaction.channel.id,
       );
 
@@ -194,7 +194,7 @@ export const botAddComponent: IDiscordComponentDefinition<DiscordCommandEnv> = {
       });
     }
 
-    await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([adjustResult.val]);
+    await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([adjustResult.val!]);
 
     return c.resUpdate({
       content: t("bot.addSuccess"),
@@ -330,7 +330,7 @@ export const langSelectComponent: IDiscordComponentDefinition<DiscordCommandEnv>
         }
 
         await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([
-          adjustResult.val,
+          adjustResult.val!,
         ]);
         await c.env.DISCORD_COMMAND_SERVICE.deleteMessageInChannelEnqueue(
           c.interaction.channel.id,
@@ -442,7 +442,7 @@ export const memberTypeSelectComponent: IDiscordComponentDefinition<DiscordComma
         }
 
         await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([
-          adjustResult.val,
+          adjustResult.val!,
         ]);
         await c.env.DISCORD_COMMAND_SERVICE.deleteMessageInChannelEnqueue(
           c.interaction.channel.id,
@@ -490,10 +490,12 @@ export const customMemberSelectJPComponent: IDiscordComponentDefinition<DiscordC
           });
         }
 
-        const memberOptions = jpMembersResult.val.creators.map((creator) => ({
-          value: creator.id,
-          label: creator.name || "Unknown",
-        }));
+        const memberOptions = jpMembersResult.val.creators.map(
+          (creator: any) => ({
+            value: creator.id,
+            label: creator.name || "Unknown",
+          }),
+        );
 
         return c.resUpdate({
           content: `**Select JP members / JPメンバーを選択**\n\nShowing ${memberOptions.length} members / ${memberOptions.length}人のメンバーを表示\n\nYou can select multiple members / 複数選択可能`,
@@ -543,10 +545,12 @@ export const customMemberSelectENComponent: IDiscordComponentDefinition<DiscordC
           });
         }
 
-        const memberOptions = enMembersResult.val.creators.map((creator) => ({
-          value: creator.id,
-          label: creator.name || "Unknown",
-        }));
+        const memberOptions = enMembersResult.val.creators.map(
+          (creator: any) => ({
+            value: creator.id,
+            label: creator.name || "Unknown",
+          }),
+        );
 
         return c.resUpdate({
           content:
@@ -601,8 +605,8 @@ export const customMemberDirectSelectComponent: IDiscordComponentDefinition<Disc
 
           // Get names of selected members
           const selectedMemberNames = allCreatorsResult.val.creators
-            .filter((creator) => selectedMemberIds.includes(creator.id))
-            .map((creator) => creator.name || "Unknown")
+            .filter((creator: any) => selectedMemberIds.includes(creator.id))
+            .map((creator: any) => creator.name || "Unknown")
             .sort();
 
           // Clear cache before adjusting
@@ -656,7 +660,7 @@ export const customMemberDirectSelectComponent: IDiscordComponentDefinition<Disc
           }
 
           await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([
-            adjustResult.val,
+            adjustResult.val!,
           ]);
           await c.env.DISCORD_COMMAND_SERVICE.deleteMessageInChannelEnqueue(
             c.interaction.channel.id,
