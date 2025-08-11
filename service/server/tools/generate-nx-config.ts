@@ -45,86 +45,106 @@ function getWorkerConfigs(): {
 
 // Generate build-dryrun commands for all workers
 function generateBuildDryrunCommands(): string[] {
-  const commands: string[] = [];
+  const devPath = path.join(__dirname, "../config/wrangler/dev");
   
-  // Start with summary
-  commands.push("echo '🚀 Starting dry run for all workers...'");
-  commands.push("echo ''");
+  // Get all wrangler config files and generate target names
+  const targetNames: string[] = [];
   
-  // Track results
-  commands.push("FAILED_WORKERS=''");
-  commands.push("TOTAL_WORKERS=0");
-  commands.push("PASSED_WORKERS=0");
+  // Read all subdirectories
+  const subdirs = fs.readdirSync(devPath, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
   
-  // Main workers with their specific entry points
-  commands.push("echo '=== Main Workers Dry Run ==='");
-  
-  // Gateway
-  commands.push("echo -n '  vspo-portal-gateway: '");
-  commands.push("((TOTAL_WORKERS++))");
-  commands.push("if wrangler deploy --config config/wrangler/dev/vspo-portal-gateway/wrangler.jsonc --dry-run --outdir dist > /dev/null 2>&1; then echo '✅ PASS'; ((PASSED_WORKERS++)); else echo '❌ FAIL'; FAILED_WORKERS=\"$FAILED_WORKERS vspo-portal-gateway\"; fi");
-  
-  // Cron
-  commands.push("echo -n '  vspo-portal-cron: '");
-  commands.push("((TOTAL_WORKERS++))");
-  commands.push("if wrangler deploy --config config/wrangler/dev/vspo-portal-cron/wrangler.jsonc --dry-run --outdir dist > /dev/null 2>&1; then echo '✅ PASS'; ((PASSED_WORKERS++)); else echo '❌ FAIL'; FAILED_WORKERS=\"$FAILED_WORKERS vspo-portal-cron\"; fi");
-  
-  // App
-  commands.push("echo -n '  vspo-portal-app: '");
-  commands.push("((TOTAL_WORKERS++))");
-  commands.push("if wrangler deploy --config config/wrangler/dev/vspo-portal-app/wrangler.jsonc --dry-run --outdir dist > /dev/null 2>&1; then echo '✅ PASS'; ((PASSED_WORKERS++)); else echo '❌ FAIL'; FAILED_WORKERS=\"$FAILED_WORKERS vspo-portal-app\"; fi");
-  
-  // App workers
-  const { app: appWorkers } = getWorkerConfigs();
-  if (appWorkers.length > 0) {
-    commands.push("echo ''");
-    commands.push("echo '=== App Workers Dry Run ==='");
-    appWorkers.forEach(worker => {
-      commands.push(`echo -n '  ${worker}: '`);
-      commands.push("((TOTAL_WORKERS++))");
-      commands.push(`if wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-${worker}.wrangler.jsonc --dry-run --outdir dist > /dev/null 2>&1; then echo '✅ PASS'; ((PASSED_WORKERS++)); else echo '❌ FAIL'; FAILED_WORKERS=\"$FAILED_WORKERS ${worker}\"; fi`);
-    });
+  for (const subdir of subdirs) {
+    const subdirPath = path.join(devPath, subdir);
+    const files = fs.readdirSync(subdirPath)
+      .filter(file => file.endsWith('wrangler.jsonc'));
+    
+    for (const file of files) {
+      let targetName: string;
+      
+      // Determine target name
+      if (subdir === 'vspo-portal-gateway' && file === 'wrangler.jsonc') {
+        targetName = 'vspo-portal-gateway';
+      } else if (subdir === 'vspo-portal-cron' && file === 'wrangler.jsonc') {
+        targetName = 'vspo-portal-cron';
+      } else if (subdir === 'vspo-portal-app') {
+        if (file === 'wrangler.jsonc') {
+          targetName = 'vspo-portal-app';
+        } else {
+          targetName = file.replace('dev-', '').replace('.wrangler.jsonc', '');
+        }
+      } else {
+        continue;
+      }
+      
+      targetNames.push(`nx run vspo-portal-server:build-dryrun:${targetName}`);
+    }
   }
   
-  // Summary
-  commands.push("echo ''");
-  commands.push("echo '==================================='");
-  commands.push("echo \"✅ Passed: $PASSED_WORKERS/$TOTAL_WORKERS\"");
-  commands.push("if [ -n \"$FAILED_WORKERS\" ]; then echo \"❌ Failed workers:$FAILED_WORKERS\"; exit 1; else echo '🎉 All workers passed dry run!'; fi");
+  // Sort to ensure main workers come first
+  const mainWorkers = ['vspo-portal-gateway', 'vspo-portal-cron', 'vspo-portal-app'];
+  const sortedTargets = [
+    ...targetNames.filter(t => mainWorkers.some(m => t.endsWith(`:${m}`))),
+    ...targetNames.filter(t => !mainWorkers.some(m => t.endsWith(`:${m}`)))
+  ];
   
-  return commands;
+  return sortedTargets;
 }
 
 // Generate individual dry run targets
 function generateIndividualTargets(): Record<string, NxTarget> {
   const targets: Record<string, NxTarget> = {};
-  const { main: mainWorkers, app: appWorkers } = getWorkerConfigs();
+  const devPath = path.join(__dirname, "../config/wrangler/dev");
   
-  // Main workers
-  mainWorkers.forEach(worker => {
-    const targetName = `build-dryrun:${worker}`;
-    let configPath = `config/wrangler/dev/${worker}/wrangler.jsonc`;
-    
-    targets[targetName] = {
-      executor: "nx:run-commands",
-      options: {
-        command: `wrangler deploy --config ${configPath} --dry-run --outdir dist`,
-      },
-    };
-  });
+  // Define entry points for different worker types
+  const ENTRY_POINTS = {
+    gateway: "cmd/server/gateway.ts",
+    cron: "cmd/cron/index.ts",
+    app: "cmd/server/internal/application/index.ts"
+  };
   
-  // App workers
-  appWorkers.forEach(worker => {
-    const targetName = `build-dryrun:${worker}`;
-    const configPath = `config/wrangler/dev/vspo-portal-app/dev-${worker}.wrangler.jsonc`;
+  // Read all subdirectories
+  const subdirs = fs.readdirSync(devPath, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+  
+  for (const subdir of subdirs) {
+    const subdirPath = path.join(devPath, subdir);
+    const files = fs.readdirSync(subdirPath)
+      .filter(file => file.endsWith('wrangler.jsonc'));
     
-    targets[targetName] = {
-      executor: "nx:run-commands",
-      options: {
-        command: `wrangler deploy --config ${configPath} --dry-run --outdir dist`,
-      },
-    };
-  });
+    for (const file of files) {
+      let targetName: string;
+      let entryPoint: string;
+      const configPath = path.join('config/wrangler/dev', subdir, file);
+      
+      // Determine target name and entry point
+      if (subdir === 'vspo-portal-gateway') {
+        targetName = 'vspo-portal-gateway';
+        entryPoint = ENTRY_POINTS.gateway;
+      } else if (subdir === 'vspo-portal-cron') {
+        targetName = 'vspo-portal-cron';
+        entryPoint = ENTRY_POINTS.cron;
+      } else if (subdir === 'vspo-portal-app') {
+        entryPoint = ENTRY_POINTS.app;
+        if (file === 'wrangler.jsonc') {
+          targetName = 'vspo-portal-app';
+        } else {
+          targetName = file.replace('dev-', '').replace('.wrangler.jsonc', '');
+        }
+      } else {
+        continue;
+      }
+      
+      targets[`build-dryrun:${targetName}`] = {
+        executor: "nx:run-commands",
+        options: {
+          command: `wrangler deploy --config ${configPath} --dry-run --script ${entryPoint}`,
+        },
+      };
+    }
+  }
   
   return targets;
 }
