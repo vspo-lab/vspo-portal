@@ -4,141 +4,28 @@
     "build-dryrun": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "bash scripts/dry-run-workers.sh",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:vspo-portal-gateway": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-gateway/wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:vspo-portal-cron": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-cron/wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:vspo-portal-app": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:access-vspo-schedule-site": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-access-vspo-schedule-site.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:analyze-clips": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-analyze-clips.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:delete-streams": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-delete-streams.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:discord-delete-all": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-delete-all.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:discord-send-message-all-channel": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-send-message-all-channel.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:discord-send-message-channels": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-send-message-channels.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:discord-send-messages": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-send-messages.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:exist-clips": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-exist-clips.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:fetch-clips-by-creator": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-fetch-clips-by-creator.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:search-channels": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-channels.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:search-clips-by-vspo-member-name": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-clips-by-vspo-member-name.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:search-clips": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-clips.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:search-member-streams-by-channel": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-member-streams-by-channel.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:search-streams": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-streams.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:translate-creators": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-translate-creators.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
-      }
-    },
-    "build-dryrun:translate-streams": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm exec wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-translate-streams.wrangler.jsonc --dry-run --outdir dist",
-        "cwd": "service/server"
+        "commands": [
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-gateway/wrangler.jsonc --dry-run --script cmd/server/gateway.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-cron/wrangler.jsonc --dry-run --script cmd/cron/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-access-vspo-schedule-site.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-analyze-clips.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-delete-streams.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-delete-all.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-send-message-all-channel.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-send-message-channels.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-discord-send-messages.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-exist-clips.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-fetch-clips-by-creator.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-channels.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-clips-by-vspo-member-name.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-clips.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-member-streams-by-channel.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-search-streams.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-translate-creators.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts",
+          "wrangler deploy --config config/wrangler/dev/vspo-portal-app/dev-translate-streams.wrangler.jsonc --dry-run --script cmd/server/internal/application/index.ts"
+        ],
+        "parallel": false
       }
     },
     "ci": {
