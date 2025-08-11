@@ -149,7 +149,8 @@ function generateWorkflowConfigs(workflowNames: string[]): void {
       compatibility_date: "2024-10-22",
       send_metrics: false,
       compatibility_flags: ["nodejs_compat", "nodejs_als"],
-      main: `cmd/workflows/${baseName}/index.ts`,
+      // All workflows use the same app entry point
+      main: "cmd/server/internal/application/index.ts",
       logpush: true,
       kv_namespaces: [
         { binding: "APP_KV", id: getKvId() }
@@ -192,8 +193,7 @@ function generateWorkflowConfigs(workflowNames: string[]): void {
         LOG_HIDE_POSITION: "true"
       },
       observability: {
-        enabled: true,
-        invocation_logs: false
+        enabled: true
       }
     };
     
@@ -242,7 +242,7 @@ function generateGatewayConfig(workflowNames: string[]): void {
     },
     observability: {
       enabled: true,
-      invocation_logs: false
+      
     }
   };
   
@@ -295,7 +295,7 @@ function generateCronConfig(workflowNames: string[]): void {
     },
     observability: {
       enabled: true,
-      invocation_logs: false
+      
     }
   };
   

@@ -20,7 +20,7 @@ for worker in "${workers[@]}"; do
   IFS=':' read -r name config <<< "$worker"
   echo -n "  $name: "
   ((TOTAL_WORKERS++))
-  if wrangler deploy --config "$config" --dry-run --outdir dist > /dev/null 2>&1; then
+  if pnpm exec wrangler deploy --config "$config" --dry-run --outdir dist 2>&1 | tee /tmp/wrangler-output.log | grep -q "Total Upload:"; then
     echo '✅ PASS'
     ((PASSED_WORKERS++))
   else
@@ -56,7 +56,7 @@ for worker in "${app_workers[@]}"; do
   echo -n "  $worker: "
   ((TOTAL_WORKERS++))
   config="config/wrangler/dev/vspo-portal-app/dev-${worker}.wrangler.jsonc"
-  if wrangler deploy --config "$config" --dry-run --outdir dist > /dev/null 2>&1; then
+  if pnpm exec wrangler deploy --config "$config" --dry-run --outdir dist 2>&1 | tee /tmp/wrangler-output.log | grep -q "Total Upload:"; then
     echo '✅ PASS'
     ((PASSED_WORKERS++))
   else

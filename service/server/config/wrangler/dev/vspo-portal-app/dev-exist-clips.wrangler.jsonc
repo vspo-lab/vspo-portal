@@ -1,6 +1,6 @@
 /**
  * Auto-generated Wrangler configuration for dev-exist-clips
- * Generated at 2025-08-11T12:49:18.925Z
+ * Generated at 2025-08-11T16:09:39.585Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -9,8 +9,11 @@
   "name": "dev-exist-clips",
   "compatibility_date": "2024-10-22",
   "send_metrics": false,
-  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
-  "main": "cmd/workflows/exist-clips/index.ts",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
+  "main": "cmd/server/internal/application/index.ts",
   "logpush": true,
   "kv_namespaces": [
     {
@@ -52,7 +55,6 @@
     "LOG_HIDE_POSITION": "true"
   },
   "observability": {
-    "enabled": true,
-    "invocation_logs": false
+    "enabled": true
   }
 }
