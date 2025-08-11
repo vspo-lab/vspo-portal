@@ -4,28 +4,7 @@
     "build-dryrun": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run vspo-portal-server:build-dryrun:vspo-portal-app",
-          "nx run vspo-portal-server:build-dryrun:vspo-portal-cron",
-          "nx run vspo-portal-server:build-dryrun:vspo-portal-gateway",
-          "nx run vspo-portal-server:build-dryrun:access-vspo-schedule-site",
-          "nx run vspo-portal-server:build-dryrun:analyze-clips",
-          "nx run vspo-portal-server:build-dryrun:delete-streams",
-          "nx run vspo-portal-server:build-dryrun:discord-delete-all",
-          "nx run vspo-portal-server:build-dryrun:discord-send-message-all-channel",
-          "nx run vspo-portal-server:build-dryrun:discord-send-message-channels",
-          "nx run vspo-portal-server:build-dryrun:discord-send-messages",
-          "nx run vspo-portal-server:build-dryrun:exist-clips",
-          "nx run vspo-portal-server:build-dryrun:fetch-clips-by-creator",
-          "nx run vspo-portal-server:build-dryrun:search-channels",
-          "nx run vspo-portal-server:build-dryrun:search-clips-by-vspo-member-name",
-          "nx run vspo-portal-server:build-dryrun:search-clips",
-          "nx run vspo-portal-server:build-dryrun:search-member-streams-by-channel",
-          "nx run vspo-portal-server:build-dryrun:search-streams",
-          "nx run vspo-portal-server:build-dryrun:translate-creators",
-          "nx run vspo-portal-server:build-dryrun:translate-streams"
-        ],
-        "parallel": false
+        "command": "bash scripts/dry-run-all-workers.sh"
       }
     },
     "build-dryrun:access-vspo-schedule-site": {

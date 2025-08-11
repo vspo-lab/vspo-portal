@@ -1,6 +1,6 @@
 /**
- * Gateway configuration with workflow bindings
- * Generated at 2025-08-11T16:09:39.586Z
+ * Gateway configuration with service bindings
+ * Generated at 2025-08-11T19:35:50.355Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -23,84 +23,64 @@
   },
   "services": [
     {
-      "binding": "SEARCH_STREAMS_WORKFLOW",
-      "service": "dev-search-streams",
-      "entrypoint": "WorkflowService"
+      "binding": "STREAM_QUERY_SERVICE",
+      "service": "dev-stream-query",
+      "entrypoint": "StreamQueryService"
     },
     {
-      "binding": "SEARCH_CHANNELS_WORKFLOW",
-      "service": "dev-search-channels",
-      "entrypoint": "WorkflowService"
+      "binding": "CLIP_QUERY_SERVICE",
+      "service": "dev-clip-query",
+      "entrypoint": "ClipQueryService"
     },
     {
-      "binding": "TRANSLATE_STREAMS_WORKFLOW",
-      "service": "dev-translate-streams",
-      "entrypoint": "WorkflowService"
+      "binding": "CREATOR_QUERY_SERVICE",
+      "service": "dev-creator-query",
+      "entrypoint": "CreatorQueryService"
     },
     {
-      "binding": "TRANSLATE_CREATORS_WORKFLOW",
-      "service": "dev-translate-creators",
-      "entrypoint": "WorkflowService"
+      "binding": "DISCORD_QUERY_SERVICE",
+      "service": "dev-discord-query",
+      "entrypoint": "DiscordQueryService"
     },
     {
-      "binding": "DISCORD_SEND_MESSAGES_WORKFLOW",
-      "service": "dev-discord-send-messages",
-      "entrypoint": "WorkflowService"
+      "binding": "EVENT_QUERY_SERVICE",
+      "service": "dev-event-query",
+      "entrypoint": "EventQueryService"
     },
     {
-      "binding": "SEARCH_MEMBER_STREAMS_BY_CHANNEL_WORKFLOW",
-      "service": "dev-search-member-streams-by-channel",
-      "entrypoint": "WorkflowService"
+      "binding": "FREECHAT_QUERY_SERVICE",
+      "service": "dev-freechat-query",
+      "entrypoint": "FreechatQueryService"
     },
     {
-      "binding": "DELETE_STREAMS_WORKFLOW",
-      "service": "dev-delete-streams",
-      "entrypoint": "WorkflowService"
+      "binding": "CLIP_ANALYSIS_QUERY_SERVICE",
+      "service": "dev-clip-analysis-query",
+      "entrypoint": "ClipAnalysisQueryService"
     },
     {
-      "binding": "DISCORD_DELETE_ALL_WORKFLOW",
-      "service": "dev-discord-delete-all",
-      "entrypoint": "WorkflowService"
+      "binding": "STREAM_COMMAND_SERVICE",
+      "service": "dev-stream-command",
+      "entrypoint": "StreamCommandService"
     },
     {
-      "binding": "DISCORD_SEND_MESSAGE_ALL_CHANNEL_WORKFLOW",
-      "service": "dev-discord-send-message-all-channel",
-      "entrypoint": "WorkflowService"
+      "binding": "CLIP_COMMAND_SERVICE",
+      "service": "dev-clip-command",
+      "entrypoint": "ClipCommandService"
     },
     {
-      "binding": "DISCORD_SEND_MESSAGE_CHANNELS_WORKFLOW",
-      "service": "dev-discord-send-message-channels",
-      "entrypoint": "WorkflowService"
+      "binding": "CREATOR_COMMAND_SERVICE",
+      "service": "dev-creator-command",
+      "entrypoint": "CreatorCommandService"
     },
     {
-      "binding": "EXIST_CLIPS_WORKFLOW",
-      "service": "dev-exist-clips",
-      "entrypoint": "WorkflowService"
+      "binding": "DISCORD_COMMAND_SERVICE",
+      "service": "dev-discord-command",
+      "entrypoint": "DiscordCommandService"
     },
     {
-      "binding": "SEARCH_CLIPS_WORKFLOW",
-      "service": "dev-search-clips",
-      "entrypoint": "WorkflowService"
-    },
-    {
-      "binding": "SEARCH_CLIPS_BY_VSPO_MEMBER_NAME_WORKFLOW",
-      "service": "dev-search-clips-by-vspo-member-name",
-      "entrypoint": "WorkflowService"
-    },
-    {
-      "binding": "ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW",
-      "service": "dev-access-vspo-schedule-site",
-      "entrypoint": "WorkflowService"
-    },
-    {
-      "binding": "FETCH_CLIPS_BY_CREATOR_WORKFLOW",
-      "service": "dev-fetch-clips-by-creator",
-      "entrypoint": "WorkflowService"
-    },
-    {
-      "binding": "ANALYZE_CLIPS_WORKFLOW",
-      "service": "dev-analyze-clips",
-      "entrypoint": "WorkflowService"
+      "binding": "EVENT_COMMAND_SERVICE",
+      "service": "dev-event-command",
+      "entrypoint": "EventCommandService"
     }
   ],
   "vars": {

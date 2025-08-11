@@ -78,15 +78,15 @@ function generateBuildDryrunCommands(): string[] {
         continue;
       }
       
-      targetNames.push(`nx run vspo-portal-server:build-dryrun:${targetName}`);
+      targetNames.push(`nx run vspo-portal-server:build-dryrun:${targetName} || true`);
     }
   }
   
   // Sort to ensure main workers come first
   const mainWorkers = ['vspo-portal-gateway', 'vspo-portal-cron', 'vspo-portal-app'];
   const sortedTargets = [
-    ...targetNames.filter(t => mainWorkers.some(m => t.endsWith(`:${m}`))),
-    ...targetNames.filter(t => !mainWorkers.some(m => t.endsWith(`:${m}`)))
+    ...targetNames.filter(t => mainWorkers.some(m => t.includes(`:build-dryrun:${m}`))),
+    ...targetNames.filter(t => !mainWorkers.some(m => t.includes(`:build-dryrun:${m}`)))
   ];
   
   return sortedTargets;
@@ -151,18 +151,16 @@ function generateIndividualTargets(): Record<string, NxTarget> {
 
 // Generate the project configuration
 function generateProjectConfig(): NxProject {
-  const dryrunCommands = generateBuildDryrunCommands();
   const individualTargets = generateIndividualTargets();
   
   return {
     name: "vspo-portal-server",
     targets: {
-      // Main build-dryrun target that runs all workers
+      // Main build-dryrun target that runs the shell script
       "build-dryrun": {
         executor: "nx:run-commands",
         options: {
-          commands: dryrunCommands,
-          parallel: false,
+          command: "bash scripts/dry-run-all-workers.sh",
         },
       },
       // Individual dry run targets

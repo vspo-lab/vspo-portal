@@ -4,6 +4,8 @@ import { join, dirname } from "node:path";
 // Base directory (assumes execution from service/server directory)
 const SERVER_DIR = process.cwd();
 const WORKFLOW_ENV_PATH = join(SERVER_DIR, "config/env/workflow.ts");
+const WORKER_ENV_PATH = join(SERVER_DIR, "config/env/worker.ts");
+const APP_INDEX_PATH = join(SERVER_DIR, "cmd/server/internal/application/index.ts");
 
 // Get environment from arguments (default is dev)
 const ENV = process.argv[2] || "dev";
@@ -73,6 +75,35 @@ function extractWorkflowNames(): string[] {
   }
   
   return workflowNames;
+}
+
+// Extract service names from worker.ts
+function extractServiceBindings(): Array<{binding: string, service: string, entrypoint: string}> {
+  const content = readFileSync(WORKER_ENV_PATH, "utf-8");
+  const serviceBindings: Array<{binding: string, service: string, entrypoint: string}> = [];
+
+  // Extract service bindings using regex
+  const regex = /(\w+_SERVICE):\s*z\.custom<Service<(\w+)>>/g;
+  let match;
+  
+  while ((match = regex.exec(content)) !== null) {
+    const binding = match[1];
+    const serviceClass = match[2];
+    
+    // Convert service name to worker name
+    const serviceName = binding
+      .replace(/_SERVICE$/, "")
+      .toLowerCase()
+      .replace(/_/g, "-");
+    
+    serviceBindings.push({
+      binding: binding,
+      service: `${getEnvPrefix()}${serviceName}`,
+      entrypoint: serviceClass
+    });
+  }
+  
+  return serviceBindings;
 }
 
 // Get prefix based on environment
@@ -203,18 +234,11 @@ function generateWorkflowConfigs(workflowNames: string[]): void {
   });
 }
 
-// 2. Generate Gateway configuration (including service bindings to each workflow)
-function generateGatewayConfig(workflowNames: string[]): void {
-  console.log("\n📝 Generating gateway config with workflow bindings...");
+// 2. Generate Gateway configuration (including CQRS service bindings only)
+function generateGatewayConfig(serviceBindings: Array<{binding: string, service: string, entrypoint: string}>): void {
+  console.log("\n📝 Generating gateway config with service bindings...");
   
   const envPrefix = getEnvPrefix();
-  
-  // Create service bindings to each workflow
-  const workflowServices = workflowNames.map(workflowName => ({
-    binding: workflowName,
-    service: workflowToServiceName(workflowName),
-    entrypoint: "WorkflowService"
-  }));
   
   const config: WranglerConfig = {
     $schema: "node_modules/wrangler/config-schema.json",
@@ -232,7 +256,7 @@ function generateGatewayConfig(workflowNames: string[]): void {
         port: 3000
       }
     }),
-    services: workflowServices,
+    services: serviceBindings,
     vars: {
       SERVICE_NAME: `${envPrefix}vspo-portal-gateway`,
       ENVIRONMENT: ENV === "prd" ? "production" : "development",
@@ -247,28 +271,22 @@ function generateGatewayConfig(workflowNames: string[]): void {
   };
   
   const outputPath = join(BASE_OUTPUT_DIR, "vspo-portal-gateway/wrangler.jsonc");
-  saveAsJsonc(config, outputPath, "Gateway configuration with workflow bindings");
+  saveAsJsonc(config, outputPath, "Gateway configuration with service bindings");
   console.log("   ✅ Gateway config generated");
 }
 
-// 3. Generate Cron configuration (including workflows section and service bindings)
-function generateCronConfig(workflowNames: string[]): void {
-  console.log("\n📝 Generating cron config with workflow bindings...");
+
+// 3. Generate Cron configuration (including workflows section and CQRS service bindings)
+function generateCronConfig(workflowNames: string[], serviceBindings: Array<{binding: string, service: string, entrypoint: string}>): void {
+  console.log("\n📝 Generating cron config with workflow definitions and service bindings...");
   
   const envPrefix = getEnvPrefix();
   
-  // Generate workflows section
+  // Generate workflows section with _WORKFLOW binding names
   const workflows = workflowNames.map(workflowName => ({
     name: workflowToServiceName(workflowName) + "-workflow",
-    binding: workflowName,
+    binding: workflowName,  // Keep original _WORKFLOW name
     class_name: workflowToClassName(workflowName)
-  }));
-  
-  // Create service bindings to each workflow
-  const workflowServices = workflowNames.map(workflowName => ({
-    binding: workflowName,
-    service: workflowToServiceName(workflowName),
-    entrypoint: "WorkflowService"
   }));
   
   const config: WranglerConfig = {
@@ -284,7 +302,7 @@ function generateCronConfig(workflowNames: string[]): void {
         port: 3002
       }
     }),
-    services: workflowServices,
+    services: serviceBindings,
     workflows: workflows,
     vars: {
       SERVICE_NAME: `${envPrefix}vspo-portal-cron`,
@@ -307,7 +325,7 @@ function generateCronConfig(workflowNames: string[]): void {
   }
   
   const outputPath = join(BASE_OUTPUT_DIR, "vspo-portal-cron/wrangler.jsonc");
-  saveAsJsonc(config, outputPath, "Cron configuration with workflow bindings");
+  saveAsJsonc(config, outputPath, "Cron configuration with workflow definitions and service bindings");
   console.log("   ✅ Cron config generated");
 }
 
@@ -319,15 +337,19 @@ function main() {
   const workflowNames = extractWorkflowNames();
   console.log(`\nFound ${workflowNames.length} workflows`);
   
+  // Get service bindings
+  const serviceBindings = extractServiceBindings();
+  console.log(`Found ${serviceBindings.length} service bindings`);
+  
   try {
     // 1. Generate configuration files for each workflow
     generateWorkflowConfigs(workflowNames);
     
-    // 2. Generate Gateway configuration (including workflow bindings)
-    generateGatewayConfig(workflowNames);
+    // 2. Generate Gateway configuration (including CQRS services only)
+    generateGatewayConfig(serviceBindings);
     
-    // 3. Generate Cron configuration (including workflow bindings)
-    generateCronConfig(workflowNames);
+    // 3. Generate Cron configuration (including workflow definitions and CQRS services)
+    generateCronConfig(workflowNames, serviceBindings);
     
     console.log("\n✨ All configurations generated successfully!");
     console.log("\nGenerated files:");
