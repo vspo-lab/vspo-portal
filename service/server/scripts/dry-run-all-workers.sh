@@ -93,29 +93,25 @@ run_dry_run "vspo-portal-cron" \
   "config/wrangler/dev/vspo-portal-cron/wrangler.jsonc" \
   "cmd/cron/index.ts"
 
-# App workers
-APP_WORKERS=(
-  "access-vspo-schedule-site"
-  "analyze-clips"
-  "delete-streams"
-  "discord-delete-all"
-  "discord-send-message-all-channel"
-  "discord-send-message-channels"
-  "discord-send-messages"
-  "exist-clips"
-  "fetch-clips-by-creator"
-  "search-channels"
-  "search-clips-by-vspo-member-name"
-  "search-clips"
-  "search-member-streams-by-channel"
-  "search-streams"
-  "translate-creators"
-  "translate-streams"
+# Service workers (CQRS pattern)
+SERVICE_WORKERS=(
+  "stream-query"
+  "clip-query"
+  "creator-query"
+  "discord-query"
+  "event-query"
+  "freechat-query"
+  "clip-analysis-query"
+  "stream-command"
+  "clip-command"
+  "creator-command"
+  "discord-command"
+  "event-command"
 )
 
-for worker in "${APP_WORKERS[@]}"; do
+for worker in "${SERVICE_WORKERS[@]}"; do
   run_dry_run "$worker" \
-    "config/wrangler/dev/vspo-portal-app/dev-${worker}.wrangler.jsonc" \
+    "config/wrangler/dev/vspo-portal-service/dev-${worker}.wrangler.jsonc" \
     "cmd/server/internal/application/index.ts"
 done
 

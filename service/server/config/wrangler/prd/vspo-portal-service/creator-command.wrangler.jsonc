@@ -1,0 +1,44 @@
+/**
+ * Auto-generated Wrangler configuration for creator-command
+ * Generated at 2025-08-12T09:03:04.101Z
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "creator-command",
+  "compatibility_date": "2024-10-22",
+  "send_metrics": false,
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
+  "main": "cmd/server/internal/application/index.ts",
+  "logpush": true,
+  "kv_namespaces": [
+    {
+      "binding": "APP_KV",
+      "id": "14bf3d407655490e9f377efbb4c3352b"
+    }
+  ],
+  "dev": {
+    "port": 3109
+  },
+  "hyperdrive": [
+    {
+      "binding": "DB",
+      "id": "cca2ae902ed44343ba0d34130f937a88"
+    }
+  ],
+  "vars": {
+    "SERVICE_NAME": "creator-command",
+    "ENVIRONMENT": "production",
+    "LOG_TYPE": "json",
+    "LOG_MINLEVEL": "info",
+    "LOG_HIDE_POSITION": "true"
+  },
+  "observability": {
+    "enabled": true,
+    "invocation_logs": false
+  }
+}

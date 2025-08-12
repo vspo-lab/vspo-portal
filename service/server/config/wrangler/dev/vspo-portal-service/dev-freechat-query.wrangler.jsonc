@@ -1,15 +1,18 @@
 /**
- * Auto-generated Wrangler configuration for dev-discord-send-messages
- * Generated at 2025-08-11T19:35:50.354Z
+ * Auto-generated Wrangler configuration for dev-freechat-query
+ * Generated at 2025-08-12T08:56:52.881Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dev-discord-send-messages",
+  "name": "dev-freechat-query",
   "compatibility_date": "2024-10-22",
   "send_metrics": false,
-  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
   "main": "cmd/server/internal/application/index.ts",
   "logpush": true,
   "kv_namespaces": [
@@ -19,7 +22,7 @@
     }
   ],
   "dev": {
-    "port": 3001
+    "port": 3105
   },
   "hyperdrive": [
     {
@@ -28,24 +31,8 @@
       "localConnectionString": "postgres://user:password@localhost:5432/vspo"
     }
   ],
-  "queues": {
-    "producers": [
-      {
-        "queue": "dev-write-queue",
-        "binding": "WRITE_QUEUE"
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "dev-write-queue",
-        "max_batch_size": 100,
-        "max_batch_timeout": 3,
-        "dead_letter_queue": "dev-write-queue-dead-letter"
-      }
-    ]
-  },
   "vars": {
-    "SERVICE_NAME": "dev-discord-send-messages",
+    "SERVICE_NAME": "dev-freechat-query",
     "ENVIRONMENT": "development",
     "LOG_TYPE": "json",
     "LOG_MINLEVEL": "info",

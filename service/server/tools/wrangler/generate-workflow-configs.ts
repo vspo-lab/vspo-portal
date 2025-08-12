@@ -64,7 +64,7 @@ function extractWorkflowNames(): string[] {
 
 // Convert workflow name to service name
 function workflowToServiceName(workflowName: string): string {
-  // SEARCH_STREAMS_WORKFLOW -> search-streams
+  // STREAM_QUERY_WORKFLOW -> stream-query
   const name = workflowName
     .replace(/_WORKFLOW$/, "")
     .toLowerCase()

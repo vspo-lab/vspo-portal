@@ -23,11 +23,11 @@ function getWorkerConfigs(): {
   const devPath = path.join(__dirname, "../config/wrangler/dev");
   const prdPath = path.join(__dirname, "../config/wrangler/prd");
   
-  const mainWorkers = ["vspo-portal-gateway", "vspo-portal-cron", "vspo-portal-app"];
+  const mainWorkers = ["vspo-portal-gateway", "vspo-portal-cron", "vspo-portal-service"];
   const appWorkers: string[] = [];
   
   // Get app workers from dev directory
-  const appDir = path.join(devPath, "vspo-portal-app");
+  const appDir = path.join(devPath, "vspo-portal-service");
   if (fs.existsSync(appDir)) {
     const files = fs.readdirSync(appDir);
     files.forEach(file => {
@@ -68,9 +68,9 @@ function generateBuildDryrunCommands(): string[] {
         targetName = 'vspo-portal-gateway';
       } else if (subdir === 'vspo-portal-cron' && file === 'wrangler.jsonc') {
         targetName = 'vspo-portal-cron';
-      } else if (subdir === 'vspo-portal-app') {
+      } else if (subdir === 'vspo-portal-service') {
         if (file === 'wrangler.jsonc') {
-          targetName = 'vspo-portal-app';
+          targetName = 'vspo-portal-service';
         } else {
           targetName = file.replace('dev-', '').replace('.wrangler.jsonc', '');
         }
@@ -83,7 +83,7 @@ function generateBuildDryrunCommands(): string[] {
   }
   
   // Sort to ensure main workers come first
-  const mainWorkers = ['vspo-portal-gateway', 'vspo-portal-cron', 'vspo-portal-app'];
+  const mainWorkers = ['vspo-portal-gateway', 'vspo-portal-cron', 'vspo-portal-service'];
   const sortedTargets = [
     ...targetNames.filter(t => mainWorkers.some(m => t.includes(`:build-dryrun:${m}`))),
     ...targetNames.filter(t => !mainWorkers.some(m => t.includes(`:build-dryrun:${m}`)))
@@ -126,10 +126,10 @@ function generateIndividualTargets(): Record<string, NxTarget> {
       } else if (subdir === 'vspo-portal-cron') {
         targetName = 'vspo-portal-cron';
         entryPoint = ENTRY_POINTS.cron;
-      } else if (subdir === 'vspo-portal-app') {
+      } else if (subdir === 'vspo-portal-service') {
         entryPoint = ENTRY_POINTS.app;
         if (file === 'wrangler.jsonc') {
-          targetName = 'vspo-portal-app';
+          targetName = 'vspo-portal-service';
         } else {
           targetName = file.replace('dev-', '').replace('.wrangler.jsonc', '');
         }

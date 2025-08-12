@@ -17,6 +17,11 @@ const updateSteps: UpdateStep[] = [
     description: "Generate all worker wrangler configurations",
   },
   {
+    name: "Generate Service Configs",
+    command: "pnpm tools:generate-service-configs",
+    description: "Generate all service wrangler configurations",
+  },
+  {
     name: "Generate Worker Types",
     command: "pnpm tools:generate-worker-types",
     description: "Generate TypeScript types for worker bindings",
@@ -43,26 +48,34 @@ const filesToUpdate = [
 ];
 
 // Get all worker names from the wrangler configs
-function getAllWorkers(): { main: string[]; app: string[] } {
+function getAllWorkers(): { main: string[]; app: string[]; service: string[] } {
   const devPath = path.join(__dirname, "../config/wrangler/dev");
-  const mainWorkers = ["vspo-portal-gateway", "vspo-portal-cron", "vspo-portal-app"];
+  const mainWorkers = ["vspo-portal-gateway", "vspo-portal-cron", "vspo-portal-service"];
   const appWorkers: string[] = [];
+  const serviceWorkers: string[] = [];
   
-  // Get app workers from directory
-  const appDir = path.join(devPath, "vspo-portal-app");
+  // Get app workers from directory (workflows)
+  const appDir = path.join(devPath, "vspo-portal-service");
   if (fs.existsSync(appDir)) {
     const files = fs.readdirSync(appDir);
     files.forEach(file => {
       if (file.endsWith(".wrangler.jsonc")) {
         const workerName = file.replace(/^dev-/, "").replace(".wrangler.jsonc", "");
-        if (!appWorkers.includes(workerName)) {
-          appWorkers.push(workerName);
+        // Distinguish between service and workflow configs
+        if (workerName.includes("-query") || workerName.includes("-command")) {
+          if (!serviceWorkers.includes(workerName)) {
+            serviceWorkers.push(workerName);
+          }
+        } else {
+          if (!appWorkers.includes(workerName)) {
+            appWorkers.push(workerName);
+          }
         }
       }
     });
   }
   
-  return { main: mainWorkers, app: appWorkers.sort() };
+  return { main: mainWorkers, app: appWorkers.sort(), service: serviceWorkers.sort() };
 }
 
 // Update deployment workflow with current workers
@@ -84,7 +97,7 @@ function updateDeploymentWorkflow(filePath: string): void {
     "          - ''",
     "          - 'vspo-portal-gateway'",
     "          - 'vspo-portal-cron'",
-    "          - 'vspo-portal-app'",
+    "          - 'vspo-portal-service'",
     ...appWorkers.map(w => `          - '${w}'`),
   ].join("\n");
   
@@ -137,7 +150,7 @@ function updateDryRunWorkflow(filePath: string): void {
     "          - ''",
     "          - 'vspo-portal-gateway'",
     "          - 'vspo-portal-cron'",
-    "          - 'vspo-portal-app'",
+    "          - 'vspo-portal-service'",
     ...appWorkers.map(w => `          - '${w}'`),
   ].join("\n");
   
@@ -155,7 +168,7 @@ function updateDryRunWorkflow(filePath: string): void {
     "        worker:",
     "          - vspo-portal-gateway",
     "          - vspo-portal-cron",
-    "          - vspo-portal-app",
+    "          - vspo-portal-service",
     ...appWorkers.map(w => `          - ${w}`),
   ].join("\n");
   
@@ -178,8 +191,8 @@ function updateDryRunWorkflow(filePath: string): void {
 async function updateAllWorkerConfigs(): Promise<void> {
   console.log("🔄 Updating all worker configurations...\n");
   
-  const { main: mainWorkers, app: appWorkers } = getAllWorkers();
-  console.log(`📊 Found ${mainWorkers.length} main workers and ${appWorkers.length} app workers\n`);
+  const { main: mainWorkers, app: appWorkers, service: serviceWorkers } = getAllWorkers();
+  console.log(`📊 Found ${mainWorkers.length} main workers, ${appWorkers.length} app workers, and ${serviceWorkers.length} service workers\n`);
   
   // Run all generation scripts
   for (const step of updateSteps) {

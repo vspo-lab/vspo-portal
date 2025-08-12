@@ -47,6 +47,7 @@ interface WranglerConfig {
   vars?: Record<string, string>;
   observability?: {
     enabled: boolean;
+    invocation_logs?: boolean;
   };
   services?: Array<{
     binding: string;
@@ -112,29 +113,37 @@ function getEnvPrefix(): string {
 
 // Get KV ID based on environment
 function getKvId(env: string = ENV): string {
-  // TODO: Set KV ID for prd environment
-  return env === "prd" ? "PRODUCTION_KV_ID_HERE" : "0b6b968c69fc406c8d55aaf2cd657c2b";
+  return env === "prd" ? "14bf3d407655490e9f377efbb4c3352b" : "0b6b968c69fc406c8d55aaf2cd657c2b";
 }
 
 // Get Hyperdrive ID based on environment
 function getHyperdriveId(env: string = ENV): string {
-  // TODO: Set Hyperdrive ID for prd environment
-  return env === "prd" ? "PRODUCTION_HYPERDRIVE_ID_HERE" : "4d99e5c5c0944294977331b93146876c";
+  return env === "prd" ? "cca2ae902ed44343ba0d34130f937a88" : "4d99e5c5c0944294977331b93146876c";
 }
 
 // Convert workflow name to service name
 function workflowToServiceName(workflowName: string): string {
   const envPrefix = getEnvPrefix();
-  const name = workflowName
+  
+  // Handle CQRS naming pattern
+  let name = workflowName
     .replace(/_WORKFLOW$/, "")
     .toLowerCase()
     .replace(/_/g, "-");
+  
+  // Rearrange command/query pattern to be at the end
+  if (name.includes("-command")) {
+    name = name.replace("-command", "") + "-command";
+  } else if (name.includes("-query")) {
+    name = name.replace("-query", "") + "-query";
+  }
+  
   return `${envPrefix}${name}`;
 }
 
 // Convert workflow name to class name
 function workflowToClassName(workflowName: string): string {
-  // SEARCH_STREAMS_WORKFLOW -> SearchStreamsWorkflow
+  // STREAM_QUERY_WORKFLOW -> StreamQueryWorkflow
   const baseName = workflowName.replace(/_WORKFLOW$/, "");
   return baseName
     .split("_")
@@ -162,76 +171,77 @@ ${jsonString}
   writeFileSync(outputPath, jsoncContent);
 }
 
-// 1. Generate configuration files for each workflow
-function generateWorkflowConfigs(workflowNames: string[]): void {
-  console.log("\n📝 Generating workflow configs...");
-  
-  workflowNames.forEach(workflowName => {
-    const serviceName = workflowToServiceName(workflowName);
-    const baseName = workflowName
-      .replace(/_WORKFLOW$/, "")
-      .toLowerCase()
-      .replace(/_/g, "-");
-    
-    const config: WranglerConfig = {
-      $schema: "node_modules/wrangler/config-schema.json",
-      name: serviceName,
-      compatibility_date: "2024-10-22",
-      send_metrics: false,
-      compatibility_flags: ["nodejs_compat", "nodejs_als"],
-      // All workflows use the same app entry point
-      main: "cmd/server/internal/application/index.ts",
-      logpush: true,
-      kv_namespaces: [
-        { binding: "APP_KV", id: getKvId() }
-      ],
-      ...(ENV === "dev" && {
-        dev: {
-          port: 3001
-        }
-      }),
-      hyperdrive: [
-        {
-          binding: "DB",
-          id: getHyperdriveId(),
-          ...(ENV === "dev" && {
-            localConnectionString: "postgres://user:password@localhost:5432/vspo"
-          })
-        }
-      ],
-      queues: {
-        producers: [
-          {
-            queue: `${getEnvPrefix()}write-queue`,
-            binding: "WRITE_QUEUE"
-          }
-        ],
-        consumers: [
-          {
-            queue: `${getEnvPrefix()}write-queue`,
-            max_batch_size: 100,
-            max_batch_timeout: 3,
-            dead_letter_queue: `${getEnvPrefix()}write-queue-dead-letter`
-          }
-        ]
-      },
-      vars: {
-        SERVICE_NAME: serviceName,
-        ENVIRONMENT: ENV === "prd" ? "production" : "development",
-        LOG_TYPE: "json",
-        LOG_MINLEVEL: "info",
-        LOG_HIDE_POSITION: "true"
-      },
-      observability: {
-        enabled: true
-      }
-    };
-    
-    const outputPath = join(BASE_OUTPUT_DIR, "vspo-portal-app", `${serviceName}.wrangler.jsonc`);
-    saveAsJsonc(config, outputPath, `Auto-generated Wrangler configuration for ${serviceName}`);
-    console.log(`   ✅ ${serviceName}`);
-  });
-}
+// 1. Generate configuration files for each workflow - UNUSED
+// function generateWorkflowConfigs(workflowNames: string[]): void {
+//   console.log("\n📝 Generating workflow configs...");
+//   
+//   workflowNames.forEach(workflowName => {
+//     const serviceName = workflowToServiceName(workflowName);
+//     const baseName = workflowName
+//       .replace(/_WORKFLOW$/, "")
+//       .toLowerCase()
+//       .replace(/_/g, "-");
+//     
+//     const config: WranglerConfig = {
+//       $schema: "node_modules/wrangler/config-schema.json",
+//       name: serviceName,
+//       compatibility_date: "2024-10-22",
+//       send_metrics: false,
+//       compatibility_flags: ["nodejs_compat", "nodejs_als"],
+//       // All workflows use the same app entry point
+//       main: "cmd/server/internal/application/index.ts",
+//       logpush: true,
+//       kv_namespaces: [
+//         { binding: "APP_KV", id: getKvId() }
+//       ],
+//       ...(ENV === "dev" && {
+//         dev: {
+//           port: 3001
+//         }
+//       }),
+//       hyperdrive: [
+//         {
+//           binding: "DB",
+//           id: getHyperdriveId(),
+//           ...(ENV === "dev" && {
+//             localConnectionString: "postgres://user:password@localhost:5432/vspo"
+//           })
+//         }
+//       ],
+//       queues: {
+//         producers: [
+//           {
+//             queue: `${getEnvPrefix()}write-queue`,
+//             binding: "WRITE_QUEUE"
+//           }
+//         ],
+//         consumers: [
+//           {
+//             queue: `${getEnvPrefix()}write-queue`,
+//             max_batch_size: 100,
+//             max_batch_timeout: 3,
+//             dead_letter_queue: `${getEnvPrefix()}write-queue-dead-letter`
+//           }
+//         ]
+//       },
+//       vars: {
+//         SERVICE_NAME: serviceName,
+//         ENVIRONMENT: ENV === "prd" ? "production" : "development",
+//         LOG_TYPE: "json",
+//         LOG_MINLEVEL: "info",
+//         LOG_HIDE_POSITION: "true"
+//       },
+//       observability: {
+//         enabled: true,
+//         invocation_logs: false
+//       }
+//     };
+//     
+//     const outputPath = join(BASE_OUTPUT_DIR, "vspo-portal-service", `${serviceName}.wrangler.jsonc`);
+//     saveAsJsonc(config, outputPath, `Auto-generated Wrangler configuration for ${serviceName}`);
+//     console.log(`   ✅ ${serviceName}`);
+//   });
+// }
 
 // 2. Generate Gateway configuration (including CQRS service bindings only)
 function generateGatewayConfig(serviceBindings: Array<{binding: string, service: string, entrypoint: string}>): void {
@@ -265,7 +275,7 @@ function generateGatewayConfig(serviceBindings: Array<{binding: string, service:
     },
     observability: {
       enabled: true,
-      
+      invocation_logs: false
     }
   };
   
@@ -312,7 +322,7 @@ function generateCronConfig(workflowNames: string[], serviceBindings: Array<{bin
     },
     observability: {
       enabled: true,
-      
+      invocation_logs: false
     }
   };
   
@@ -341,8 +351,9 @@ function main() {
   console.log(`Found ${serviceBindings.length} service bindings`);
   
   try {
-    // 1. Generate configuration files for each workflow
-    generateWorkflowConfigs(workflowNames);
+    // 1. Generate configuration files for each workflow - SKIPPED
+    // generateWorkflowConfigs(workflowNames);
+    console.log("\n📝 Skipping workflow configs generation (handled separately)...");
     
     // 2. Generate Gateway configuration (including CQRS services only)
     generateGatewayConfig(serviceBindings);
@@ -354,7 +365,7 @@ function main() {
     console.log("\nGenerated files:");
     console.log(`  - Gateway: config/wrangler/${ENV}/vspo-portal-gateway/wrangler.jsonc`);
     console.log(`  - Cron: config/wrangler/${ENV}/vspo-portal-cron/wrangler.jsonc`);
-    console.log(`  - Workflows: config/wrangler/${ENV}/vspo-portal-app/*.wrangler.jsonc (${workflowNames.length} files)`);
+    console.log(`  - Note: Workflow configs are not generated by this tool`);
     
     if (ENV === "prd") {
       console.log("\n⚠️  Note: Please update the following IDs for production:");

@@ -30,7 +30,13 @@
     "tools:generate-all-configs:prd": "tsup tools/wrangler/generate-all-configs.ts --format cjs && node dist/generate-all-configs.cjs prd",
     "tools:generate-worker-types": "tsup tools/generate-worker-types.ts --format cjs && node dist/generate-worker-types.cjs",
     "tools:generate-nx-config": "tsup tools/generate-nx-config.ts --format cjs && node dist/generate-nx-config.cjs",
-    "tools:update-all-configs": "tsup tools/update-all-worker-configs.ts --format cjs && node dist/update-all-worker-configs.cjs"
+    "tools:update-all-configs": "tsup tools/update-all-worker-configs.ts --format cjs && node dist/update-all-worker-configs.cjs",
+    "tools:generate-service-configs": "tsup tools/wrangler/generate-service-configs.ts --format cjs && node dist/generate-service-configs.cjs",
+    "tools:generate-service-configs:dev": "tsup tools/wrangler/generate-service-configs.ts --format cjs && node dist/generate-service-configs.cjs dev",
+    "tools:generate-service-configs:prd": "tsup tools/wrangler/generate-service-configs.ts --format cjs && node dist/generate-service-configs.cjs prd",
+    "tools:generate-all-worker-configs": "tsup tools/wrangler/generate-all-worker-configs.ts --format cjs && node dist/generate-all-worker-configs.cjs",
+    "tools:generate-all-worker-configs:dev": "tsup tools/wrangler/generate-all-worker-configs.ts --format cjs && node dist/generate-all-worker-configs.cjs dev",
+    "tools:generate-all-worker-configs:prd": "tsup tools/wrangler/generate-all-worker-configs.ts --format cjs && node dist/generate-all-worker-configs.cjs prd"
   },
   "dependencies": {
     "@discordeno/rest": "^21.0.0",

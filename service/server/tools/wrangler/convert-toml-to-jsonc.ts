@@ -31,7 +31,7 @@ function extractWorkflowNames(): string[] {
 
 // Convert workflow name to class name
 function workflowToClassName(workflowName: string): string {
-  // SEARCH_STREAMS_WORKFLOW -> SearchStreamsWorkflow
+  // STREAM_QUERY_WORKFLOW -> StreamQueryWorkflow
   const baseName = workflowName.replace(/_WORKFLOW$/, "");
   return baseName
     .split("_")
@@ -41,7 +41,7 @@ function workflowToClassName(workflowName: string): string {
 
 // Convert workflow name to service name
 function workflowToServiceName(workflowName: string): string {
-  // SEARCH_STREAMS_WORKFLOW -> dev-search-streams-workflow
+  // STREAM_QUERY_WORKFLOW -> dev-stream-query
   const name = workflowName
     .replace(/_WORKFLOW$/, "")
     .toLowerCase()
