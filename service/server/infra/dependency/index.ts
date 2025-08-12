@@ -26,6 +26,30 @@ import {
   createStreamService,
   type IStreamService,
 } from "../../domain/service/stream";
+import {
+  createClipQueryService,
+  type IClipQueryService,
+} from "../../query-service/clip/index";
+import {
+  createCreatorQueryService,
+  type ICreatorQueryService,
+} from "../../query-service/creator/index";
+import {
+  createDiscordQueryService,
+  type IDiscordQueryService,
+} from "../../query-service/discord/index";
+import {
+  createEventQueryService,
+  type IEventQueryService,
+} from "../../query-service/event/index";
+import {
+  createFreechatQueryService,
+  type IFreechatQueryService,
+} from "../../query-service/freechat/index";
+import {
+  createStreamQueryService,
+  type IStreamQueryService,
+} from "../../query-service/stream/index";
 import { createClipInteractor, type IClipInteractor } from "../../usecase/clip";
 import {
   createClipAnalysisInteractor,
@@ -249,6 +273,12 @@ export interface ICommandContainer {
 export interface IQueryContainer {
   readonly appContext: IAppContext;
   readonly cacheClient: ICacheClient;
+  readonly streamQueryService: IStreamQueryService;
+  readonly clipQueryService: IClipQueryService;
+  readonly creatorQueryService: ICreatorQueryService;
+  readonly discordQueryService: IDiscordQueryService;
+  readonly eventQueryService: IEventQueryService;
+  readonly freechatQueryService: IFreechatQueryService;
 }
 
 // Unified container for backward compatibility
@@ -327,6 +357,12 @@ export const createQueryContainer = (env: AppWorkerEnv): IQueryContainer => {
   return {
     appContext,
     cacheClient: services.cacheClient,
+    streamQueryService: createStreamQueryService(appContext),
+    clipQueryService: createClipQueryService(appContext),
+    creatorQueryService: createCreatorQueryService(appContext),
+    discordQueryService: createDiscordQueryService(appContext),
+    eventQueryService: createEventQueryService(appContext),
+    freechatQueryService: createFreechatQueryService(appContext),
   };
 };
 

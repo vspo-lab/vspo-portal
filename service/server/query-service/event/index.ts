@@ -1,4 +1,4 @@
-import { Ok } from "@vspo-lab/error";
+import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import type {
   VspoEvent as Event,
   VspoEvents as Events,
@@ -25,45 +25,51 @@ export type ListEventsResponse = {
   pagination: Page;
 };
 
-export async function listEvents(
+// Query Service Interface
+export interface IEventQueryService {
+  list(params: ListEventsQuery): Promise<Result<ListEventsResponse, AppError>>;
+  get(id: string): Promise<Result<Event | null, AppError>>;
+}
+
+// Factory function
+export const createEventQueryService = (
   context: IAppContext,
-  query: ListEventsQuery,
-): Promise<ReturnType<typeof context.runInTx<ListEventsResponse>>> {
-  return await withTracerResult("listEvents", "execute", async () => {
-    return context.runInTx(async (repos, _services) => {
-      const events = await repos.eventRepository.list(query);
-      if (events.err) {
-        return events;
-      }
+): IEventQueryService => {
+  return {
+    list: async (query) => {
+      return await withTracerResult("listEvents", "execute", async () => {
+        return context.runInTx(async (repos, _services) => {
+          const events = await repos.eventRepository.list(query);
+          if (events.err) {
+            return events;
+          }
 
-      const count = await repos.eventRepository.count(query);
-      if (count.err) {
-        return count;
-      }
+          const count = await repos.eventRepository.count(query);
+          if (count.err) {
+            return count;
+          }
 
-      return Ok({
-        events: events.val,
-        pagination: createPage({
-          currentPage: query.page,
-          limit: query.limit,
-          totalCount: count.val,
-        }),
+          return Ok({
+            events: events.val,
+            pagination: createPage({
+              currentPage: query.page,
+              limit: query.limit,
+              totalCount: count.val,
+            }),
+          });
+        });
       });
-    });
-  });
-}
-
-export async function getEvent(
-  context: IAppContext,
-  id: string,
-): Promise<ReturnType<typeof context.runInTx<Event | null>>> {
-  return await withTracerResult("getEvent", "execute", async () => {
-    return context.runInTx(async (repos, _services) => {
-      const event = await repos.eventRepository.get(id);
-      if (event.err) {
-        return event;
-      }
-      return Ok(event.val);
-    });
-  });
-}
+    },
+    get: async (id) => {
+      return await withTracerResult("getEvent", "execute", async () => {
+        return context.runInTx(async (repos, _services) => {
+          const event = await repos.eventRepository.get(id);
+          if (event.err) {
+            return event;
+          }
+          return Ok(event.val);
+        });
+      });
+    },
+  };
+};

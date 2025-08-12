@@ -47,7 +47,6 @@ interface WranglerConfig {
   vars?: Record<string, string>;
   observability?: {
     enabled: boolean;
-    invocation_logs: boolean;
   };
   services?: Array<{
     binding: string;

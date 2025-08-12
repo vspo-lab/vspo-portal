@@ -1,4 +1,4 @@
-import { Ok } from "@vspo-lab/error";
+import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import type { Creators } from "../../domain/creator";
 import { createPage, type Page } from "../../domain/pagination";
 import type { IAppContext } from "../../infra/dependency";
@@ -24,66 +24,83 @@ export type SearchByMemberTypeParam = {
   memberType: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
 };
 
-export async function listCreators(
-  context: IAppContext,
-  params: ListByMemberTypeParam,
-): Promise<ReturnType<typeof context.runInTx<ListCreatorsResponse>>> {
-  return await withTracerResult("listCreators", "execute", async () => {
-    return context.runInTx(async (repos, _services) => {
-      const c = await repos.creatorRepository.list(params);
-      if (c.err) {
-        return c;
-      }
-
-      const count = await repos.creatorRepository.count(params);
-      if (count.err) {
-        return count;
-      }
-
-      return Ok({
-        creators: c.val,
-        pagination: createPage({
-          currentPage: params.page,
-          limit: params.limit,
-          totalCount: count.val,
-        }),
-      });
-    });
-  });
+// Query Service Interface
+export interface ICreatorQueryService {
+  searchByChannelIds(
+    params: SearchByChannelIdsParam,
+  ): Promise<Result<Creators, AppError>>;
+  searchByMemberType(
+    params: SearchByMemberTypeParam,
+  ): Promise<Result<Creators, AppError>>;
+  list(
+    params: ListByMemberTypeParam,
+  ): Promise<Result<ListCreatorsResponse, AppError>>;
 }
 
-export async function searchByChannelIds(
+// Factory function
+export const createCreatorQueryService = (
   context: IAppContext,
-  params: SearchByChannelIdsParam,
-): Promise<ReturnType<typeof context.runInTx<Creators>>> {
-  return await withTracerResult("searchByChannelIds", "execute", async () => {
-    return context.runInTx(async (_repos, services) => {
-      const c = await services.creatorService.searchCreatorsByChannelIds(
-        params.channelIds.map((channelId) => ({
-          channelId,
-          memberType: "vspo_jp",
-        })),
+): ICreatorQueryService => {
+  return {
+    searchByChannelIds: async (params) => {
+      return await withTracerResult(
+        "searchByChannelIds",
+        "execute",
+        async () => {
+          return context.runInTx(async (_repos, services) => {
+            const c = await services.creatorService.searchCreatorsByChannelIds(
+              params.channelIds.map((channelId) => ({
+                channelId,
+                memberType: "vspo_jp",
+              })),
+            );
+            if (c.err) {
+              return c;
+            }
+            return Ok(c.val);
+          });
+        },
       );
-      if (c.err) {
-        return c;
-      }
-      return Ok(c.val);
-    });
-  });
-}
+    },
+    searchByMemberType: async (params) => {
+      return await withTracerResult(
+        "searchByMemberType",
+        "execute",
+        async () => {
+          return context.runInTx(async (_repos, services) => {
+            const c =
+              await services.creatorService.searchCreatorsByMemberType(params);
+            if (c.err) {
+              return c;
+            }
+            return Ok(c.val);
+          });
+        },
+      );
+    },
+    list: async (params) => {
+      return await withTracerResult("listCreators", "execute", async () => {
+        return context.runInTx(async (repos, _services) => {
+          const c = await repos.creatorRepository.list(params);
+          if (c.err) {
+            return c;
+          }
 
-export async function searchByMemberType(
-  context: IAppContext,
-  params: SearchByMemberTypeParam,
-): Promise<ReturnType<typeof context.runInTx<Creators>>> {
-  return await withTracerResult("searchByMemberType", "execute", async () => {
-    return context.runInTx(async (_repos, services) => {
-      const c =
-        await services.creatorService.searchCreatorsByMemberType(params);
-      if (c.err) {
-        return c;
-      }
-      return Ok(c.val);
-    });
-  });
-}
+          const count = await repos.creatorRepository.count(params);
+          if (count.err) {
+            return count;
+          }
+
+          return Ok({
+            creators: c.val,
+            pagination: createPage({
+              currentPage: params.page,
+              limit: params.limit,
+              totalCount: count.val,
+            }),
+          });
+        });
+      });
+    },
+  };
+};

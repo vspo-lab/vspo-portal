@@ -93,11 +93,6 @@ run_dry_run "vspo-portal-cron" \
   "config/wrangler/dev/vspo-portal-cron/wrangler.jsonc" \
   "cmd/cron/index.ts"
 
-# App
-run_dry_run "vspo-portal-app" \
-  "config/wrangler/dev/vspo-portal-app/wrangler.jsonc" \
-  "cmd/server/internal/application/index.ts"
-
 # App workers
 APP_WORKERS=(
   "access-vspo-schedule-site"

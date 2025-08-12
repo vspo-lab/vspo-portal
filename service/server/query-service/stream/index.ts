@@ -1,4 +1,4 @@
-import { Ok } from "@vspo-lab/error";
+import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import { createPage, type Page } from "../../domain/pagination";
 import type { Streams } from "../../domain/stream";
 import type { IAppContext } from "../../infra/dependency";
@@ -22,105 +22,119 @@ export type GetDeletedStreamIdsParam = {
   creatorIds: string[];
 };
 
-export async function searchLiveStreams(
-  context: IAppContext,
-): Promise<ReturnType<typeof context.runInTx<Streams>>> {
-  return await withTracerResult("searchLiveStreams", "execute", async () => {
-    return context.runInTx(async (_repos, services) => {
-      const sv = await services.streamService.searchAllLiveStreams();
-      if (sv.err) {
-        return sv;
-      }
-      return Ok(sv.val);
-    });
-  });
-}
-
-export async function searchExistStreams(
-  context: IAppContext,
-): Promise<ReturnType<typeof context.runInTx<Streams>>> {
-  return await withTracerResult("searchExistStreams", "execute", async () => {
-    return context.runInTx(async (_repos, services) => {
-      const sv = await services.streamService.searchExistStreams();
-      if (sv.err) {
-        return sv;
-      }
-      return Ok(sv.val);
-    });
-  });
-}
-
 export type StreamsPage = {
   streams: Streams;
   pagination: Page;
 };
 
-export async function listStreams(
-  context: IAppContext,
-  params: ListParam,
-): Promise<ReturnType<typeof context.runInTx<StreamsPage>>> {
-  return await withTracerResult("listStreams", "execute", async () => {
-    return context.runInTx(async (repos, _services) => {
-      const sv = await repos.streamRepository.list(params);
-      if (sv.err) {
-        return sv;
-      }
+// Query Service Interface
+export interface IStreamQueryService {
+  searchLive(): Promise<Result<Streams, AppError>>;
+  searchExist(): Promise<Result<Streams, AppError>>;
+  list(params: ListParam): Promise<Result<StreamsPage, AppError>>;
+  searchDeletedCheck(): Promise<Result<Streams, AppError>>;
+  getMemberStreams(): Promise<Result<Streams, AppError>>;
+  deletedListIds(): Promise<Result<string[], AppError>>;
+}
 
-      const c = await repos.streamRepository.count(params);
-      if (c.err) {
-        return c;
-      }
-      return Ok({
-        streams: sv.val,
-        pagination: createPage({
-          currentPage: params.page,
-          limit: params.limit,
-          totalCount: c.val,
-        }),
+// Factory function
+export const createStreamQueryService = (
+  context: IAppContext,
+): IStreamQueryService => {
+  return {
+    searchLive: async () => {
+      return await withTracerResult(
+        "searchLiveStreams",
+        "execute",
+        async () => {
+          return context.runInTx(async (_repos, services) => {
+            const sv = await services.streamService.searchAllLiveStreams();
+            if (sv.err) {
+              return sv;
+            }
+            return Ok(sv.val);
+          });
+        },
+      );
+    },
+    searchExist: async () => {
+      return await withTracerResult(
+        "searchExistStreams",
+        "execute",
+        async () => {
+          return context.runInTx(async (_repos, services) => {
+            const sv = await services.streamService.searchExistStreams();
+            if (sv.err) {
+              return sv;
+            }
+            return Ok(sv.val);
+          });
+        },
+      );
+    },
+    list: async (params) => {
+      return await withTracerResult("listStreams", "execute", async () => {
+        return context.runInTx(async (repos, _services) => {
+          const sv = await repos.streamRepository.list(params);
+          if (sv.err) {
+            return sv;
+          }
+
+          const c = await repos.streamRepository.count(params);
+          if (c.err) {
+            return c;
+          }
+          return Ok({
+            streams: sv.val,
+            pagination: createPage({
+              currentPage: params.page,
+              limit: params.limit,
+              totalCount: c.val,
+            }),
+          });
+        });
       });
-    });
-  });
-}
-
-export async function getMemberStreams(
-  context: IAppContext,
-): Promise<ReturnType<typeof context.runInTx<Streams>>> {
-  return await withTracerResult("getMemberStreams", "execute", async () => {
-    return context.runInTx(async (_repos, services) => {
-      const sv = await services.streamService.getMemberStreams();
-      if (sv.err) {
-        return sv;
-      }
-      return Ok(sv.val);
-    });
-  });
-}
-
-export async function getDeletedStreamIds(
-  context: IAppContext,
-  _params?: GetDeletedStreamIdsParam,
-): Promise<ReturnType<typeof context.runInTx<string[]>>> {
-  return await withTracerResult("getDeletedStreamIds", "execute", async () => {
-    return context.runInTx(async (repos, _services) => {
-      const ids = await repos.streamRepository.deletedListIds();
-      if (ids.err) {
-        return ids;
-      }
-      return Ok(ids.val);
-    });
-  });
-}
-
-export async function searchDeletedStreams(
-  context: IAppContext,
-): Promise<ReturnType<typeof context.runInTx<Streams>>> {
-  return await withTracerResult("searchDeletedStreams", "execute", async () => {
-    return context.runInTx(async (_repos, services) => {
-      const sv = await services.streamService.searchDeletedStreams();
-      if (sv.err) {
-        return sv;
-      }
-      return Ok(sv.val);
-    });
-  });
-}
+    },
+    searchDeletedCheck: async () => {
+      return await withTracerResult(
+        "searchDeletedStreams",
+        "execute",
+        async () => {
+          return context.runInTx(async (_repos, services) => {
+            const sv = await services.streamService.searchDeletedStreams();
+            if (sv.err) {
+              return sv;
+            }
+            return Ok(sv.val);
+          });
+        },
+      );
+    },
+    getMemberStreams: async () => {
+      return await withTracerResult("getMemberStreams", "execute", async () => {
+        return context.runInTx(async (_repos, services) => {
+          const sv = await services.streamService.getMemberStreams();
+          if (sv.err) {
+            return sv;
+          }
+          return Ok(sv.val);
+        });
+      });
+    },
+    deletedListIds: async () => {
+      return await withTracerResult(
+        "getDeletedStreamIds",
+        "execute",
+        async () => {
+          return context.runInTx(async (repos, _services) => {
+            const ids = await repos.streamRepository.deletedListIds();
+            if (ids.err) {
+              return ids;
+            }
+            return Ok(ids.val);
+          });
+        },
+      );
+    },
+  };
+};
