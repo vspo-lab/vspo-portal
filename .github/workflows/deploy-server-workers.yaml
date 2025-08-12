@@ -17,30 +17,26 @@ on:
           - ''
           - 'vspo-portal-gateway'
           - 'vspo-portal-cron'
-          - 'vspo-portal-app'
-          - 'access-vspo-schedule-site'
-          - 'analyze-clips'
-          - 'delete-streams'
-          - 'discord-delete-all'
-          - 'discord-send-message-all-channel'
-          - 'discord-send-message-channels'
-          - 'discord-send-messages'
-          - 'exist-clips'
-          - 'fetch-clips-by-creator'
-          - 'search-channels'
-          - 'search-clips-by-vspo-member-name'
-          - 'search-clips'
-          - 'search-member-streams-by-channel'
-          - 'search-streams'
-          - 'translate-creators'
-          - 'translate-streams'
+          - 'vspo-portal-service'
+          - 'stream-query'
+          - 'clip-query'
+          - 'creator-query'
+          - 'discord-query'
+          - 'event-query'
+          - 'freechat-query'
+          - 'clip-analysis-query'
+          - 'stream-command'
+          - 'clip-command'
+          - 'creator-command'
+          - 'discord-command'
+          - 'event-command'
 
 jobs:
   deploy-main-workers:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
-    if: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-gateway' || github.event.inputs.worker == 'vspo-portal-cron' || github.event.inputs.worker == 'vspo-portal-app' }}
+    if: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-gateway' || github.event.inputs.worker == 'vspo-portal-cron' || github.event.inputs.worker == 'vspo-portal-service' }}
     strategy:
       fail-fast: false
       matrix:
@@ -49,8 +45,8 @@ jobs:
             enabled: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-gateway' }}
           - name: "vspo-portal-cron"
             enabled: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-cron' }}
-          - name: "vspo-portal-app"
-            enabled: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-app' }}
+          - name: "vspo-portal-service"
+            enabled: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-service' }}
     steps:
       - uses: actions/checkout@v4
         if: ${{ matrix.enabled == 'true' || matrix.enabled == true }}
@@ -126,27 +122,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
-    if: ${{ github.event_name == 'push' || (github.event.inputs.worker && github.event.inputs.worker != 'vspo-portal-gateway' && github.event.inputs.worker != 'vspo-portal-cron' && github.event.inputs.worker != 'vspo-portal-app') }}
+    if: ${{ github.event_name == 'push' || (github.event.inputs.worker && github.event.inputs.worker != 'vspo-portal-gateway' && github.event.inputs.worker != 'vspo-portal-cron' && github.event.inputs.worker != 'vspo-portal-service') }}
     strategy:
       fail-fast: false
       matrix:
         worker:
-          - 'access-vspo-schedule-site'
-          - 'analyze-clips'
-          - 'delete-streams'
-          - 'discord-delete-all'
-          - 'discord-send-message-all-channel'
-          - 'discord-send-message-channels'
-          - 'discord-send-messages'
-          - 'exist-clips'
-          - 'fetch-clips-by-creator'
-          - 'search-channels'
-          - 'search-clips-by-vspo-member-name'
-          - 'search-clips'
-          - 'search-member-streams-by-channel'
-          - 'search-streams'
-          - 'translate-creators'
-          - 'translate-streams'
+          - 'stream-query'
+          - 'clip-query'
+          - 'creator-query'
+          - 'discord-query'
+          - 'event-query'
+          - 'freechat-query'
+          - 'clip-analysis-query'
+          - 'stream-command'
+          - 'clip-command'
+          - 'creator-command'
+          - 'discord-command'
+          - 'event-command'
     steps:
       - uses: actions/checkout@v4
         if: ${{ github.event_name == 'push' || github.event.inputs.worker == matrix.worker }}
@@ -169,11 +161,11 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           wranglerVersion: "4.6.0"
-          workingDirectory: service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-app
+          workingDirectory: service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-service
           command: deploy -c ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}-${{ matrix.worker }}.wrangler.jsonc
           preCommands: |
             cd ../../../../..
-            cp -R ./ service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-app/
+            cp -R ./ service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-service/
           quiet: true
           secrets: |
             OPENAI_ORGANIZATION
