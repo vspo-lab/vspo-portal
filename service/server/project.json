@@ -94,10 +94,7 @@
     "ci": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run vspo-portal-server:build-dryrun",
-          "pnpm test"
-        ],
+        "commands": ["nx run vspo-portal-server:build-dryrun", "pnpm test"],
         "parallel": false
       }
     }
