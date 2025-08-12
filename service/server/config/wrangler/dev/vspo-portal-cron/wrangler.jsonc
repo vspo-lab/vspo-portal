@@ -1,6 +1,6 @@
 /**
  * Cron configuration with workflow definitions and service bindings
- * Generated at 2025-08-12T08:56:52.592Z
+ * Generated at 2025-08-12T15:33:03.553Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -167,6 +167,7 @@
     "LOG_HIDE_POSITION": "true"
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "invocation_logs": false
   }
 }
