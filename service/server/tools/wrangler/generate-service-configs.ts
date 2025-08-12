@@ -34,7 +34,6 @@ interface WranglerConfig {
   vars: Record<string, string>;
   observability?: {
     enabled: boolean;
-    invocation_logs?: boolean;
   };
   services?: Array<{
     binding: string;
@@ -98,7 +97,6 @@ function generateServiceConfig(
 ): WranglerConfig {
   const envPrefix = getEnvPrefix();
   const serviceName = `${envPrefix}${service.name}`;
-  
   const config: WranglerConfig = {
     $schema: "node_modules/wrangler/config-schema.json",
     name: serviceName,
@@ -133,8 +131,7 @@ function generateServiceConfig(
       LOG_HIDE_POSITION: "true",
     },
     observability: {
-      enabled: true,
-      invocation_logs: false,
+      enabled: true
     },
   };
 
@@ -186,7 +183,9 @@ async function main() {
   let port = 3100; // Starting port for services
   for (const service of services) {
     const config = generateServiceConfig(service, env, port);
-    const outputPath = join(outputDir, `${getEnvPrefix()}${service.name}.wrangler.jsonc`);
+    // Create a directory for each service (without env prefix in directory name)
+    const serviceDir = join(outputDir, service.name);
+    const outputPath = join(serviceDir, "wrangler.jsonc");
     
     saveAsJsonc(
       config,
@@ -200,7 +199,7 @@ async function main() {
   
   console.log("\n✨ All service configurations generated successfully!");
   console.log(`\nGenerated files:`);
-  console.log(`  - Service configs: ${outputDir}/*.wrangler.jsonc (${services.length} files)`);
+  console.log(`  - Service configs: ${outputDir}/<service-name>/wrangler.jsonc (${services.length} services)`);
   
   if (env === "prd") {
     console.log("\n⚠️  Note: Please update the following IDs for production:");

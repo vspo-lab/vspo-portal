@@ -19,7 +19,6 @@ interface WranglerConfig {
   };
   observability: {
     enabled: boolean;
-    invocation_logs: boolean;
   };
   build: {
     command: string;
@@ -127,8 +126,7 @@ function updateWranglerConfig(env: "dev" | "prd"): void {
     "directory": "${config.assets.directory}"
   },
   "observability": {
-    "enabled": ${config.observability.enabled},
-    "invocation_logs": ${config.observability.invocation_logs}
+    "enabled": ${config.observability.enabled}
   },
   "build": {
     "command": "${config.build.command}",

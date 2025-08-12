@@ -233,7 +233,6 @@ ${jsonString}
 //       },
 //       observability: {
 //         enabled: true,
-//         invocation_logs: false
 //       }
 //     };
 //     
@@ -275,7 +274,6 @@ function generateGatewayConfig(serviceBindings: Array<{binding: string, service:
     },
     observability: {
       enabled: true,
-      invocation_logs: false
     }
   };
   
@@ -321,8 +319,7 @@ function generateCronConfig(workflowNames: string[], serviceBindings: Array<{bin
       LOG_HIDE_POSITION: "true"
     },
     observability: {
-      enabled: true,
-      invocation_logs: false
+      enabled: true
     }
   };
   
