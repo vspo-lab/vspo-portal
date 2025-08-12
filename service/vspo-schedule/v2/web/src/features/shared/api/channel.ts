@@ -39,16 +39,16 @@ export const fetchVspoMembers = async ({
     const members: Channel[] = [];
 
     if (cfEnv) {
-      const { APP_WORKER } = cfEnv;
+      const { CREATOR_QUERY_SERVICE } = cfEnv;
 
-      // Fetch Japanese and English members in parallel using APP_WORKER
+      // Fetch Japanese and English members in parallel using CREATOR_QUERY_SERVICE
       const [vspoJpResult, vspoEnResult] = await Promise.all([
-        APP_WORKER.newCreatorUsecase().list({
+        CREATOR_QUERY_SERVICE.list({
           limit: 100,
           page: 0,
           memberType: "vspo_jp",
         }),
-        APP_WORKER.newCreatorUsecase().list({
+        CREATOR_QUERY_SERVICE.list({
           limit: 100,
           page: 0,
           memberType: "vspo_en",
@@ -145,7 +145,7 @@ const mapToChannel = (creator: ListCreators200CreatorsItem): Channel => {
 };
 
 /**
- * Convert APP_WORKER response to Channel type
+ * Convert CREATOR_QUERY_SERVICE response to Channel type
  */
 const mapWorkerResponseToChannel = (
   creator: WorkerCreatorResponse,

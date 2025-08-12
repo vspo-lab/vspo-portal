@@ -7,8 +7,13 @@ import {
   Components,
   Select,
 } from "discord-hono";
-import type { ApplicationService } from "../../../cmd/server/internal/application";
-import type { DiscordServer } from "../../../domain";
+import type {
+  CreatorCommandService,
+  CreatorQueryService,
+  DiscordCommandService,
+  DiscordQueryService,
+} from "../../../cmd/server/internal/application";
+import type { DiscordServer } from "../../../domain/discord";
 import {
   runWithLanguage,
   type SupportedLanguage,
@@ -20,10 +25,10 @@ import { cacheKey, createCloudflareKVCacheClient } from "../../cache";
 const MemberTypeLabelMapping = {
   vspo_jp: "VSPO JP Members / ぶいすぽっ！JPメンバー",
   vspo_en: "VSPO EN Members / ぶいすぽっ！ENメンバー",
-  // vspo_ch: "VSPO CH Members / ぶいすぽっ！CHメンバー",
+  // vspo_ch: "VSPO CH Members",
   vspo_all: "All VSPO Members / すべてのぶいすぽっ！メンバー",
   custom: "Select Specific Members / 特定のメンバーを個別に選択",
-  // general: "General / 一般",
+  // general: "General",
 } as const;
 
 // Discord select menu can show up to 25 options
@@ -46,7 +51,10 @@ export type IDiscordComponentDefinition<T extends Env> = {
 
 export type DiscordCommandEnv = {
   Bindings: {
-    APP_WORKER: Service<ApplicationService>;
+    DISCORD_QUERY_SERVICE: Service<DiscordQueryService>;
+    DISCORD_COMMAND_SERVICE: Service<DiscordCommandService>;
+    CREATOR_QUERY_SERVICE: Service<CreatorQueryService>;
+    CREATOR_COMMAND_SERVICE: Service<CreatorCommandService>;
     APP_KV: KVNamespace;
   };
 };
@@ -62,10 +70,10 @@ export const spoduleSettingCommand: IDiscordSlashDefinition<DiscordCommandEnv> =
         server_id: c.interaction.guild_id || c.interaction.guild?.id || "",
         channel_id: c.interaction.channel.id,
       });
-      const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
-      const channelExistsResult = await discordUsecase.existsChannel(
-        c.interaction.channel.id,
-      );
+      const channelExistsResult =
+        await c.env.DISCORD_QUERY_SERVICE.existsChannel(
+          c.interaction.channel.id,
+        );
       if (channelExistsResult.err || !channelExistsResult.val) {
         return c.res({
           content: t("spoduleSettingCommand.label"),
@@ -88,7 +96,7 @@ export const spoduleSettingCommand: IDiscordSlashDefinition<DiscordCommandEnv> =
       let server = serverCacheResult.val;
 
       if (!server) {
-        const serverResult = await discordUsecase.get(
+        const serverResult = await c.env.DISCORD_QUERY_SERVICE.get(
           c.interaction.guild_id || c.interaction.guild?.id || "",
         );
         if (serverResult.err) {
@@ -98,7 +106,7 @@ export const spoduleSettingCommand: IDiscordSlashDefinition<DiscordCommandEnv> =
         server = serverResult.val;
       }
 
-      const targetChannel = server.discordChannels.find(
+      const targetChannel = server?.discordChannels.find(
         (channel) => channel.rawId === c.interaction.channel.id,
       );
 
@@ -173,8 +181,7 @@ export const botAddComponent: IDiscordComponentDefinition<DiscordCommandEnv> = {
       server_id: c.interaction.guild_id || c.interaction.guild?.id || "",
       channel_id: c.interaction.channel.id,
     });
-    const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
-    const adjustResult = await discordUsecase.adjustBotChannel({
+    const adjustResult = await c.env.DISCORD_COMMAND_SERVICE.adjustBotChannel({
       type: "add",
       serverId: c.interaction.guild_id || c.interaction.guild?.id || "",
       targetChannelId: c.interaction.channel.id,
@@ -187,7 +194,7 @@ export const botAddComponent: IDiscordComponentDefinition<DiscordCommandEnv> = {
       });
     }
 
-    await discordUsecase.batchUpsertEnqueue([adjustResult.val]);
+    await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([adjustResult.val!]);
 
     return c.resUpdate({
       content: t("bot.addSuccess"),
@@ -228,11 +235,10 @@ export const yesBotRemoveComponent: IDiscordComponentDefinition<DiscordCommandEn
   {
     name: "yes-bot-remove-setting",
     handler: async (c) => {
-      const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
       let response: { content: string; components: [] };
 
       const deleteResult =
-        await discordUsecase.batchDeleteChannelsByRowChannelIds([
+        await c.env.DISCORD_COMMAND_SERVICE.batchDeleteChannelsByRowChannelIds([
           c.interaction.channel.id,
         ]);
 
@@ -307,15 +313,14 @@ export const langSelectComponent: IDiscordComponentDefinition<DiscordCommandEnv>
         const selectedValue = c.interaction.data.values.at(
           0,
         ) as keyof typeof LangCodeLabelMapping;
-        const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
-
         // Adjust the bot channel with the newly selected language
-        const adjustResult = await discordUsecase.adjustBotChannel({
-          type: "add",
-          serverId: c.interaction.guild_id || c.interaction.guild?.id || "",
-          targetChannelId: c.interaction.channel.id,
-          channelLangaugeCode: selectedValue,
-        });
+        const adjustResult =
+          await c.env.DISCORD_COMMAND_SERVICE.adjustBotChannel({
+            type: "add",
+            serverId: c.interaction.guild_id || c.interaction.guild?.id || "",
+            targetChannelId: c.interaction.channel.id,
+            channelLangaugeCode: selectedValue,
+          });
 
         if (adjustResult.err) {
           return c.resUpdate({
@@ -324,8 +329,10 @@ export const langSelectComponent: IDiscordComponentDefinition<DiscordCommandEnv>
           });
         }
 
-        await discordUsecase.batchUpsertEnqueue([adjustResult.val]);
-        await discordUsecase.deleteMessageInChannelEnqueue(
+        await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([
+          adjustResult.val!,
+        ]);
+        await c.env.DISCORD_COMMAND_SERVICE.deleteMessageInChannelEnqueue(
           c.interaction.channel.id,
         );
         return c.resUpdate({
@@ -395,8 +402,6 @@ export const memberTypeSelectComponent: IDiscordComponentDefinition<DiscordComma
           });
         }
 
-        const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
-
         // Clear any cached custom member selections
         const cacheClient = createCloudflareKVCacheClient(c.env.APP_KV);
         const guildId = c.interaction.guild_id || c.interaction.guild?.id || "";
@@ -420,13 +425,14 @@ export const memberTypeSelectComponent: IDiscordComponentDefinition<DiscordComma
         ]);
 
         // Adjust the bot channel with the newly selected member type
-        const adjustResult = await discordUsecase.adjustBotChannel({
-          type: "add",
-          serverId: guildId,
-          targetChannelId: channelId,
-          memberType: selectedValue,
-          selectedMemberIds: [], // Clear custom selection when selecting a preset
-        });
+        const adjustResult =
+          await c.env.DISCORD_COMMAND_SERVICE.adjustBotChannel({
+            type: "add",
+            serverId: guildId,
+            targetChannelId: channelId,
+            memberType: selectedValue,
+            selectedMemberIds: [], // Clear custom selection when selecting a preset
+          });
 
         if (adjustResult.err) {
           return c.resUpdate({
@@ -435,8 +441,10 @@ export const memberTypeSelectComponent: IDiscordComponentDefinition<DiscordComma
           });
         }
 
-        await discordUsecase.batchUpsertEnqueue([adjustResult.val]);
-        await discordUsecase.deleteMessageInChannelEnqueue(
+        await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([
+          adjustResult.val!,
+        ]);
+        await c.env.DISCORD_COMMAND_SERVICE.deleteMessageInChannelEnqueue(
           c.interaction.channel.id,
         );
         return c.resUpdate({
@@ -468,10 +476,8 @@ export const customMemberSelectJPComponent: IDiscordComponentDefinition<DiscordC
           channel_id: c.interaction.channel.id,
         });
 
-        const creatorUsecase = await c.env.APP_WORKER.newCreatorUsecase();
-
         // Fetch JP members with Japanese language code
-        const jpMembersResult = await creatorUsecase.list({
+        const jpMembersResult = await c.env.CREATOR_QUERY_SERVICE.list({
           memberType: "vspo_jp",
           limit: 300,
           page: 0,
@@ -484,10 +490,12 @@ export const customMemberSelectJPComponent: IDiscordComponentDefinition<DiscordC
           });
         }
 
-        const memberOptions = jpMembersResult.val.creators.map((creator) => ({
-          value: creator.id,
-          label: creator.name || "Unknown",
-        }));
+        const memberOptions = jpMembersResult.val.creators.map(
+          (creator: any) => ({
+            value: creator.id,
+            label: creator.name || "Unknown",
+          }),
+        );
 
         return c.resUpdate({
           content: `**Select JP members / JPメンバーを選択**\n\nShowing ${memberOptions.length} members / ${memberOptions.length}人のメンバーを表示\n\nYou can select multiple members / 複数選択可能`,
@@ -523,10 +531,8 @@ export const customMemberSelectENComponent: IDiscordComponentDefinition<DiscordC
           channel_id: c.interaction.channel.id,
         });
 
-        const creatorUsecase = await c.env.APP_WORKER.newCreatorUsecase();
-
         // Fetch EN members
-        const enMembersResult = await creatorUsecase.list({
+        const enMembersResult = await c.env.CREATOR_QUERY_SERVICE.list({
           memberType: "vspo_en",
           limit: 300,
           page: 0,
@@ -539,10 +545,12 @@ export const customMemberSelectENComponent: IDiscordComponentDefinition<DiscordC
           });
         }
 
-        const memberOptions = enMembersResult.val.creators.map((creator) => ({
-          value: creator.id,
-          label: creator.name || "Unknown",
-        }));
+        const memberOptions = enMembersResult.val.creators.map(
+          (creator: any) => ({
+            value: creator.id,
+            label: creator.name || "Unknown",
+          }),
+        );
 
         return c.resUpdate({
           content:
@@ -582,11 +590,8 @@ export const customMemberDirectSelectComponent: IDiscordComponentDefinition<Disc
 
         if ("values" in c.interaction.data) {
           const selectedMemberIds = c.interaction.data.values;
-          const discordUsecase = await c.env.APP_WORKER.newDiscordUsecase();
-          const creatorUsecase = await c.env.APP_WORKER.newCreatorUsecase();
-
           // Fetch all creators to get names for selected IDs
-          const allCreatorsResult = await creatorUsecase.list({
+          const allCreatorsResult = await c.env.CREATOR_QUERY_SERVICE.list({
             limit: 500, // Get all members
             page: 0,
           });
@@ -600,8 +605,8 @@ export const customMemberDirectSelectComponent: IDiscordComponentDefinition<Disc
 
           // Get names of selected members
           const selectedMemberNames = allCreatorsResult.val.creators
-            .filter((creator) => selectedMemberIds.includes(creator.id))
-            .map((creator) => creator.name || "Unknown")
+            .filter((creator: any) => selectedMemberIds.includes(creator.id))
+            .map((creator: any) => creator.name || "Unknown")
             .sort();
 
           // Clear cache before adjusting
@@ -631,13 +636,14 @@ export const customMemberDirectSelectComponent: IDiscordComponentDefinition<Disc
           ]);
 
           // Save the custom member selection directly
-          const adjustResult = await discordUsecase.adjustBotChannel({
-            type: "add",
-            serverId: guildId,
-            targetChannelId: channelId,
-            memberType: "custom",
-            selectedMemberIds: selectedMemberIds,
-          });
+          const adjustResult =
+            await c.env.DISCORD_COMMAND_SERVICE.adjustBotChannel({
+              type: "add",
+              serverId: guildId,
+              targetChannelId: channelId,
+              memberType: "custom",
+              selectedMemberIds: selectedMemberIds,
+            });
 
           if (adjustResult.err) {
             AppLogger.error("Failed to adjust bot channel", {
@@ -653,8 +659,10 @@ export const customMemberDirectSelectComponent: IDiscordComponentDefinition<Disc
             });
           }
 
-          await discordUsecase.batchUpsertEnqueue([adjustResult.val]);
-          await discordUsecase.deleteMessageInChannelEnqueue(
+          await c.env.DISCORD_COMMAND_SERVICE.batchUpsertEnqueue([
+            adjustResult.val!,
+          ]);
+          await c.env.DISCORD_COMMAND_SERVICE.deleteMessageInChannelEnqueue(
             c.interaction.channel.id,
           );
 

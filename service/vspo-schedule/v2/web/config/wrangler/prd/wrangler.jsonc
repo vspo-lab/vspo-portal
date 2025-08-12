@@ -55,9 +55,64 @@
    */
   "services": [
     {
-      "binding": "APP_WORKER",
+      "binding": "STREAM_QUERY_SERVICE",
       "service": "prd-vspo-portal-app",
-      "entrypoint": "ApplicationService"
+      "entrypoint": "StreamQueryService"
+    },
+    {
+      "binding": "CLIP_QUERY_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "ClipQueryService"
+    },
+    {
+      "binding": "CREATOR_QUERY_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "CreatorQueryService"
+    },
+    {
+      "binding": "DISCORD_QUERY_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "DiscordQueryService"
+    },
+    {
+      "binding": "EVENT_QUERY_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "EventQueryService"
+    },
+    {
+      "binding": "FREECHAT_QUERY_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "FreechatQueryService"
+    },
+    {
+      "binding": "CLIP_ANALYSIS_QUERY_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "ClipAnalysisQueryService"
+    },
+    {
+      "binding": "STREAM_COMMAND_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "StreamCommandService"
+    },
+    {
+      "binding": "CLIP_COMMAND_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "ClipCommandService"
+    },
+    {
+      "binding": "CREATOR_COMMAND_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "CreatorCommandService"
+    },
+    {
+      "binding": "DISCORD_COMMAND_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "DiscordCommandService"
+    },
+    {
+      "binding": "EVENT_COMMAND_SERVICE",
+      "service": "prd-vspo-portal-app",
+      "entrypoint": "EventCommandService"
     }
   ]
 }

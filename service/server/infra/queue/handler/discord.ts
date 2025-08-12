@@ -1,7 +1,8 @@
 import { AppLogger } from "@vspo-lab/logging";
-import type { DiscordServer, Stream } from "../../../domain";
+import type { DiscordServer } from "../../../domain/discord";
 import { t } from "../../../domain/service/i18n";
-import type { IDiscordInteractor } from "../../../usecase";
+import type { Stream } from "../../../domain/stream";
+import type { IDiscordInteractor } from "../../../usecase/discord";
 import type { QueueHandler } from "./base";
 
 type DiscordSend = Stream & { kind: "discord-send-message" };

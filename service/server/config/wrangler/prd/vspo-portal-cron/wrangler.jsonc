@@ -1,0 +1,179 @@
+/**
+ * Cron configuration with workflow definitions and service bindings
+ * Generated at 2025-08-12T09:03:03.808Z
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vspo-portal-cron",
+  "compatibility_date": "2024-10-22",
+  "send_metrics": false,
+  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "main": "cmd/cron/index.ts",
+  "logpush": true,
+  "services": [
+    {
+      "binding": "STREAM_QUERY_SERVICE",
+      "service": "stream-query",
+      "entrypoint": "StreamQueryService"
+    },
+    {
+      "binding": "CLIP_QUERY_SERVICE",
+      "service": "clip-query",
+      "entrypoint": "ClipQueryService"
+    },
+    {
+      "binding": "CREATOR_QUERY_SERVICE",
+      "service": "creator-query",
+      "entrypoint": "CreatorQueryService"
+    },
+    {
+      "binding": "DISCORD_QUERY_SERVICE",
+      "service": "discord-query",
+      "entrypoint": "DiscordQueryService"
+    },
+    {
+      "binding": "EVENT_QUERY_SERVICE",
+      "service": "event-query",
+      "entrypoint": "EventQueryService"
+    },
+    {
+      "binding": "FREECHAT_QUERY_SERVICE",
+      "service": "freechat-query",
+      "entrypoint": "FreechatQueryService"
+    },
+    {
+      "binding": "CLIP_ANALYSIS_QUERY_SERVICE",
+      "service": "clip-analysis-query",
+      "entrypoint": "ClipAnalysisQueryService"
+    },
+    {
+      "binding": "STREAM_COMMAND_SERVICE",
+      "service": "stream-command",
+      "entrypoint": "StreamCommandService"
+    },
+    {
+      "binding": "CLIP_COMMAND_SERVICE",
+      "service": "clip-command",
+      "entrypoint": "ClipCommandService"
+    },
+    {
+      "binding": "CREATOR_COMMAND_SERVICE",
+      "service": "creator-command",
+      "entrypoint": "CreatorCommandService"
+    },
+    {
+      "binding": "DISCORD_COMMAND_SERVICE",
+      "service": "discord-command",
+      "entrypoint": "DiscordCommandService"
+    },
+    {
+      "binding": "EVENT_COMMAND_SERVICE",
+      "service": "event-command",
+      "entrypoint": "EventCommandService"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "search-streams-workflow",
+      "binding": "SEARCH_STREAMS_WORKFLOW",
+      "class_name": "SearchStreamsWorkflow"
+    },
+    {
+      "name": "search-channels-workflow",
+      "binding": "SEARCH_CHANNELS_WORKFLOW",
+      "class_name": "SearchChannelsWorkflow"
+    },
+    {
+      "name": "translate-streams-workflow",
+      "binding": "TRANSLATE_STREAMS_WORKFLOW",
+      "class_name": "TranslateStreamsWorkflow"
+    },
+    {
+      "name": "translate-creators-workflow",
+      "binding": "TRANSLATE_CREATORS_WORKFLOW",
+      "class_name": "TranslateCreatorsWorkflow"
+    },
+    {
+      "name": "discord-send-messages-workflow",
+      "binding": "DISCORD_SEND_MESSAGES_WORKFLOW",
+      "class_name": "DiscordSendMessagesWorkflow"
+    },
+    {
+      "name": "search-member-streams-by-channel-workflow",
+      "binding": "SEARCH_MEMBER_STREAMS_BY_CHANNEL_WORKFLOW",
+      "class_name": "SearchMemberStreamsByChannelWorkflow"
+    },
+    {
+      "name": "delete-streams-workflow",
+      "binding": "DELETE_STREAMS_WORKFLOW",
+      "class_name": "DeleteStreamsWorkflow"
+    },
+    {
+      "name": "discord-delete-all-workflow",
+      "binding": "DISCORD_DELETE_ALL_WORKFLOW",
+      "class_name": "DiscordDeleteAllWorkflow"
+    },
+    {
+      "name": "discord-send-message-all-channel-workflow",
+      "binding": "DISCORD_SEND_MESSAGE_ALL_CHANNEL_WORKFLOW",
+      "class_name": "DiscordSendMessageAllChannelWorkflow"
+    },
+    {
+      "name": "discord-send-message-channels-workflow",
+      "binding": "DISCORD_SEND_MESSAGE_CHANNELS_WORKFLOW",
+      "class_name": "DiscordSendMessageChannelsWorkflow"
+    },
+    {
+      "name": "exist-clips-workflow",
+      "binding": "EXIST_CLIPS_WORKFLOW",
+      "class_name": "ExistClipsWorkflow"
+    },
+    {
+      "name": "search-clips-workflow",
+      "binding": "SEARCH_CLIPS_WORKFLOW",
+      "class_name": "SearchClipsWorkflow"
+    },
+    {
+      "name": "search-clips-by-vspo-member-name-workflow",
+      "binding": "SEARCH_CLIPS_BY_VSPO_MEMBER_NAME_WORKFLOW",
+      "class_name": "SearchClipsByVspoMemberNameWorkflow"
+    },
+    {
+      "name": "access-vspo-schedule-site-workflow",
+      "binding": "ACCESS_VSPO_SCHEDULE_SITE_WORKFLOW",
+      "class_name": "AccessVspoScheduleSiteWorkflow"
+    },
+    {
+      "name": "fetch-clips-by-creator-workflow",
+      "binding": "FETCH_CLIPS_BY_CREATOR_WORKFLOW",
+      "class_name": "FetchClipsByCreatorWorkflow"
+    },
+    {
+      "name": "analyze-clips-workflow",
+      "binding": "ANALYZE_CLIPS_WORKFLOW",
+      "class_name": "AnalyzeClipsWorkflow"
+    }
+  ],
+  "vars": {
+    "SERVICE_NAME": "vspo-portal-cron",
+    "ENVIRONMENT": "production",
+    "LOG_TYPE": "json",
+    "LOG_MINLEVEL": "info",
+    "LOG_HIDE_POSITION": "true"
+  },
+  "observability": {
+    "enabled": true,
+    "invocation_logs": false
+  },
+  "triggers": {
+    "crons": [
+      "0 0,7,18 * * *",
+      "5 0,7,18 * * *",
+      "*/2 * * * *",
+      "*/30 * * * *",
+      "*/1 * * * *"
+    ]
+  }
+}

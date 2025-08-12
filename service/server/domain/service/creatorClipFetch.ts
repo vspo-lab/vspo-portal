@@ -1,7 +1,7 @@
 import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
-import type { IYoutubeService } from "../../infra";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
+import type { IYoutubeService } from "../../infra/youtube";
 import type { Clips } from "../clip";
 import type { Creators } from "../creator";
 

@@ -5,8 +5,8 @@ import {
   type DiscordMessage,
   type DiscordServer,
   type DiscordServers,
-} from "../domain";
-import { createPage, type Page } from "../domain/pagination";
+} from "../domain/discord";
+import type { Page } from "../domain/pagination";
 import type { IAppContext } from "../infra/dependency";
 import { withTracerResult } from "../infra/http/trace";
 import { createUUID } from "../pkg/uuid";
@@ -46,7 +46,7 @@ export type ListDiscordServerParam = {
 };
 
 export type ListDiscordServerResponse = {
-  discordServers: DiscordServers;
+  servers: DiscordServers;
   pagination: Page;
 };
 
@@ -67,10 +67,6 @@ export interface IDiscordInteractor {
   adjustBotChannel(
     params: AdjustBotChannelParams,
   ): Promise<Result<DiscordServer, AppError>>;
-  get(serverId: string): Promise<Result<DiscordServer, AppError>>;
-  list(
-    params: ListDiscordServerParam,
-  ): Promise<Result<ListDiscordServerResponse, AppError>>;
   deleteAllMessagesInChannel(
     channelId: string,
   ): Promise<Result<void, AppError>>;
@@ -80,8 +76,6 @@ export interface IDiscordInteractor {
   batchDeleteChannelsByRowChannelIds(
     channelIds: string[],
   ): Promise<Result<void, AppError>>;
-  exists(serverId: string): Promise<Result<boolean, AppError>>;
-  existsChannel(channelId: string): Promise<Result<boolean, AppError>>;
   sendAdminMessage(
     message: SendAdminMessageParams,
   ): Promise<Result<DiscordMessage, AppError>>;
@@ -95,56 +89,7 @@ export const createDiscordInteractor = (
 ): IDiscordInteractor => {
   const INTERACTOR_NAME = "DiscordInteractor";
 
-  const list = async (
-    params: ListDiscordServerParam,
-  ): Promise<Result<ListDiscordServerResponse, AppError>> => {
-    return await withTracerResult(INTERACTOR_NAME, "list", async () => {
-      return context.runInTx(async (repos, _services) => {
-        const sv = await repos.discordServerRepository.list(params);
-        if (sv.err) {
-          return sv;
-        }
-
-        const count = await repos.discordServerRepository.count(params);
-        if (count.err) {
-          return count;
-        }
-        return Ok({
-          discordServers: sv.val,
-          pagination: createPage({
-            currentPage: params.page,
-            limit: params.limit,
-            totalCount: count.val,
-          }),
-        });
-      });
-    });
-  };
-
-  const get = async (
-    serverId: string,
-  ): Promise<Result<DiscordServer, AppError>> => {
-    return await withTracerResult(INTERACTOR_NAME, "get", async () => {
-      return context.runInTx(async (repos, _services) => {
-        const sv = await repos.discordServerRepository.get({ serverId });
-        if (sv.err) {
-          return sv;
-        }
-        return Ok(sv.val);
-      });
-    });
-  };
-
-  const exists = async (
-    serverId: string,
-  ): Promise<Result<boolean, AppError>> => {
-    return await withTracerResult(INTERACTOR_NAME, "exists", async () => {
-      return context.runInTx(async (repos, _services) => {
-        return await repos.discordServerRepository.exists({ serverId });
-      });
-    });
-  };
-
+  // Write operations only
   const batchSendMessages = async (
     params: SendMessageParams,
   ): Promise<Result<void, AppError>> => {
@@ -237,22 +182,6 @@ export const createDiscordInteractor = (
     );
   };
 
-  const existsChannel = async (
-    channelId: string,
-  ): Promise<Result<boolean, AppError>> => {
-    return await withTracerResult(
-      INTERACTOR_NAME,
-      "existsChannel",
-      async () => {
-        return context.runInTx(async (repos, _services) => {
-          return await repos.discordServerRepository.existsChannel({
-            channelId,
-          });
-        });
-      },
-    );
-  };
-
   const sendAdminMessage = async (
     message: SendAdminMessageParams,
   ): Promise<Result<DiscordMessage, AppError>> => {
@@ -305,13 +234,9 @@ export const createDiscordInteractor = (
   return {
     batchSendMessages,
     adjustBotChannel,
-    get,
-    list,
     deleteAllMessagesInChannel,
     batchUpsert,
     batchDeleteChannelsByRowChannelIds,
-    exists,
-    existsChannel,
     sendAdminMessage,
     isDeletedChannel,
   };

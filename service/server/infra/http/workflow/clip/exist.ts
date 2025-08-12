@@ -33,7 +33,6 @@ export const existClipsWorkflow = () => {
               "clip-workflow",
               "list-clips-paginated",
               async (span) => {
-                const cu = await env.APP_WORKER.newClipUsecase();
                 const allClips = [];
                 let currentPage = 0;
                 let hasNext = true;
@@ -41,7 +40,7 @@ export const existClipsWorkflow = () => {
                 const maxClips = 5000;
 
                 while (hasNext && allClips.length < maxClips) {
-                  const r1 = await cu.list({
+                  const r1 = await env.CLIP_QUERY_SERVICE.list({
                     limit: pageSize,
                     page: currentPage,
                     languageCode: "default",
@@ -87,7 +86,6 @@ export const existClipsWorkflow = () => {
               "clip-workflow",
               "list-clips-paginated",
               async (span) => {
-                const cu = await env.APP_WORKER.newClipUsecase();
                 const allClips = [];
                 let currentPage = 0;
                 let hasNext = true;
@@ -95,7 +93,7 @@ export const existClipsWorkflow = () => {
                 const maxClips = 5000;
 
                 while (hasNext && allClips.length < maxClips) {
-                  const r1 = await cu.list({
+                  const r1 = await env.CLIP_QUERY_SERVICE.list({
                     limit: pageSize,
                     page: currentPage,
                     languageCode: "default",
@@ -148,14 +146,15 @@ export const existClipsWorkflow = () => {
               "clip-workflow",
               "process-clips",
               async (span) => {
-                const cu = await env.APP_WORKER.newClipUsecase();
-
                 // Example: Get the clipIds from all clips
                 const clipIds = combinedClips.map((clip) => clip.id);
                 span.setAttribute("clips_to_process", clipIds.length);
 
                 // Example of what you might do with the clips
-                const result = await cu.searchExistVspoClips({ clipIds });
+                const result =
+                  await env.CLIP_QUERY_SERVICE.searchExistVspoClips({
+                    clipIds,
+                  });
                 if (result.err) {
                   throw result.err;
                 }
@@ -177,11 +176,10 @@ export const existClipsWorkflow = () => {
               "clip-workflow",
               "delete-clips",
               async (_span) => {
-                const cu = await env.APP_WORKER.newClipUsecase();
                 const deletedClips = combinedClips.filter(
                   (clip) => clip.deleted,
                 );
-                await cu.deleteClips({
+                await env.CLIP_COMMAND_SERVICE.deleteClips({
                   clipIds: deletedClips.map((clip) => clip.id),
                 });
               },
@@ -201,9 +199,9 @@ export const existClipsWorkflow = () => {
                 "clip-workflow",
                 "batch-upsert-clips",
                 async (_span) => {
-                  const cu = await env.APP_WORKER.newClipUsecase();
-
-                  await cu.batchUpsertEnqueue(r1.result.clips);
+                  await env.CLIP_COMMAND_SERVICE.batchUpsertEnqueue(
+                    r1.result.clips,
+                  );
                 },
               );
             },
@@ -219,7 +217,6 @@ export const existClipsWorkflow = () => {
                 "clip-workflow",
                 "batch-upsert-clips",
                 async (_span) => {
-                  const cu = await env.APP_WORKER.newClipUsecase();
                   const deletedClips = combinedClips
                     .filter((clip) =>
                       r1.result.notExistsClipIds.includes(clip.rawId),
@@ -230,7 +227,9 @@ export const existClipsWorkflow = () => {
                         deleted: true,
                       };
                     });
-                  await cu.batchUpsertEnqueue(deletedClips);
+                  await env.CLIP_COMMAND_SERVICE.batchUpsertEnqueue(
+                    deletedClips,
+                  );
                 },
               );
             },

@@ -5,7 +5,7 @@ import {
   type BindingAppWorkerEnv,
   zBindingAppWorkerEnv,
 } from "../../../../config/env/worker";
-import type { DiscordServers } from "../../../../domain";
+import type { DiscordServers } from "../../../../domain/discord";
 import { withTracer } from "../../../http/trace/cloudflare";
 
 type DiscordChannelIdsMap = {
@@ -80,13 +80,13 @@ export const discordSendMessagesWorkflow = () => {
               "discord-workflow",
               "fetch-discord-servers",
               async (span) => {
-                const du = await env.APP_WORKER.newDiscordUsecase();
+                const queryService = env.DISCORD_QUERY_SERVICE;
                 const allDiscordServers: DiscordServers = [];
                 let currentPage = 0;
                 let hasNext = true;
 
                 while (hasNext) {
-                  const result = await du.list({
+                  const result = await queryService.list({
                     limit: 100,
                     page: currentPage,
                   });
@@ -95,7 +95,7 @@ export const discordSendMessagesWorkflow = () => {
                     throw result.err;
                   }
 
-                  allDiscordServers.push(...result.val.discordServers);
+                  allDiscordServers.push(...result.val.servers);
                   currentPage++;
                   hasNext = result.val.pagination.hasNext;
                 }
@@ -202,7 +202,7 @@ export const discordSendMessagesWorkflow = () => {
                     "discord-workflow",
                     `send-streams-language-${group.channelLangaugeCode}-chunk-${i + 1}`,
                     async (span) => {
-                      const vu = await env.APP_WORKER.newDiscordUsecase();
+                      const commandService = env.DISCORD_COMMAND_SERVICE;
                       logger.info(
                         `Sending videos to ${channelIdsChunk.length} channels with language: ${group.channelLangaugeCode}`,
                         {
@@ -223,7 +223,7 @@ export const discordSendMessagesWorkflow = () => {
                         chunkedChannelIds.length,
                       );
 
-                      await vu.sendStreamsToMultipleChannels({
+                      await commandService.sendStreamsToMultipleChannels({
                         channelIds: channelIdsChunk,
                         channelLangaugeCode: group.channelLangaugeCode,
                         channelMemberType: group.channelMemberType,

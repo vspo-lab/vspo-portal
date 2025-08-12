@@ -74,3 +74,5 @@ dist
 
 .mastra
 .pnpm-store
+
+**/tools/**.js

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Channel } from "../../domain";
+import type { Channel } from "../../domain/channel";
 import {
   mockYoutubeClient,
   mockYoutubeResponses,

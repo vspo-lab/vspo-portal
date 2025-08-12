@@ -1,7 +1,7 @@
 import { AppLogger } from "@vspo-lab/logging";
 import { batchEnqueueWithChunks } from "../../../cmd/server/internal/application";
-import { type Stream, StreamsSchema } from "../../../domain";
-import type { IStreamInteractor } from "../../../usecase";
+import { type Stream, StreamsSchema } from "../../../domain/stream";
+import type { IStreamInteractor } from "../../../usecase/stream";
 import type { MessageParam } from ".";
 import type { QueueHandler } from "./base";
 

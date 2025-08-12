@@ -1,17 +1,19 @@
 import { type AppError, Ok, type OkResult, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import { vspoKeywordMap } from "../../config/data/keyword";
-import { type ITwitchService, type IYoutubeService, query } from "../../infra";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import type { ICreatorRepository } from "../../infra/repository/creator";
+import type { ITwitchService } from "../../infra/twitch";
+import type { IYoutubeService } from "../../infra/youtube";
+import { query } from "../../infra/youtube";
 import { createUUID } from "../../pkg/uuid";
+import { type Clips, isVspoClip } from "../clip";
 import {
   type Creator,
   type Creators,
   createCreator,
   MemberTypeSchema,
-} from "..";
-import { type Clips, isVspoClip } from "../clip";
+} from "../creator";
 import type { ICreatorClipFetchService } from "./creatorClipFetch";
 
 export interface IClipService {

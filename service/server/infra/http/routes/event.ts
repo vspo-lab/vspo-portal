@@ -87,7 +87,7 @@ export const registerEventListApi = (app: App) =>
   app.openapi(listEventsRoute, async (c) => {
     const p = ListEventRequestSchema.parse(c.req.query());
 
-    const r = await c.env.APP_WORKER.newEventUsecase().list({
+    const r = await c.env.EVENT_QUERY_SERVICE.list({
       limit: Number.parseInt(p.limit),
       page: Number.parseInt(p.page),
       orderBy: p.orderBy,
@@ -107,7 +107,7 @@ export const registerEventGetApi = (app: App) =>
   app.openapi(getEventRoute, async (c) => {
     const { id } = GetEventParamsSchema.parse(c.req.param());
 
-    const r = await c.env.APP_WORKER.newEventUsecase().get(id);
+    const r = await c.env.EVENT_QUERY_SERVICE.get(id);
 
     if (r.err) {
       throw r.err;
@@ -131,7 +131,7 @@ export const registerEventCreateApi = (app: App) =>
       visibility: p.visibility,
     });
 
-    const r = await c.env.APP_WORKER.newEventUsecase().upsert(event);
+    const r = await c.env.EVENT_COMMAND_SERVICE.upsert(event);
 
     if (r.err) {
       throw r.err;

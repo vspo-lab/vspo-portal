@@ -18,8 +18,8 @@ import {
   discordChannel,
   discordMessage,
   discordMessages,
-  getStatusFromColor,
-} from "../../domain";
+} from "../../domain/discord";
+import { getStatusFromColor } from "../../domain/stream";
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 

@@ -4,19 +4,12 @@ import {
 } from "@opennextjs/cloudflare";
 import type { BaseError } from "@vspo-lab/error";
 import { AppError, type Result, wrap } from "@vspo-lab/error";
-import type { ApplicationService } from "../../features/shared/types/api";
-
-// Define Service type
-type Service<T> = {
-  [K in keyof T]: T[K];
-};
+import type { Env } from "../../features/shared/types/api";
 
 type CloudflareEnvironmentContext = {
   context: Result<CloudflareContext, BaseError>;
   isValid: boolean;
-  cfEnv?: {
-    APP_WORKER: Service<ApplicationService>;
-  };
+  cfEnv?: Env;
 };
 
 /**
@@ -39,11 +32,7 @@ export const getCloudflareEnvironmentContext =
     const isValid = !context.err && context.val?.env.ASSETS !== undefined;
 
     // Add typed environment if in valid Cloudflare environment
-    const cfEnv = isValid
-      ? (context.val?.env as unknown as {
-          APP_WORKER: Service<ApplicationService>;
-        })
-      : undefined;
+    const cfEnv = isValid ? (context.val?.env as unknown as Env) : undefined;
 
     return {
       context,

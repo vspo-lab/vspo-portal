@@ -33,8 +33,8 @@ export const deleteStreamsWorkflow = () => {
                 "stream-workflow",
                 "delete-deleted-streams",
                 async (span) => {
-                  const vu = await env.APP_WORKER.newStreamUsecase();
-                  const result = await vu.deletedListIds();
+                  const result =
+                    await env.STREAM_QUERY_SERVICE.deletedListIds();
                   if (result.err) {
                     throw result.err;
                   }
@@ -49,9 +49,10 @@ export const deleteStreamsWorkflow = () => {
                     streamIds: result.val,
                   });
                   span.setAttribute("videos_count", result.val.length);
-                  const _ = await vu.batchDeleteByStreamIds({
-                    streamIds: result.val,
-                  });
+                  const _ =
+                    await env.STREAM_COMMAND_SERVICE.batchDeleteByStreamIds({
+                      streamIds: result.val,
+                    });
                 },
               );
             },

@@ -1,0 +1,96 @@
+/**
+ * Gateway configuration with service bindings
+ * Generated at 2025-08-12T08:56:52.591Z
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dev-vspo-portal-gateway",
+  "compatibility_date": "2024-10-22",
+  "send_metrics": false,
+  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "main": "cmd/server/gateway.ts",
+  "logpush": true,
+  "kv_namespaces": [
+    {
+      "binding": "APP_KV",
+      "id": "0b6b968c69fc406c8d55aaf2cd657c2b"
+    }
+  ],
+  "dev": {
+    "port": 3000
+  },
+  "services": [
+    {
+      "binding": "STREAM_QUERY_SERVICE",
+      "service": "dev-stream-query",
+      "entrypoint": "StreamQueryService"
+    },
+    {
+      "binding": "CLIP_QUERY_SERVICE",
+      "service": "dev-clip-query",
+      "entrypoint": "ClipQueryService"
+    },
+    {
+      "binding": "CREATOR_QUERY_SERVICE",
+      "service": "dev-creator-query",
+      "entrypoint": "CreatorQueryService"
+    },
+    {
+      "binding": "DISCORD_QUERY_SERVICE",
+      "service": "dev-discord-query",
+      "entrypoint": "DiscordQueryService"
+    },
+    {
+      "binding": "EVENT_QUERY_SERVICE",
+      "service": "dev-event-query",
+      "entrypoint": "EventQueryService"
+    },
+    {
+      "binding": "FREECHAT_QUERY_SERVICE",
+      "service": "dev-freechat-query",
+      "entrypoint": "FreechatQueryService"
+    },
+    {
+      "binding": "CLIP_ANALYSIS_QUERY_SERVICE",
+      "service": "dev-clip-analysis-query",
+      "entrypoint": "ClipAnalysisQueryService"
+    },
+    {
+      "binding": "STREAM_COMMAND_SERVICE",
+      "service": "dev-stream-command",
+      "entrypoint": "StreamCommandService"
+    },
+    {
+      "binding": "CLIP_COMMAND_SERVICE",
+      "service": "dev-clip-command",
+      "entrypoint": "ClipCommandService"
+    },
+    {
+      "binding": "CREATOR_COMMAND_SERVICE",
+      "service": "dev-creator-command",
+      "entrypoint": "CreatorCommandService"
+    },
+    {
+      "binding": "DISCORD_COMMAND_SERVICE",
+      "service": "dev-discord-command",
+      "entrypoint": "DiscordCommandService"
+    },
+    {
+      "binding": "EVENT_COMMAND_SERVICE",
+      "service": "dev-event-command",
+      "entrypoint": "EventCommandService"
+    }
+  ],
+  "vars": {
+    "SERVICE_NAME": "dev-vspo-portal-gateway",
+    "ENVIRONMENT": "development",
+    "LOG_TYPE": "json",
+    "LOG_MINLEVEL": "info",
+    "LOG_HIDE_POSITION": "true"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

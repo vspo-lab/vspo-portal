@@ -1,4 +1,4 @@
-name: Deploy Server Worker
+name: Deploy Server Workers
 
 on:
   push:
@@ -8,27 +8,61 @@ on:
     paths:
       - 'service/server/**'
   workflow_dispatch:
+    inputs:
+      worker:
+        description: 'Specific worker to deploy (optional, deploys all if not specified)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - 'vspo-portal-gateway'
+          - 'vspo-portal-cron'
+          - 'vspo-portal-service'
+          - 'stream-query'
+          - 'clip-query'
+          - 'creator-query'
+          - 'discord-query'
+          - 'event-query'
+          - 'freechat-query'
+          - 'clip-analysis-query'
+          - 'stream-command'
+          - 'clip-command'
+          - 'creator-command'
+          - 'discord-command'
+          - 'event-command'
 
 jobs:
-  deploy:
+  deploy-main-workers:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+    if: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-gateway' || github.event.inputs.worker == 'vspo-portal-cron' || github.event.inputs.worker == 'vspo-portal-service' }}
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - name: "vspo-portal-app"
-          - name: "vspo-portal-cron"
           - name: "vspo-portal-gateway"
+            enabled: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-gateway' }}
+          - name: "vspo-portal-cron"
+            enabled: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-cron' }}
+          - name: "vspo-portal-service"
+            enabled: ${{ github.event_name == 'push' || !github.event.inputs.worker || github.event.inputs.worker == 'vspo-portal-service' }}
     steps:
       - uses: actions/checkout@v4
+        if: ${{ matrix.enabled == 'true' || matrix.enabled == true }}
+      
       - uses: pnpm/action-setup@v4
+        if: ${{ matrix.enabled == 'true' || matrix.enabled == true }}
         with:
           version: 10.10.0
           run_install: false
+      
       - name: Install dependencies
+        if: ${{ matrix.enabled == 'true' || matrix.enabled == true }}
         run: pnpm install
+      
       - name: Build & Deploy Worker
+        if: ${{ matrix.enabled == 'true' || matrix.enabled == true }}
         uses: cloudflare/wrangler-action@v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -39,6 +73,99 @@ jobs:
           command: deploy
           preCommands: |
             cp -R ./ ../../../..
+          quiet: true
+          secrets: |
+            OPENAI_ORGANIZATION
+            OPENAI_PROJECT
+            OPENAI_API_KEY
+            OPENAI_BASE_URL
+            YOUTUBE_API_KEY
+            TWITCH_CLIENT_ID
+            TWITCH_CLIENT_SECRET
+            TWITCASTING_CLIENT_ID
+            TWITCASTING_CLIENT_SECRET
+            DISCORD_APPLICATION_ID
+            DISCORD_PUBLIC_KEY
+            DISCORD_TOKEN
+            SENTRY_DSN
+            DISCORD_TRANSLATION_SETTING
+            DISCORD_BOT_MAINTENANCE
+            API_KEY
+            MASTRA_BASE_URL
+            MASTRA_AGENT_ID
+            MASTRA_CF_ACCESS_CLIENT_ID
+            MASTRA_CF_ACCESS_CLIENT_SECRET
+        env:
+          ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+          OPENAI_ORGANIZATION: ${{ secrets.OPENAI_ORGANIZATION }}
+          OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          TWITCASTING_CLIENT_ID: ${{ secrets.TWITCASTING_CLIENT_ID }}
+          TWITCASTING_CLIENT_SECRET: ${{ secrets.TWITCASTING_CLIENT_SECRET }}
+          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          DISCORD_TRANSLATION_SETTING: ${{ secrets.DISCORD_TRANSLATION_SETTING }}
+          DISCORD_BOT_MAINTENANCE: ${{ secrets.DISCORD_BOT_MAINTENANCE }}
+          API_KEY: ${{ secrets.API_KEY }}
+          MASTRA_BASE_URL: ${{ secrets.MASTRA_BASE_URL }}
+          MASTRA_AGENT_ID: ${{ secrets.MASTRA_AGENT_ID }}
+          MASTRA_CF_ACCESS_CLIENT_ID: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_ID }}
+          MASTRA_CF_ACCESS_CLIENT_SECRET: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_SECRET }}
+
+  deploy-app-workers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+    if: ${{ github.event_name == 'push' || (github.event.inputs.worker && github.event.inputs.worker != 'vspo-portal-gateway' && github.event.inputs.worker != 'vspo-portal-cron' && github.event.inputs.worker != 'vspo-portal-service') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        worker:
+          - 'stream-query'
+          - 'clip-query'
+          - 'creator-query'
+          - 'discord-query'
+          - 'event-query'
+          - 'freechat-query'
+          - 'clip-analysis-query'
+          - 'stream-command'
+          - 'clip-command'
+          - 'creator-command'
+          - 'discord-command'
+          - 'event-command'
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ github.event_name == 'push' || github.event.inputs.worker == matrix.worker }}
+      
+      - uses: pnpm/action-setup@v4
+        if: ${{ github.event_name == 'push' || github.event.inputs.worker == matrix.worker }}
+        with:
+          version: 10.10.0
+          run_install: false
+      
+      - name: Install dependencies
+        if: ${{ github.event_name == 'push' || github.event.inputs.worker == matrix.worker }}
+        run: pnpm install
+      
+      - name: Build & Deploy Worker
+        if: ${{ github.event_name == 'push' || github.event.inputs.worker == matrix.worker }}
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          wranglerVersion: "4.6.0"
+          workingDirectory: service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-service
+          command: deploy -c ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}-${{ matrix.worker }}.wrangler.jsonc
+          preCommands: |
+            cd ../../../../..
+            cp -R ./ service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-service/
           quiet: true
           secrets: |
             OPENAI_ORGANIZATION

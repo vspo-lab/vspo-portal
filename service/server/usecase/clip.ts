@@ -2,7 +2,7 @@ import { type AppError, Ok, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
 import type { Clips } from "../domain/clip";
 import type { Creators } from "../domain/creator";
-import { createPage, type Page } from "../domain/pagination";
+import type { Page } from "../domain/pagination";
 import type { IAppContext } from "../infra/dependency";
 import { withTracerResult } from "../infra/http/trace";
 
@@ -41,7 +41,6 @@ export type FetchClipsByCreatorResponse = {
 };
 
 export interface IClipInteractor {
-  list(query: ListClipsQuery): Promise<Result<ListClipsResponse, AppError>>;
   batchUpsert(params: BatchUpsertClipsParam): Promise<Result<Clips, AppError>>;
   searchNewVspoClipsAndNewCreators(): Promise<
     Result<{ newCreators: Creators; clips: Clips }, AppError>
@@ -71,35 +70,7 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
   const INTERACTOR_NAME = "ClipInteractor";
   const DEFAULT_BATCH_SIZE = 300;
 
-  const list = async (
-    query: ListClipsQuery,
-  ): Promise<Result<ListClipsResponse, AppError>> => {
-    return await withTracerResult(INTERACTOR_NAME, "list", async () => {
-      return context.runInTx(async (repos, _services) => {
-        const clips = await repos.clipRepository.list(query);
-
-        if (clips.err) {
-          return clips;
-        }
-
-        const pagination = await repos.clipRepository.count(query);
-
-        if (pagination.err) {
-          return pagination;
-        }
-
-        return Ok({
-          clips: clips.val,
-          pagination: createPage({
-            currentPage: query.page,
-            limit: query.limit,
-            totalCount: pagination.val,
-          }),
-        });
-      });
-    });
-  };
-
+  // Write operations only
   const batchUpsert = async (
     params: BatchUpsertClipsParam,
   ): Promise<Result<Clips, AppError>> => {
@@ -110,6 +81,54 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
     });
   };
 
+  const deleteClips = async ({
+    clipIds,
+  }: {
+    clipIds: string[];
+  }): Promise<Result<void, AppError>> => {
+    return await withTracerResult(INTERACTOR_NAME, "deleteClips", async () => {
+      return context.runInTx(async (repos, _services) => {
+        return repos.clipRepository.batchDelete(clipIds);
+      });
+    });
+  };
+
+  const updateCreatorsLastClipFetchedAt = async (
+    creatorIds: string[],
+  ): Promise<Result<void, AppError>> => {
+    return await withTracerResult(
+      INTERACTOR_NAME,
+      "updateCreatorsLastClipFetchedAt",
+      async () => {
+        return context.runInTx(async (repos, _services) => {
+          if (creatorIds.length === 0) {
+            return Ok(undefined);
+          }
+
+          const updateResult =
+            await repos.creatorRepository.updateLastClipFetchedAt(creatorIds);
+
+          if (updateResult.err) {
+            AppLogger.error("Failed to update lastClipFetchedAt", {
+              interactor: INTERACTOR_NAME,
+              error: updateResult.err,
+              creatorCount: creatorIds.length,
+            });
+            return updateResult;
+          }
+
+          AppLogger.debug("Updated lastClipFetchedAt for creators", {
+            interactor: INTERACTOR_NAME,
+            creatorCount: creatorIds.length,
+          });
+
+          return Ok(undefined);
+        });
+      },
+    );
+  };
+
+  // Write operations with side effects
   const searchNewVspoClipsAndNewCreators = async (): Promise<
     Result<{ newCreators: Creators; clips: Clips }, AppError>
   > => {
@@ -154,18 +173,6 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
         });
       },
     );
-  };
-
-  const deleteClips = async ({
-    clipIds,
-  }: {
-    clipIds: string[];
-  }): Promise<Result<void, AppError>> => {
-    return await withTracerResult(INTERACTOR_NAME, "deleteClips", async () => {
-      return context.runInTx(async (repos, _services) => {
-        return repos.clipRepository.batchDelete(clipIds);
-      });
-    });
   };
 
   const fetchClipsByCreator = async (
@@ -234,43 +241,7 @@ export const createClipInteractor = (context: IAppContext): IClipInteractor => {
     );
   };
 
-  const updateCreatorsLastClipFetchedAt = async (
-    creatorIds: string[],
-  ): Promise<Result<void, AppError>> => {
-    return await withTracerResult(
-      INTERACTOR_NAME,
-      "updateCreatorsLastClipFetchedAt",
-      async () => {
-        return context.runInTx(async (repos, _services) => {
-          if (creatorIds.length === 0) {
-            return Ok(undefined);
-          }
-
-          const updateResult =
-            await repos.creatorRepository.updateLastClipFetchedAt(creatorIds);
-
-          if (updateResult.err) {
-            AppLogger.error("Failed to update lastClipFetchedAt", {
-              interactor: INTERACTOR_NAME,
-              error: updateResult.err,
-              creatorCount: creatorIds.length,
-            });
-            return updateResult;
-          }
-
-          AppLogger.debug("Updated lastClipFetchedAt for creators", {
-            interactor: INTERACTOR_NAME,
-            creatorCount: creatorIds.length,
-          });
-
-          return Ok(undefined);
-        });
-      },
-    );
-  };
-
   return {
-    list,
     batchUpsert,
     searchNewVspoClipsAndNewCreators,
     searchExistVspoClips,

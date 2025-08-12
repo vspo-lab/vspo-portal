@@ -76,7 +76,7 @@ export const fetchLivestreams = async (
     let livestreams: Livestream[] = [];
 
     if (cfEnv) {
-      const { APP_WORKER } = cfEnv;
+      const { STREAM_QUERY_SERVICE } = cfEnv;
 
       const statusMap: Record<string, Status | undefined> = {
         live: "live",
@@ -131,7 +131,7 @@ export const fetchLivestreams = async (
         workerParams.startDateFrom = thirtyDaysAgo;
       }
 
-      const result = await APP_WORKER.newStreamUsecase().list(workerParams);
+      const result = await STREAM_QUERY_SERVICE.list(workerParams);
 
       if (result.err) {
         throw result.err;

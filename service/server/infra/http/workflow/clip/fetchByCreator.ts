@@ -39,10 +39,8 @@ export const fetchClipsByCreatorWorkflow = () => {
               "clip-workflow",
               "fetch-clips-by-creator",
               async (span) => {
-                const cu = await env.APP_WORKER.newClipUsecase();
-
                 // Enqueue the fetch clips by creator operation
-                await cu.fetchClipsByCreatorEnqueue({
+                await env.CLIP_COMMAND_SERVICE.fetchClipsByCreatorEnqueue({
                   batchSize: params.batchSize,
                   memberType: params.memberType,
                 });

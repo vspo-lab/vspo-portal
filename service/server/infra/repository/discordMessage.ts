@@ -10,7 +10,7 @@ import {
   createDiscordMessages,
   type DiscordMessage,
   type DiscordMessages,
-} from "../../domain";
+} from "../../domain/discord";
 import { createUUID } from "../../pkg/uuid";
 import { withTracerResult } from "../http/trace/cloudflare";
 import {

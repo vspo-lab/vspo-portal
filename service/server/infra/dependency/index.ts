@@ -3,14 +3,6 @@ import { AppLogger } from "@vspo-lab/logging";
 import type { PgTransactionConfig } from "drizzle-orm/pg-core";
 import type { AppWorkerEnv } from "../../config/env/internal";
 import {
-  createCreatorClipFetchService,
-  createCreatorService,
-  createStreamService,
-  type ICreatorClipFetchService,
-  type ICreatorService,
-  type IStreamService,
-} from "../../domain";
-import {
   createClipService,
   type IClipService,
 } from "../../domain/service/clip";
@@ -19,59 +11,109 @@ import {
   type IClipAnalysisService,
 } from "../../domain/service/clipAnalysis";
 import {
+  createCreatorService,
+  type ICreatorService,
+} from "../../domain/service/creator";
+import {
+  createCreatorClipFetchService,
+  type ICreatorClipFetchService,
+} from "../../domain/service/creatorClipFetch";
+import {
   createDiscordService,
   type IDiscordService,
 } from "../../domain/service/discord";
 import {
-  createCreatorInteractor,
-  createEventInteractor,
-  createStreamInteractor,
-  type ICreatorInteractor,
-  type IEventInteractor,
-  type IStreamInteractor,
-} from "../../usecase";
+  createStreamService,
+  type IStreamService,
+} from "../../domain/service/stream";
+import {
+  createClipQueryService,
+  type IClipQueryService,
+} from "../../query-service/clip/index";
+import {
+  createCreatorQueryService,
+  type ICreatorQueryService,
+} from "../../query-service/creator/index";
+import {
+  createDiscordQueryService,
+  type IDiscordQueryService,
+} from "../../query-service/discord/index";
+import {
+  createEventQueryService,
+  type IEventQueryService,
+} from "../../query-service/event/index";
+import {
+  createFreechatQueryService,
+  type IFreechatQueryService,
+} from "../../query-service/freechat/index";
+import {
+  createStreamQueryService,
+  type IStreamQueryService,
+} from "../../query-service/stream/index";
 import { createClipInteractor, type IClipInteractor } from "../../usecase/clip";
 import {
   createClipAnalysisInteractor,
   type IClipAnalysisInteractor,
 } from "../../usecase/clipAnalysis";
 import {
+  createCreatorInteractor,
+  type ICreatorInteractor,
+} from "../../usecase/creator";
+import {
   createDiscordInteractor,
   type IDiscordInteractor,
 } from "../../usecase/discord";
 import {
+  createEventInteractor,
+  type IEventInteractor,
+} from "../../usecase/event";
+import {
   createFreechatInteractor,
   type IFreechatInteractor,
 } from "../../usecase/freechat";
+import {
+  createStreamInteractor,
+  type IStreamInteractor,
+} from "../../usecase/stream";
 import { createAIService, type IAIService } from "../ai";
 import { createBilibiliService, type IBilibiliService } from "../bilibili";
 import { createCloudflareKVCacheClient, type ICacheClient } from "../cache";
 import { createDiscordClient, type IDiscordClient } from "../discord";
 import { createMastraService, type IMastraService } from "../mastra";
-import {
-  createCreatorRepository,
-  createDiscordMessageRepository,
-  createDiscordServerRepository,
-  createFreechatRepository,
-  createStreamRepository,
-  createTxManager,
-  type DB,
-  type ICreatorRepository,
-  type IDiscordMessageRepository,
-  type IDiscordServerRepository,
-  type IFreechatRepository,
-  type IStreamRepository,
-  type ITxManager,
-} from "../repository";
 import { createClipRepository, type IClipRepository } from "../repository/clip";
 import {
   createClipAnalysisRepository,
   type IClipAnalysisRepository,
 } from "../repository/clipAnalysis";
 import {
+  createCreatorRepository,
+  type ICreatorRepository,
+} from "../repository/creator";
+import {
+  createDiscordServerRepository,
+  type IDiscordServerRepository,
+} from "../repository/discord";
+import {
+  createDiscordMessageRepository,
+  type IDiscordMessageRepository,
+} from "../repository/discordMessage";
+import {
   createEventRepository,
   type IEventRepository,
 } from "../repository/event";
+import {
+  createFreechatRepository,
+  type IFreechatRepository,
+} from "../repository/freechat";
+import {
+  createStreamRepository,
+  type IStreamRepository,
+} from "../repository/stream";
+import {
+  createTxManager,
+  type DB,
+  type ITxManager,
+} from "../repository/transaction";
 import {
   createTwitcastingService,
   type ITwitcastingService,
@@ -215,7 +257,8 @@ export const createAppContext = (
   return { runInTx };
 };
 
-export interface IContainer {
+// Container for Command operations (write operations)
+export interface ICommandContainer {
   readonly cacheClient: ICacheClient;
   readonly creatorInteractor: ICreatorInteractor;
   readonly streamInteractor: IStreamInteractor;
@@ -226,9 +269,27 @@ export interface IContainer {
   readonly freechatInteractor: IFreechatInteractor;
 }
 
-export const createContainer = (env: AppWorkerEnv): IContainer => {
-  const cacheClient = createCloudflareKVCacheClient(env.APP_KV);
+// Container for Query operations (read operations)
+export interface IQueryContainer {
+  readonly appContext: IAppContext;
+  readonly cacheClient: ICacheClient;
+  readonly streamQueryService: IStreamQueryService;
+  readonly clipQueryService: IClipQueryService;
+  readonly creatorQueryService: ICreatorQueryService;
+  readonly discordQueryService: IDiscordQueryService;
+  readonly eventQueryService: IEventQueryService;
+  readonly freechatQueryService: IFreechatQueryService;
+}
 
+// Unified container for backward compatibility
+export interface IContainer extends ICommandContainer {}
+
+export interface IContainerWithContext extends IContainer {
+  readonly appContext: IAppContext;
+}
+
+// Create all external services
+const createExternalServices = (env: AppWorkerEnv) => {
   const youtubeService = createYoutubeService(env.YOUTUBE_API_KEY);
   const twitchService = createTwitchService({
     clientId: env.TWITCH_CLIENT_ID,
@@ -239,6 +300,20 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
     clientId: env.TWITCASTING_CLIENT_ID,
     clientSecret: env.TWITCASTING_CLIENT_SECRET,
   });
+  const aiService = createAIService({
+    apiKey: env.OPENAI_API_KEY,
+    organization: env.OPENAI_ORGANIZATION,
+    project: env.OPENAI_PROJECT,
+    baseURL: env.OPENAI_BASE_URL,
+  });
+  const mastraService = createMastraService({
+    baseUrl: env.MASTRA_BASE_URL,
+    agentId: env.MASTRA_AGENT_ID,
+    cfAccessClientId: env.MASTRA_CF_ACCESS_CLIENT_ID,
+    cfAccessClientSecret: env.MASTRA_CF_ACCESS_CLIENT_SECRET,
+  });
+  const discordClient = createDiscordClient(env);
+  const cacheClient = createCloudflareKVCacheClient(env.APP_KV);
   const txManager = createTxManager({
     connectionString:
       env.ENVIRONMENT === "local"
@@ -246,43 +321,82 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
         : env.DB.connectionString,
     isQueryLoggingEnabled: env.ENVIRONMENT === "local",
   });
-  const aiService = createAIService({
-    apiKey: env.OPENAI_API_KEY,
-    organization: env.OPENAI_ORGANIZATION,
-    project: env.OPENAI_PROJECT,
-    baseURL: env.OPENAI_BASE_URL,
-  });
 
-  const mastraService = createMastraService({
-    baseUrl: env.MASTRA_BASE_URL,
-    agentId: env.MASTRA_AGENT_ID,
-    cfAccessClientId: env.MASTRA_CF_ACCESS_CLIENT_ID,
-    cfAccessClientSecret: env.MASTRA_CF_ACCESS_CLIENT_SECRET,
-  });
-
-  const discordClient = createDiscordClient(env);
-  const context = createAppContext(
-    txManager,
+  return {
     youtubeService,
     twitchService,
-    twitcastingService,
     bilibiliService,
+    twitcastingService,
     aiService,
+    mastraService,
     discordClient,
     cacheClient,
-    mastraService,
+    txManager,
+  };
+};
+
+// Create container for Query Services
+export const createQueryContainer = (env: AppWorkerEnv): IQueryContainer => {
+  const services = createExternalServices(env);
+
+  const appContext = createAppContext(
+    services.txManager,
+    services.youtubeService,
+    services.twitchService,
+    services.twitcastingService,
+    services.bilibiliService,
+    services.aiService,
+    services.discordClient,
+    services.cacheClient,
+    services.mastraService,
   );
-  const creatorInteractor = createCreatorInteractor(context);
-  const streamInteractor = createStreamInteractor(context);
-  const discordInteractor = createDiscordInteractor(context);
-  const clipInteractor = createClipInteractor(context);
-  const clipAnalysisInteractor = createClipAnalysisInteractor(context);
-  const eventInteractor = createEventInteractor(context);
-  const freechatInteractor = createFreechatInteractor(context);
-  // init
+
+  // init logger
   const _ = AppLogger.getInstance(env);
+
   return {
-    cacheClient,
+    appContext,
+    cacheClient: services.cacheClient,
+    streamQueryService: createStreamQueryService(appContext),
+    clipQueryService: createClipQueryService(appContext),
+    creatorQueryService: createCreatorQueryService(appContext),
+    discordQueryService: createDiscordQueryService(appContext),
+    eventQueryService: createEventQueryService(appContext),
+    freechatQueryService: createFreechatQueryService(appContext),
+  };
+};
+
+// Create container for Command Services
+export const createCommandContainer = (
+  env: AppWorkerEnv,
+): ICommandContainer => {
+  const services = createExternalServices(env);
+
+  const appContext = createAppContext(
+    services.txManager,
+    services.youtubeService,
+    services.twitchService,
+    services.twitcastingService,
+    services.bilibiliService,
+    services.aiService,
+    services.discordClient,
+    services.cacheClient,
+    services.mastraService,
+  );
+
+  const creatorInteractor = createCreatorInteractor(appContext);
+  const streamInteractor = createStreamInteractor(appContext);
+  const discordInteractor = createDiscordInteractor(appContext);
+  const clipInteractor = createClipInteractor(appContext);
+  const clipAnalysisInteractor = createClipAnalysisInteractor(appContext);
+  const eventInteractor = createEventInteractor(appContext);
+  const freechatInteractor = createFreechatInteractor(appContext);
+
+  // init logger
+  const _ = AppLogger.getInstance(env);
+
+  return {
+    cacheClient: services.cacheClient,
     creatorInteractor,
     streamInteractor,
     clipInteractor,
@@ -291,4 +405,22 @@ export const createContainer = (env: AppWorkerEnv): IContainer => {
     eventInteractor,
     freechatInteractor,
   };
+};
+
+// Create unified container for backward compatibility
+export const createContainerWithContext = (
+  env: AppWorkerEnv,
+): IContainerWithContext => {
+  const commandContainer = createCommandContainer(env);
+  const queryContainer = createQueryContainer(env);
+
+  return {
+    ...commandContainer,
+    appContext: queryContainer.appContext,
+  };
+};
+
+// Original createContainer for backward compatibility
+export const createContainer = (env: AppWorkerEnv): IContainer => {
+  return createCommandContainer(env);
 };

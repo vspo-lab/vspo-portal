@@ -2585,4 +2585,118 @@ declare class ApplicationService extends WorkerEntrypoint<AppWorkerEnv> {
   private setup;
 }
 
+
+
+
+
+
+
+
+// Worker Service Types - Generated, do not edit manually
+// Generated from service/server/config/env/worker.ts
+
+// Service binding type from Cloudflare Workers
+interface Socket {
+  readonly readable: ReadableStream;
+  readonly writable: WritableStream;
+  readonly closed: Promise<void>;
+  close(): Promise<void>;
+  startTls(): Socket;
+}
+
+interface SocketAddress {
+  hostname: string;
+  port: number;
+}
+
+interface SocketOptions {
+  secureTransport?: string;
+  allowHalfOpen?: boolean;
+}
+
+type Service<T = unknown> = {
+  fetch(input: URL | RequestInfo, init?: RequestInit): Promise<Response>;
+  connect(address: string | SocketAddress, options?: SocketOptions): Socket;
+} & T;
+
+// KVNamespace type from Cloudflare Workers
+interface KVNamespace {
+  get(key: string, options?: Partial<KVNamespaceGetOptions<any>>): Promise<string | null>;
+  put(key: string, value: string | ArrayBuffer | ArrayBufferView | ReadableStream, options?: KVNamespacePutOptions): Promise<void>;
+  delete(key: string): Promise<void>;
+  list(options?: KVNamespaceListOptions): Promise<KVNamespaceListResult>;
+}
+
+interface KVNamespaceGetOptions<Type> {
+  type: Type;
+  cacheTtl?: number;
+}
+
+interface KVNamespacePutOptions {
+  expiration?: number;
+  expirationTtl?: number;
+  metadata?: any;
+}
+
+interface KVNamespaceListOptions {
+  limit?: number;
+  prefix?: string | null;
+  cursor?: string | null;
+}
+
+interface KVNamespaceListResult {
+  keys: { name: string; expiration?: number; metadata?: any }[];
+  list_complete: boolean;
+  cursor?: string;
+}
+
+interface EventQueryService {
+  list( params: ListEventsQuery, ): Promise< _vspo_lab_error.Result<ListEventsResponse, _vspo_lab_error.AppError> >;
+}
+
+interface FreechatQueryService {
+  list( params: ListFreechatsQuery, ): Promise< _vspo_lab_error.Result<ListFreechatsResponse, _vspo_lab_error.AppError> >;
+}
+
+interface ClipAnalysisQueryService {
+  // No methods exposed yet
+}
+
+interface StreamCommandService {
+  batchUpsertEnqueue(params: BatchUpsertStreamsParam): Promise<void>;
+}
+
+interface ClipCommandService {
+  batchUpsertEnqueue(params: BatchUpsertClipsParam): Promise<void>;
+}
+
+interface CreatorCommandService {
+  batchUpsertEnqueue(params: BatchUpsertCreatorsParam): Promise<void>;
+  translateCreatorEnqueue(params: TranslateCreatorParam): Promise<void>;
+}
+
+interface DiscordCommandService {
+  sendStreamsToMultipleChannels( params: SendMessageParams, ): Promise<_vspo_lab_error.Result<void, _vspo_lab_error.AppError>>;
+}
+
+// Worker Environment Type
+type BindingAppWorkerEnv = {
+  APP_KV: KVNamespace;
+  // CQRS Query Services
+  STREAM_QUERY_SERVICE: Service<StreamQueryService>;
+  CLIP_QUERY_SERVICE: Service<ClipQueryService>;
+  CREATOR_QUERY_SERVICE: Service<CreatorQueryService>;
+  DISCORD_QUERY_SERVICE: Service<DiscordQueryService>;
+  EVENT_QUERY_SERVICE: Service<EventQueryService>;
+  FREECHAT_QUERY_SERVICE: Service<FreechatQueryService>;
+  CLIP_ANALYSIS_QUERY_SERVICE: Service<ClipAnalysisQueryService>;
+  // CQRS Command Services
+  STREAM_COMMAND_SERVICE: Service<StreamCommandService>;
+  CLIP_COMMAND_SERVICE: Service<ClipCommandService>;
+  CREATOR_COMMAND_SERVICE: Service<CreatorCommandService>;
+  DISCORD_COMMAND_SERVICE: Service<DiscordCommandService>;
+  EVENT_COMMAND_SERVICE: Service<EventCommandService>;
+};
+
 export { ApplicationService };
+export type Env = BindingAppWorkerEnv;

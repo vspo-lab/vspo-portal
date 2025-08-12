@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { Stream } from "../../domain";
+import type { Stream } from "../../domain/stream";
 
 export type MockResponse =
   | {

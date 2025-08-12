@@ -1,25 +1,18 @@
 import { convertToUTCDate, getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { type AppError, Ok, type OkResult, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
-import {
-  type IBilibiliService,
-  type IStreamRepository,
-  type ITwitcastingService,
-  type ITwitchService,
-  type IYoutubeService,
-  query,
-} from "../../infra";
 import type { IAIService } from "../../infra/ai";
+import type { IBilibiliService } from "../../infra/bilibili";
 import type { ICacheClient } from "../../infra/cache";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
 import type { ICreatorRepository } from "../../infra/repository/creator";
-import {
-  type Creator,
-  MemberTypeSchema,
-  PlatformSchema,
-  StatusSchema,
-  type Streams,
-} from "..";
+import type { IStreamRepository } from "../../infra/repository/stream";
+import type { ITwitcastingService } from "../../infra/twitcasting";
+import type { ITwitchService } from "../../infra/twitch";
+import type { IYoutubeService } from "../../infra/youtube";
+import { query } from "../../infra/youtube";
+import { type Creator, MemberTypeSchema } from "../creator";
+import { PlatformSchema, StatusSchema, type Streams } from "../stream";
 import { TargetLangSchema } from "../translate";
 
 export interface IStreamService {

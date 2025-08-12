@@ -33,8 +33,8 @@ export const translateCreatorsWorkflow = () => {
               "creator-workflow",
               "fetch-default-language-creators",
               async (span) => {
-                const vu = await env.APP_WORKER.newCreatorUsecase();
-                const result = await vu.list({
+                const queryService = env.CREATOR_QUERY_SERVICE;
+                const result = await queryService.list({
                   limit: 30,
                   page: 0,
                   languageCode: "default",
@@ -45,7 +45,7 @@ export const translateCreatorsWorkflow = () => {
                   throw result.err;
                 }
 
-                const result2 = await vu.list({
+                const result2 = await queryService.list({
                   limit: 30,
                   page: 0,
                   languageCode: "default",
@@ -84,10 +84,10 @@ export const translateCreatorsWorkflow = () => {
                   "creator-workflow",
                   `translate-creators-to-${lang}`,
                   async (span) => {
-                    const vu = await env.APP_WORKER.newCreatorUsecase();
+                    const commandService = env.CREATOR_COMMAND_SERVICE;
                     span.setAttribute("language", lang);
                     span.setAttribute("creators_count", lv.val.length);
-                    await vu.translateCreatorEnqueue({
+                    await commandService.translateCreatorEnqueue({
                       languageCode: lang,
                       creators: lv.val,
                     });

@@ -5,14 +5,12 @@ import {
 } from "@vspo-lab/dayjs";
 import { type AppError, Err, Ok, type Result } from "@vspo-lab/error";
 import { AppLogger } from "@vspo-lab/logging";
-import type {
-  IDiscordMessageRepository,
-  IDiscordServerRepository,
-  IStreamRepository,
-} from "../../infra";
 import { cacheKey, type ICacheClient } from "../../infra/cache";
 import type { IDiscordClient } from "../../infra/discord";
 import { withTracerResult } from "../../infra/http/trace/cloudflare";
+import type { IDiscordServerRepository } from "../../infra/repository/discord";
+import type { IDiscordMessageRepository } from "../../infra/repository/discordMessage";
+import type { IStreamRepository } from "../../infra/repository/stream";
 import { createUUID } from "../../pkg/uuid";
 import {
   createDiscordServer,

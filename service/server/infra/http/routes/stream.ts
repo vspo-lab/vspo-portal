@@ -1,5 +1,4 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { convertToUTCDate } from "@vspo-lab/dayjs";
 import { openApiErrorResponses } from "../../../pkg/errors";
 import type { App } from "../hono";
 import {
@@ -65,16 +64,11 @@ const postStreamRoute = createRoute({
 export const registerStreamListApi = (app: App) =>
   app.openapi(listStreamsRoute, async (c) => {
     const p = ListStreamRequestSchema.parse(c.req.query());
-    const r = await c.env.APP_WORKER.newStreamUsecase().list({
+    const r = await c.env.STREAM_QUERY_SERVICE.list({
       limit: Number.parseInt(p.limit),
       page: Number.parseInt(p.page),
       platform: p.platform,
       status: p.status,
-      startDateFrom: p.startDateFrom
-        ? convertToUTCDate(p.startDateFrom)
-        : undefined,
-      startDateTo: p.startDateTo ? convertToUTCDate(p.startDateTo) : undefined,
-      endedAt: p.endedAt ? convertToUTCDate(p.endedAt) : undefined,
       languageCode: p.languageCode,
       orderBy: p.orderBy,
       memberType: p.memberType,
@@ -90,10 +84,9 @@ export const registerStreamListApi = (app: App) =>
 export const registerStreamPostApi = (app: App) =>
   app.openapi(postStreamRoute, async (c) => {
     const p = await c.req.json();
-    const r =
-      await c.env.APP_WORKER.newStreamUsecase().searchByStreamsIdsAndCreate({
-        streamIds: p.streamIds,
-      });
+    const r = await c.env.STREAM_COMMAND_SERVICE.searchByStreamsIdsAndCreate({
+      streamIds: p.streamIds,
+    });
 
     if (r.err) {
       throw r.err;

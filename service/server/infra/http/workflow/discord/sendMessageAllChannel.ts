@@ -4,7 +4,7 @@ import {
   type BindingAppWorkerEnv,
   zBindingAppWorkerEnv,
 } from "../../../../config/env/worker";
-import type { DiscordServers } from "../../../../domain";
+import type { DiscordServers } from "../../../../domain/discord";
 import { withTracer } from "../../../http/trace/cloudflare";
 
 type DiscordChannelIdsMap = {
@@ -49,13 +49,13 @@ export const discordSendMessageAllChannelWorkflow = () => {
               "discord-workflow",
               "fetch-discord-servers",
               async (span) => {
-                const du = await env.APP_WORKER.newDiscordUsecase();
+                const queryService = env.DISCORD_QUERY_SERVICE;
                 const allDiscordServers: DiscordServers = [];
                 let currentPage = 0;
                 let hasNext = true;
 
                 while (hasNext) {
-                  const result = await du.list({
+                  const result = await queryService.list({
                     limit: 100,
                     page: currentPage,
                   });
@@ -64,7 +64,7 @@ export const discordSendMessageAllChannelWorkflow = () => {
                     throw result.err;
                   }
 
-                  allDiscordServers.push(...result.val.discordServers);
+                  allDiscordServers.push(...result.val.servers);
                   currentPage++;
                   hasNext = result.val.pagination.hasNext;
                 }
@@ -137,7 +137,7 @@ export const discordSendMessageAllChannelWorkflow = () => {
                     "discord-workflow",
                     `send-admin-message-channel-${channelId}`,
                     async (span) => {
-                      const vu = await env.APP_WORKER.newDiscordUsecase();
+                      const commandService = env.DISCORD_COMMAND_SERVICE;
                       logger.info(
                         `Sending message to channel ${channelId} with language: ${group.channelLangaugeCode}`,
                         {
@@ -154,7 +154,7 @@ export const discordSendMessageAllChannelWorkflow = () => {
                         `${randomSleepSeconds} seconds`,
                       );
                       // Send message to the specified channel
-                      await vu.sendAdminMessage({
+                      await commandService.sendAdminMessage({
                         channelId,
                         content: event.payload.content,
                       });

@@ -33,8 +33,9 @@ export const searchChannelsWorkflow = () => {
                 "channel-workflow",
                 "fetch-vspo-jp-channels",
                 async (span) => {
-                  const vu = await env.APP_WORKER.newCreatorUsecase();
-                  const result = await vu.searchByMemberType({
+                  const queryService = env.CREATOR_QUERY_SERVICE;
+                  const commandService = env.CREATOR_COMMAND_SERVICE;
+                  const result = await queryService.searchByMemberType({
                     memberType: "vspo_jp",
                   });
                   if (result.err) {
@@ -44,7 +45,7 @@ export const searchChannelsWorkflow = () => {
                     return;
                   }
                   span.setAttribute("channels_count", result.val.length);
-                  const _ = await vu.batchUpsertEnqueue(result.val);
+                  const _ = await commandService.batchUpsertEnqueue(result.val);
                 },
               );
             },
@@ -60,8 +61,9 @@ export const searchChannelsWorkflow = () => {
                 "channel-workflow",
                 "fetch-vspo-en-channels",
                 async (span) => {
-                  const vu = await env.APP_WORKER.newCreatorUsecase();
-                  const result = await vu.searchByMemberType({
+                  const queryService = env.CREATOR_QUERY_SERVICE;
+                  const commandService = env.CREATOR_COMMAND_SERVICE;
+                  const result = await queryService.searchByMemberType({
                     memberType: "vspo_en",
                   });
                   if (result.err) {
@@ -71,7 +73,7 @@ export const searchChannelsWorkflow = () => {
                     return;
                   }
                   span.setAttribute("channels_count", result.val.length);
-                  const _ = await vu.batchUpsertEnqueue(result.val);
+                  const _ = await commandService.batchUpsertEnqueue(result.val);
                 },
               );
             },
