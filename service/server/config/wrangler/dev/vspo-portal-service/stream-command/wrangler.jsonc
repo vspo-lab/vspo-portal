@@ -1,0 +1,41 @@
+/**
+ * Auto-generated Wrangler configuration for dev-stream-command
+ * Generated at 2025-08-17T08:36:58.681Z
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dev-stream-command",
+  "compatibility_date": "2024-10-22",
+  "send_metrics": false,
+  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "main": "cmd/server/internal/application/index.ts",
+  "logpush": true,
+  "kv_namespaces": [
+    {
+      "binding": "APP_KV",
+      "id": "0b6b968c69fc406c8d55aaf2cd657c2b"
+    }
+  ],
+  "dev": {
+    "port": 3107
+  },
+  "hyperdrive": [
+    {
+      "binding": "DB",
+      "id": "4d99e5c5c0944294977331b93146876c",
+      "localConnectionString": "postgres://user:password@localhost:5432/vspo"
+    }
+  ],
+  "vars": {
+    "SERVICE_NAME": "dev-stream-command",
+    "ENVIRONMENT": "development",
+    "LOG_TYPE": "json",
+    "LOG_MINLEVEL": "info",
+    "LOG_HIDE_POSITION": "true"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

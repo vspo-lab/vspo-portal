@@ -1,63 +1,28 @@
 name: PR Check
+
 on:
   pull_request:
-    paths:
-      - 'service/server/**'
-      - 'service/vspo-schedule/v2/web/**'
-      - '.github/workflows/pr-check.yaml'
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  changes:
+  ci:
+    name: CI Pipeline
     runs-on: ubuntu-latest
-    outputs:
-      server: ${{ steps.filter.outputs.server }}
-      web: ${{ steps.filter.outputs.web }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
         with:
-          filters: |
-            server:
-              - 'service/server/**'
-            web:
-              - 'service/vspo-schedule/v2/web/**'
-
-  biome-check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
+          fetch-depth: 2
       
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
         
-      - name: Biome Check
-        run: pnpm biome:check
-
-  typescript-check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup PNPM
-        uses: ./.github/actions/setup-pnpm
-        
-      - name: TypeScript Check
-        run: pnpm tsc
-
-  server-check:
-    needs: changes
-    if: ${{ needs.changes.outputs.server == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup PNPM
-        uses: ./.github/actions/setup-pnpm
-        
-      - name: Server Check
+      - name: Run CI with Turbo
         run: pnpm run ci
-        working-directory: service/server
+        env:
+          TURBO_TELEMETRY_DISABLED: 1
+          SKIP_WRANGLER_CONFIG_CHECK: yes

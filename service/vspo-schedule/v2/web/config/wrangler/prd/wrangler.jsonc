@@ -13,8 +13,7 @@
     "directory": ".open-next/assets"
   },
   "observability": {
-    "enabled": true,
-    "invocation_logs": false
+    "enabled": true
   },
   "build": {
     "command": "pnpm cf:build",

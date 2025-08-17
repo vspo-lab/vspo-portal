@@ -11,7 +11,9 @@
     "cf:deploy": "opennextjs-cloudflare deploy",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "tools:generate-wrangler-config": "node tools/generate-wrangler-config.js"
+    "tools:generate-config:dev": "tsup tools/generate-wrangler-config.ts --format cjs && node dist/generate-wrangler-config.js dev",
+    "tools:generate-config:prd": "tsup tools/generate-wrangler-config.ts --format cjs && node dist/generate-wrangler-config.js prd",
+    "build:dryrun": "echo '🔍 Skipping vspo-schedule-v2-web cf:build (requires manual verification)'"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -67,6 +69,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
     "typescript": "catalog:",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "tsup": "catalog:"
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Gateway configuration with service bindings
- * Generated at 2025-08-12T09:03:03.807Z
+ * Generated at 2025-08-17T09:07:02.770Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -88,7 +88,6 @@
     "LOG_HIDE_POSITION": "true"
   },
   "observability": {
-    "enabled": true,
-    "invocation_logs": false
+    "enabled": true
   }
 }
