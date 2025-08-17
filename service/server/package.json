@@ -25,6 +25,8 @@
     "tools:generate-all-configs:prd": "node tools/wrangler/generate-all-configs.ts prd",
     "tools:generate-service-configs:dev": "node tools/wrangler/generate-service-configs.ts dev",
     "tools:generate-service-configs:prd": "node tools/wrangler/generate-service-configs.ts prd",
+    "tools:generate-consumer-configs:dev": "node tools/wrangler/generate-consumer-configs.ts dev",
+    "tools:generate-consumer-configs:prd": "node tools/wrangler/generate-consumer-configs.ts prd",
     "tools:generate-all-worker-configs:dev": "node tools/wrangler/generate-all-worker-configs.ts dev",
     "tools:generate-all-worker-configs:prd": "node tools/wrangler/generate-all-worker-configs.ts prd",
     "tools:generate-config:dev": "pnpm tools:generate-all-worker-configs:dev && pnpm tools:generate-service-configs:dev",

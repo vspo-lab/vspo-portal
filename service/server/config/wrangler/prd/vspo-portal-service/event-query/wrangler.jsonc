@@ -1,6 +1,6 @@
 /**
  * Auto-generated Wrangler configuration for event-query
- * Generated at 2025-08-17T13:56:16.546Z
+ * Generated at 2025-08-17T18:01:43.979Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -42,14 +42,6 @@
       {
         "queue": "prd-write-queue",
         "binding": "WRITE_QUEUE"
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "prd-write-queue",
-        "max_batch_size": 100,
-        "max_batch_timeout": 3,
-        "dead_letter_queue": "prd-write-queue-dead-letter"
       }
     ]
   }

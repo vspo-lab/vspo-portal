@@ -1,20 +1,8 @@
 #!/usr/bin/env node
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const WORKER_ENV_PATH = join(process.cwd(), "config/env/worker.ts");
 const BASE_OUTPUT_DIR = join(process.cwd(), "config/wrangler");
-
-interface ServiceConfig {
-  name: string;
-  binding: string;
-  className: string;
-}
-
-interface QueueProducer {
-  queue: string;
-  binding: string;
-}
 
 interface QueueConsumer {
   queue: string;
@@ -47,13 +35,7 @@ interface WranglerConfig {
   observability?: {
     enabled: boolean;
   };
-  services?: Array<{
-    binding: string;
-    service: string;
-    environment?: string;
-  }>;
   queues?: {
-    producers?: QueueProducer[];
     consumers?: QueueConsumer[];
   };
 }
@@ -75,51 +57,18 @@ function getHyperdriveId(env: string): string {
     : "4d99e5c5c0944294977331b93146876c";
 }
 
-// Extract service names from worker.ts
-function extractServiceBindings(): ServiceConfig[] {
-  const content = readFileSync(WORKER_ENV_PATH, "utf-8");
-  const services: ServiceConfig[] = [];
-  
-  // Extract service bindings using regex
-  const regex = /(\w+_SERVICE):\s*z\.custom<Service<(\w+)>>/g;
-  let match;
-  
-  while ((match = regex.exec(content)) !== null) {
-    const binding = match[1];
-    const className = match[2];
-    
-    // Convert binding name to service name
-    // STREAM_QUERY_SERVICE -> stream-query
-    const serviceName = binding
-      .replace(/_SERVICE$/, "")
-      .toLowerCase()
-      .replace(/_/g, "-");
-    
-    services.push({
-      name: serviceName,
-      binding,
-      className
-    });
-  }
-  
-  return services;
-}
-
-// Generate individual service config
-function generateServiceConfig(
-  service: ServiceConfig,
-  env: string,
-  port: number
-): WranglerConfig {
+// Generate consumer config
+function generateConsumerConfig(env: string): WranglerConfig {
   const envPrefix = getEnvPrefix();
-  const serviceName = `${envPrefix}${service.name}`;
+  const consumerName = `${envPrefix}write-queue`;
+  
   const config: WranglerConfig = {
     $schema: "node_modules/wrangler/config-schema.json",
-    name: serviceName,
+    name: consumerName,
     compatibility_date: "2024-10-22",
     send_metrics: false,
     compatibility_flags: ["nodejs_compat", "nodejs_als"],
-    main: "cmd/server/internal/application/index.ts",
+    main: "cmd/queue/consumer.ts", // Assuming queue handlers are in cmd/queue
     logpush: true,
     kv_namespaces: [
       {
@@ -128,7 +77,7 @@ function generateServiceConfig(
       },
     ],
     dev: {
-      port: port,
+      port: 3200, // Using a different port range for consumers
     },
     hyperdrive: [
       {
@@ -140,7 +89,7 @@ function generateServiceConfig(
       },
     ],
     vars: {
-      SERVICE_NAME: serviceName,
+      SERVICE_NAME: consumerName,
       ENVIRONMENT: env === "dev" ? "development" : "production",
       LOG_TYPE: "json",
       LOG_MINLEVEL: "info",
@@ -150,10 +99,12 @@ function generateServiceConfig(
       enabled: true
     },
     queues: {
-      producers: [
+      consumers: [
         {
           queue: `${env}-write-queue`,
-          binding: "WRITE_QUEUE"
+          max_batch_size: 100,
+          max_batch_timeout: 3,
+          dead_letter_queue: `${env}-write-queue-dead-letter`
         }
       ]
     }
@@ -189,35 +140,28 @@ ${jsonString}
 // Main execution
 async function main() {
   const env = process.argv[2] || "dev";
-  const outputDir = join(BASE_OUTPUT_DIR, env, "vspo-portal-service");
   
-  console.log(`🚀 Starting service config generation for ${env} environment...`);
+  console.log(`🚀 Starting consumer config generation for ${env} environment...`);
   
-  const services = extractServiceBindings();
-  console.log(`\nFound ${services.length} services`);
+  console.log("\n📝 Generating consumer config...");
   
-  console.log("\n📝 Generating service configs...");
+  const config = generateConsumerConfig(env);
   
-  let port = 3100; // Starting port for services
-  for (const service of services) {
-    const config = generateServiceConfig(service, env, port);
-    // Create a directory for each service (without env prefix in directory name)
-    const serviceDir = join(outputDir, service.name);
-    const outputPath = join(serviceDir, "wrangler.jsonc");
-    
-    saveAsJsonc(
-      config,
-      outputPath,
-      `Auto-generated Wrangler configuration for ${getEnvPrefix()}${service.name}`
-    );
-    
-    console.log(`   ✅ ${getEnvPrefix()}${service.name}`);
-    port++; // Increment port for next service
-  }
+  // Create directory structure: vspo-portal-consumer/write-queue/
+  const consumerDir = join(BASE_OUTPUT_DIR, env, "vspo-portal-consumer", "write-queue");
+  const outputPath = join(consumerDir, "wrangler.jsonc");
   
-  console.log("\n✨ All service configurations generated successfully!");
-  console.log(`\nGenerated files:`);
-  console.log(`  - Service configs: ${outputDir}/<service-name>/wrangler.jsonc (${services.length} services)`);
+  saveAsJsonc(
+    config,
+    outputPath,
+    `Auto-generated Wrangler configuration for ${getEnvPrefix()}write-queue consumer`
+  );
+  
+  console.log(`   ✅ ${getEnvPrefix()}write-queue consumer`);
+  
+  console.log("\n✨ Consumer configuration generated successfully!");
+  console.log(`\nGenerated file:`);
+  console.log(`  - Consumer config: ${outputPath}`);
   
   if (env === "prd") {
     console.log("\n⚠️  Note: Please update the following IDs for production:");

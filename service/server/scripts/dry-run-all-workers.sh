@@ -108,6 +108,21 @@ else
   echo "⚠️  Service workers directory not found: $SERVICE_WORKERS_DIR"
 fi
 
+# Consumer workers - dynamically discover from directory
+CONSUMER_WORKERS_DIR="config/wrangler/dev/vspo-portal-consumer"
+if [ -d "$CONSUMER_WORKERS_DIR" ]; then
+  for worker_dir in "$CONSUMER_WORKERS_DIR"/*; do
+    if [ -d "$worker_dir" ] && [ -f "$worker_dir/wrangler.jsonc" ]; then
+      worker_name=$(basename "$worker_dir")
+      run_dry_run "consumer-$worker_name" \
+        "$worker_dir/wrangler.jsonc" \
+        "cmd/queue/index.ts"
+    fi
+  done
+else
+  echo "⚠️  Consumer workers directory not found: $CONSUMER_WORKERS_DIR"
+fi
+
 # Display results in table format
 display_table
 

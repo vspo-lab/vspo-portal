@@ -1,16 +1,16 @@
 /**
- * Auto-generated Wrangler configuration for event-command
- * Generated at 2025-08-17T18:01:43.979Z
+ * Auto-generated Wrangler configuration for write-queue consumer
+ * Generated at 2025-08-17T18:01:43.795Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "event-command",
+  "name": "write-queue",
   "compatibility_date": "2024-10-22",
   "send_metrics": false,
   "compatibility_flags": ["nodejs_compat", "nodejs_als"],
-  "main": "cmd/server/internal/application/index.ts",
+  "main": "cmd/queue/consumer.ts",
   "logpush": true,
   "kv_namespaces": [
     {
@@ -19,7 +19,7 @@
     }
   ],
   "dev": {
-    "port": 3111
+    "port": 3200
   },
   "hyperdrive": [
     {
@@ -28,7 +28,7 @@
     }
   ],
   "vars": {
-    "SERVICE_NAME": "event-command",
+    "SERVICE_NAME": "write-queue",
     "ENVIRONMENT": "production",
     "LOG_TYPE": "json",
     "LOG_MINLEVEL": "info",
@@ -38,10 +38,12 @@
     "enabled": true
   },
   "queues": {
-    "producers": [
+    "consumers": [
       {
         "queue": "prd-write-queue",
-        "binding": "WRITE_QUEUE"
+        "max_batch_size": 100,
+        "max_batch_timeout": 3,
+        "dead_letter_queue": "prd-write-queue-dead-letter"
       }
     ]
   }

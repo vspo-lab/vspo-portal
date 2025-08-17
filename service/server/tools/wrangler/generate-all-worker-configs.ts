@@ -35,6 +35,7 @@ async function generateConfigs(env: string) {
   const tasks: GenerationTask[] = [
     { name: "Workflow configs", script: "tools:generate-all-configs", env },
     { name: "Service configs", script: "tools:generate-service-configs", env },
+    { name: "Consumer configs", script: "tools:generate-consumer-configs", env },
   ];
 
   for (const task of tasks) {
@@ -64,7 +65,8 @@ async function main() {
     console.log("Generated configuration directories:");
     console.log(`  - ${env}/vspo-portal-gateway/     (Gateway configs)`);
     console.log(`  - ${env}/vspo-portal-cron/        (Cron configs)`);
-    console.log(`  - ${env}/vspo-portal-service/     (Service and Workflow configs)\n`);
+    console.log(`  - ${env}/vspo-portal-service/     (Service and Workflow configs)`);
+    console.log(`  - ${env}/vspo-portal-consumer/     (Consumer configs)\n`);
     
     if (env === "prd") {
       console.log("⚠️  Note: Please update the following production IDs:");

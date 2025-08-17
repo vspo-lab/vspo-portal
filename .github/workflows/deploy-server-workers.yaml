@@ -110,9 +110,85 @@ jobs:
           MASTRA_CF_ACCESS_CLIENT_ID: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_ID }}
           MASTRA_CF_ACCESS_CLIENT_SECRET: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_SECRET }}
 
-  deploy-main-workers:
+  deploy-consumer-workers:
     runs-on: ubuntu-latest
     needs: deploy-service-workers
+    timeout-minutes: 60
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "write-queue"
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build & Deploy Worker
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          wranglerVersion: ${{ env.WRANGLER_VERSION }}
+          workingDirectory: service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-consumer/${{ matrix.name }}
+          command: deploy
+          preCommands: |
+            cp -R ./ ../../../../..
+          quiet: true
+          secrets: |
+            OPENAI_ORGANIZATION
+            OPENAI_PROJECT
+            OPENAI_API_KEY
+            OPENAI_BASE_URL
+            YOUTUBE_API_KEY
+            TWITCH_CLIENT_ID
+            TWITCH_CLIENT_SECRET
+            TWITCASTING_CLIENT_ID
+            TWITCASTING_CLIENT_SECRET
+            DISCORD_APPLICATION_ID
+            DISCORD_PUBLIC_KEY
+            DISCORD_TOKEN
+            SENTRY_DSN
+            DISCORD_TRANSLATION_SETTING
+            DISCORD_BOT_MAINTENANCE
+            API_KEY
+            MASTRA_BASE_URL
+            MASTRA_AGENT_ID
+            MASTRA_CF_ACCESS_CLIENT_ID
+            MASTRA_CF_ACCESS_CLIENT_SECRET
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          OPENAI_ORGANIZATION: ${{ secrets.OPENAI_ORGANIZATION }}
+          OPENAI_PROJECT: ${{ secrets.OPENAI_PROJECT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          TWITCASTING_CLIENT_ID: ${{ secrets.TWITCASTING_CLIENT_ID }}
+          TWITCASTING_CLIENT_SECRET: ${{ secrets.TWITCASTING_CLIENT_SECRET }}
+          DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
+          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          DISCORD_TRANSLATION_SETTING: ${{ secrets.DISCORD_TRANSLATION_SETTING }}
+          DISCORD_BOT_MAINTENANCE: ${{ secrets.DISCORD_BOT_MAINTENANCE }}
+          API_KEY: ${{ secrets.API_KEY }}
+          MASTRA_BASE_URL: ${{ secrets.MASTRA_BASE_URL }}
+          MASTRA_AGENT_ID: ${{ secrets.MASTRA_AGENT_ID }}
+          MASTRA_CF_ACCESS_CLIENT_ID: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_ID }}
+          MASTRA_CF_ACCESS_CLIENT_SECRET: ${{ secrets.MASTRA_CF_ACCESS_CLIENT_SECRET }}
+
+  deploy-main-workers:
+    runs-on: ubuntu-latest
+    needs: [deploy-service-workers, deploy-consumer-workers]
     timeout-minutes: 60
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     strategy:
