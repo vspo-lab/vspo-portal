@@ -61,7 +61,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           wranglerVersion: ${{ env.WRANGLER_VERSION }}
-          workingDirectory: service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/${{ matrix.name }}
+          workingDirectory: service/server/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/vspo-portal-service/${{ matrix.domain }}-${{ matrix.type }}
           command: deploy
           preCommands: |
             cp -R ./ ../../../../..
