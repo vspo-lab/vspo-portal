@@ -1,6 +1,6 @@
 /**
  * Auto-generated Wrangler configuration for dev-discord-command
- * Generated at 2025-08-17T08:36:58.681Z
+ * Generated at 2025-08-17T13:56:11.433Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -37,5 +37,21 @@
   },
   "observability": {
     "enabled": true
+  },
+  "queues": {
+    "producers": [
+      {
+        "queue": "dev-write-queue",
+        "binding": "WRITE_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "dev-write-queue",
+        "max_batch_size": 100,
+        "max_batch_timeout": 3,
+        "dead_letter_queue": "dev-write-queue-dead-letter"
+      }
+    ]
   }
 }

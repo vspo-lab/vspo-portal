@@ -11,6 +11,18 @@ interface ServiceConfig {
   className: string;
 }
 
+interface QueueProducer {
+  queue: string;
+  binding: string;
+}
+
+interface QueueConsumer {
+  queue: string;
+  max_batch_size: number;
+  max_batch_timeout: number;
+  dead_letter_queue: string;
+}
+
 interface WranglerConfig {
   $schema: string;
   name: string;
@@ -40,6 +52,10 @@ interface WranglerConfig {
     service: string;
     environment?: string;
   }>;
+  queues?: {
+    producers?: QueueProducer[];
+    consumers?: QueueConsumer[];
+  };
 }
 
 function getEnvPrefix(): string {
@@ -133,13 +149,23 @@ function generateServiceConfig(
     observability: {
       enabled: true
     },
+    queues: {
+      producers: [
+        {
+          queue: `${env}-write-queue`,
+          binding: "WRITE_QUEUE"
+        }
+      ],
+      consumers: [
+        {
+          queue: `${env}-write-queue`,
+          max_batch_size: 100,
+          max_batch_timeout: 3,
+          dead_letter_queue: `${env}-write-queue-dead-letter`
+        }
+      ]
+    }
   };
-
-  // Add service bindings for command services that might need queues
-  if (service.name.includes("command")) {
-    // Command services might need queue bindings
-    // This could be expanded based on specific requirements
-  }
 
   return config;
 }

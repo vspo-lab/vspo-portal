@@ -1,6 +1,6 @@
 /**
  * Auto-generated Wrangler configuration for clip-command
- * Generated at 2025-08-17T09:07:03.128Z
+ * Generated at 2025-08-17T13:56:16.546Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -36,5 +36,21 @@
   },
   "observability": {
     "enabled": true
+  },
+  "queues": {
+    "producers": [
+      {
+        "queue": "prd-write-queue",
+        "binding": "WRITE_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "prd-write-queue",
+        "max_batch_size": 100,
+        "max_batch_timeout": 3,
+        "dead_letter_queue": "prd-write-queue-dead-letter"
+      }
+    ]
   }
 }
