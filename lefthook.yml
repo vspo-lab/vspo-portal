@@ -1,14 +1,9 @@
 # Refer for explanation to following link:
 # https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+
 pre-commit:
+  parallel: false
   commands:
-    autoformat:
-      root: "."
-      glob: "**/*.{ts,tsx,js,jsx}"
-      run: pnpm biome:format
-      stage_fixed: true
-    typecheck:
-      root: "."
-      glob: "**/*.{ts,tsx,js,jsx}"
-      run: pnpm tsc
+    biome-fix:
+      run: pnpm pre-commit
       stage_fixed: true

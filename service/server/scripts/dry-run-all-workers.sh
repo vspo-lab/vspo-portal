@@ -93,27 +93,20 @@ run_dry_run "vspo-portal-cron" \
   "config/wrangler/dev/vspo-portal-cron/wrangler.jsonc" \
   "cmd/cron/index.ts"
 
-# Service workers (CQRS pattern)
-SERVICE_WORKERS=(
-  "stream-query"
-  "clip-query"
-  "creator-query"
-  "discord-query"
-  "event-query"
-  "freechat-query"
-  "clip-analysis-query"
-  "stream-command"
-  "clip-command"
-  "creator-command"
-  "discord-command"
-  "event-command"
-)
-
-for worker in "${SERVICE_WORKERS[@]}"; do
-  run_dry_run "$worker" \
-    "config/wrangler/dev/vspo-portal-service/dev-${worker}.wrangler.jsonc" \
-    "cmd/server/internal/application/index.ts"
-done
+# Service workers (CQRS pattern) - dynamically discover from directory
+SERVICE_WORKERS_DIR="config/wrangler/dev/vspo-portal-service"
+if [ -d "$SERVICE_WORKERS_DIR" ]; then
+  for worker_dir in "$SERVICE_WORKERS_DIR"/*; do
+    if [ -d "$worker_dir" ] && [ -f "$worker_dir/wrangler.jsonc" ]; then
+      worker_name=$(basename "$worker_dir")
+      run_dry_run "$worker_name" \
+        "$worker_dir/wrangler.jsonc" \
+        "cmd/server/internal/application/index.ts"
+    fi
+  done
+else
+  echo "⚠️  Service workers directory not found: $SERVICE_WORKERS_DIR"
+fi
 
 # Display results in table format
 display_table

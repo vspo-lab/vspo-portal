@@ -1,6 +1,9 @@
 packages:
   - "packages/**/*"
   - "service/**/*"
+  - "!**/.open-next/**"
+  - "!**/.next/**"
+  - "!**/dist/**"
 
 catalog:
   # Core TypeScript and Node.js

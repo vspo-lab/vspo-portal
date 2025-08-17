@@ -18,6 +18,31 @@
       "dependsOn": ["build"],
       "outputs": ["coverage/**"],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+    },
+    "build:dryrun": {
+      "cache": false,
+      "outputs": []
+    },
+    "build:dryrun:all": {
+      "cache": false,
+      "outputs": []
+    },
+    "tools:generate-config:dev": {
+      "cache": false,
+      "outputs": ["config/wrangler/dev/**"]
+    },
+    "tools:generate-config:prd": {
+      "cache": false,
+      "outputs": ["config/wrangler/prd/**"]
+    },
+    "cf:build": {
+      "dependsOn": ["^build"],
+      "outputs": [".open-next/**"],
+      "cache": true
+    },
+    "typecheck": {
+      "cache": false,
+      "outputs": []
     }
   }
 }
