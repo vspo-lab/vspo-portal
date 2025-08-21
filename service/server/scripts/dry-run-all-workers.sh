@@ -116,7 +116,7 @@ if [ -d "$CONSUMER_WORKERS_DIR" ]; then
       worker_name=$(basename "$worker_dir")
       run_dry_run "consumer-$worker_name" \
         "$worker_dir/wrangler.jsonc" \
-        "cmd/queue/index.ts"
+        "cmd/queue/consumer.ts"
     fi
   done
 else
