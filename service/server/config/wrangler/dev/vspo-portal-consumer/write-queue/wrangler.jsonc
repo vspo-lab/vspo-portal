@@ -1,35 +1,36 @@
 /**
- * Auto-generated Wrangler configuration for event-command
- * Generated at 2025-08-17T18:01:43.979Z
+ * Auto-generated Wrangler configuration for dev-write-queue consumer
+ * Generated at 2025-08-17T18:01:38.654Z
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "event-command",
+  "name": "dev-write-queue",
   "compatibility_date": "2024-10-22",
   "send_metrics": false,
   "compatibility_flags": ["nodejs_compat", "nodejs_als"],
-  "main": "cmd/server/internal/application/index.ts",
+  "main": "cmd/queue/consumer.ts",
   "logpush": true,
   "kv_namespaces": [
     {
       "binding": "APP_KV",
-      "id": "14bf3d407655490e9f377efbb4c3352b"
+      "id": "0b6b968c69fc406c8d55aaf2cd657c2b"
     }
   ],
   "dev": {
-    "port": 3111
+    "port": 3200
   },
   "hyperdrive": [
     {
       "binding": "DB",
-      "id": "cca2ae902ed44343ba0d34130f937a88"
+      "id": "4d99e5c5c0944294977331b93146876c",
+      "localConnectionString": "postgres://user:password@localhost:5432/vspo"
     }
   ],
   "vars": {
-    "SERVICE_NAME": "event-command",
-    "ENVIRONMENT": "production",
+    "SERVICE_NAME": "dev-write-queue",
+    "ENVIRONMENT": "development",
     "LOG_TYPE": "json",
     "LOG_MINLEVEL": "info",
     "LOG_HIDE_POSITION": "true"
@@ -38,10 +39,12 @@
     "enabled": true
   },
   "queues": {
-    "producers": [
+    "consumers": [
       {
-        "queue": "prd-write-queue",
-        "binding": "WRITE_QUEUE"
+        "queue": "dev-write-queue",
+        "max_batch_size": 100,
+        "max_batch_timeout": 3,
+        "dead_letter_queue": "dev-write-queue-dead-letter"
       }
     ]
   }

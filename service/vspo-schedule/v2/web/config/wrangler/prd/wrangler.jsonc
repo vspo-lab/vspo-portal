@@ -55,62 +55,62 @@
   "services": [
     {
       "binding": "STREAM_QUERY_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-stream-query",
       "entrypoint": "StreamQueryService"
     },
     {
       "binding": "CLIP_QUERY_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-clip-query",
       "entrypoint": "ClipQueryService"
     },
     {
       "binding": "CREATOR_QUERY_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-creator-query",
       "entrypoint": "CreatorQueryService"
     },
     {
       "binding": "DISCORD_QUERY_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-discord-query",
       "entrypoint": "DiscordQueryService"
     },
     {
       "binding": "EVENT_QUERY_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-event-query",
       "entrypoint": "EventQueryService"
     },
     {
       "binding": "FREECHAT_QUERY_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-freechat-query",
       "entrypoint": "FreechatQueryService"
     },
     {
       "binding": "CLIP_ANALYSIS_QUERY_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-clip-analysis-query",
       "entrypoint": "ClipAnalysisQueryService"
     },
     {
       "binding": "STREAM_COMMAND_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-stream-command",
       "entrypoint": "StreamCommandService"
     },
     {
       "binding": "CLIP_COMMAND_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-clip-command",
       "entrypoint": "ClipCommandService"
     },
     {
       "binding": "CREATOR_COMMAND_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-creator-command",
       "entrypoint": "CreatorCommandService"
     },
     {
       "binding": "DISCORD_COMMAND_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-discord-command",
       "entrypoint": "DiscordCommandService"
     },
     {
       "binding": "EVENT_COMMAND_SERVICE",
-      "service": "prd-vspo-portal-app",
+      "service": "prd-event-command",
       "entrypoint": "EventCommandService"
     }
   ]

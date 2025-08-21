@@ -11,8 +11,11 @@ import {
   createCommandContainer,
   createQueryContainer,
 } from "../../../../infra/dependency/index.js";
-import { withTracer, withTracerResult } from "../../../../infra/http/trace";
-import { queueHandler } from "../../../../infra/queue/handler";
+import {
+  createHandler,
+  withTracer,
+  withTracerResult,
+} from "../../../../infra/http/trace";
 
 import type {
   BatchUpsertClipsParam,
@@ -871,6 +874,9 @@ export class ClipAnalysisQueryService extends WorkerEntrypoint<AppWorkerEnv> {
   }
 }
 
-// Export all services are already exported as class declarations above
-
-export default queueHandler;
+// noop handler(only used service binding)
+export default createHandler({
+  fetch: async (_req, _env, _ctx) => {
+    return new Response("Hello, world!");
+  },
+});

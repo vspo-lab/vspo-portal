@@ -68,9 +68,17 @@ function generateServiceBindings(env: "dev" | "prd"): ServiceBinding[] {
   
   // Add all CQRS service bindings with their service type as entrypoint
   for (const [bindingName, serviceType] of services) {
+    // Convert binding name to service name
+    // STREAM_QUERY_SERVICE -> stream-query
+    // CLIP_COMMAND_SERVICE -> clip-command
+    const serviceName = bindingName
+      .replace(/_SERVICE$/, '')
+      .toLowerCase()
+      .replace(/_/g, '-');
+    
     bindings.push({
       binding: bindingName,
-      service: `${env}-vspo-portal-app`,
+      service: `${env}-${serviceName}`,
       entrypoint: serviceType // Each service type is its own entrypoint
     });
   }
@@ -195,13 +203,18 @@ function updateWranglerConfig(env: "dev" | "prd"): void {
 // Main function
 function generateWranglerConfigs(): void {
   try {
-    console.log("Generating wrangler configurations for web...");
+    const env = process.argv[2] as "dev" | "prd";
     
-    // Update both dev and prd configs
-    updateWranglerConfig("dev");
-    updateWranglerConfig("prd");
+    if (!env || (env !== "dev" && env !== "prd")) {
+      console.error("Please specify environment: dev or prd");
+      process.exit(1);
+    }
     
-    console.log("Wrangler configurations generated successfully!");
+    console.log(`Generating wrangler configuration for web (${env})...`);
+    
+    updateWranglerConfig(env);
+    
+    console.log(`Wrangler configuration for ${env} generated successfully!`);
   } catch (error) {
     console.error("Error generating wrangler configs:", error);
     process.exit(1);
