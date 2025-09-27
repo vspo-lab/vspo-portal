@@ -31,7 +31,7 @@ pnpm dev:vspo-schedule-web
 ## Development Environment
 
 - Node.js: >=22.15.0
-- Package Manager: pnpm >=10.10.0
+- Package Manager: pnpm >=10.17.1
 
 ## Development Roadmap
 

@@ -5,7 +5,7 @@ A site where you can check the streams (YouTube/Twitch/Twitcasting/Niconico) and
 ## Requirements
 
 - Node.js: >=22.15.0
-- Package Manager: pnpm >=10.10.0
+- Package Manager: pnpm >=10.17.1
 
 ## Quick Start
 

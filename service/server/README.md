@@ -8,7 +8,7 @@ Backend services for Vspo Portal
 ### Requirements
 
 - Node.js: >=22.15.0
-- Package Manager: pnpm >=10.10.0
+- Package Manager: pnpm >=10.17.1
 
 ### Setup
 

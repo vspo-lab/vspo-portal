@@ -1,26 +1,17 @@
 packages:
-  - "packages/**/*"
-  - "service/**/*"
+  - packages/**/*
+  - service/**/*
 
 catalog:
-  # Core TypeScript and Node.js
-  typescript: ^5.8.3
-  "@types/node": ^22.15.24
-  
-  # Build tools
-  tsup: ^8.4.0
-  
-  # Validation and utilities
-  zod: ^3.25.36
-  dayjs: ^1.11.13
-  
-  # Cloudflare Workers
-  wrangler: ^4.14.1
-  "@cloudflare/workers-types": ^4.20250502.0
-  
-  # React ecosystem
-  next: ^15.3.2
+  '@cloudflare/workers-types': ^4.20250927.0
+  '@types/node': ^22.15.24
+  dayjs: ^1.11.18
+  next: ^15.4.7
   react: ^19.0.0
   react-dom: ^19.0.0
+  tsup: ^8.5.0
+  typescript: ^5.9.2
+  wrangler: ^4.40.2
+  zod: ^3.25.76
 
 sharedWorkspaceLockfile: false
