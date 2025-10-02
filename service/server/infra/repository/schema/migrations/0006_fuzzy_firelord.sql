@@ -1,2 +1,0 @@
-CREATE INDEX "video_type_deleted_idx" ON "video" USING btree ("video_type","deleted");--> statement-breakpoint
-CREATE INDEX "video_translation_lang_video_idx" ON "video_translation" USING btree ("lang_code","video_id");
