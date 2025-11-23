@@ -23,6 +23,7 @@ import {
   styled,
   useMediaQuery,
   useTheme,
+  type Theme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React from "react";
@@ -35,6 +36,11 @@ import {
   UrlInput,
 } from "../../components/containers";
 import { LayoutType, useMultiviewLayout } from "../../hooks/useMultiviewLayout";
+
+const scaledBorderRadius = (theme: Theme, scale: number) =>
+  typeof theme.shape.borderRadius === "number"
+    ? theme.shape.borderRadius * scale
+    : `calc(${theme.shape.borderRadius} * ${scale})`;
 
 // Styled components
 const HeaderSection = styled(Paper)(({ theme }) => ({
@@ -87,7 +93,7 @@ const ControlsPanel = styled(Paper)<{ collapsed?: boolean }>(
     backgroundColor: "rgba(255, 255, 255, 0.95)",
     backdropFilter: "blur(10px)",
     boxShadow: theme.shadows[8],
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: scaledBorderRadius(theme, 2),
     border: `1px solid ${theme.palette.grey[300]}`,
     zIndex: 1100,
     transition: theme.transitions.create(["right", "opacity"], {

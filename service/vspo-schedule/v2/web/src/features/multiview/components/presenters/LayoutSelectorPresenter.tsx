@@ -18,16 +18,22 @@ import {
   styled,
   useMediaQuery,
   useTheme,
+  type Theme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import type { TFunction } from "next-i18next";
 import React from "react";
 import { LayoutType } from "../../hooks/useMultiviewLayout";
 
+const scaledBorderRadius = (theme: Theme, scale: number) =>
+  typeof theme.shape.borderRadius === "number"
+    ? theme.shape.borderRadius * scale
+    : `calc(${theme.shape.borderRadius} * ${scale})`;
+
 const SelectorContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2.5),
   backgroundColor: "white",
-  borderRadius: theme.shape.borderRadius * 1.5,
+  borderRadius: scaledBorderRadius(theme, 1.5),
   boxShadow: theme.shadows[2],
   border: `1px solid ${theme.palette.divider}`,
   [theme.breakpoints.down("md")]: {
@@ -59,7 +65,7 @@ const LayoutButton = styled(IconButton, {
   border: `2px solid ${
     isSelected ? theme.palette.primary.main : theme.palette.divider
   }`,
-  borderRadius: theme.shape.borderRadius * 1.5,
+  borderRadius: scaledBorderRadius(theme, 1.5),
   backgroundColor: isSelected
     ? alpha(theme.palette.primary.main, 0.08)
     : "transparent",

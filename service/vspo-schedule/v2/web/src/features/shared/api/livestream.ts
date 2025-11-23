@@ -39,7 +39,13 @@ const transformLivestreamsToDomain = (
   if (!apiLivestreams) {
     return [];
   }
-  return apiLivestreams.map((stream) => {
+
+  const streamsWithStartTime = apiLivestreams.filter(
+    (stream): stream is ListStreams200StreamsItem & { startedAt: string } =>
+      Boolean(stream.startedAt),
+  );
+
+  return streamsWithStartTime.map((stream) => {
     const livestream = {
       id: stream.rawId,
       type: "livestream",
@@ -49,7 +55,7 @@ const transformLivestreamsToDomain = (
       thumbnailUrl: stream.thumbnailURL,
       viewCount: stream.viewCount,
       status: stream.status,
-      scheduledStartTime: stream.startedAt || "",
+      scheduledStartTime: stream.startedAt,
       scheduledEndTime: stream.endedAt,
       channelId: stream.rawChannelID,
       channelTitle: stream.creatorName || "",

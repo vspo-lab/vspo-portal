@@ -35,5 +35,6 @@
   "tabs": {
     "all": "すべて",
     "allWithDate": "すべて ({{date}})"
-  }
-} 
+  },
+  "noLivestreams": "配信予定がありません、前日の予定をご覧ください。"
+}

@@ -26,6 +26,10 @@ export const groupLivestreamsByTimeBlock = (
 
     // Sort livestreams into time blocks using the user's timezone
     for (const livestream of livestreams) {
+      if (!livestream.scheduledStartTime) {
+        continue;
+      }
+
       // Convert UTC time to user's timezone
       const startTimeInUserTZ = utcToZonedTime(
         livestream.scheduledStartTime,

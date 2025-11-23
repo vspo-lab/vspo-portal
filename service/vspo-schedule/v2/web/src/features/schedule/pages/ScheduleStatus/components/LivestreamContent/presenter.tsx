@@ -82,6 +82,11 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
     livestreamsByDate,
     timeZone,
   );
+  const hasLivestreams = Object.keys(livestreamsByTimeBlock).length > 0;
+  const selectedDate =
+    typeof router.query.date === "string"
+      ? router.query.date
+      : format(utcToZonedTime(new Date(), timeZone), "yyyy-MM-dd");
 
   const navigateToDate = (date: string, daysToAdd: number) => {
     const currentDate = new Date(date);
@@ -100,6 +105,47 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
       { shallow: false },
     );
   };
+
+  if (!hasLivestreams) {
+    return (
+      <ContentSection>
+        <DateHeader>
+          <Typography
+            variant="h5"
+            sx={(theme) => ({
+              fontWeight: 600,
+              color: theme.vars.palette.text.primary,
+            })}
+          >
+            {formatDate(selectedDate, "MM/dd (EEE)", { timeZone })}
+          </Typography>
+          <DateNavigation>
+            <NavButton
+              size="small"
+              variant="outlined"
+              onClick={() => navigateToDate(selectedDate, -1)}
+              startIcon={<ChevronLeftIcon fontSize="small" />}
+            >
+              {t("navigation.previousDay")}
+            </NavButton>
+            <NavButton
+              size="small"
+              variant="outlined"
+              onClick={() => navigateToDate(selectedDate, 1)}
+              endIcon={<ChevronRightIcon fontSize="small" />}
+            >
+              {t("navigation.nextDay")}
+            </NavButton>
+          </DateNavigation>
+        </DateHeader>
+        <Box sx={{ px: 2, py: 1 }}>
+          <Typography variant="body1" color="text.secondary">
+            {t("noLivestreams")}
+          </Typography>
+        </Box>
+      </ContentSection>
+    );
+  }
 
   return (
     <Box>
