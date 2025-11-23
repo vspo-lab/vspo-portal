@@ -35,5 +35,6 @@
   "tabs": {
     "all": "全部",
     "allWithDate": "全部 ({{date}})"
-  }
-} 
+  },
+  "noLivestreams": "沒有配信預定，請查看前一天的行程。"
+}

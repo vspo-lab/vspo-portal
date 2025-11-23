@@ -6,6 +6,7 @@ import {
   styled,
   useMediaQuery,
   useTheme,
+  type Theme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import React, { useState, useCallback, useRef, useEffect } from "react";
@@ -15,12 +16,17 @@ import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
 import { VideoPlayer } from "../containers";
 
+const scaledBorderRadius = (theme: Theme, scale: number) =>
+  typeof theme.shape.borderRadius === "number"
+    ? theme.shape.borderRadius * scale
+    : `calc(${theme.shape.borderRadius} * ${scale})`;
+
 const GridContainer = styled(Paper)<{ isFullscreen?: boolean }>(
   ({ theme, isFullscreen }) => ({
     minHeight: isFullscreen ? "100vh" : "600px",
     padding: theme.spacing(isFullscreen ? 0 : 1),
     backgroundColor: "white",
-    borderRadius: isFullscreen ? 0 : theme.shape.borderRadius * 2,
+    borderRadius: isFullscreen ? 0 : scaledBorderRadius(theme, 2),
     boxShadow: isFullscreen ? "none" : theme.shadows[4],
     border: isFullscreen ? "none" : `1px solid ${theme.palette.divider}`,
     position: isFullscreen ? "fixed" : "relative",

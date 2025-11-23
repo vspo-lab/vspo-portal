@@ -25,7 +25,7 @@ interface CloudflareContextEnv {
 
 export class CloudflareAssetsBackend implements BackendModule {
   type = "backend" as const;
-  private services: Services | undefined;
+  private services?: Services;
   private options: BackendOptions = {
     loadPath: "/locales/{{lng}}/{{ns}}.json",
   };

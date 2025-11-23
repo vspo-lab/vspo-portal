@@ -10,11 +10,16 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, type Theme } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
 import type React from "react";
 import type { Clip } from "@/features/shared/domain";
 import { useVideoModalContext } from "@/hooks/video-modal";
+
+const doubleBorderRadius = (theme: Theme) =>
+  typeof theme.shape.borderRadius === "number"
+    ? theme.shape.borderRadius * 2
+    : `calc(${theme.shape.borderRadius} * 2)`;
 
 // Styled components
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -59,7 +64,7 @@ const SingleRowContainer = styled(Box)(({ theme }) => ({
 // Modern card style
 const ModernCard = styled(Card)(({ theme }) => ({
   overflow: "hidden",
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: doubleBorderRadius(theme),
   transition: "transform 0.3s ease, box-shadow 0.3s ease",
   height: "100%",
   "&:hover": {
@@ -88,7 +93,7 @@ const CardOverlay = styled(Box)(({ theme }) => ({
 
 const ShortsCard = styled(Card)(({ theme }) => ({
   overflow: "hidden",
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: doubleBorderRadius(theme),
   height: "100%",
   aspectRatio: "9/16",
   transition: "transform 0.3s ease, box-shadow 0.3s ease",

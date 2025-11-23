@@ -82,6 +82,7 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
     livestreamsByDate,
     timeZone,
   );
+  const hasLivestreams = Object.keys(livestreamsByTimeBlock).length > 0;
 
   const navigateToDate = (date: string, daysToAdd: number) => {
     const currentDate = new Date(date);
@@ -100,6 +101,16 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
       { shallow: false },
     );
   };
+
+  if (!hasLivestreams) {
+    return (
+      <Box sx={{ px: 2, py: 1 }}>
+        <Typography variant="body1" color="text.secondary">
+          {t("noLivestreams")}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>

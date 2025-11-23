@@ -35,5 +35,6 @@
   "tabs": {
     "all": "全部",
     "allWithDate": "全部 ({{date}})"
-  }
-} 
+  },
+  "noLivestreams": "暂无直播计划，请查看前一天的安排。"
+}
