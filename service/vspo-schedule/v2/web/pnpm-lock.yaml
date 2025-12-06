@@ -85,7 +85,7 @@ importers:
         version: 7.3.2(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@types/react@19.1.14)(react@19.1.0))(@types/react@19.1.14)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mui/material-nextjs':
         specifier: ^7.3.2
-        version: 7.3.2(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@emotion/server@11.11.0)(@types/react@19.1.14)(next@15.4.8(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+        version: 7.3.6(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@emotion/server@11.11.0)(@types/react@19.1.14)(next@15.4.8(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       '@mui/system':
         specifier: ^7.3.2
         version: 7.3.2(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@types/react@19.1.14)(react@19.1.0))(@types/react@19.1.14)(react@19.1.0)
@@ -1720,15 +1720,15 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/material-nextjs@7.3.2':
-    resolution: {integrity: sha512-PYRGXf32vNOdKOrTOkoNmWipFKpMODQzrfSPaQQb0SsuTRWRyPxP1WR9A7JccJvsmvbBhdQ9bcBqrCD8oJub4w==}
+  '@mui/material-nextjs@7.3.6':
+    resolution: {integrity: sha512-2fP1QyBRY9rT02/ykNw0yz9aAWy5ZVp+YzkLEqio9VTkIYkon/xSUQX7PfHLOWUbKlkwoKtCQOjsvrYtSOyKnQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/cache': ^11.11.0
       '@emotion/react': ^11.11.4
       '@emotion/server': ^11.11.0
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
-      next: ^13.0.0 || ^14.0.0 || ^15.0.0
+      next: ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@emotion/cache':
@@ -7832,7 +7832,7 @@ snapshots:
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@types/react@19.1.14)(react@19.1.0)
       '@types/react': 19.1.14
 
-  '@mui/material-nextjs@7.3.2(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@emotion/server@11.11.0)(@types/react@19.1.14)(next@15.4.8(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
+  '@mui/material-nextjs@7.3.6(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.1.14)(react@19.1.0))(@emotion/server@11.11.0)(@types/react@19.1.14)(next@15.4.8(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@emotion/react': 11.14.0(@types/react@19.1.14)(react@19.1.0)
