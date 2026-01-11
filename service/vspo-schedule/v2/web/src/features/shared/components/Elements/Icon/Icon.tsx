@@ -4,7 +4,6 @@ import AllInboxIcon from "@mui/icons-material/AllInbox";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
-import EventIcon from "@mui/icons-material/Event";
 import GridViewIcon from "@mui/icons-material/GridView";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoIcon from "@mui/icons-material/Info";
@@ -77,8 +76,6 @@ export const DrawerIcon: React.FC<DrawerIconProps> = ({ id }) => {
       return <ChatBubbleOutlineIcon />;
     case "site-news":
       return <NotificationsIcon />;
-    case "event":
-      return <EventIcon />;
     case "about":
       return <InfoIcon />;
     case "discord":
