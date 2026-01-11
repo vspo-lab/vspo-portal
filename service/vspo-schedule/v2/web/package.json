@@ -26,7 +26,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.6",
     "@mui/icons-material": "^7.3.7",
-    "@mui/lab": "7.0.0-beta.12",
+    "@mui/lab": "7.0.0-beta.17",
     "@mui/material": "^7.3.7",
     "@mui/material-nextjs": "^7.3.7",
     "@mui/system": "^7.3.7",
