@@ -1,6 +1,4 @@
-import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DISCORD_LINK, QA_LINK } from "@/lib/Const";
-import { formatDate } from "@/lib/utils";
 
 const internalRoutes = {
   list: "/schedule/all",
@@ -9,8 +7,6 @@ const internalRoutes = {
   upcoming: "/schedule/upcoming",
   freechat: "/freechat",
   clip: "/clips",
-  event: (timeZone: string) =>
-    `/events/${formatDate(getCurrentUTCDate(), "yyyy-MM", { timeZone })}`,
   multiview: "/multiview",
   about: "/about",
   "site-news": "/site-news",
@@ -25,15 +21,9 @@ const navigationRoutes = { ...internalRoutes, ...externalRoutes };
 
 export type NavigationRouteId = keyof typeof navigationRoutes;
 
-export const getNavigationRouteInfo = (
-  id: NavigationRouteId,
-  timeZone: string,
-) => {
-  const link =
-    id === "event" ? navigationRoutes[id](timeZone) : navigationRoutes[id];
-
+export const getNavigationRouteInfo = (id: NavigationRouteId) => {
   return {
-    link: link ?? "",
+    link: navigationRoutes[id] ?? "",
     isExternalLink: id in externalRoutes,
   };
 };
