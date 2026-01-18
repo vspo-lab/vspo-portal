@@ -35,7 +35,7 @@
     "@vspo-lab/api": "workspace:^",
     "@vspo-lab/dayjs": "workspace:^",
     "@vspo-lab/error": "workspace:^",
-    "date-fns": "^2.30.0",
+    "date-fns": "^4.0.0",
     "date-fns-tz": "^2.0.1",
     "dayjs": "catalog:",
     "gray-matter": "^4.0.3",
