@@ -62,11 +62,11 @@ export const ContentLayout = ({
 
   const handleAlertClose = () => {
     setAlertOpen(false);
-    localStorage.setItem("alertSeen-20250626", "true");
+    localStorage.setItem("alertSeen-discordBot", "true");
   };
 
   useEffect(() => {
-    const hasSeenAlert = localStorage.getItem("alertSeen-20250626");
+    const hasSeenAlert = localStorage.getItem("alertSeen-discordBot");
 
     if (!hasSeenAlert) {
       setAlertOpen(true);
