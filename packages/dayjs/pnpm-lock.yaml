@@ -10,7 +10,7 @@ catalogs:
       specifier: ^1.11.19
       version: 1.11.19
     tsup:
-      specifier: ^8.5.1
+      specifier: ^8.5.0
       version: 8.5.1
     typescript:
       specifier: ^5.9.3
