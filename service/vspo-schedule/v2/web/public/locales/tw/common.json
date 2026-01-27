@@ -44,8 +44,8 @@
     "site-theme": "主題"
   },
   "alert": {
-    "title": "新功能發布",
-    "message": "多視角功能已發布！可以同時觀看多個直播。"
+    "title": "Discord Bot 已上線",
+    "message": "可以從側邊欄添加！"
   },
   "videoModal": {
     "tabLabels": {

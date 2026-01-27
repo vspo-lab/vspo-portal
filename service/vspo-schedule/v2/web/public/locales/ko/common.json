@@ -44,8 +44,8 @@
     "site-theme": "테마"
   },
   "alert": {
-    "title": "신기능 출시",
-    "message": "멀티뷰 기능이 출시되었습니다! 여러 방송을 동시에 시청할 수 있습니다."
+    "title": "Discord Bot 출시",
+    "message": "사이드바에서 추가할 수 있습니다!"
   },
   "videoModal": {
     "tabLabels": {
