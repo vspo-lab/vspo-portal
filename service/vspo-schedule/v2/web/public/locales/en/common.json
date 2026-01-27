@@ -44,8 +44,8 @@
     "site-theme": "Theme"
   },
   "alert": {
-    "title": "New Feature Release",
-    "message": "Multiview feature released! Watch multiple streams simultaneously."
+    "title": "Discord Bot Available",
+    "message": "Add it from the sidebar!"
   },
   "videoModal": {
     "tabLabels": {
