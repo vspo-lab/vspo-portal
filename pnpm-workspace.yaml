@@ -6,7 +6,7 @@ catalog:
   '@cloudflare/workers-types': ^4.20260111.0
   '@types/node': ^22.19.5
   dayjs: ^1.11.19
-  next: 15.5.9
+  next: 15.5.11
   react: ^19.2.3
   react-dom: ^19.2.3
   tsup: ^8.5.0
