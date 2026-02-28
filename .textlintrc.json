@@ -1,0 +1,18 @@
+{
+  "plugins": {
+    "@textlint/markdown": true
+  },
+  "rules": {
+    "preset-ja-technical-writing": {
+      "max-comma": false,
+      "sentence-length": false,
+      "max-kanji-continuous-len": false,
+      "ja-no-mixed-period": false,
+      "no-exclamation-question-mark": false,
+      "no-mix-dearu-desumasu": false,
+      "ja-no-successive-word": false,
+      "no-doubled-joshi": false,
+      "ja-no-redundant-expression": false
+    }
+  }
+}

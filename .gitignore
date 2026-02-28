@@ -74,3 +74,6 @@ dist
 
 .mastra
 .pnpm-store
+
+# claude hooks state
+.claude/.post_edit_check_pending
