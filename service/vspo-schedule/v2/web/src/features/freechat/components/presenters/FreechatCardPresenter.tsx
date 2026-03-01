@@ -100,7 +100,7 @@ type Member = {
   iconUrl: string;
 };
 
-export type FreechatCardPresenterProps = {
+type FreechatCardPresenterProps = {
   freechat: Freechat;
   additionalMembers?: Member[];
 };

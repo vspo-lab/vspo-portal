@@ -9,6 +9,7 @@
     "biome:lint": "biome lint --apply .",
     "biome:unsafe-fix": "biome check --fix --unsafe",
     "knip": "knip",
+    "knip:fix": "knip --fix",
     "tsc": "pnpm -r exec tsc --noEmit",
     "generate-openapi": "pnpm --filter @vspo-lab/api generate-openapi",
     "dev:vspo-schedule-web": "pnpm --filter vspo-schedule-v2-web dev",

@@ -2,7 +2,7 @@ import type React from "react";
 import type { Clip } from "@/features/shared/domain";
 import { ClipSectionPresenter } from "../presenters/ClipSectionPresenter";
 
-export type ClipSectionProps = {
+type ClipSectionProps = {
   title: string;
   clips: Clip[];
   type?: "youtube" | "shorts" | "twitch";

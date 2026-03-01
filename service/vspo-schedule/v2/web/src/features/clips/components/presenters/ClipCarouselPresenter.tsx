@@ -88,7 +88,7 @@ const CarouselButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-export type ClipCarouselPresenterProps = {
+type ClipCarouselPresenterProps = {
   clips: Clip[];
 };
 

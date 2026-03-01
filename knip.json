@@ -13,7 +13,12 @@
       "project": "**/*.ts"
     },
     "service/vspo-schedule/v2/web": {
-      "entry": ["src/pages/**/*.{ts,tsx}", "next.config.{js,mjs,ts}"],
+      "entry": [
+        "src/pages/**/*.{ts,tsx}",
+        "next.config.{js,mjs,ts}",
+        "open-next.config.ts",
+        "src/lib/i18n.ts"
+      ],
       "project": "**/*.{ts,tsx}",
       "ignore": [
         "src/features/multiview/**",

@@ -13,7 +13,7 @@ export type TabOption = {
   label: string;
 };
 
-export type ClipTabsAndListPresenterProps = {
+type ClipTabsAndListPresenterProps = {
   tabOptions: TabOption[];
   selectedTabIndex: number;
   onTabChange: (index: number) => void;

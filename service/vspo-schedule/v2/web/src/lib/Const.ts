@@ -1,5 +1,3 @@
-export const TEMP_TIMESTAMP = "1998-01-01T12:00:00Z";
-
 export const DEFAULT_LOCALE = "ja";
 export const DEFAULT_TIME_ZONE = "Asia/Tokyo";
 

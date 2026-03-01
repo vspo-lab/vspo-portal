@@ -3,12 +3,12 @@ import { AppError, type BaseError, type Result, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import { type Freechat, freechatSchema } from "../domain/freechat";
 
-export type FetchFreechatsParams = {
+type FetchFreechatsParams = {
   lang?: string;
   sessionId?: string;
 };
 
-export type FreechatFetchResult = Result<
+type FreechatFetchResult = Result<
   {
     freechats: Freechat[];
   },

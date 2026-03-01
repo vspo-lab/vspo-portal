@@ -105,13 +105,13 @@ const StyledClockIcon = styled(AccessTimeIcon)(({ theme }) => ({
   },
 }));
 
-export type DateFilterOption = {
+type DateFilterOption = {
   label: string;
   value: string;
   showIcon?: boolean;
 };
 
-export type ClipsHomePresenterProps = {
+type ClipsHomePresenterProps = {
   popularYoutubeClips: Clip[];
   popularShortsClips: Clip[];
   popularTwitchClips: Clip[];
