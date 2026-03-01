@@ -2,13 +2,11 @@
   "name": "vspo-portal",
   "private": true,
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "build": "turbo build",
-    "biome:check": "biome check ./**/**",
-    "biome:format": "biome format --write ./**/**",
-    "biome:lint": "biome lint --apply ./**/**",
+    "biome:check": "biome check .",
+    "biome:format": "biome format --write .",
+    "biome:lint": "biome lint --apply .",
     "biome:unsafe-fix": "biome check --fix --unsafe",
     "knip": "knip",
     "tsc": "pnpm -r exec tsc --noEmit",
@@ -24,16 +22,12 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
     "@textlint/textlint-plugin-markdown": "^15.5.2",
-    "@types/node": "^22.19.5",
+    "@types/node": "catalog:",
     "knip": "^5.80.2",
-    "lefthook": "^1.13.6",
     "textlint": "^15.5.2",
     "textlint-rule-preset-ja-technical-writing": "^12.0.2",
     "turbo": "^2.7.3",
     "typescript": "^5.9.3"
-  },
-  "pnpm": {
-    "overrides": {}
   },
   "packageManager": "pnpm@10.28.0",
   "engines": {

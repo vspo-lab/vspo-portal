@@ -20,14 +20,8 @@ jobs:
           - name: "vspo-portal-web"
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.28.0
-          run_install: false
-      - name: Install dependencies
-        run: pnpm install
-      - name: Turbo Build(Package)
-        run: pnpm build
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
       - name: Web Deploy Worker
         uses: cloudflare/wrangler-action@v3.14.1
         with:
