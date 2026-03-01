@@ -1,0 +1,244 @@
+# Result-based Error Handling
+
+This project uses a `Result` type to unify error handling without `try-catch` in
+application code. Asynchronous boundaries are wrapped with `wrap`, which returns
+`Ok` or `Err`.
+
+## Implementation
+
+[result.ts](../packages/errors/result.ts)
+[base.ts](../packages/errors/base.ts)
+[error.ts](../packages/errors/error.ts)
+
+## Usage
+Example:
+
+```ts
+// third-party async function with potential to throw
+const textResult = await wrap(
+  response.text(),
+  (error) =>
+    new AppError({
+      message: "Failed to read asset text",
+      code: "INTERNAL_SERVER_ERROR",
+      cause: error,
+    }),
+);
+
+if (textResult.err) {
+  return Err(textResult.err);
+}
+
+return Ok(textResult.val);
+```
+
+## How It Works
+`Result<T, E>`: A union type where success holds `val` and failure holds `err`.
+
+`wrap`: Takes a promise, awaits it, and returns `Ok(val)` or `Err(err)` with
+the error created by `errorFactory`.
+
+Benefit: This keeps error handling concise and type-safe for async operations.
+
+## Benefits
+- Type Safety: TypeScript narrows based on `result.err`.
+- Simplicity: Replaces verbose try/catch blocks for promises.
+- Flexibility: Customize error types with `AppError` or domain errors.
+
+## Async Handling Rules
+
+**Always use `await`, never use `.then()`**
+
+```ts
+// ✅ Good: Use await
+const result = await wrap(fetchData(), errorFactory);
+
+// ❌ Bad: Don't use .then()
+wrap(fetchData(), errorFactory).then((result) => { ... });
+```
+
+Reason:
+- `await` makes control flow explicit and easier to follow
+- Error handling with Result type works naturally with `await`
+- `.then()` chains lead to nested callbacks and harder debugging
+
+Notes
+- Use `wrap` at async boundaries; avoid `try-catch` in app logic.
+- `wrap` treats thrown values as `Error`; refine the factory if you need stricter typing.
+
+---
+
+## Domain Error Handling
+
+Error handling design for properly displaying domain-specific errors on the frontend.
+
+### Design Policy
+
+1. **Domain errors use numeric codes**: `E1001` format (4 digits, with domain prefix)
+2. **Generic errors remain as-is**: `BAD_REQUEST`, `NOT_FOUND`, etc. are unchanged
+3. **Server messages are for developers**: Not displayed to users (for debugging only)
+4. **Frontend controls messages**: User-facing messages are managed per error code
+5. **Type-safe context**: Different context schemas are defined per error code
+
+### Error Code System
+
+```
+E1xxx - Resource related
+  E1001: Resource expired
+  E1002: Resource not created / not in progress
+  E1003: Resource already processed
+
+E2xxx - Resource limit related
+  E2001: Resource limit exceeded
+  E2002: Resource usage period expired
+
+E3xxx - Auth related
+  E3001: Authentication code expired
+  E3002: Invalid authentication code
+
+E4xxx - Validation related
+  E4001: Required configuration incomplete
+  E4002: Required field not verified
+```
+
+### Architecture
+
+```
+packages/errors/
+├── code.ts           # Unified ErrorCodeSchema (generic + domain)
+├── domain-code.ts    # Domain error code definitions (E1xxx-E4xxx)
+├── domain-context.ts # Context type definitions per error code
+└── error.ts          # AppError (with domain code support)
+
+services/api/
+└── infra/http/hono/error.ts  # Error response with context
+
+services/web/
+└── shared/lib/
+    ├── errors/
+    │   ├── error-messages.ts    # Error code → user-facing message
+    │   └── api-error-handler.ts # Error resolution and context interpolation logic
+    └── parseResponse.ts         # Structured error response handling
+```
+
+### Error Response Format
+
+```json
+{
+  "error": {
+    "code": "E2001",
+    "message": "User xxx exceeded resource limit",
+    "requestId": "req_xxx",
+    "context": {
+      "resourceType": "item",
+      "limit": 100,
+      "currentUsage": 100
+    }
+  }
+}
+```
+
+- `code`: Error code (generic or domain)
+- `message`: Developer-facing debug message (not displayed to users)
+- `requestId`: Error tracking ID
+- `context`: Type-safe context information, only for domain errors
+
+### Server-Side Usage Example
+
+```typescript
+// services/api/usecase/item.ts
+import { AppError, Err } from "@vspo-lab/errors";
+
+// Resource limit exceeded
+if (currentUsage >= resourceLimit) {
+  return Err(
+    new AppError({
+      code: "E2001",
+      message: `User ${userId} exceeded resource limit`,
+      context: {
+        resourceType: "item",
+        limit: resourceLimit,
+        currentUsage,
+      },
+    }),
+  );
+}
+
+// Resource expired
+if (resource.isExpired()) {
+  return Err(
+    new AppError({
+      code: "E1001",
+      message: `Resource ${resourceId} expired`,
+      context: {
+        resourceId,
+        expiredAt: resource.expiredAt.toISOString(),
+      },
+    }),
+  );
+}
+```
+
+### Frontend Usage Example
+
+```typescript
+// features/item/hooks/useItem.ts
+const createItem = async () => {
+  const result = await itemApi.create(data);
+
+  if (result.err) {
+    // userFacingError is auto-generated by parseResponse
+    const userError = result.err.context?.userFacingError;
+
+    toast.error(userError?.title ?? "Error", {
+      description: userError?.description ?? result.err.message,
+    });
+
+    // Action based on error code
+    if (result.err.code === "E2001") {
+      router.push("/");
+    }
+    return;
+  }
+
+  setItem(result.val);
+};
+```
+
+### How to Add Error Messages
+
+1. **Add error code** (`packages/errors/domain-code.ts`)
+```typescript
+export const DomainErrorCodeSchema = z.enum([
+  // ...existing codes
+  "E1004", // New error code
+]);
+```
+
+2. **Define context type** (`packages/errors/domain-context.ts`)
+```typescript
+export const DomainErrorContextSchemas = {
+  // ...existing definitions
+  E1004: z.object({
+    someField: z.string(),
+  }),
+};
+```
+
+3. **Add user-facing message** (`services/web/shared/lib/errors/error-messages.ts`)
+```typescript
+export const ERROR_MESSAGES = {
+  // ...existing messages
+  E1004: {
+    title: "Error Title",
+    description: (ctx) => `Dynamic message: ${ctx.someField}`,
+    action: "Recommended action",
+  },
+};
+```
+
+### Related Files
+
+- [domain-code.ts](../packages/errors/domain-code.ts) - Domain error code definitions
+- [domain-context.ts](../packages/errors/domain-context.ts) - Context type definitions
+- [error-messages.ts](../services/web/shared/lib/errors/error-messages.ts) - User-facing messages

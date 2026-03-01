@@ -64,7 +64,8 @@ next-env.d.ts
 
 .nx
 
-*ignore
+.trivyignore
+.semgrepignore
 dist
 .env.*
 
@@ -74,3 +75,6 @@ dist
 
 .mastra
 .pnpm-store
+
+# claude hooks state
+.claude/.post_edit_check_pending
