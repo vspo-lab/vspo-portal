@@ -25,7 +25,7 @@ interface I18nInstanceConfig extends I18nConfig {
  * Cloudflare compatible serverSideTranslations implementation
  * Uses OpenNext to access the Assets binding
  */
-export async function cloudflareServerSideTranslations(
+async function cloudflareServerSideTranslations(
   initialLocale: string,
   namespaces: string[] = [],
   i18nConfig: I18nConfig = { i18n: { defaultLocale: "en", locales: ["en"] } },

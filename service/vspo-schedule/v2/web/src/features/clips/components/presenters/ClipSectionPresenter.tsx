@@ -103,7 +103,7 @@ const ShortsCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-export type ClipSectionPresenterProps = {
+type ClipSectionPresenterProps = {
   title: string;
   clips: Clip[];
   type?: "youtube" | "shorts" | "twitch";

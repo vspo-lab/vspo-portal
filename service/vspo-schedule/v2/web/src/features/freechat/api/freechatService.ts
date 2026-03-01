@@ -43,8 +43,4 @@ const fetchFreechatService = async (
   };
 };
 
-export {
-  fetchFreechatService,
-  type FreechatService,
-  type FetchFreechatServiceParams,
-};
+export { fetchFreechatService };

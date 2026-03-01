@@ -182,11 +182,4 @@ const fetchSingleClipService = async (
   };
 };
 
-export {
-  fetchClipService,
-  fetchSingleClipService,
-  type ClipService,
-  type FetchClipServiceParams,
-  type SingleClipService,
-  type FetchSingleClipServiceParams,
-};
+export { fetchClipService, fetchSingleClipService };

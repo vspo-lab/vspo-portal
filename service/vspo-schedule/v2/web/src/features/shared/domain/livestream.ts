@@ -2,7 +2,7 @@ import { z } from "zod";
 import { videoSchema } from "@/features/shared/domain/video";
 
 // Status types
-export const statusSchema = z.enum(["live", "upcoming", "ended", "unknown"]);
+const statusSchema = z.enum(["live", "upcoming", "ended", "unknown"]);
 export type Status = z.infer<typeof statusSchema>;
 
 // Livestream model

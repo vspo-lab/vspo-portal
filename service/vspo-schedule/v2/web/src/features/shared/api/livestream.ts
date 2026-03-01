@@ -11,7 +11,7 @@ import { AppError, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import { type Livestream, livestreamSchema, type Status } from "../domain";
 
-export type FetchLivestreamsParams = {
+type FetchLivestreamsParams = {
   limit: number;
   lang: string;
   status: "live" | "upcoming" | "archive" | "all";
@@ -23,7 +23,7 @@ export type FetchLivestreamsParams = {
   sessionId?: string;
 };
 
-export type LivestreamFetchResult = Result<
+type LivestreamFetchResult = Result<
   {
     livestreams: Livestream[];
   },

@@ -64,7 +64,6 @@ next-env.d.ts
 
 .nx
 
-.trivyignore
 .semgrepignore
 dist
 .env.*

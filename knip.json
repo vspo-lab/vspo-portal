@@ -1,15 +1,33 @@
 {
   "workspaces": {
-    "packages/*": {
-      "entry": "{index,cli}.ts",
+    "packages/api": {
       "project": "**/*.ts"
     },
-    "service/*": {
-      "entry": "{index,cli}.ts",
+    "packages/dayjs": {
       "project": "**/*.ts"
+    },
+    "packages/errors": {
+      "project": "**/*.ts"
+    },
+    "packages/logging": {
+      "project": "**/*.ts"
+    },
+    "service/vspo-schedule/v2/web": {
+      "entry": [
+        "src/pages/**/*.{ts,tsx}",
+        "next.config.{js,mjs,ts}",
+        "open-next.config.ts",
+        "src/lib/i18n.ts"
+      ],
+      "project": "**/*.{ts,tsx}",
+      "ignore": [
+        "src/features/multiview/**",
+        "src/features/shared/types/api.d.ts"
+      ]
     }
   },
-  "ignore": [],
-  "ignoreBinaries": ["lint"],
-  "ignoreWorkspaces": ["service/vspo-schedule/proxy/**"]
+  "ignoreDependencies": [
+    "@textlint/textlint-plugin-markdown",
+    "textlint-rule-preset-ja-technical-writing"
+  ]
 }

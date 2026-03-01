@@ -23,14 +23,15 @@ if echo "$command" | grep -Eq 'git[[:space:]]+push[[:space:]]+.*(main|master)([[
   deny "Do not push to main/master. Create a PR instead."
 fi
 
-# Block force push.
-if echo "$command" | grep -Eq 'git[[:space:]]+push[[:space:]]+--force'; then
-  deny "Do not force push from Claude."
+# Block force push to protected branches (main/master/develop).
+if echo "$command" | grep -Eq 'git[[:space:]]+push[[:space:]]+--force' && \
+   echo "$command" | grep -Eq '(main|master|develop)([[:space:];|&]|$)'; then
+  deny "Do not force push to main/master/develop."
 fi
 
 # Allow only push to vk/* branches on origin.
 if echo "$command" | grep -Eq '(^|[[:space:];|&])git[[:space:]]+push'; then
-  if ! echo "$command" | grep -Eq 'git[[:space:]]+push[[:space:]]+(-u[[:space:]]+)?origin[[:space:]]+vk/'; then
+  if ! echo "$command" | grep -Eq 'git[[:space:]]+push[[:space:]]+(--force[[:space:]]+)?(-u[[:space:]]+)?origin[[:space:]]+vk/'; then
     deny "Push only to vk/* branches on origin. Example: git push -u origin vk/xxxx-topic"
   fi
 fi
