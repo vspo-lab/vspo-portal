@@ -23,12 +23,7 @@
       "Bash(pnpm knip)",
       "Bash(pnpm tsc)"
     ],
-    "deny": [
-      "Read(.env*)",
-      "Read(**/.env*)",
-      "Read(*.pem)",
-      "Read(*.key)"
-    ]
+    "deny": ["Read(.env*)", "Read(**/.env*)", "Read(*.pem)", "Read(*.key)"]
   },
   "hooks": {
     "PreToolUse": [

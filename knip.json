@@ -14,7 +14,11 @@
     },
     "service/vspo-schedule/v2/web": {
       "entry": ["src/pages/**/*.{ts,tsx}", "next.config.{js,mjs,ts}"],
-      "project": "**/*.{ts,tsx}"
+      "project": "**/*.{ts,tsx}",
+      "ignore": [
+        "src/features/multiview/**",
+        "src/features/shared/types/api.d.ts"
+      ]
     }
   },
   "ignoreDependencies": [

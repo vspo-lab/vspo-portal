@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
   "extends": ["./biome.base.json"],
   "files": {
     "includes": [
@@ -9,13 +9,29 @@
       "**/*.jsx",
       "**/*.json",
       "**/*.jsonc",
-      "!**/*.config.js",
-      "!**/*.css",
+      "!**/node_modules/**/*",
+      "!**/.nx/**/*",
+      "!**/.wrangler/**/*",
       "!**/public/**/*",
-      "!**/tsconfig.json",
+      "!**/dist/**/*",
+      "!**/build/**/*",
+      "!**/tools/**/*",
+      "!**/*.config.js",
+      "!**/.next/**/*",
+      "!**/.turbo/**/*",
+      "!**/.git/**/*",
+      "!**/.vscode/**/*",
       "!**/gen/**/*",
+      "!**/.open-next/**/*",
+      "!**/.mastra/**/*",
       "!**/service/vspo-schedule/v2/web/**/*.d.ts",
+      "!**/.pnpm-store/**/*",
+      "!**/*.css",
+      "!**/tsconfig.json",
+      "!**/meta/**/*",
+      "!**/coverage/**/*",
       "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*"
     ]
-  }
+  },
+  "overrides": []
 }
