@@ -1,86 +1,86 @@
-# アクセシビリティ設計ガイドライン
+# Accessibility Design Guidelines
 
-本ドキュメントは、本アプリケーションのアクセシビリティ設計ガイドラインを定義する。
+This document defines the accessibility design guidelines for this application.
 
-## 目次
+## Table of Contents
 
-1. [準拠基準](#準拠基準)
+1. [Compliance Standards](#compliance-standards)
 2. [React Aria](#react-aria)
-3. [現状分析](#現状分析)
-4. [実装ガイドライン](#実装ガイドライン)
-5. [コンポーネント別要件](#コンポーネント別要件)
-6. [テスト方法](#テスト方法)
-7. [チェックリスト](#チェックリスト)
+3. [Current State Analysis](#current-state-analysis)
+4. [Implementation Guidelines](#implementation-guidelines)
+5. [Component-Specific Requirements](#component-specific-requirements)
+6. [Testing Methods](#testing-methods)
+7. [Checklist](#checklist)
 
 ---
 
-## 準拠基準
+## Compliance Standards
 
 ### WCAG 2.2 Level AA
 
-本プロジェクトは **WCAG 2.2 Level AA** への準拠を目標とする。
+This project targets compliance with **WCAG 2.2 Level AA**.
 
-#### 4つの基本原則（POUR）
+#### Four Core Principles (POUR)
 
-| 原則 | 説明 |
-|------|------|
-| **Perceivable（知覚可能）** | 情報やUIコンポーネントを知覚できる方法で提示 |
-| **Operable（操作可能）** | UIコンポーネントとナビゲーションを操作可能に |
-| **Understandable（理解可能）** | 情報とUIの操作を理解可能に |
-| **Robust（堅牢）** | 支援技術を含む様々なユーザーエージェントで解釈可能 |
+| Principle | Description |
+|-----------|-------------|
+| **Perceivable** | Present information and UI components in ways that can be perceived |
+| **Operable** | Make UI components and navigation operable |
+| **Understandable** | Make information and UI operation understandable |
+| **Robust** | Make content interpretable by various user agents, including assistive technologies |
 
-#### WCAG 2.2 新規基準（Level AA）
+#### WCAG 2.2 New Criteria (Level AA)
 
-| 基準 | 説明 | 本プロジェクトへの影響 |
-|------|------|----------------------|
-| 2.4.11 フォーカス非隠蔽 | フォーカス要素がスティッキー要素で隠れない | ヘッダー/ナビゲーション設計 |
-| 2.5.7 ドラッグ操作 | ドラッグに代替操作を提供 | 将来のD&D機能実装時 |
-| 2.5.8 ターゲットサイズ | タッチターゲット24×24px以上 | 全インタラクティブ要素 |
-| 3.2.6 一貫したヘルプ | ヘルプ機能の配置一貫性 | ヘルプ/サポート機能 |
-| 3.3.7 冗長入力排除 | 同一情報の再入力防止 | フォーム設計 |
-| 3.3.8 認証アクセシビリティ | 認知負荷の低い認証 | ログイン/認証フロー |
+| Criterion | Description | Impact on This Project |
+|-----------|-------------|----------------------|
+| 2.4.11 Focus Not Obscured | Focused elements must not be hidden by sticky elements | Header/navigation design |
+| 2.5.7 Dragging Movements | Provide alternative operations for drag | Future D&D feature implementation |
+| 2.5.8 Target Size | Touch targets must be at least 24x24px | All interactive elements |
+| 3.2.6 Consistent Help | Consistent placement of help features | Help/support features |
+| 3.3.7 Redundant Entry | Prevent re-entry of the same information | Form design |
+| 3.3.8 Accessible Authentication | Authentication with low cognitive load | Login/authentication flow |
 
-### 法的背景
+### Legal Background
 
-- **欧州アクセシビリティ法（EAA）**: 2025年6月28日施行、EU圏でのサービス提供時に必須
-- **ADA Title II**: 米国政府関連サイトでWCAG 2.1 AA必須
-- **障害者差別解消法（日本）**: 合理的配慮の提供義務
+- **European Accessibility Act (EAA)**: Effective June 28, 2025; mandatory for services provided in the EU
+- **ADA Title II**: WCAG 2.1 AA required for US government-related sites
+- **Act on the Elimination of Discrimination against Persons with Disabilities (Japan)**: Obligation to provide reasonable accommodations
 
 ---
 
 ## React Aria
 
-本プロジェクトでは、アクセシビリティ対応に **React Aria** を使用する。
+This project uses **React Aria** for accessibility support.
 
-### React Aria とは
+### What is React Aria
 
-[React Aria](https://react-spectrum.adobe.com/react-aria/) は Adobe が開発したアクセシブルなUIコンポーネントライブラリ。50以上のコンポーネントとフックを提供し、以下の機能を内蔵している。
+[React Aria](https://react-spectrum.adobe.com/react-aria/) is an accessible UI component library developed by Adobe. It provides over 50 components and hooks with built-in:
 
-- **アクセシビリティ**: WCAG準拠のARIA属性、フォーカス管理、キーボード操作
-- **国際化**: RTL、日付/数値フォーマット、翻訳対応
-- **適応型インタラクション**: マウス、タッチ、キーボード、スクリーンリーダー対応
-- **スタイル自由**: TailwindCSS等、任意のスタイリングソリューションと組み合わせ可能
+- **Accessibility**: WCAG-compliant ARIA attributes, focus management, keyboard interaction
+- **Internationalization**: RTL, date/number formatting, translation support
+- **Adaptive interactions**: Mouse, touch, keyboard, screen reader support
+- **Style freedom**: Compatible with any styling solution such as TailwindCSS
 
-### インストール
+### Installation
 
 ```bash
 pnpm add react-aria-components
 ```
 
-### 使用するコンポーネント
+### Components to Use
 
-| コンポーネント | 用途 | 置き換え対象 |
-|---------------|------|-------------|
-| `Button` | ボタン | 独自Button |
-| `TextField` | テキスト入力 | 独自Input |
-| `Select` | セレクトボックス | 独自Select |
-| `Modal` / `Dialog` | モーダル | InterruptReasonModal, SurveyModal |
-| `Form` | フォーム | HTMLフォーム |
-| `RadioGroup` | ラジオボタン群 | 独自実装 |
-| `Checkbox` | チェックボックス | 独自実装 |
-| `ProgressBar` | 進捗表示 | 独自実装 |
+| Component | Usage | Replaces |
+|-----------|-------|----------|
+| `Button` | Buttons | Custom Button |
+| `TextField` | Text input | Custom Input |
+| `Select` | Select box | Custom Select |
+| `Modal` / `Dialog` | Modals | InterruptReasonModal, SurveyModal |
+| `Form` | Forms | HTML forms |
+| `RadioGroup` | Radio button groups | Custom implementation |
+| `Checkbox` | Checkboxes | Custom implementation |
+| `ProgressBar` | Progress display | Custom implementation |
 
-### 実装例
+### Implementation Examples
 
 #### Button
 
@@ -105,7 +105,7 @@ export function PrimaryButton({ children, ...props }: ButtonProps) {
 }
 ```
 
-#### TextField（Input）
+#### TextField (Input)
 
 ```tsx
 import { TextField, Label, Input, FieldError, Text } from "react-aria-components";
@@ -218,8 +218,8 @@ export function ConfirmDialog({
   title,
   children,
   triggerLabel,
-  confirmLabel = "確認",
-  cancelLabel = "キャンセル",
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   onConfirm,
 }: ConfirmDialogProps) {
   return (
@@ -295,9 +295,9 @@ export function FormRadioGroup({ label, options, isRequired, ...props }: FormRad
 }
 ```
 
-### フォーカス管理
+### Focus Management
 
-React Aria は `useFocusRing` フックでフォーカスリングを管理する。
+React Aria manages focus rings with the `useFocusRing` hook.
 
 ```tsx
 import { useFocusRing, mergeProps } from "react-aria";
@@ -322,9 +322,9 @@ function CustomButton({ children, ...props }) {
 }
 ```
 
-### スタイリング（TailwindCSS）
+### Styling (TailwindCSS)
 
-React Aria コンポーネントはデータ属性でステートを公開する。Tailwindで直接スタイリング可能。
+React Aria components expose state via data attributes. They can be styled directly with Tailwind.
 
 ```tsx
 <Button className="
@@ -334,90 +334,90 @@ React Aria コンポーネントはデータ属性でステートを公開する
   focus-visible:ring-2
   disabled:opacity-50
 ">
-  送信
+  Submit
 </Button>
 ```
 
-**利用可能なステート修飾子:**
-- `hover:` - ホバー時
-- `focus:` - フォーカス時
-- `focus-visible:` - キーボードフォーカス時
-- `pressed:` - 押下時
-- `selected:` - 選択時
-- `disabled:` - 無効時
-- `invalid:` - バリデーションエラー時
+**Available state modifiers:**
+- `hover:` - On hover
+- `focus:` - On focus
+- `focus-visible:` - On keyboard focus
+- `pressed:` - On press
+- `selected:` - On selection
+- `disabled:` - When disabled
+- `invalid:` - On validation error
 
-### 移行ガイド
+### Migration Guide
 
-既存コンポーネントをReact Ariaに置き換える際の手順:
+Steps for replacing existing components with React Aria:
 
-1. **Button**: `<button>` → `<Button>` に置き換え、`onClick` → `onPress`
-2. **Input**: `<input>` → `<TextField>` + `<Input>` でラベル・エラー統合
-3. **Select**: `<select>` → `<Select>` + `<ListBox>` でキーボード操作改善
-4. **Modal**: 独自実装 → `<Modal>` + `<Dialog>` でフォーカストラップ自動化
-
----
-
-## 現状分析
-
-### 実装済み機能
-
-| 機能 | 状態 | 備考 |
-|------|------|------|
-| `htmlFor`/`id` ペア | ✅ 良好 | フォーム要素の関連付け |
-| `focus-visible` スタイル | ✅ 部分的 | Button, Input, Selectで実装 |
-| `disabled` 属性対応 | ✅ 良好 | 視覚的フィードバックあり |
-| `aria-label` | ⚠️ 限定的 | 一部要素のみ |
-| `lang="ja"` | ✅ 良好 | ルートレイアウトで設定 |
-
-### 改善が必要な機能
-
-| 機能 | 優先度 | 対象 |
-|------|--------|------|
-| モーダルアクセシビリティ | 🔴 高 | フォーカストラップ、role、ESCキー |
-| カラーコントラスト | 🔴 高 | coral色の改善 |
-| `aria-describedby` | 🟡 中 | エラーメッセージ関連付け |
-| `aria-required` | 🟡 中 | 必須フィールド明示 |
-| スキップリンク | 🟡 中 | メインコンテンツへのジャンプ |
-| キーボードナビゲーション | 🟡 中 | ナビゲーション要素のフォーカス |
+1. **Button**: Replace `<button>` with `<Button>`, change `onClick` to `onPress`
+2. **Input**: Replace `<input>` with `<TextField>` + `<Input>` for integrated label/error
+3. **Select**: Replace `<select>` with `<Select>` + `<ListBox>` for improved keyboard interaction
+4. **Modal**: Replace custom implementation with `<Modal>` + `<Dialog>` for automatic focus trapping
 
 ---
 
-## 実装ガイドライン
+## Current State Analysis
 
-### 1. セマンティックHTML
+### Implemented Features
 
-適切なHTML要素を使用し、カスタム要素での再実装を避ける。
+| Feature | Status | Notes |
+|---------|--------|-------|
+| `htmlFor`/`id` pairs | ✅ Good | Form element associations |
+| `focus-visible` styles | ✅ Partial | Implemented on Button, Input, Select |
+| `disabled` attribute support | ✅ Good | Visual feedback present |
+| `aria-label` | ⚠️ Limited | Only on some elements |
+| `lang="ja"` | ✅ Good | Set in root layout |
+
+### Features Needing Improvement
+
+| Feature | Priority | Target |
+|---------|----------|--------|
+| Modal accessibility | 🔴 High | Focus trap, role, ESC key |
+| Color contrast | 🔴 High | Improve coral color |
+| `aria-describedby` | 🟡 Medium | Error message association |
+| `aria-required` | 🟡 Medium | Required field indication |
+| Skip links | 🟡 Medium | Jump to main content |
+| Keyboard navigation | 🟡 Medium | Focus on navigation elements |
+
+---
+
+## Implementation Guidelines
+
+### 1. Semantic HTML
+
+Use appropriate HTML elements and avoid re-implementing with custom elements.
 
 ```tsx
-// Good: セマンティックなHTML
-<button onClick={handleClick}>送信</button>
-<nav aria-label="メインナビゲーション">
+// Good: Semantic HTML
+<button onClick={handleClick}>Submit</button>
+<nav aria-label="Main navigation">
   <ul>
-    <li><a href="/home">ホーム</a></li>
+    <li><a href="/home">Home</a></li>
   </ul>
 </nav>
 
-// Bad: div/spanでの代用
-<div onClick={handleClick} role="button">送信</div>
+// Bad: Substituting with div/span
+<div onClick={handleClick} role="button">Submit</div>
 ```
 
-### 2. フォームアクセシビリティ
+### 2. Form Accessibility
 
-#### ラベルの関連付け
+#### Label Association
 
 ```tsx
-// 明示的なラベル（推奨）
-<label htmlFor="email">メールアドレス</label>
+// Explicit label (recommended)
+<label htmlFor="email">Email address</label>
 <Input id="email" type="email" aria-describedby="email-error" />
 {error && <p id="email-error" role="alert">{error}</p>}
 ```
 
-#### 必須フィールド
+#### Required Fields
 
 ```tsx
 <label htmlFor="name">
-  お名前 <span aria-hidden="true">*</span>
+  Name <span aria-hidden="true">*</span>
 </label>
 <Input
   id="name"
@@ -427,27 +427,27 @@ React Aria コンポーネントはデータ属性でステートを公開する
 />
 ```
 
-#### フィールドセット/レジェンド
+#### Fieldset/Legend
 
-関連するフォーム要素をグループ化する。
+Group related form elements.
 
 ```tsx
 <fieldset>
-  <legend>就職活動の種別</legend>
+  <legend>Job search type</legend>
   <label>
     <input type="radio" name="userType" value="individual" />
-    個人
+    Individual
   </label>
   <label>
     <input type="radio" name="userType" value="business" />
-    法人
+    Business
   </label>
 </fieldset>
 ```
 
-### 3. モーダル/ダイアログ
+### 3. Modal/Dialog
 
-モーダルは以下の要件を満たす必要がある。
+Modals must meet the following requirements.
 
 ```tsx
 import { useCallback, useEffect, useRef } from "react";
@@ -463,7 +463,7 @@ export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  // フォーカストラップ
+  // Focus trap
   useEffect(() => {
     if (isOpen) {
       previousActiveElement.current = document.activeElement as HTMLElement;
@@ -473,7 +473,7 @@ export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps
     }
   }, [isOpen]);
 
-  // ESCキーで閉じる
+  // Close with ESC key
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -508,9 +508,9 @@ export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps
 }
 ```
 
-### 4. フォーカス管理
+### 4. Focus Management
 
-#### フォーカスリングスタイル
+#### Focus Ring Styles
 
 ```css
 /* globals.css */
@@ -521,9 +521,9 @@ export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps
   ring-offset: 2px;
 }
 
-/* フォーカスがスティッキー要素で隠れないように */
+/* Prevent focus from being hidden behind sticky elements */
 html {
-  scroll-padding-top: 80px; /* ヘッダーの高さ + 余白 */
+  scroll-padding-top: 80px; /* Header height + margin */
 }
 
 *:focus {
@@ -531,7 +531,7 @@ html {
 }
 ```
 
-#### スキップリンク
+#### Skip Links
 
 ```tsx
 // app/layout.tsx
@@ -543,7 +543,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-4"
         >
-          メインコンテンツへスキップ
+          Skip to main content
         </a>
         <Header />
         <main id="main-content" tabIndex={-1}>
@@ -555,131 +555,131 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-### 5. カラーコントラスト
+### 5. Color Contrast
 
-#### コントラスト比要件
+#### Contrast Ratio Requirements
 
-| 用途 | 最小比率（AA） | 最小比率（AAA） |
-|------|---------------|----------------|
-| 通常テキスト | 4.5:1 | 7:1 |
-| 大きいテキスト（18px以上） | 3:1 | 4.5:1 |
-| UI要素/グラフィック | 3:1 | - |
+| Usage | Minimum Ratio (AA) | Minimum Ratio (AAA) |
+|-------|--------------------|--------------------|
+| Normal text | 4.5:1 | 7:1 |
+| Large text (18px+) | 3:1 | 4.5:1 |
+| UI elements/graphics | 3:1 | - |
 
-#### 色定義の改善
+#### Color Definition Improvements
 
 ```css
-/* globals.css - エラー/警告色の改善 */
+/* globals.css - Improving error/warning colors */
 :root {
-  /* 現在: coral (oklch 0.90) - コントラスト不足 */
-  /* 改善: より暗い赤系 */
-  --color-error: oklch(0.55 0.20 25);     /* 約 #D32F2F 相当 */
-  --color-error-text: oklch(0.45 0.18 25); /* より暗い赤 */
+  /* Current: coral (oklch 0.90) - Insufficient contrast */
+  /* Improved: Darker red */
+  --color-error: oklch(0.55 0.20 25);     /* Approximately #D32F2F */
+  --color-error-text: oklch(0.45 0.18 25); /* Darker red */
 
-  /* 成功色 */
-  --color-success: oklch(0.50 0.15 145);   /* 約 #388E3C 相当 */
+  /* Success color */
+  --color-success: oklch(0.50 0.15 145);   /* Approximately #388E3C */
 
-  /* 警告色 */
-  --color-warning: oklch(0.55 0.15 85);    /* 約 #F57C00 相当 */
+  /* Warning color */
+  --color-warning: oklch(0.55 0.15 85);    /* Approximately #F57C00 */
 }
 ```
 
-#### 色だけに依存しない設計
+#### Design That Does Not Rely on Color Alone
 
-状態の変化は色以外の視覚的手がかりも併用する。
+Use visual cues other than color alongside state changes.
 
 ```tsx
-// Good: 色 + アイコン + テキスト
+// Good: Color + icon + text
 <div className="flex items-center gap-2 text-error">
   <AlertCircleIcon aria-hidden="true" />
-  <span>エラー: 入力内容を確認してください</span>
+  <span>Error: Please check your input</span>
 </div>
 
-// Bad: 色のみ
-<div className="text-red-500">入力内容を確認してください</div>
+// Bad: Color only
+<div className="text-red-500">Please check your input</div>
 ```
 
-### 6. ターゲットサイズ
+### 6. Target Size
 
-タッチターゲットは最小24×24px（推奨44×44px）を確保する。
+Touch targets must be at least 24x24px (recommended 44x44px).
 
 ```tsx
-// Button コンポーネント
+// Button component
 const buttonVariants = cva(
   "inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-4 py-2",
   // ...
 );
 
-// アイコンボタン
+// Icon button
 <button
-  aria-label="設定を開く"
+  aria-label="Open settings"
   className="flex h-11 w-11 items-center justify-center rounded-full"
 >
   <SettingsIcon className="h-5 w-5" />
 </button>
 ```
 
-### 7. 動的コンテンツ
+### 7. Dynamic Content
 
-#### ライブリージョン
+#### Live Regions
 
 ```tsx
-// 操作結果の通知
+// Operation result notification
 <div aria-live="polite" aria-atomic="true" className="sr-only">
   {statusMessage}
 </div>
 
-// エラーメッセージ（即座に通知）
+// Error message (notify immediately)
 <div role="alert" aria-live="assertive">
   {errorMessage}
 </div>
 ```
 
-#### ローディング状態
+#### Loading State
 
 ```tsx
 <button disabled={isLoading} aria-busy={isLoading}>
   {isLoading ? (
     <>
       <Spinner aria-hidden="true" />
-      <span className="sr-only">読み込み中</span>
+      <span className="sr-only">Loading</span>
     </>
   ) : (
-    "送信"
+    "Submit"
   )}
 </button>
 ```
 
-### 8. 画像とメディア
+### 8. Images and Media
 
-#### 代替テキスト
+#### Alternative Text
 
 ```tsx
-// 意味のある画像
-<img src="/avatar.png" alt="ユーザーのプロフィール画像" />
+// Meaningful image
+<img src="/avatar.png" alt="User profile image" />
 
-// 装飾的な画像
+// Decorative image
 <img src="/decoration.svg" alt="" aria-hidden="true" />
 
-// 複雑な画像
+// Complex image
 <figure>
-  <img src="/chart.png" alt="2024年の売上推移グラフ" aria-describedby="chart-desc" />
+  <img src="/chart.png" alt="Sales trend graph for 2024" aria-describedby="chart-desc" />
   <figcaption id="chart-desc">
-    1月から12月にかけて売上が20%増加
+    Sales increased by 20% from January to December
   </figcaption>
 </figure>
 ```
 
-#### 動画/音声
+#### Video/Audio
 
-本アプリケーションでは音声認識・合成を使用するため、以下を提供する。
+This application uses speech recognition and synthesis, so the following are provided:
 
-- 音声入力の視覚的フィードバック（波形表示）
-- AI応答のテキスト表示（字幕機能）
-- 音量調整機能
+- Visual feedback for voice input (waveform display)
+- Text display of AI responses (caption feature)
+- Volume control
 
 ---
 
-## コンポーネント別要件
+## Component-Specific Requirements
 
 ### Button
 
@@ -702,11 +702,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 ```
 
-**要件:**
-- `min-h-[44px]` でターゲットサイズ確保
-- `focus-visible` でフォーカスリング
-- `disabled` 時の視覚的変化と `aria-disabled`
-- アイコンのみの場合は `aria-label` 必須
+**Requirements:**
+- `min-h-[44px]` for target size
+- `focus-visible` for focus ring
+- Visual change and `aria-disabled` when `disabled`
+- `aria-label` required for icon-only buttons
 
 ### Input
 
@@ -782,7 +782,7 @@ export function Select({ id, label, options, error, ...props }: SelectProps) {
 
 ```tsx
 // DesktopSideNav.tsx
-<nav aria-label="メインナビゲーション">
+<nav aria-label="Main navigation">
   <ul role="list">
     {navItems.map((item) => (
       <li key={item.href}>
@@ -802,17 +802,17 @@ export function Select({ id, label, options, error, ...props }: SelectProps) {
 
 ---
 
-## テスト方法
+## Testing Methods
 
-### 自動テスト
+### Automated Testing
 
-| ツール | 用途 | 検出範囲 |
-|--------|------|----------|
-| axe-core | CI/CDでの自動チェック | 約40% |
-| eslint-plugin-jsx-a11y | 静的解析 | 基本的な問題 |
-| Lighthouse | パフォーマンス含む総合評価 | スコアベース |
+| Tool | Purpose | Detection Range |
+|------|---------|----------------|
+| axe-core | Automated checks in CI/CD | Approx. 40% |
+| eslint-plugin-jsx-a11y | Static analysis | Basic issues |
+| Lighthouse | Comprehensive evaluation including performance | Score-based |
 
-#### axe-core 導入例
+#### axe-core Integration Example
 
 ```tsx
 // tests/accessibility.test.tsx
@@ -830,95 +830,95 @@ describe("Accessibility", () => {
 });
 ```
 
-### 手動テスト
+### Manual Testing
 
-#### キーボードテスト
+#### Keyboard Testing
 
-1. `Tab` キーですべてのインタラクティブ要素に到達可能か
-2. `Enter`/`Space` でボタンが動作するか
-3. `Escape` でモーダルが閉じるか
-4. フォーカスリングが常に視認可能か
-5. フォーカス順序が論理的か
+1. Can all interactive elements be reached with `Tab`?
+2. Do buttons work with `Enter`/`Space`?
+3. Does `Escape` close modals?
+4. Is the focus ring always visible?
+5. Is the focus order logical?
 
-#### スクリーンリーダーテスト
+#### Screen Reader Testing
 
-| OS | スクリーンリーダー |
-|----|-------------------|
-| macOS | VoiceOver (組み込み) |
-| Windows | NVDA (無料) / JAWS |
+| OS | Screen Reader |
+|----|--------------|
+| macOS | VoiceOver (built-in) |
+| Windows | NVDA (free) / JAWS |
 | iOS | VoiceOver |
 | Android | TalkBack |
 
-**チェック項目:**
-- 見出し構造が正しく読み上げられるか
-- フォームラベルが関連付けられているか
-- 画像の代替テキストが適切か
-- 動的コンテンツの変更が通知されるか
+**Check items:**
+- Is the heading structure read correctly?
+- Are form labels associated?
+- Is alternative text for images appropriate?
+- Are dynamic content changes announced?
 
-#### カラーコントラストテスト
+#### Color Contrast Testing
 
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 - Chrome DevTools > Rendering > Emulate vision deficiencies
 
 ---
 
-## チェックリスト
+## Checklist
 
-### 開発時チェックリスト
+### Development Checklist
 
-#### HTML構造
-- [ ] 適切な見出しレベル（h1→h2→h3）
-- [ ] ランドマーク要素（header, nav, main, footer）
-- [ ] リストは ul/ol を使用
-- [ ] テーブルには caption と th を使用
+#### HTML Structure
+- [ ] Appropriate heading levels (h1 → h2 → h3)
+- [ ] Landmark elements (header, nav, main, footer)
+- [ ] Lists use ul/ol
+- [ ] Tables have caption and th
 
-#### フォーム
-- [ ] すべての入力に label を関連付け
-- [ ] 必須フィールドに `aria-required="true"`
-- [ ] エラーに `aria-invalid` と `aria-describedby`
-- [ ] エラーメッセージに `role="alert"`
-- [ ] 適切な `autocomplete` 属性
+#### Forms
+- [ ] All inputs have associated labels
+- [ ] Required fields have `aria-required="true"`
+- [ ] Errors have `aria-invalid` and `aria-describedby`
+- [ ] Error messages have `role="alert"`
+- [ ] Appropriate `autocomplete` attributes
 
-#### インタラクティブ要素
-- [ ] ボタンは `<button>` 要素を使用
-- [ ] リンクは `<a>` 要素を使用
-- [ ] カスタムコントロールに適切な `role`
-- [ ] ターゲットサイズ 44×44px 以上
-- [ ] `focus-visible` スタイル
+#### Interactive Elements
+- [ ] Buttons use `<button>` elements
+- [ ] Links use `<a>` elements
+- [ ] Custom controls have appropriate `role`
+- [ ] Target size 44x44px or larger
+- [ ] `focus-visible` styles
 
-#### モーダル/ダイアログ
-- [ ] `role="dialog"` と `aria-modal="true"`
-- [ ] `aria-labelledby` でタイトル関連付け
-- [ ] フォーカストラップ実装
-- [ ] ESC キーで閉じる
-- [ ] 閉じた後に元の要素にフォーカス戻す
+#### Modal/Dialog
+- [ ] `role="dialog"` and `aria-modal="true"`
+- [ ] Title associated with `aria-labelledby`
+- [ ] Focus trap implemented
+- [ ] Closes with ESC key
+- [ ] Focus returns to original element after closing
 
-#### 画像/メディア
-- [ ] 意味のある画像に代替テキスト
-- [ ] 装飾的な画像に `alt=""` と `aria-hidden`
-- [ ] 動画に字幕/キャプション
+#### Images/Media
+- [ ] Meaningful images have alternative text
+- [ ] Decorative images have `alt=""` and `aria-hidden`
+- [ ] Videos have subtitles/captions
 
-#### カラー
-- [ ] テキストのコントラスト比 4.5:1 以上
-- [ ] UI要素のコントラスト比 3:1 以上
-- [ ] 色だけに依存しない情報伝達
+#### Color
+- [ ] Text contrast ratio 4.5:1 or higher
+- [ ] UI element contrast ratio 3:1 or higher
+- [ ] Information is not conveyed by color alone
 
-### リリース前チェックリスト
+### Pre-Release Checklist
 
-- [ ] axe-core で自動テスト実行
-- [ ] キーボードのみで全機能操作可能
-- [ ] VoiceOver/NVDA でページ読み上げ確認
-- [ ] 200%ズームでレイアウト崩れなし
-- [ ] reduced-motion 設定時のアニメーション確認
+- [ ] Run automated tests with axe-core
+- [ ] All features operable with keyboard only
+- [ ] Verify page reading with VoiceOver/NVDA
+- [ ] No layout breakage at 200% zoom
+- [ ] Verify animation behavior with reduced-motion setting
 
 ---
 
-## 参考リソース
+## Reference Resources
 
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
 - [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
-- [React Aria](https://react-spectrum.adobe.com/react-aria/) - Adobe製アクセシブルUIライブラリ
-- [React Aria Components](https://react-spectrum.adobe.com/react-aria/components.html) - コンポーネント一覧
-- [MDN Accessibility](https://developer.mozilla.org/ja/docs/Web/Accessibility)
+- [React Aria](https://react-spectrum.adobe.com/react-aria/) - Adobe's accessible UI library
+- [React Aria Components](https://react-spectrum.adobe.com/react-aria/components.html) - Component list
+- [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
 - [axe-core](https://github.com/dequelabs/axe-core)
 - [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)

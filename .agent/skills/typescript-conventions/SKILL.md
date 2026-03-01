@@ -1,14 +1,14 @@
 ---
-name: TypeScript規約
-description: Zod Schema Firstによる型定義、satisfiesオペレータ、型安全パターン。interface直書き・as禁止。
+name: TypeScript Conventions
+description: Type definitions via Zod Schema First, satisfies operator, type-safe patterns. Direct interface definitions and as assertions are prohibited.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- 新しい型やスキーマを定義するとき
-- interface や type を直接書こうとしたとき
-- 型アサーション（as）を使おうとしたとき
+- When defining new types or schemas
+- When about to directly write an interface or type
+- When about to use a type assertion (as)
 
-# 参照ドキュメント
+# Reference Documents
 
-- `docs/web-frontend/typescript.md` - Schema-First Development、satisfies、型安全パターン
+- `docs/web-frontend/typescript.md` - Schema-First Development, satisfies, type-safe patterns

@@ -2,141 +2,142 @@
 
 ## Overview
 
-**tfaction** は [suzuki-shunsuke](https://github.com/suzuki-shunsuke/tfaction) が開発した、GitHub Actions で高度な Terraform ワークフローを構築するためのフレームワークです。
+**tfaction** is a framework developed by [suzuki-shunsuke](https://github.com/suzuki-shunsuke/tfaction) for building advanced Terraform workflows with GitHub Actions.
 
-### 主な特徴
+### Key Features
 
-- **PR でプラン、マージでアプライ**: Pull Request で `terraform plan` を実行し、マージ時に `terraform apply` を自動実行
-- **モノレポ対応**: 変更されたディレクトリのみ CI を実行する動的ビルドマトリクス
-- **安全なアプライ**: plan ファイルベースの apply で意図しない変更を防止
-- **PR コメント通知**: tfcmt により plan 結果が PR に自動コメント
-- **ドリフト検出**: 定期的にドリフトを検出し、GitHub Issue として管理
+- **Plan on PR, apply on merge**: Execute `terraform plan` on Pull Requests and automatically run `terraform apply` on merge
+- **Monorepo support**: Dynamic build matrix that runs CI only for changed directories
+- **Safe apply**: Plan-file-based apply to prevent unintended changes
+- **PR comment notifications**: tfcmt automatically comments plan results on PRs
+- **Drift detection**: Periodically detect drift and manage it as GitHub Issues
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    tfaction Workflow                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐  │
-│  │  PR作成   │ →  │  Plan    │ →  │  Review  │ →  │  Merge   │  │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘  │
-│                       │                               │          │
-│                       ▼                               ▼          │
-│               [Plan結果をPRに              [terraform apply     │
-│                コメント]                    を自動実行]          │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------+
+|                    tfaction Workflow                           |
++-------------------------------------------------------------+
+|                                                                |
+|  +----------+    +----------+    +----------+    +----------+ |
+|  | Create   | -> |  Plan    | -> |  Review  | -> |  Merge   | |
+|  | PR       |    |          |    |          |    |          | |
+|  +----------+    +----------+    +----------+    +----------+ |
+|                       |                               |        |
+|                       v                               v        |
+|               [Comment plan results         [Auto-execute      |
+|                on PR]                        terraform apply]   |
+|                                                                |
++-------------------------------------------------------------+
 ```
 
 ---
 
-## 設定ファイル
+## Configuration Files
 
-### tfaction.yaml（ルート設定）
+### tfaction.yaml (Root Configuration)
 
-プロジェクトルートに配置する tfaction の設定ファイルです。
+The tfaction configuration file placed at the project root.
 
 ```yaml
 # infrastructure/terraform/tfaction.yaml
 ---
-plan_workflow_name: Terraform Plan  # GitHub Actions ワークフロー名（必須）
+plan_workflow_name: Terraform Plan  # GitHub Actions workflow name (required)
 
-# ローカルモジュール更新時に呼び出し元も更新
+# Update callers when local modules are updated
 update_local_path_module_caller:
   enabled: true
 
-# セキュリティスキャン
+# Security scanning
 trivy:
   enabled: true
 
 # Linting
 tflint:
   enabled: true
-  fix: true  # 自動修正
+  fix: true  # Auto-fix
 
-# ターゲットグループ定義
+# Target group definitions
 target_groups:
   - working_directory: terraform/env/dev/
     target: my-app/dev/
 ```
 
-### 主要設定項目
+### Key Configuration Items
 
-| 項目 | 説明 | デフォルト |
+| Item | Description | Default |
 |-----|------|-----------|
-| `plan_workflow_name` | Plan ワークフローのファイル名（必須） | - |
-| `base_working_directory` | 作業ディレクトリのベースパス | `""` |
-| `working_directory_file` | 個別設定ファイル名 | `tfaction.yaml` |
-| `terraform_command` | Terraform コマンド（OpenTofu 対応） | `terraform` |
-| `draft_pr` | PR をドラフトで作成 | `false` |
+| `plan_workflow_name` | Plan workflow file name (required) | - |
+| `base_working_directory` | Base path for working directories | `""` |
+| `working_directory_file` | Per-directory configuration file name | `tfaction.yaml` |
+| `terraform_command` | Terraform command (OpenTofu compatible) | `terraform` |
+| `draft_pr` | Create PRs as drafts | `false` |
 
-### target_groups 設定
+### target_groups Configuration
 
 ```yaml
 target_groups:
   - working_directory: terraform/env/dev/
     target: project-name/dev/
 
-    # GCP 認証設定
+    # GCP authentication settings
     gcp_service_account: sa@project.iam.gserviceaccount.com
     gcp_workload_identity_provider: projects/123/locations/global/...
 
-    # 環境変数
+    # Environment variables
     env:
       TF_VAR_environment: dev
 
-    # AWS の場合
+    # For AWS
     # aws_region: ap-northeast-1
     # terraform_plan_config:
     #   aws_assume_role_arn: arn:aws:iam::123:role/terraform-plan
 ```
 
-### tfaction.yaml（ワーキングディレクトリ）
+### tfaction.yaml (Working Directory)
 
-各環境のディレクトリに配置し、ルート設定をオーバーライドできます。
+Placed in each environment's directory to override root configuration.
 
 ```yaml
 # infrastructure/terraform/env/dev/backend/tfaction.yaml
 ---
-# 個別設定（オプション）
-# terraform_command: tofu  # OpenTofu を使用する場合
+# Per-directory settings (optional)
+# terraform_command: tofu  # When using OpenTofu
 # env:
 #   TF_VAR_custom: value
 ```
 
 ---
 
-## Target と Working Directory
+## Target and Working Directory
 
-### 概念
+### Concepts
 
-- **Target**: 作業ディレクトリの一意識別子。PR ラベルやコメントで使用
-- **Working Directory**: 実際に Terraform を実行するディレクトリパス
+- **Target**: A unique identifier for a working directory. Used in PR labels and comments
+- **Working Directory**: The actual directory path where Terraform is executed
 
 ```yaml
 target_groups:
-  - target: my-app/dev/        # Target（識別子）
-    working_directory: terraform/env/dev/   # Working Directory（パス）
+  - target: my-app/dev/        # Target (identifier)
+    working_directory: terraform/env/dev/   # Working Directory (path)
 ```
 
-### マッチングルール
+### Matching Rules
 
-tfaction は `working_directory` のプレフィックスでターゲットグループを決定します。
+tfaction determines the target group by prefix-matching on `working_directory`.
 
 ```yaml
-# 例: terraform/env/dev/backend/ が変更された場合
+# Example: when terraform/env/dev/backend/ is changed
 target_groups:
-  - working_directory: terraform/env/dev/    # ✅ マッチ
+  - working_directory: terraform/env/dev/    # Matches
     target: project/dev/
-  - working_directory: terraform/env/prod/   # ❌ マッチしない
+  - working_directory: terraform/env/prod/   # Does not match
     target: project/prod/
 ```
 
 ---
 
-## GitHub Actions ワークフロー
+## GitHub Actions Workflows
 
-### Terraform Plan ワークフロー
+### Terraform Plan Workflow
 
 ```yaml
 # .github/workflows/terraform-plan-dev.yml
@@ -156,9 +157,9 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  id-token: write      # OIDC 認証に必要
-  contents: write      # コード変更の push に必要
-  pull-requests: write # PR コメントに必要
+  id-token: write      # Required for OIDC authentication
+  contents: write      # Required for pushing code changes
+  pull-requests: write # Required for PR comments
 
 env:
   AQUA_CONFIG: "${{ github.workspace }}/aqua.yaml"
@@ -194,43 +195,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # GitHub App トークン取得
+      # Obtain GitHub App token
       - uses: actions/create-github-app-token@v2
         id: app-token
         with:
           app-id: ${{ secrets.MY_APP_GITHUB_APP_ID }}
           private-key: ${{ secrets.MY_APP_GITHUB_APP_PRIVATE_KEY }}
 
-      # ツールインストール
+      # Install tools
       - uses: aquaproj/aqua-installer@v3
         with:
           aqua_version: v2.55.0
 
-      # GCP 認証
+      # GCP authentication
       - uses: google-github-actions/auth@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      # tfaction セットアップ
+      # tfaction setup
       - uses: suzuki-shunsuke/tfaction/setup@v1
         with:
           github_token: ${{ steps.app-token.outputs.token }}
 
-      # テスト（tflint, trivy など）
+      # Test (tflint, trivy, etc.)
       - uses: suzuki-shunsuke/tfaction/test@v1
         continue-on-error: true
         with:
           github_token: ${{ steps.app-token.outputs.token }}
 
-      # Plan 実行
+      # Execute plan
       - uses: suzuki-shunsuke/tfaction/plan@v1
         with:
           github_token: ${{ steps.app-token.outputs.token }}
 ```
 
-### Terraform Apply ワークフロー
+### Terraform Apply Workflow
 
 ```yaml
 # .github/workflows/terraform-apply-dev.yml
@@ -245,13 +246,13 @@ on:
       - 'infrastructure/terraform/modules/**'
 
 jobs:
-  # ... setup job（plan と同様）
+  # ... setup job (same as plan)
 
   apply:
     name: Apply (${{ matrix.target.target }})
     needs: setup
     env:
-      TFACTION_IS_APPLY: "true"  # Apply モードを有効化
+      TFACTION_IS_APPLY: "true"  # Enable apply mode
     steps:
       # ... checkout, auth steps
 
@@ -259,7 +260,7 @@ jobs:
         with:
           github_token: ${{ steps.app-token.outputs.token }}
 
-      # Apply 失敗時のフォローアップ PR 作成
+      # Create follow-up PR on apply failure
       - uses: suzuki-shunsuke/tfaction/create-follow-up-pr@v1
         if: failure()
         with:
@@ -268,11 +269,11 @@ jobs:
 
 ---
 
-## GCP 認証設定
+## GCP Authentication Setup
 
 ### Workload Identity Federation
 
-GitHub Actions から GCP へシークレットなしで認証します。
+Authenticate from GitHub Actions to GCP without secrets.
 
 ```hcl
 # Workload Identity Pool
@@ -290,7 +291,7 @@ resource "google_iam_workload_identity_pool_provider" "gha_provider" {
     "attribute.repository" = "assertion.repository"
   }
 
-  # リポジトリ制限（重要）
+  # Repository restriction (important)
   attribute_condition = "assertion.repository == 'owner/repo'"
 
   oidc {
@@ -299,21 +300,21 @@ resource "google_iam_workload_identity_pool_provider" "gha_provider" {
 }
 ```
 
-### GitHub Secrets 設定
+### GitHub Secrets Configuration
 
-| Secret | 説明 |
+| Secret | Description |
 |--------|------|
-| `GCP_PROJECT_ID` | GCP プロジェクト ID |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Workload Identity Provider のフルパス |
-| `GCP_SERVICE_ACCOUNT` | サービスアカウントのメールアドレス |
+| `GCP_PROJECT_ID` | GCP project ID |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full path to the Workload Identity Provider |
+| `GCP_SERVICE_ACCOUNT` | Service account email address |
 | `MY_APP_GITHUB_APP_ID` | GitHub App ID |
-| `MY_APP_GITHUB_APP_PRIVATE_KEY` | GitHub App 秘密鍵 |
+| `MY_APP_GITHUB_APP_PRIVATE_KEY` | GitHub App private key |
 
 ---
 
 ## Drift Detection
 
-### 設定
+### Configuration
 
 ```yaml
 # tfaction.yaml
@@ -321,41 +322,41 @@ drift_detection:
   enabled: true
   issue_repo_owner: owner
   issue_repo_name: repo
-  num_of_issues: 3              # 最大同時 Issue 数
-  minimum_detection_interval: 1  # 最小検出間隔（日）
+  num_of_issues: 3              # Maximum concurrent issues
+  minimum_detection_interval: 1  # Minimum detection interval (days)
 ```
 
-### 動作
+### Behavior
 
-1. 定期的（Scheduled）に `terraform plan` を実行
-2. 差分が検出されたら GitHub Issue を作成
-3. Issue にはドリフト内容と修正手順が記載
+1. Periodically (scheduled) run `terraform plan`
+2. If differences are detected, create a GitHub Issue
+3. The issue includes drift details and remediation steps
 
 ---
 
-## モジュール管理
+## Module Management
 
 ### tfaction_module.yaml
 
-モジュールディレクトリに配置して tfaction に認識させます。
+Placed in module directories to make them recognized by tfaction.
 
 ```yaml
 # infrastructure/terraform/modules/terraform_backend/tfaction_module.yaml
 ---
-# 空でも可。配置することでモジュールとして認識
+# Can be empty. Placing the file registers it as a module
 ```
 
-### バージョン管理
+### Version Management
 
-ローカルモジュールの代わりに、タグ付きの GitHub Source を推奨します。
+Instead of local modules, tagged GitHub Sources are recommended.
 
 ```hcl
-# ローカルパス（開発中）
+# Local path (during development)
 module "vpc" {
   source = "../../../modules/vpc"
 }
 
-# GitHub Source（本番推奨）
+# GitHub Source (recommended for production)
 module "vpc" {
   source = "git::https://github.com/owner/repo.git//modules/vpc?ref=v1.0.0"
 }
@@ -363,16 +364,16 @@ module "vpc" {
 
 ---
 
-## ベストプラクティス
+## Best Practices
 
-### 認証
+### Authentication
 
-| 推奨 | 理由 |
+| Recommendation | Reason |
 |-----|------|
-| GitHub App を使用 | PAT より安全、きめ細かい権限制御 |
-| Workload Identity | シークレット不要、自動ローテーション |
+| Use GitHub App | Safer than PAT, fine-grained permission control |
+| Workload Identity | No secrets needed, automatic rotation |
 
-### ツール管理
+### Tool Management
 
 ```yaml
 # aqua.yaml
@@ -386,25 +387,25 @@ packages:
   - name: aquasecurity/trivy@v0.67.2
 ```
 
-### セキュリティ
+### Security
 
-1. **trivy**: インフラ設定の脆弱性スキャン
-2. **tflint**: Terraform ベストプラクティスチェック
-3. **attribute_condition**: OIDC でリポジトリを制限
+1. **trivy**: Vulnerability scanning for infrastructure configurations
+2. **tflint**: Terraform best practices checking
+3. **attribute_condition**: Repository restriction via OIDC
 
-### 運用
+### Operations
 
-| プラクティス | 説明 |
+| Practice | Description |
 |------------|------|
-| PR で Plan 確認 | Apply 前に変更内容をレビュー |
-| マージで自動 Apply | 手動 Apply を排除 |
-| Follow-up PR | Apply 失敗時の自動修復 PR |
-| Drift Detection | 手動変更の検出と修正 |
+| Confirm plan in PR | Review changes before apply |
+| Auto-apply on merge | Eliminate manual apply |
+| Follow-up PR | Automatic repair PR on apply failure |
+| Drift Detection | Detect and fix manual changes |
 
 ---
 
-## 参考リンク
+## Reference Links
 
-- [tfaction 公式ドキュメント](https://suzuki-shunsuke.github.io/tfaction/docs/)
-- [tfaction GitHub リポジトリ](https://github.com/suzuki-shunsuke/tfaction)
+- [tfaction Official Documentation](https://suzuki-shunsuke.github.io/tfaction/docs/)
+- [tfaction GitHub Repository](https://github.com/suzuki-shunsuke/tfaction)
 - [tfaction Getting Started](https://github.com/suzuki-shunsuke/tfaction-getting-started)

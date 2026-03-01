@@ -1,19 +1,19 @@
 # Lint / Quality Check
 
-## 概要
+## Overview
 
-このドキュメントは、リポジトリで実施する品質チェックの最小セットを定義します。  
-コードとドキュメントの両方で、PR前に同じ手順を実行してください。
+This document defines the minimum set of quality checks performed in the repository.
+Run the same procedure before PRs for both code and documentation changes.
 
-## 必須チェック（全変更共通）
+## Required Checks (Common to All Changes)
 
-変更後は、次のコマンドを必ず実行します。
+After making changes, always run the following command:
 
 ```bash
 ./scripts/post-edit-check.sh
 ```
 
-`post-edit-check.sh` は以下を順に実行します。
+`post-edit-check.sh` executes the following in order:
 
 ```bash
 pnpm build
@@ -25,34 +25,33 @@ pnpm test
 pnpm security-scan
 ```
 
-## ドキュメント変更時の追加チェック
+## Additional Checks for Documentation Changes
 
-`docs/` を更新した場合は、次も確認してください。
+When updating `docs/`, also verify the following:
 
-1. [docs/design/writing.md](../design/writing.md) の執筆ルールに沿っている
-2. 見出し構造（`#` -> `##` -> `###`）が崩れていない
-3. 用語のゆれがない（同じ概念は同じ語を使う）
-4. 参照リンクが存在し、相対パスが正しい
-5. `pnpm textlint` が成功する
+1. Content follows the writing rules in [docs/design/writing.md](../design/writing.md)
+2. Heading structure (`#` -> `##` -> `###`) is not broken
+3. No terminology inconsistencies (use the same term for the same concept)
+4. Reference links exist and relative paths are correct
+5. `pnpm textlint` passes
 
-textlint の運用方針と導入例は [docs/security/textlint.md](./textlint.md) を参照してください。
+See [docs/security/textlint.md](./textlint.md) for textlint operational guidelines and setup examples.
 
-## アーキテクチャ lint ルール（AI レビュー対象）
+## Architecture Lint Rules (AI Review Targets)
 
-以下のルールは自動 lint では完全に検出できませんが、コードレビューで確認します。
-`/code-review` スキルがこれらのルールをチェックします。
+The following rules cannot be fully detected by automated linting but are verified during code review.
+The `/code-review` skill checks these rules.
 
-| ルール | 対象 | 検出方法 |
+| Rule | Target | Detection Method |
 | --- | --- | --- |
-| UseCase→UseCase 呼び出し禁止 | `usecase/` | AI レビュー |
-| UseCase 内の環境変数直接参照禁止 | `usecase/` | AI レビュー + grep `process.env` |
-| UseCase 内の直接メッセージキュー操作禁止 | `usecase/` | AI レビュー |
-| Domain 関数に JSDoc（事前条件・事後条件）必須 | `domain/` | AI レビュー |
-| UseCase 関数に冪等性（`@idempotent`）記述必須 | `usecase/` | AI レビュー |
-| try-catch 禁止（Result 型必須） | 全体 | AI レビュー |
-| interface 直接定義禁止（Zod Schema First） | 全体 | AI レビュー |
+| UseCase-to-UseCase calls prohibited | `usecase/` | AI review |
+| Direct environment variable access in UseCase prohibited | `usecase/` | AI review + grep `process.env` |
+| Direct message queue operations in UseCase prohibited | `usecase/` | AI review |
+| JSDoc (preconditions/postconditions) required for Domain functions | `domain/` | AI review |
+| Idempotency (`@idempotent`) documentation required for UseCase functions | `usecase/` | AI review |
+| try-catch prohibited (Result type required) | All | AI review |
+| Direct interface definitions prohibited (Zod Schema First) | All | AI review |
 
-詳細は以下を参照してください。
+See the following for details:
 
-- [UseCase 実装ルール](../backend/usecase-rules.md)
-- [関数ドキュメント規約](../backend/function-documentation.md)
+- [Function Documentation Conventions](../backend/function-documentation.md)

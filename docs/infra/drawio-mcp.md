@@ -1,27 +1,27 @@
-# Draw.io MCP で構成図を作成する
+# Creating Architecture Diagrams with Draw.io MCP
 
-## 調査サマリ
+## Research Summary
 
-調査日: 2026-02-28
+Research date: 2026-02-28
 
-`drawio-mcp` 公式リポジトリでは、構成図作成の方式として以下が提示されている。
+The `drawio-mcp` official repository presents the following approaches for creating architecture diagrams:
 
 1. MCP App Server (`https://mcp.draw.io/mcp`)
 2. MCP Tool Server (`@drawio/mcp`)
-3. Skill + CLI (`.drawio` ファイル生成)
-4. Project Instructions（MCP不要）
+3. Skill + CLI (`.drawio` file generation)
+4. Project Instructions (no MCP required)
 
-このテンプレートでは、**Claude Code で再現性高く運用できる `MCP Tool Server` を標準採用**する。
+This template **adopts the `MCP Tool Server` as the standard for reproducible operations with Claude Code**.
 
-- 理由1: `open_drawio_mermaid` / `open_drawio_xml` / `open_drawio_csv` を直接使える
-- 理由2: プロジェクトの `.mcp.json` にコミットしてチーム共有しやすい
-- 理由3: Claude の `settings.json` の `permissions.allow` と合わせて運用ルールを明示できる
+- Reason 1: You can directly use `open_drawio_mermaid` / `open_drawio_xml` / `open_drawio_csv`
+- Reason 2: Can be committed to the project's `.mcp.json` for easy team sharing
+- Reason 3: Can be combined with Claude's `settings.json` `permissions.allow` to make operational rules explicit
 
-## プロジェクト標準設定
+## Project Standard Configuration
 
-### 1. MCP サーバー定義（プロジェクトスコープ）
+### 1. MCP Server Definition (Project Scope)
 
-プロジェクトルートの `.mcp.json`:
+`.mcp.json` at the project root:
 
 ```json
 {
@@ -35,39 +35,39 @@
 }
 ```
 
-### 2. Claude Code 許可設定
+### 2. Claude Code Permission Settings
 
-プロジェクトルートの `.claude/settings.json`:
+`.claude/settings.json` at the project root:
 
-- `permissions.allow` に読取系コマンド（`ls`, `cat`, `grep`, `rg`）
-- Git 参照系コマンド（`git diff`, `git log`, `git show`）
+- `permissions.allow` includes read-only commands (`ls`, `cat`, `grep`, `rg`)
+- Git read-only commands (`git diff`, `git log`, `git show`)
 
-## 構成図作成フロー（標準）
+## Diagram Creation Flow (Standard)
 
-1. 既存 docs から構成要素を抽出する（frontend/backend/infra/domain）
-2. まず `open_drawio_mermaid` でドラフトを作成する
-3. レイアウト調整が必要なら `open_drawio_xml` に切り替える
-4. 最終成果物を `docs/infra/diagrams/` に `.drawio` として保存する
-5. 変更意図と図の読み方をこの `docs/infra/` 配下の markdown に追記する
+1. Extract structural elements from existing docs (frontend/backend/infra/domain)
+2. First create a draft using `open_drawio_mermaid`
+3. Switch to `open_drawio_xml` if layout adjustments are needed
+4. Save the final artifact as `.drawio` in `docs/infra/diagrams/`
+5. Add the change intent and how to read the diagram to the markdown under `docs/infra/`
 
-## このテンプレートの初期図
+## Initial Diagrams for This Template
 
 - `docs/infra/diagrams/template-services-architecture.drawio`
 
-この図は以下の責務分離を示す。
+This diagram shows the following separation of responsibilities:
 
 - Browser / Next.js Web / Hono API / Database
-- OAuth Provider（Google）
-- Terraform + GitHub Actions による IaC とデプロイ
+- OAuth Provider (Google)
+- IaC and deployment via Terraform + GitHub Actions
 
-## 推奨プロンプト例
+## Recommended Prompt Examples
 
-- `draw.io MCPで、このリポジトリの全体構成図を作成して。まずopen_drawio_mermaidを使って。`
-- `open_drawio_xmlで、web/api/dbの通信経路を色分けした版を作って。`
+- `Use the draw.io MCP to create an overall architecture diagram for this repository. Start with open_drawio_mermaid.`
+- `Use open_drawio_xml to create a version with color-coded communication paths for web/api/db.`
 
-## 参考
+## References
 
-- drawio-mcp 公式: https://github.com/jgraph/drawio-mcp
+- drawio-mcp official: https://github.com/jgraph/drawio-mcp
 - drawio-mcp tool server: https://github.com/jgraph/drawio-mcp/tree/main/mcp-tool-server
 - Claude Code MCP: https://docs.anthropic.com/en/docs/claude-code/mcp
 - Claude Code settings/permissions: https://docs.anthropic.com/en/docs/claude-code/settings

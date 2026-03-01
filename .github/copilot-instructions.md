@@ -1,33 +1,33 @@
 # vspo-portal (Next.js 15 + Cloudflare Workers)
 
-## 行動の指針
+## Guiding Principles
 
-- エラーハンドリング: `Result` 型を使う (`import { wrap, Ok, Err, AppError } from "@vspo-lab/error"`)。try-catch 禁止。
-- 型定義: Zod Schema First (`z.infer<typeof schema>`)。明示的な interface 禁止。
-- シンプルさ: 不要なコード削除、3回以上の重複時のみ抽象化、早すぎる最適化禁止。
-- 関数ドキュメント: 公開関数に JSDoc で事前条件・事後条件・冪等性を記述する。
-- コード変更後は `./scripts/post-edit-check.sh` を実行すること。
+- Error handling: Use the `Result` type (`import { wrap, Ok, Err, AppError } from "@vspo-lab/error"`). No try-catch.
+- Type definitions: Zod Schema First (`z.infer<typeof schema>`). No explicit `interface` declarations.
+- Simplicity: Delete unused code, abstract only when duplicated 3+ times, no premature optimization.
+- Function documentation: Annotate public functions with JSDoc describing preconditions, postconditions, and idempotency.
+- After code changes, run `./scripts/post-edit-check.sh`.
 
-## Copilot レビュー出力ルール
+## Copilot Review Output Rules
 
-- すべての指摘で「どこの何に違反しているか」を明示すること。
-- 指摘は必ず次の形式で出力すること:
-  - `違反箇所`: `path/to/file:line`（PR差分上の場所）
-  - `違反ルール`: `ルールの所在ファイル` + `見出し/項目名`
-  - `違反内容`: 何がルールに反しているかを1文で具体化
-  - `修正案`: 最小変更での修正方針
-- `違反ルール` には、次のいずれかの一次情報のみを使うこと:
+- Every issue must explicitly state "what rule is violated and where".
+- Issues must always be formatted as follows:
+  - `Violation location`: `path/to/file:line` (location in PR diff)
+  - `Violated rule`: `Rule source file` + `heading/item name`
+  - `Violation description`: One sentence describing what violates the rule
+  - `Fix suggestion`: Minimal change fix approach
+- `Violated rule` must cite only one of the following primary sources:
   - `.github/copilot-instructions.md`
   - `AGENTS.md`
-  - `docs/` 配下の該当ドキュメント
-- ルール出典を示せない場合は「改善提案」として分離し、違反指摘として断定しないこと。
+  - Documents under `docs/`
+- If a rule source cannot be cited, separate it as an "improvement suggestion" — do not assert it as a violation.
 
-## 参照ドキュメント
+## Reference Documents
 
-- `docs/domain/` - ドメイン仕様（概要、エンティティ、ユースケース、用語集）
-- `docs/web-frontend/` - フロントエンド（アーキテクチャ、hooks、CSS、a11y、テスト、エラーハンドリング、TypeScript）
-- `docs/backend/` - バックエンド（サーバーアーキテクチャ、ドメインモデル、API設計、関数ドキュメント規約、PRガイドライン、日時処理）
-- `docs/design/` - デザインシステム（トークン、カラー、タイポグラフィ、UIパターン）
-- `docs/infra/` - インフラ（Terraform、CI/CD）
-- `docs/security/` - セキュリティ
-- `.agent/skills/` - AI エージェント用スキル定義
+- `docs/domain/` - Domain specifications (overview, entities, use cases, glossary)
+- `docs/web-frontend/` - Frontend (architecture, hooks, CSS, a11y, testing, error handling, TypeScript)
+- `docs/backend/` - Backend (server architecture, API client, function documentation, PR guidelines, datetime handling)
+- `docs/design/` - Design system (tokens, colors, typography, UI patterns)
+- `docs/infra/` - Infrastructure (Terraform, CI/CD)
+- `docs/security/` - Security
+- `.agent/skills/` - AI agent skill definitions

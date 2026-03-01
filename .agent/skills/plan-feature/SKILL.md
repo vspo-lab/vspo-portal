@@ -1,65 +1,63 @@
 ---
-name: 機能仕様策定
-description: あいまいな要件から docs/plan/<feature>/ に構造化された仕様ドキュメントを生成する。
+name: Feature Spec Definition
+description: Generate structured specification documents in docs/plan/<feature>/ from ambiguous requirements.
 user_invocable: true
 ---
 
-# 概要
+# Overview
 
-機能開発の仕様を策定する skill。
-あいまいな要件をヒアリングし、Clean Architecture のレイヤーに沿った仕様ドキュメントを `docs/plan/<feature>/` に生成する。
+A skill for defining feature development specifications.
+Interviews ambiguous requirements and generates specification documents in `docs/plan/<feature>/` aligned with Clean Architecture layers.
 
-# 実行手順
+# Execution Steps
 
-## Step 1: 要件ヒアリング
+## Step 1: Requirements Interview
 
-以下を1回の質問でまとめて確認する。
+Confirm the following in a single set of questions:
 
-1. 機能名（英語ケバブケース: 例 `user-profile`）
-2. 機能の目的と背景（なぜ作るのか）
-3. 対象ユーザーと利用シナリオ
+1. Feature name (English kebab-case, e.g., `user-profile`)
+2. Purpose and background of the feature (why build it)
+3. Target users and usage scenarios
 4. In Scope / Out of Scope
-5. 影響するエンティティ（新規 or 既存変更）
-6. 主要ユースケース（1-5個）
-7. API エンドポイント（想定）
-8. フロントエンドの画面構成（想定）
-9. 未確定事項
+5. Affected entities (new or existing changes)
+6. Key use cases (1-5)
+7. API endpoints (expected)
+8. Frontend screen layout (expected)
+9. Open items
 
-## Step 2: 仕様ドキュメント生成
+## Step 2: Specification Document Generation
 
-回答をもとに `docs/plan/<feature>/` に以下のファイルを作成する。
-各ファイルの記載項目は `docs/plan/README.md` の仕様ファイル概要を参照すること。
+Based on the answers, create the following files in `docs/plan/<feature>/`.
+Refer to the specification file overview in `docs/plan/README.md` for the items to include in each file.
 
-- `00_OVERVIEW.md` - 機能概要、目的、スコープ
-- `01_DOMAIN_MODEL.md` - エンティティ変更、ビジネスルール
-- `02_DATA_ACCESS.md` - リポジトリ・DB変更
-- `03_USECASE.md` - UseCase層の変更
-- `04_API_INTERFACE.md` - APIエンドポイント仕様
-- `05_FRONTEND.md` - フロントエンドUI仕様
+- `00_OVERVIEW.md` - Feature overview, purpose, scope
+- `01_DOMAIN_MODEL.md` - Entity changes, business rules
+- `02_DATA_ACCESS.md` - Repository and DB changes
+- `03_USECASE.md` - UseCase layer changes
+- `04_API_INTERFACE.md` - API endpoint specifications
+- `05_FRONTEND.md` - Frontend UI specifications
 
-バックエンドのみ/フロントエンドのみの場合は不要なファイルを省略してよい。
-未確定の部分は `TBD` と明記する。
+For backend-only or frontend-only features, omit unnecessary files.
+Mark undecided parts as `TBD`.
 
-## Step 3: 仕様レビューサマリー
+## Step 3: Spec Review Summary
 
-生成後に以下を提示する。
+After generation, present the following:
 
-1. 生成したファイル一覧
-2. 確定事項のサマリー
-3. 未確定事項と次に決めるべき論点
-4. `docs/domain/` への反映が必要な場合の案内
+1. List of generated files
+2. Summary of confirmed items
+3. Open items and next discussion points to resolve
+4. Guidance on reflecting changes to `docs/domain/` if needed
 
-# ルール
+# Rules
 
-- 仕様は `docs/plan/<feature>/` に集約する（他の場所に分散させない）
-- エンティティ定義は Zod Schema First（`docs/backend/domain-modeling.md` 準拠）
-- 重要な判断は `docs/domain/decisions.md` にも転記を案内する
+- Specifications are consolidated in `docs/plan/<feature>/` (do not scatter them elsewhere)
+- Entity definitions follow Zod Schema First (per `docs/web-frontend/typescript.md`)
+- Guide important decisions to also be recorded in `docs/domain/decisions.md`
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/plan/README.md`
 - `docs/domain/README.md`
 - `docs/backend/server-architecture.md`
-- `docs/backend/domain-modeling.md`
-- `docs/backend/api-design.md`
 - `docs/web-frontend/architecture.md`

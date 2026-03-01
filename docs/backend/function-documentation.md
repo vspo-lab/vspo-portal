@@ -1,41 +1,41 @@
-# 関数ドキュメント規約
+# Function Documentation Conventions
 
-## 概要
+## Overview
 
-Domain と UseCase の公開関数には JSDoc で仕様を明示します。
-これによりコード生成、テスト生成、レビューの精度が向上します。
+Public functions in Domain and UseCase are annotated with JSDoc to make specifications explicit.
+This improves the accuracy of code generation, test generation, and reviews.
 
-事前条件と事後条件を明記することで、境界値テストの設計が容易になります。
+Explicitly documenting preconditions and postconditions makes boundary value test design easier.
 
-## 必須項目
+## Required Tags
 
-### Domain 関数
+### Domain Functions
 
-| タグ | 説明 | 必須 |
+| Tag | Description | Required |
 |------|------|------|
-| `@param` | 引数の意味と制約 | Yes |
-| `@returns` | 戻り値の意味 | Yes |
-| `@precondition` | 呼び出し前に成立すべき条件 | Yes |
-| `@postcondition` | 呼び出し後に保証される条件 | Yes |
+| `@param` | Meaning and constraints of arguments | Yes |
+| `@returns` | Meaning of the return value | Yes |
+| `@precondition` | Conditions that must hold before invocation | Yes |
+| `@postcondition` | Conditions guaranteed after invocation | Yes |
 
-### UseCase 関数
+### UseCase Functions
 
-Domain 関数の項目に加えて以下が必要です。
+In addition to the Domain function tags, the following is required:
 
-| タグ | 説明 | 必須 |
+| Tag | Description | Required |
 |------|------|------|
-| `@idempotent` | 冪等性の有無と理由 | Yes |
+| `@idempotent` | Whether idempotent and the reason | Yes |
 
-## コード例
+## Code Examples
 
-### Domain 関数
+### Domain Function
 
 ```typescript
 /**
- * アイテムをアーカイブ状態に遷移する。
+ * Transitions an item to archived status.
  *
- * @param item - アーカイブ対象のアイテム
- * @returns アーカイブ済みのアイテム
+ * @param item - The item to archive
+ * @returns The archived item
  * @precondition item.status === "active"
  * @postcondition return.status === "archived" && return.archivedAt !== undefined
  */
@@ -48,11 +48,11 @@ export const archive = (item: Item): Item => ({
 
 ```typescript
 /**
- * アイテム名を更新する。
+ * Updates the name of an item.
  *
- * @param item - 更新対象のアイテム
- * @param name - 新しい名前（1文字以上、100文字以下）
- * @returns 名前が更新されたアイテム
+ * @param item - The item to update
+ * @param name - The new name (1 to 100 characters)
+ * @returns The item with the updated name
  * @precondition name.length >= 1 && name.length <= 100
  * @postcondition return.name === name && return.updatedAt > item.updatedAt
  */
@@ -63,17 +63,17 @@ export const updateName = (item: Item, name: string): Item => ({
 });
 ```
 
-### UseCase 関数
+### UseCase Function
 
 ```typescript
 /**
- * アイテムを新規作成する。
+ * Creates a new item.
  *
- * @param input - 作成パラメータ
- * @returns 作成されたアイテム
+ * @param input - Creation parameters
+ * @returns The created item
  * @precondition input.name.length >= 1
- * @postcondition DB にアイテムが 1 件追加される
- * @idempotent false - 同一入力で複数回呼ぶと重複作成される
+ * @postcondition One item is added to the DB
+ * @idempotent false - Calling multiple times with the same input creates duplicates
  */
 export const create = async (input: CreateItemInput): Promise<Result<Item, AppError>> => {
   // ...
@@ -82,36 +82,36 @@ export const create = async (input: CreateItemInput): Promise<Result<Item, AppEr
 
 ```typescript
 /**
- * アイテムのステータスを更新する。
+ * Updates the status of an item.
  *
- * @param input - アイテム ID と新しいステータス
- * @returns 更新後のアイテム
- * @precondition 指定 ID のアイテムが存在する
- * @postcondition アイテムのステータスが input.status に変更される
- * @idempotent true - 同一入力で複数回呼んでも結果は同じ
+ * @param input - Item ID and new status
+ * @returns The updated item
+ * @precondition An item with the specified ID exists
+ * @postcondition The item's status is changed to input.status
+ * @idempotent true - Calling multiple times with the same input produces the same result
  */
 export const updateStatus = async (input: UpdateStatusInput): Promise<Result<Item, AppError>> => {
   // ...
 };
 ```
 
-## テストとの関連
+## Relationship to Testing
 
-JSDoc の事前条件と事後条件はテスト設計に直結します。
+JSDoc preconditions and postconditions directly inform test design.
 
-| JSDoc | テストでの役割 |
+| JSDoc | Role in Testing |
 |-------|--------------|
-| `@precondition` | テストケースの前提条件。違反ケースも境界値テストとして追加する |
-| `@postcondition` | assertion の根拠。テストの expect 文で検証する |
-| `@idempotent` | 冪等なら同一入力の 2 回実行テスト、非冪等なら重複防止の確認 |
+| `@precondition` | Test case prerequisites. Also add violation cases as boundary value tests |
+| `@postcondition` | Basis for assertions. Verify in test expect statements |
+| `@idempotent` | If idempotent, test with two executions of the same input; if not idempotent, verify duplication prevention |
 
-### テストへの反映例
+### Example of Reflecting in Tests
 
 ```typescript
 describe("Item.archive", () => {
   const cases = [
     {
-      name: "active アイテムをアーカイブできる",
+      name: "Can archive an active item",
       input: { ...baseItem, status: "active" as const },
       expected: { status: "archived" },
     },
@@ -123,17 +123,15 @@ describe("Item.archive", () => {
     expect(result.archivedAt).toBeDefined(); // @postcondition
   });
 
-  it("active 以外のアイテムは前提条件に違反する", () => {
-    // @precondition 違反のテスト
+  it("Items with non-active status violate the precondition", () => {
+    // @precondition violation test
     const draftItem = { ...baseItem, status: "draft" as const };
     expect(() => Item.archive(draftItem)).toThrow();
   });
 });
 ```
 
-## 関連ドキュメント
+## Related Documents
 
-- [Server Architecture](./server-architecture.md) - レイヤー構成の全体像
-- [UseCase 実装ルール](./usecase-rules.md) - UseCase 層の実装原則
-- [Domain Model](./domain-modeling.md) - ドメイン層の設計方針
-- [Unit Testing](../testing/unit-testing.md) - テーブルドリブンテストの実装方針
+- [Server Architecture](./server-architecture.md) - Overall architecture
+- [Unit Testing](../testing/unit-testing.md) - Table-driven test implementation guidelines

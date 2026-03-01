@@ -1,21 +1,23 @@
 ---
 name: api-testing
-description: Hono testClient と OpenAPI 契約検証を使って API テストを構築し、エンドポイント契約をモック最小で保証するときに使う。
+description: "Build API client tests with Vitest and MockHandler. Validate OpenAPI contract compliance with table-driven tests and minimal mocks."
 ---
 
-# トリガー条件
+# Trigger
 
-- API エンドポイントのテストを追加・変更するとき
-- ルートの入出力契約を固定したいとき
+- When adding or modifying tests for API client methods
+- When validating API response contracts or error handling paths
 
-# 実行チェックリスト
+# Execution Checklist
 
-1. `docs/testing/api-testing.md` を確認する
-2. 正常系/異常系をテーブルで列挙する
-3. `testClient` か `app.request()` でルートを直接叩く
-4. `/doc` ベースの契約チェック対象を更新する
+1. Read `docs/testing/api-testing.md`
+2. Enumerate normal and error cases in a table-driven format
+3. Use `MockHandler` to stub external API responses — no real HTTP calls in unit tests
+4. Verify `Result<T, AppError>` return values (both `.ok` and `.err` paths)
+5. Test retry behavior for retryable errors (5xx, network failures)
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/testing/api-testing.md`
 - `docs/web-frontend/twada-tdd.md`
+- `docs/backend/server-architecture.md` - MockHandler and VSPOApi client patterns

@@ -1,42 +1,41 @@
 ---
-name: ドメイン仕様育成
-description: 機能追加や仕様変更に合わせて docs/domain を更新し、仕様判断の履歴を残す。
+name: Domain Spec Evolution
+description: Update docs/domain alongside feature additions and spec changes, maintaining a history of specification decisions.
 user_invocable: true
 ---
 
-# 概要
+# Overview
 
-実装中にドメイン仕様を継続的に育てるための skill。
-コード変更に追従して `docs/domain` の整合を維持する。
+A skill for continuously evolving domain specifications during implementation.
+Maintains consistency of `docs/domain` in sync with code changes.
 
-# 実行手順
+# Execution Steps
 
-## Step 1: 変更点の把握
+## Step 1: Identify Changes
 
-- 対象機能と影響範囲（エンティティ / ユースケース / 用語）を特定する
-- 既存の `docs/domain/*.md` と矛盾がないか確認する
+- Identify the target feature and impact scope (entities / use cases / terminology)
+- Check for contradictions with existing `docs/domain/*.md`
 
-## Step 2: docs/domain の更新
+## Step 2: Update docs/domain
 
-必要なファイルだけを最小差分で更新する。
+Update only the necessary files with minimal diffs.
 
-- `overview.md`: 目的やスコープが変わる場合のみ更新
-- `entities.md`: 属性・ルール・関係の変更を反映
-- `usecases.md`: ユースケース追加/変更、優先度更新
-- `glossary.md`: 新語追加、同義語整理
-- `decisions.md`: 仕様判断を追記
+- `overview.md`: Update only if the purpose or scope changes
+- `entities.md`: Reflect changes to attributes, rules, and relationships
+- `usecases.md`: Add/modify use cases, update priorities
+- `glossary.md`: Add new terms, organize synonyms
+- `decisions.md`: Append specification decisions
 
-## Step 3: 判断理由の記録
+## Step 3: Record Decision Rationale
 
-仕様判断が発生したら、`decisions.md` に以下を必ず残す。
+When a specification decision is made, always record the following in `decisions.md`:
 
-1. 決定内容
-2. 理由
-3. 代替案
-4. 影響範囲
+1. Decision
+2. Reason
+3. Alternatives
+4. Impact scope
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/domain/README.md`
-- `docs/backend/domain-modeling.md`
 - `docs/web-frontend/typescript.md`

@@ -1,87 +1,87 @@
 # Frontend Architecture
 
-## 概要
+## Overview
 
-フロントエンドアーキテクチャは Feature-based アプローチを採用し、技術レイヤーではなくドメイン機能単位でコードを整理します。この構成は DDD の原則に沿いつつ、フロントエンド開発に適応させたものです。各 Feature 内では Container/Presentational パターン（Container 1st 設計）を実装し、ビジネスロジックと UI 表示を分離します。
+The frontend architecture adopts a Feature-based approach, organizing code by domain functionality rather than technical layers. This structure follows DDD principles adapted for frontend development. Within each Feature, the Container/Presentational pattern (Container-first design) is implemented to separate business logic from UI rendering.
 
-このアーキテクチャは Next.js App Router 向けに設計されており、**Feature とページは1:1で対応**します。`app/` 内の各ルートは1つの Feature に対応し、ルーティングと Feature ロジックを密結合に保ちます。
+This architecture is designed for the Next.js App Router, where **Features and pages have a 1:1 correspondence**. Each route in `app/` maps to a single Feature, keeping routing and Feature logic tightly coupled.
 
-## レンダリング基盤 (React Compiler + Cache Components)
+## Rendering Foundation (React Compiler + Cache Components)
 
-フロントエンドは以下のデフォルト設定で設計されています。
+The frontend is designed with the following default settings:
 
-- `services/web/next.config.ts` で `reactCompiler: true`
-- `services/web/next.config.ts` で `cacheComponents: true`
-- デフォルトは Server Components、インタラクティビティが必要な場合のみ Client Components
+- `reactCompiler: true` in `services/web/next.config.ts`
+- `cacheComponents: true` in `services/web/next.config.ts`
+- Server Components by default; Client Components only when interactivity is needed
 
-設計上の影響:
+Design implications:
 
-1. **メモ化はコンパイラファースト**: 投機的なパフォーマンス目的だけで `useMemo`/`useCallback` を追加しない
-2. **レンダリングはキャッシュファースト**: `'use cache'` でキャッシュ可能なデータ境界を定義し、明示的に無効化する
-3. **動的境界は明示する**: 動的な部分を `<Suspense>` で囲み、静的なシェルは外側に置く
+1. **Compiler-first memoization**: Do not add `useMemo`/`useCallback` solely for speculative performance
+2. **Cache-first rendering**: Define cacheable data boundaries with `'use cache'` and invalidate explicitly
+3. **Explicit dynamic boundaries**: Wrap dynamic parts with `<Suspense>` and keep the static shell outside
 
-具体的なルールは以下を参照:
+Refer to the following for specific rules:
 
 - `docs/web-frontend/react-hooks.md`
 - `docs/web-frontend/cache-components.md`
 
-## ディレクトリ構成
+## Directory Structure
 
-ディレクトリ構成は以下のとおりです。
+The directory structure is as follows:
 
 ```
-app/                          # Next.js App Router（ルートとページ）
-├── layout.tsx                # ルートレイアウト
-├── globals.css               # グローバルスタイル
-├── (public)/                 # 公開ページ（利用規約、お問い合わせなど）
-├── (auth)/                   # 認証ページ（[feature-name]）
-└── (protected)/              # 認証済みページ（ホームなど）
+app/                          # Next.js App Router (routes and pages)
+├── layout.tsx                # Root layout
+├── globals.css               # Global styles
+├── (public)/                 # Public pages (terms of service, contact, etc.)
+├── (auth)/                   # Authentication pages ([feature-name])
+└── (protected)/              # Authenticated pages (home, etc.)
 │
-features/                     # Feature モジュール（ビジネスロジック）
-├── [your-feature]/           # コア Feature モジュール
-│   ├── api/                  # Feature API モジュール
+features/                     # Feature modules (business logic)
+├── [your-feature]/           # Core Feature module
+│   ├── api/                  # Feature API module
 │   ├── components/
-│   │   ├── containers/       # ビジネスロジックコンテナ
-│   │   └── presenters/       # UI プレゼンター
-│   ├── hooks/                # カスタム Hooks
-│   └── types/                # 型定義
-├── [feature-name]/           # 各 Feature モジュール
+│   │   ├── containers/       # Business logic containers
+│   │   └── presenters/       # UI presenters
+│   ├── hooks/                # Custom Hooks
+│   └── types/                # Type definitions
+├── [feature-name]/           # Individual Feature modules
 │
-shared/                       # アプリ全体の共有コード
-├── components/               # 共有 UI ビルディングブロック
-│   ├── ui/                   # ベースデザインシステム（Button, Input, Card 等）
-│   ├── presenters/           # 再利用可能なプレゼンテーションコンポーネント
-│   └── containers/           # 共有コンテナコンポーネント（AppShell, AuthGuard）
-├── lib/                      # 共有ライブラリ（apiConfig 等）
+shared/                       # App-wide shared code
+├── components/               # Shared UI building blocks
+│   ├── ui/                   # Base design system (Button, Input, Card, etc.)
+│   ├── presenters/           # Reusable presentation components
+│   └── containers/           # Shared container components (AppShell, AuthGuard)
+├── lib/                      # Shared libraries (apiConfig, etc.)
 └── utils/
 ```
 
-## Container/Presentational パターン
+## Container/Presentational Pattern
 
-コンポーネント内の関心を分離するために Container 1st アプローチを採用します。
+A Container-first approach is adopted to separate concerns within components.
 
-### Container コンポーネント
+### Container Components
 
-- 「何をするか」を担当:
-  - データ取得と状態管理
-  - ビジネスロジック
-  - イベントハンドリング
-  - データ変換
-- データとコールバックをプレゼンテーションコンポーネントに渡す
-- 大きなマークアップやスタイリングを含まない
+- Responsible for "what to do":
+  - Data fetching and state management
+  - Business logic
+  - Event handling
+  - Data transformation
+- Pass data and callbacks to Presentational components
+- Do not contain large markup or styling
 
-### Presentational コンポーネント
+### Presentational Components
 
-- 「どう見せるか」を担当:
-  - UI レンダリング
-  - スタイリング
-  - アニメーション
-  - アクセシビリティ
-- props 経由でデータとコールバックを受け取る
-- 通常は純粋な関数コンポーネント
-- 異なるコンテナ間で再利用可能
+- Responsible for "how to display":
+  - UI rendering
+  - Styling
+  - Animation
+  - Accessibility
+- Receive data and callbacks via props
+- Typically pure function components
+- Reusable across different containers
 
-### 例
+### Example
 
 **Container** (`ItemPage.tsx`):
 
@@ -92,7 +92,7 @@ import { fetchItemData } from "../api/itemApi";
 import { ItemPagePresenter } from "../presenters/ItemPagePresenter";
 
 export const ItemPage = () => {
-  // データ取得 + デバイス選択ロジックはここに配置
+  // Data fetching + device selection logic goes here
   return <ItemPagePresenter /* props */ />;
 };
 ```
@@ -105,42 +105,42 @@ type Props = {
 };
 
 export const ItemPagePresenter = ({ items }: Props) => {
-  return <section>{/* アイテムを描画 */}</section>;
+  return <section>{/* Render items */}</section>;
 };
 ```
 
-### ポイント
+### Key Points
 
 | Container | Presenter |
 |-----------|-----------|
-| `useState`, `useEffect` | Props のみ |
-| ビジネスロジック（フィルタリング等） | 純粋なレンダリング |
-| イベントハンドラロジック | `onClick={onXxx}` |
-| 最小限の JSX | リッチな JSX とスタイリング |
+| `useState`, `useEffect` | Props only |
+| Business logic (filtering, etc.) | Pure rendering |
+| Event handler logic | `onClick={onXxx}` |
+| Minimal JSX | Rich JSX and styling |
 
-## API アクセス
+## API Access
 
-- Feature 固有の API モジュールは `features/<feature>/api/` に配置する
-- ベース URL には `shared/lib/apiConfig.ts` を使用する
-- API 関数は `@my-app/errors` の `Result` を返す
-- Feature 固有のエンドポイントはモジュールごとに定義する
+- Feature-specific API modules are placed in `features/<feature>/api/`
+- Use `shared/lib/apiConfig.ts` for the base URL
+- API functions return `Result` from `@vspo-lab/errors`
+- Feature-specific endpoints are defined per module
 
-## コンポーネントの整理
+## Component Organization
 
-コンポーネントは3つの方法で整理します。
+Components are organized in three ways:
 
-1. **ページ固有のコンポーネント** (`_components/`): 各ルート内に配置し、そのページでのみ使用します。`_` プレフィックスはルートにプライベートであることを示し、ルーティングから除外します。
+1. **Page-specific components** (`_components/`): Placed within each route, used only on that page. The `_` prefix indicates it is private to the route and excluded from routing.
 
    ```
    app/feature/
    ├── page.tsx
-   └── _components/        # このルートにプライベート（アンダースコアプレフィックス）
+   └── _components/        # Private to this route (underscore prefix)
        ├── FeatureTimer.tsx
        ├── StatusBadge.tsx
        └── ...
    ```
 
-2. **Feature 固有のコンポーネント**: 各 Feature モジュール内に配置し、その Feature 内で再利用します。
+2. **Feature-specific components**: Placed within each Feature module, reused within that Feature.
 
    ```
    features/item/components/
@@ -152,7 +152,7 @@ export const ItemPagePresenter = ({ items }: Props) => {
        └── ...
    ```
 
-3. **共有コンポーネント**: `shared/components/` に配置し、Feature 間で再利用します。
+3. **Shared components**: Placed in `shared/components/`, reused across Features.
 
    ```
    shared/components/
@@ -166,31 +166,31 @@ export const ItemPagePresenter = ({ items }: Props) => {
        └── ...
    ```
 
-## App Router 構成
+## App Router Structure
 
-Next.js App Router では、Feature とページは **1:1で対応**します。各ルートは1つの Feature に対応します。
+In the Next.js App Router, Features and pages have a **1:1 correspondence**. Each route maps to a single Feature.
 
-### ルート構成
+### Route Structure
 
 ```
-app/                        # エントリページ
+app/                        # Entry page
 ├── page.tsx
-└── _components/            # ページ固有コンポーネント（任意）
+└── _components/            # Page-specific components (optional)
 app/feature/
-├── page.tsx                # Feature ページ
-├── loading.tsx             # ローディング UI（任意）
-├── error.tsx               # エラー UI（任意）
-└── _components/            # ページ固有コンポーネント（任意）
+├── page.tsx                # Feature page
+├── loading.tsx             # Loading UI (optional)
+├── error.tsx               # Error UI (optional)
+└── _components/            # Page-specific components (optional)
 ```
 
-### 命名規則
+### Naming Conventions
 
-- **`_` プレフィックス**: ページ固有のフォルダ（例: `_components/`, `_hooks/`）にアンダースコアを付ける理由:
-  - ルートにプライベートであることを示す
-  - Next.js がルートセグメントとして扱うのを防ぐ
-  - ページ固有のコードと共有コードを明確に区別する
+- **`_` prefix**: Page-specific folders (e.g., `_components/`, `_hooks/`) use an underscore prefix because:
+  - It indicates they are private to the route
+  - It prevents Next.js from treating them as route segments
+  - It clearly distinguishes page-specific code from shared code
 
-### ページコンポーネントパターン
+### Page Component Pattern
 
 ```tsx
 // app/items/page.tsx (Server Component)
@@ -223,35 +223,35 @@ export function ItemList({ users }: Props) {
 }
 ```
 
-## 設計原則
+## Design Principles
 
-1. **Feature-Page 1:1 対応**: `app/` 内の各ルートは正確に1つの Feature に対応します。ルーティングとビジネスロジックを密結合に保ちます。
-2. **Feature の分離**: 各 Feature は自己完結し、他の Feature への依存を最小化します。Feature 間のインポートを避けます。
-3. **共有コンポーネント**: 共通の UI 要素は `shared/components/` に配置して再利用します。
-4. **ドメイン駆動**: Feature は技術的な関心事ではなく、ビジネスドメインに沿って設計します。
-5. **Container 1st 設計**: 常にコンテナから始めて何をすべきかを定義し、次にプレゼンターを作成します。
-6. **関心の分離**:
-   - Container はロジックとデータを扱う
-   - Presenter は UI とスタイリングを扱う
-7. **Feature 内のレイヤードアプローチ**:
+1. **Feature-Page 1:1 mapping**: Each route in `app/` corresponds to exactly one Feature. Routing and business logic are kept tightly coupled.
+2. **Feature isolation**: Each Feature is self-contained, minimizing dependencies on other Features. Avoid cross-Feature imports.
+3. **Shared components**: Common UI elements are placed in `shared/components/` for reuse.
+4. **Domain-driven**: Features are designed around business domains, not technical concerns.
+5. **Container-first design**: Always start with a container to define what needs to be done, then create the presenter.
+6. **Separation of concerns**:
+   - Containers handle logic and data
+   - Presenters handle UI and styling
+7. **Layered approach within Features**:
    - UI Layer: Presenters
    - Application Layer: Containers, Hooks
-   - Domain Layer: ビジネスロジック、データ変換
-   - Infrastructure Layer: API 呼び出し、外部サービス連携
-8. **コロケーション**: 関連するコードは近くに配置します。ページ固有のコンポーネントはルート内の `_components/` に配置します。
-9. **コンパイラファースト Hooks**: プレーンな計算とイベントハンドラから始め、振る舞い/制御が必要な場合のみメモ化 Hooks を使用します。
-10. **キャッシュファースト App Router**: キャッシュ境界（`'use cache'`, `cacheLife`, `cacheTag`）を Feature 設計の一部として扱い、後付けにしません。
+   - Domain Layer: Business logic, data transformation
+   - Infrastructure Layer: API calls, external service integration
+8. **Colocation**: Related code is placed close together. Page-specific components go in `_components/` within the route.
+9. **Compiler-first Hooks**: Start with plain computations and event handlers; use memoization Hooks only when behavior/control is needed.
+10. **Cache-first App Router**: Treat cache boundaries (`'use cache'`, `cacheLife`, `cacheTag`) as part of Feature design, not an afterthought.
 
-## データフロー
+## Data Flow
 
-1. Container コンポーネントがデータを取得・管理する
-2. データは props 経由で Presentational コンポーネントに流れる
-3. Presentational コンポーネントでのユーザーイベントが Container で定義されたコールバックをトリガーする
-4. Container コンポーネントがイベントに基づいて状態を更新する
+1. Container components fetch and manage data
+2. Data flows to Presentational components via props
+3. User events in Presentational components trigger callbacks defined in Containers
+4. Container components update state based on events
 
-## 依存方向
+## Dependency Direction
 
-依存は単方向に流れます。
+Dependencies flow in one direction:
 
 ```
       shared/
@@ -261,66 +261,66 @@ export function ItemList({ users }: Props) {
        app/
 ```
 
-### ルール
+### Rules
 
-- **Shared → Features**: 共有コードはすべての Feature から使用可能
-- **Features → App**: Feature は app ルートからインポート可能
-- **禁止**: Feature が他の Feature からインポートしてはならない
-- **禁止**: 共有コードが features や app からインポートしてはならない
-- Feature 内: Container → Presenter（一方向）
+- **Shared → Features**: Shared code is available to all Features
+- **Features → App**: Features can be imported from app routes
+- **Prohibited**: A Feature must not import from another Feature
+- **Prohibited**: Shared code must not import from features or app
+- Within a Feature: Container → Presenter (one-way)
 
-### Feature 間通信
+### Cross-Feature Communication
 
-Feature 間のインポートではなく、app レベルで合成します。
+Compose at the app level instead of cross-Feature imports.
 
 ```tsx
-// ❌ Bad: Feature 間のインポート
+// ❌ Bad: Cross-Feature import
 // features/reviews/components/ReviewList.tsx
 import { Avatar } from '@/shared/components'
 
-// ✅ Good: app レベルで合成
+// ✅ Good: Compose at app level
 // app/items/[id]/_components/ItemReviews.tsx
 import { ReviewList } from '@/features/reviews/components'
 import { Avatar } from '@/shared/components'
 ```
 
-## テスト戦略
+## Testing Strategy
 
-- Container テスト: ビジネスロジックと状態管理をテストする
-- Presenter テスト: UI レンダリングとインタラクションをテストする
-- Integration テスト: Container と Presenter のペアの連携をテストする
-- E2E テスト: ユーザーフロー全体をテストする
+- Container tests: Test business logic and state management
+- Presenter tests: Test UI rendering and interactions
+- Integration tests: Test Container and Presenter pair integration
+- E2E tests: Test entire user flows
 
-## 実装ガイドライン
+## Implementation Guidelines
 
-- アプリケーション全体で TypeScript を使用して型安全性を確保する
-- `reactCompiler` と `cacheComponents` は、実証されたブロッカーがない限り有効に保つ
-- ファイルとコンポーネントの命名規則を統一する
-  - ContainerName.tsx と NamePresenter.tsx
-  - ページ固有フォルダには `_` プレフィックスを使用（`_components/`, `_hooks/`）
-- Presenter は可能な限り純粋関数として保つ
-- コンポーネント API は JSDoc または Storybook でドキュメント化する
-- Container から複雑なロジックを抽出・再利用するためにカスタム Hooks を使用する
-- デフォルトは Server Components を優先し、`'use client'` は必要な場合のみ使用する
-- barrel ファイルではなくファイルを直接インポートする（tree shaking に有利）
+- Use TypeScript throughout the application for type safety
+- Keep `reactCompiler` and `cacheComponents` enabled unless there is a proven blocker
+- Maintain consistent naming conventions for files and components
+  - ContainerName.tsx and NamePresenter.tsx
+  - Use `_` prefix for page-specific folders (`_components/`, `_hooks/`)
+- Keep Presenters as pure functions whenever possible
+- Document component APIs with JSDoc or Storybook
+- Use custom Hooks to extract and reuse complex logic from Containers
+- Default to Server Components; use `'use client'` only when necessary
+- Import files directly instead of using barrel files (better for tree shaking)
 
-## 状態管理
+## State Management
 
-- Feature 固有の状態は Feature モジュール内に閉じ込める
-- Feature 横断の状態はセントラルストアまたはコンテキストで管理する
-- 可能な限り、クライアントサイドの状態よりも Server Components と URL ステートを優先する
+- Feature-specific state is confined within the Feature module
+- Cross-Feature state is managed with a central store or context
+- Prefer Server Components and URL state over client-side state whenever possible
 
-## Feature 構成
+## Feature Structure
 
-Feature には必要なフォルダのみを含めます。
+Features include only the necessary folders:
 
 ```
 features/awesome-feature/
-├── api/          # API リクエスト宣言と Hooks
-├── components/   # この Feature にスコープされたコンポーネント
+├── api/          # API request declarations and Hooks
+├── components/   # Components scoped to this Feature
 │   ├── containers/
 │   └── presenters/
-├── hooks/        # この Feature にスコープされた Hooks
-├── types/        # この Feature の TypeScript 型定義
-└── utils/        # この Feature のユーティリティ関数
+├── hooks/        # Hooks scoped to this Feature
+├── types/        # TypeScript type definitions for this Feature
+└── utils/        # Utility functions for this Feature
 ```

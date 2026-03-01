@@ -2,46 +2,47 @@
 
 ## Overview
 
-本プロジェクトでは、GitHub Actions と tfaction を使用してインフラストラクチャの CI/CD パイプラインを構築しています。
-すべてのインフラ変更は Pull Request を通じてレビューされ、マージ時に自動的にデプロイされます。
+This project uses GitHub Actions and tfaction to build the infrastructure CI/CD pipeline.
+All infrastructure changes are reviewed through Pull Requests and automatically deployed upon merge.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     Infrastructure CI/CD Pipeline                        │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌──────────┐    ┌───────────────┐    ┌──────────┐    ┌──────────────┐  │
-│  │ PR 作成   │ →  │  CI (Plan)    │ →  │ Review   │ →  │ Merge        │  │
-│  └──────────┘    └───────────────┘    └──────────┘    └──────────────┘  │
-│                         │                                    │           │
-│                         ▼                                    ▼           │
-│              ┌─────────────────────┐              ┌─────────────────┐   │
-│              │ - terraform plan    │              │ CD (Apply)      │   │
-│              │ - tflint            │              │ - terraform     │   │
-│              │ - trivy scan        │              │   apply         │   │
-│              │ - PR コメント        │              │ - follow-up PR  │   │
-│              └─────────────────────┘              └─────────────────┘   │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------------+
+|                     Infrastructure CI/CD Pipeline                          |
++---------------------------------------------------------------------------+
+|                                                                            |
+|  +----------+    +---------------+    +----------+    +--------------+    |
+|  | Create   | -> |  CI (Plan)    | -> | Review   | -> | Merge        |    |
+|  | PR       |    |               |    |          |    |              |    |
+|  +----------+    +---------------+    +----------+    +--------------+    |
+|                         |                                    |             |
+|                         v                                    v             |
+|              +---------------------+              +-----------------+     |
+|              | - terraform plan    |              | CD (Apply)      |     |
+|              | - tflint            |              | - terraform     |     |
+|              | - trivy scan        |              |   apply         |     |
+|              | - PR comment        |              | - follow-up PR  |     |
+|              +---------------------+              +-----------------+     |
+|                                                                            |
++---------------------------------------------------------------------------+
 ```
 
 ---
 
-## ワークフロー構成
+## Workflow Structure
 
-### ファイル一覧
+### File List
 
-| ファイル | トリガー | 目的 |
+| File | Trigger | Purpose |
 |---------|---------|------|
-| `terraform-plan-dev.yml` | PR to `develop` | dev 環境の Plan |
-| `terraform-apply-dev.yml` | Push to `develop` | dev 環境の Apply |
-| `terraform-plan-prod.yml` | PR to `main` | prod 環境の Plan |
-| `terraform-apply-prod.yml` | Push to `main` | prod 環境の Apply |
+| `terraform-plan-dev.yml` | PR to `develop` | Plan for dev environment |
+| `terraform-apply-dev.yml` | Push to `develop` | Apply for dev environment |
+| `terraform-plan-prod.yml` | PR to `main` | Plan for prod environment |
+| `terraform-apply-prod.yml` | Push to `main` | Apply for prod environment |
 
-### トリガー条件
+### Trigger Conditions
 
 ```yaml
-# Plan ワークフロー
+# Plan workflow
 on:
   pull_request:
     branches:
@@ -51,7 +52,7 @@ on:
       - 'infrastructure/terraform/modules/**'
       - .github/workflows/terraform-plan-dev.yml
 
-# Apply ワークフロー
+# Apply workflow
 on:
   push:
     branches:
@@ -63,75 +64,75 @@ on:
 
 ---
 
-## CI ワークフロー（Plan）
+## CI Workflow (Plan)
 
-### ジョブ構成
+### Job Structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    terraform-plan-dev.yml                    │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌──────────────┐                                           │
-│  │   setup      │  変更されたターゲットを検出                │
-│  └──────┬───────┘                                           │
-│         │                                                    │
-│         ▼                                                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │  plan (dev1) │  │  plan (dev2) │  │  plan (devN) │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-│   並列実行（Matrix Strategy）                                │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------+
+|                    terraform-plan-dev.yml                      |
++-------------------------------------------------------------+
+|                                                                |
+|  +--------------+                                             |
+|  |   setup      |  Detect changed targets                     |
+|  +------+-------+                                             |
+|         |                                                      |
+|         v                                                      |
+|  +--------------+  +--------------+  +--------------+         |
+|  |  plan (dev1) |  |  plan (dev2) |  |  plan (devN) |         |
+|  +--------------+  +--------------+  +--------------+         |
+|   Parallel execution (Matrix Strategy)                         |
+|                                                                |
++-------------------------------------------------------------+
 ```
 
-### 実行ステップ
+### Execution Steps
 
-1. **Checkout**: リポジトリをチェックアウト
-2. **Tool Install**: aqua で Terraform, TFLint, Trivy をインストール
-3. **GCP Auth**: Workload Identity で GCP 認証
-4. **Setup**: tfaction のセットアップ
-5. **Test**: TFLint, Trivy によるチェック
-6. **Plan**: `terraform plan` を実行し、結果を PR にコメント
+1. **Checkout**: Check out the repository
+2. **Tool Install**: Install Terraform, TFLint, and Trivy with aqua
+3. **GCP Auth**: Authenticate with GCP using Workload Identity
+4. **Setup**: Set up tfaction
+5. **Test**: Run TFLint and Trivy checks
+6. **Plan**: Execute `terraform plan` and comment the results on the PR
 
-### 必要な権限
+### Required Permissions
 
 ```yaml
 permissions:
-  id-token: write      # OIDC 認証
-  contents: write      # 自動コミット（format 修正等）
-  pull-requests: write # PR コメント
+  id-token: write      # OIDC authentication
+  contents: write      # Auto-commit (format fixes, etc.)
+  pull-requests: write # PR comments
 ```
 
-### 並行実行制御
+### Concurrency Control
 
 ```yaml
 concurrency:
   group: my-app
-  cancel-in-progress: false  # 進行中のジョブをキャンセルしない
+  cancel-in-progress: false  # Do not cancel in-progress jobs
 ```
 
 ---
 
-## CD ワークフロー（Apply）
+## CD Workflow (Apply)
 
-### 実行ステップ
+### Execution Steps
 
-1. **Checkout**: リポジトリをチェックアウト
-2. **Tool Install**: aqua でツールインストール
-3. **GCP Auth**: Workload Identity で GCP 認証
-4. **Setup**: tfaction のセットアップ
-5. **Apply**: `terraform apply` を実行
-6. **Follow-up PR**: Apply 失敗時に修復 PR を自動作成
+1. **Checkout**: Check out the repository
+2. **Tool Install**: Install tools with aqua
+3. **GCP Auth**: Authenticate with GCP using Workload Identity
+4. **Setup**: Set up tfaction
+5. **Apply**: Execute `terraform apply`
+6. **Follow-up PR**: Automatically create a repair PR on apply failure
 
-### Apply フラグ
+### Apply Flag
 
 ```yaml
 env:
-  TFACTION_IS_APPLY: "true"  # Apply モードを有効化
+  TFACTION_IS_APPLY: "true"  # Enable apply mode
 ```
 
-### 失敗時の自動復旧
+### Automatic Recovery on Failure
 
 ```yaml
 - name: Follow up PR
@@ -143,46 +144,46 @@ env:
 
 ---
 
-## 環境分離
+## Environment Separation
 
-### ブランチ戦略
+### Branch Strategy
 
 ```
-main (本番)
-  ↑
-  └── PR (terraform-plan-prod → terraform-apply-prod)
+main (production)
+  ^
+  +-- PR (terraform-plan-prod -> terraform-apply-prod)
 
-develop (開発)
-  ↑
-  └── PR (terraform-plan-dev → terraform-apply-dev)
+develop (development)
+  ^
+  +-- PR (terraform-plan-dev -> terraform-apply-dev)
 
 feature/*
-  └── 開発ブランチ
+  +-- Development branches
 ```
 
-### ディレクトリ構成
+### Directory Structure
 
 ```
 infrastructure/terraform/
-├── env/
-│   ├── dev/           # 開発環境 → develop ブランチ
-│   ├── staging/       # ステージング → staging ブランチ
-│   └── prod/          # 本番環境 → main ブランチ
-└── modules/           # 共有モジュール（全環境で使用）
++-- env/
+|   +-- dev/           # Development environment -> develop branch
+|   +-- staging/       # Staging environment -> staging branch
+|   +-- prod/          # Production environment -> main branch
++-- modules/           # Shared modules (used across all environments)
 ```
 
-### State 分離
+### State Separation
 
-各環境は独立した GCS バケットプレフィックスを使用します。
+Each environment uses an independent GCS bucket prefix.
 
 ```hcl
-# dev 環境
+# dev environment
 backend "gcs" {
   bucket = "project-tfstate"
   prefix = "env/dev/terraform_backend"
 }
 
-# prod 環境
+# prod environment
 backend "gcs" {
   bucket = "project-tfstate"
   prefix = "env/prod/terraform_backend"
@@ -191,11 +192,11 @@ backend "gcs" {
 
 ---
 
-## セキュリティスキャン
+## Security Scanning
 
 ### Trivy
 
-インフラ設定の脆弱性をスキャンします。
+Scans infrastructure configurations for vulnerabilities.
 
 ```yaml
 env:
@@ -203,15 +204,15 @@ env:
   TRIVY_SKIP_DIRS: ".terraform"
 ```
 
-#### 検出対象
+#### Detection Targets
 
-- Terraform 設定の脆弱性
-- クラウドリソースのミス設定
-- シークレットの露出
+- Terraform configuration vulnerabilities
+- Cloud resource misconfigurations
+- Secret exposure
 
 ### TFLint
 
-Terraform のベストプラクティスをチェックします。
+Checks Terraform best practices.
 
 ```hcl
 # .tflint.hcl
@@ -231,22 +232,22 @@ rule "terraform_naming_convention" {
 }
 ```
 
-### gitleaks（手動スキャン）
+### gitleaks (Manual Scan)
 
-シークレット漏洩をチェックします。
+Checks for secret leaks.
 
 ```bash
-# ローカルで実行
+# Run locally
 gitleaks detect --source . --verbose
 ```
 
 ---
 
-## ツール管理
+## Tool Management
 
 ### aqua.yaml
 
-すべての CI ツールは aqua で管理し、バージョンを固定します。
+All CI tools are managed with aqua with pinned versions.
 
 ```yaml
 # aqua.yaml
@@ -263,9 +264,9 @@ packages:
   - name: reviewdog/reviewdog@v0.20.3
 ```
 
-### バージョン更新
+### Version Updates
 
-Renovate または Dependabot で自動更新を管理します。
+Managed via automatic updates with Renovate or Dependabot.
 
 ```json
 // renovate.json
@@ -282,60 +283,60 @@ Renovate または Dependabot で自動更新を管理します。
 
 ---
 
-## Secrets 管理
+## Secrets Management
 
-### 必要な GitHub Secrets
+### Required GitHub Secrets
 
-| Secret | 説明 | 設定方法 |
+| Secret | Description | How to Configure |
 |--------|------|---------|
-| `GCP_PROJECT_ID` | GCP プロジェクト ID | Settings > Secrets |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | WIF プロバイダのパス | Terraform output から取得 |
-| `GCP_SERVICE_ACCOUNT` | サービスアカウント | Terraform output から取得 |
-| `MY_APP_GITHUB_APP_ID` | GitHub App ID | GitHub App 設定から取得 |
-| `MY_APP_GITHUB_APP_PRIVATE_KEY` | GitHub App 秘密鍵 | GitHub App 設定から取得 |
+| `GCP_PROJECT_ID` | GCP project ID | Settings > Secrets |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | WIF provider path | Obtain from Terraform output |
+| `GCP_SERVICE_ACCOUNT` | Service account | Obtain from Terraform output |
+| `MY_APP_GITHUB_APP_ID` | GitHub App ID | Obtain from GitHub App settings |
+| `MY_APP_GITHUB_APP_PRIVATE_KEY` | GitHub App private key | Obtain from GitHub App settings |
 
-### Environment 設定
+### Environment Configuration
 
 ```yaml
 jobs:
   plan:
-    environment: production  # GitHub Environment を使用
+    environment: production  # Use GitHub Environment
 ```
 
-GitHub Environment を使用することで:
-- デプロイメント保護ルールを適用
-- 環境固有の Secrets を管理
-- 承認フローを追加可能
+By using GitHub Environments:
+- Apply deployment protection rules
+- Manage environment-specific secrets
+- Add approval workflows
 
 ---
 
-## トラブルシューティング
+## Troubleshooting
 
-### Plan が失敗する場合
+### When Plan Fails
 
-1. **認証エラー**: GCP Secrets が正しく設定されているか確認
-2. **権限エラー**: サービスアカウントの権限を確認
-3. **State ロック**: 他のジョブが State をロックしていないか確認
+1. **Authentication error**: Verify GCP secrets are configured correctly
+2. **Permission error**: Check service account permissions
+3. **State lock**: Verify no other jobs are locking the state
 
-### Apply が失敗する場合
+### When Apply Fails
 
-1. **Follow-up PR を確認**: 自動作成された PR を確認
-2. **Plan との差分**: マージ後に他の変更が入っていないか確認
-3. **リソース制限**: クォータや制限に達していないか確認
+1. **Check follow-up PR**: Review the automatically created PR
+2. **Diff from plan**: Verify no other changes were merged after the plan
+3. **Resource limits**: Check if quotas or limits have been reached
 
-### ドリフトが検出された場合
+### When Drift Is Detected
 
-1. **Issue を確認**: GitHub Issue でドリフト内容を確認
-2. **原因調査**: 手動変更やコンソール操作を特定
-3. **修正 PR 作成**: Terraform コードを修正して PR を作成
+1. **Check issue**: Review drift details in the GitHub Issue
+2. **Investigate cause**: Identify manual changes or console operations
+3. **Create fix PR**: Fix the Terraform code and create a PR
 
 ---
 
-## まとめ
+## Summary
 
-| フェーズ | アクション | ツール |
+| Phase | Action | Tools |
 |---------|----------|--------|
-| CI (Plan) | 変更検出 → Lint → Scan → Plan | tfaction, tflint, trivy |
-| Review | Plan 結果確認 → 承認 | GitHub PR |
-| CD (Apply) | Apply → Follow-up PR | tfaction |
-| 監視 | Drift Detection | tfaction |
+| CI (Plan) | Change detection -> Lint -> Scan -> Plan | tfaction, tflint, trivy |
+| Review | Review plan results -> Approve | GitHub PR |
+| CD (Apply) | Apply -> Follow-up PR | tfaction |
+| Monitoring | Drift Detection | tfaction |

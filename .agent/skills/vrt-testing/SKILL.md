@@ -1,21 +1,21 @@
 ---
 name: vrt-testing
-description: Storybook + Playwright の VRT を実装し、スナップショット差分でUI退行を検知するときに使う。非決定要素を固定しモック最小で運用する。
+description: Implement VRT with Storybook + Playwright, detecting UI regressions via snapshot diffs. Pin non-deterministic elements and operate with minimal mocks.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- UIの見た目退行を検証したいとき
-- Storybook ストーリーのVRTを追加・更新するとき
+- When verifying visual regressions in UI
+- When adding or updating VRT cases for Storybook stories
 
-# 実行チェックリスト
+# Execution Checklist
 
-1. `docs/testing/vrt-testing.md` を確認する
-2. story単位で VRT ケースを追加する
-3. 時刻/アニメーション/viewport を固定する
-4. スナップショット更新は意図説明付きで行う
+1. Review `docs/testing/vrt-testing.md`
+2. Add VRT cases per story
+3. Pin time/animations/viewport
+4. Update snapshots with an explanation of intent
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/testing/vrt-testing.md`
 - `docs/design/design-review.md`

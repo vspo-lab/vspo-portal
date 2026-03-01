@@ -1,123 +1,123 @@
-# API テスト戦略
+# API Testing Strategy
 
-## 概要
+## Overview
 
-このドキュメントでは、本プロジェクトにおける API 結合テストのツール選定と実装方針をまとめる。
+This document summarizes the tool selection and implementation strategy for API integration testing in this project.
 
-**注**: 本プロジェクトは `@hono/zod-openapi` を使用しており、`/doc` エンドポイントで **OpenAPI 3.1 仕様** を自動生成している。これにより OpenAPI ベースのテストツールとの親和性が高い。
+**Note**: This project uses `@hono/zod-openapi` and auto-generates **OpenAPI 3.1 specifications** at the `/doc` endpoint. This provides high compatibility with OpenAPI-based testing tools.
 
-## 関連ドキュメント
+## Related Documents
 
-- `docs/testing/api-testing.md` - APIテストの最新実装方針（モック最小 + テーブルドリブン）
-- `docs/web-frontend/twada-tdd.md` - t_wadaベースのTDD運用ルール
+- `docs/testing/api-testing.md` - Latest API test implementation policy (minimal mocks + table-driven)
+- `docs/web-frontend/twada-tdd.md` - TDD operational rules based on t_wada
 
-## ツール選定
+## Tool Selection
 
-### 推奨構成
+### Recommended Stack
 
-| カテゴリ | ツール | 理由 |
-|---------|--------|------|
-| **テストフレームワーク** | Vitest | ESM・TypeScript ネイティブ対応、高速 |
-| **API テストクライアント** | Hono testClient | 型安全、Hono ネイティブ、IDE 補完対応 |
-| **OpenAPI コントラクトテスト** | Schemathesis | OpenAPI 仕様からの自動テスト生成、エッジケース検出 |
-| **モック** | Vitest built-in | vi.mock, vi.fn で十分対応可能 |
-| **カバレッジ** | v8 (Vitest built-in) | 追加設定不要 |
+| Category | Tool | Rationale |
+|----------|------|-----------|
+| **Test framework** | Vitest | Native ESM and TypeScript support, fast |
+| **API test client** | Hono testClient | Type-safe, Hono-native, IDE completion support |
+| **OpenAPI contract testing** | Schemathesis | Auto-generated tests from OpenAPI spec, edge case detection |
+| **Mocking** | Vitest built-in | vi.mock, vi.fn are sufficient |
+| **Coverage** | v8 (Vitest built-in) | No additional setup needed |
 
 ---
 
-## OpenAPI ベースのテストツール比較
+## OpenAPI-Based Testing Tool Comparison
 
-本プロジェクトは OpenAPI 仕様を `/doc` で公開しているため、以下のツールが活用可能。
+Since this project publishes the OpenAPI spec at `/doc`, the following tools can be leveraged.
 
-### ツール一覧
+### Tool List
 
-| ツール | 特徴 | 言語 | CI統合 | 推奨度 |
-|--------|------|------|--------|--------|
-| **Schemathesis** | Property-based テスト、自動エッジケース検出 | Python | ◎ | ★★★ |
-| **Dredd** | OpenAPI 仕様との整合性検証 | Node.js | ◎ | ★★☆ |
-| **Prism** | モックサーバー + バリデーションプロキシ | Node.js | ○ | ★★☆ |
-| **Step CI** | YAML ベースのテスト定義 | Node.js | ◎ | ★★☆ |
-| **Bruno** | Git フレンドリーな API クライアント | Electron | ○ | ★☆☆ |
-| **Hoppscotch** | OSS API クライアント + CLI | Node.js | ○ | ★☆☆ |
+| Tool | Features | Language | CI Integration | Recommendation |
+|------|----------|----------|----------------|----------------|
+| **Schemathesis** | Property-based testing, automatic edge case detection | Python | Excellent | 3/3 |
+| **Dredd** | Consistency verification against OpenAPI spec | Node.js | Excellent | 2/3 |
+| **Prism** | Mock server + validation proxy | Node.js | Good | 2/3 |
+| **Step CI** | YAML-based test definitions | Node.js | Excellent | 2/3 |
+| **Bruno** | Git-friendly API client | Electron | Good | 1/3 |
+| **Hoppscotch** | OSS API client + CLI | Node.js | Good | 1/3 |
 
-### Schemathesis（推奨）
+### Schemathesis (Recommended)
 
-OpenAPI 仕様から **自動的に数千のテストケースを生成** する Property-based テストツール。
+A property-based testing tool that **automatically generates thousands of test cases** from the OpenAPI spec.
 
-**メリット**:
-- OpenAPI 仕様から自動テスト生成（手動テスト不要）
-- エッジケース・バリデーションバグを自動検出
-- 初回実行で通常 5-15 件の問題を発見
-- Spotify, JetBrains, Red Hat 等が採用
-- GitHub Actions 統合が容易
+**Advantages**:
+- Auto-generates tests from OpenAPI spec (no manual test writing needed)
+- Automatically detects edge cases and validation bugs
+- Typically finds 5-15 issues on first run
+- Used by Spotify, JetBrains, Red Hat, etc.
+- Easy GitHub Actions integration
 
-**デメリット**:
-- Python が必要（Node.js プロジェクトに追加依存）
-- 認証が必要なエンドポイントは設定が必要
+**Disadvantages**:
+- Requires Python (additional dependency for Node.js projects)
+- Endpoints requiring authentication need configuration
 
 ```bash
-# インストール
+# Install
 pip install schemathesis
 
-# 基本的な実行
+# Basic run
 schemathesis run http://localhost:8787/doc
 
-# 認証付き
+# With authentication
 schemathesis run http://localhost:8787/doc \
   --header "Authorization: Bearer $TOKEN"
 ```
 
 ### Dredd
 
-OpenAPI 仕様と実際の API レスポンスの **整合性を検証** するコントラクトテストツール。
+A contract testing tool that **verifies consistency** between the OpenAPI spec and actual API responses.
 
-**メリット**:
-- Node.js ネイティブ（追加ランタイム不要）
-- ドキュメントと実装の乖離を防止
-- CI/CD 統合が容易
+**Advantages**:
+- Node.js native (no additional runtime needed)
+- Prevents divergence between documentation and implementation
+- Easy CI/CD integration
 
-**デメリット**:
-- 複雑な認証やダイナミックデータには hooks が必要
-- 仕様が不完全だとテストが不十分になる
+**Disadvantages**:
+- Complex authentication and dynamic data require hooks
+- Tests are insufficient if the spec is incomplete
 
 ```bash
-# インストール
+# Install
 pnpm add -D dredd
 
-# 実行
+# Run
 dredd http://localhost:8787/doc http://localhost:8787
 ```
 
 ### Prism
 
-OpenAPI 仕様から **モックサーバーを生成** + バリデーションプロキシとして動作。
+**Generates a mock server** from the OpenAPI spec + operates as a validation proxy.
 
-**メリット**:
-- フロントエンド開発時のモックサーバーとして有用
-- `--errors` フラグでコントラクト違反を検出
+**Advantages**:
+- Useful as a mock server during frontend development
+- Detects contract violations with the `--errors` flag
 
-**デメリット**:
-- テスト実行というより開発支援ツール
+**Disadvantages**:
+- More of a development support tool than a test runner
 
 ```bash
-# モックサーバー起動
+# Start mock server
 prism mock http://localhost:8787/doc
 
-# バリデーションプロキシ
+# Validation proxy
 prism proxy http://localhost:8787/doc http://localhost:8787 --errors
 ```
 
 ### Step CI
 
-**YAML ベース** でテストシナリオを定義する軽量フレームワーク。
+A lightweight framework for defining test scenarios **in YAML**.
 
-**メリット**:
-- YAML で宣言的にテスト定義
-- OpenAPI からインポート可能
-- CI/CD 統合が容易
+**Advantages**:
+- Declarative test definitions in YAML
+- Import from OpenAPI possible
+- Easy CI/CD integration
 
-**デメリット**:
-- 手動でテストケース定義が必要
+**Disadvantages**:
+- Manual test case definition required
 
 ```yaml
 # stepci.yml
@@ -138,57 +138,57 @@ tests:
 
 ### Bruno / Hoppscotch
 
-Git フレンドリーな **API クライアント** + CLI でのテスト実行。
+Git-friendly **API clients** + test execution via CLI.
 
-**特徴**:
-- Postman/Insomnia の OSS 代替
-- コレクションをファイルで管理（Git 管理可能）
-- CLI でテスト自動化
+**Features**:
+- OSS alternatives to Postman/Insomnia
+- Manage collections as files (Git-manageable)
+- Automate tests via CLI
 
-**向いているケース**:
-- 手動 API テストが主で、一部自動化したい場合
-- Postman からの移行
+**Good fit for**:
+- Primarily manual API testing with some automation
+- Migration from Postman
 
 ---
 
-### 候補比較
+### Candidate Comparison
 
-#### テストフレームワーク: Vitest vs Jest
+#### Test Framework: Vitest vs Jest
 
-| 項目 | Vitest | Jest |
-|------|--------|------|
-| **ESM サポート** | ネイティブ対応 | 実験的・設定が必要 |
-| **TypeScript** | ネイティブ対応 | ts-jest が必要 |
-| **パフォーマンス** | 高速（HMR活用） | 比較的遅い |
-| **設定** | 最小限 | babel, ts-jest 等が必要 |
-| **メモリ使用量** | 約30%削減 | 大規模で問題あり |
-| **Jest 互換性** | 95%互換 | - |
+| Criterion | Vitest | Jest |
+|-----------|--------|------|
+| **ESM support** | Native | Experimental, requires setup |
+| **TypeScript** | Native | Requires ts-jest |
+| **Performance** | Fast (HMR-based) | Relatively slow |
+| **Configuration** | Minimal | Requires babel, ts-jest, etc. |
+| **Memory usage** | ~30% reduction | Issues at scale |
+| **Jest compatibility** | 95% compatible | - |
 
-**結論**: 本プロジェクトは ESM + TypeScript 構成のため、**Vitest を採用**。
+**Conclusion**: Since this project uses ESM + TypeScript, **Vitest is adopted**.
 
-#### API テストクライアント: testClient vs Supertest
+#### API Test Client: testClient vs Supertest
 
-| 項目 | Hono testClient | Supertest |
-|------|-----------------|-----------|
-| **型安全性** | 完全な型推論 | なし |
-| **IDE補完** | ルート自動補完 | なし |
-| **フレームワーク** | Hono 専用 | 汎用（Express等） |
-| **サーバー起動** | 不要（直接テスト） | 自動バインド |
-| **学習コスト** | 低（Honoユーザー向け） | 低 |
+| Criterion | Hono testClient | Supertest |
+|-----------|-----------------|-----------|
+| **Type safety** | Full type inference | None |
+| **IDE completion** | Route auto-completion | None |
+| **Framework** | Hono-specific | Generic (Express, etc.) |
+| **Server startup** | Not required (direct testing) | Auto-binds |
+| **Learning curve** | Low (for Hono users) | Low |
 
-**結論**: Hono を使用しているため、型安全な **testClient を採用**。
+**Conclusion**: Since Hono is used, the type-safe **testClient is adopted**.
 
-## Vitest + testClient 結合テスト設計
+## Vitest + testClient Integration Test Design
 
-本プロジェクトの構造に基づいた、具体的な結合テスト設計を示す。
+Specific integration test design based on this project's structure.
 
-### 設計方針
+### Design Policy
 
-- **実 DB を使用**: `pnpm dev` で起動する MySQL をそのまま使用
-- **外部サービスのみモック**: 外部 API、メール送信、通知サービス等だけモック
-- **認証はモック**: テスト用ユーザーを直接注入
+- **Use real DB**: Use MySQL started by `pnpm dev` as-is
+- **Mock only external services**: Only mock external APIs, email sending, notification services, etc.
+- **Mock authentication**: Inject test users directly
 
-### アーキテクチャ概要
+### Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -196,34 +196,34 @@ Git フレンドリーな **API クライアント** + CLI でのテスト実行
 ├─────────────────────────────────────────────────────────────┤
 │  testClient(app) ──▶ Routes ──▶ UseCase ──▶ Repository     │
 │       ↑                 ↑          ↑           ↑            │
-│    型安全          認証モック   実Container   実DB          │
+│    Type-safe       Auth mock   Real Container  Real DB      │
 │                                     ↓                       │
-│                            外部サービスのみモック           │
-│                    (ExternalAPI, AuthService, Email等)     │
+│                         Mock only external services         │
+│                    (ExternalAPI, AuthService, Email, etc.)   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### モック対象の外部サービス
+### External Services to Mock
 
-| サービス | ファイル | 用途 |
-|----------|----------|------|
-| `ThirdPartyAPIClient` | `infra/external/apiClient.ts` | 外部 API との通信 |
-| `AuthService` | `infra/auth/tokenService.ts` | 認証トークン発行 |
-| `AlertService` | `infra/notification/notificationService.ts` | 通知送信 |
-| `FileStorageService` | `infra/storage/fileStorageService.ts` | ファイルストレージ操作 |
-| `MessageService` | `infra/email/emailService.ts` | メール送信 |
+| Service | File | Purpose |
+|---------|------|---------|
+| `ThirdPartyAPIClient` | `infra/external/apiClient.ts` | Communication with external API |
+| `AuthService` | `infra/auth/tokenService.ts` | Auth token issuance |
+| `AlertService` | `infra/notification/notificationService.ts` | Notification sending |
+| `FileStorageService` | `infra/storage/fileStorageService.ts` | File storage operations |
+| `MessageService` | `infra/email/emailService.ts` | Email sending |
 
 ---
 
-## セットアップ手順
+## Setup Steps
 
-### 1. 依存関係のインストール
+### 1. Install Dependencies
 
 ```bash
 pnpm add -D vitest @vitest/coverage-v8 --filter server
 ```
 
-### 2. Vitest 設定ファイルの作成
+### 2. Create Vitest Config File
 
 `services/api/vitest.config.ts`:
 
@@ -243,8 +243,8 @@ export default defineConfig({
       exclude: ['**/*.test.ts', '**/node_modules/**'],
     },
     setupFiles: ['./test/setup.ts'],
-    testTimeout: 30000, // DB操作があるため長めに
-    // テストは直列実行（DB状態の競合を避ける）
+    testTimeout: 30000, // Longer timeout due to DB operations
+    // Serial execution (to avoid DB state conflicts)
     pool: 'forks',
     poolOptions: {
       forks: {
@@ -255,7 +255,7 @@ export default defineConfig({
 })
 ```
 
-### 3. テストセットアップファイル
+### 3. Test Setup File
 
 `services/api/test/setup.ts`:
 
@@ -263,27 +263,26 @@ export default defineConfig({
 import { beforeAll, afterAll, afterEach, vi } from 'vitest'
 import { getDb } from '../infra/repository/mysql/db'
 
-// 環境変数（pnpm dev で起動した DB を使用）
+// Environment variables (expected to be read from .env.local, but can be set explicitly)
 beforeAll(() => {
-  // .env.local から読み込まれる想定だが、明示的に設定も可
   process.env.NODE_ENV = 'test'
 })
 
-// 各テスト後にモックをリセット
+// Reset mocks after each test
 afterEach(() => {
   vi.restoreAllMocks()
 })
 
-// テスト終了後に DB 接続をクローズ
+// Close DB connection after tests finish
 afterAll(async () => {
   const dbResult = await getDb()
   if (!dbResult.err) {
-    // Drizzle の接続プールをクローズ（必要に応じて）
+    // Close Drizzle connection pool (if needed)
   }
 })
 ```
 
-### 4. package.json スクリプトの追加
+### 4. Add package.json Scripts
 
 ```json
 {
@@ -297,20 +296,20 @@ afterAll(async () => {
 
 ---
 
-## テストヘルパー設計
+## Test Helper Design
 
-### ディレクトリ構造
+### Directory Structure
 
 ```
 services/api/
 ├── test/
-│   ├── setup.ts                 # グローバルセットアップ
+│   ├── setup.ts                 # Global setup
 │   ├── helpers/
-│   │   ├── createTestApp.ts     # テスト用アプリファクトリ
-│   │   ├── createTestContainer.ts # AI モック付きコンテナ
-│   │   ├── mockExternal.ts      # 外部サービスモック
-│   │   ├── testDb.ts            # DB ユーティリティ
-│   │   └── testUser.ts          # テストユーザー作成
+│   │   ├── createTestApp.ts     # Test app factory
+│   │   ├── createTestContainer.ts # Container with AI mocks
+│   │   ├── mockExternal.ts      # External service mocks
+│   │   ├── testDb.ts            # DB utilities
+│   │   └── testUser.ts          # Test user creation
 │   └── integration/
 │       └── routes/
 │           ├── item.test.ts
@@ -318,18 +317,18 @@ services/api/
 │           └── item.test.ts
 ```
 
-### 外部サービスモック
+### External Service Mocks
 
 `services/api/test/helpers/mockExternal.ts`:
 
 ```typescript
 import { vi } from 'vitest'
-import { Ok } from '@my-app/errors'
+import { Ok } from '@vspo-lab/errors'
 import type { ThirdPartyAPIClient } from '../../infra/external/apiClient'
 import type { AuthService } from '../../infra/auth/tokenService'
 
 /**
- * ThirdPartyAPIClient のモック
+ * ThirdPartyAPIClient mock
  */
 export const createMockThirdPartyAPIClient = (): ThirdPartyAPIClient => ({
   fetch: vi.fn().mockResolvedValue(
@@ -347,7 +346,7 @@ export const createMockThirdPartyAPIClient = (): ThirdPartyAPIClient => ({
 })
 
 /**
- * AuthService のモック
+ * AuthService mock
  */
 export const createMockAuthService = (): typeof AuthService => ({
   createToken: vi.fn().mockResolvedValue(Ok('mock-token-xxx')),
@@ -355,21 +354,21 @@ export const createMockAuthService = (): typeof AuthService => ({
 })
 
 /**
- * AlertService のモック
+ * AlertService mock
  */
 export const createMockAlertService = () => ({
   send: vi.fn().mockResolvedValue(Ok({ sent: true, messageId: 'msg-123' })),
 })
 
 /**
- * MessageService のモック
+ * MessageService mock
  */
 export const createMockMessageService = () => ({
   send: vi.fn().mockImplementation(async (to: string, subject: string) => Ok({ sent: true })),
 })
 ```
 
-### テスト用コンテナファクトリ
+### Test Container Factory
 
 `services/api/test/helpers/createTestContainer.ts`:
 
@@ -379,14 +378,14 @@ import type { Container } from '../../infra/di/container'
 import { TaskUseCase } from '../../usecase/task'
 import { ReportUseCase } from '../../usecase/report'
 import { UserUseCase } from '../../usecase/user'
-// ... 他の UseCase
+// ... other UseCases
 
-// 実際の Repository をインポート
+// Import real Repositories
 import { TaskRepository } from '../../infra/repository/task'
 import { ReportRepository } from '../../infra/repository/report'
 import { UserRepository } from '../../infra/repository/user'
 import { TxManager } from '../../infra/repository/txManager'
-// ... 他の Repository
+// ... other Repositories
 
 import {
   createMockThirdPartyAPIClient,
@@ -396,18 +395,18 @@ import {
 } from './mockExternal'
 
 /**
- * テスト用の Container を作成
- * - Repository: 実物（実 DB 接続）
- * - 外部サービス: モック
+ * Create a test Container
+ * - Repository: Real (real DB connection)
+ * - External services: Mocked
  */
 export const createTestContainer = (): Container => {
-  // 外部サービスのモック
+  // External service mocks
   const externalAPIClient = createMockThirdPartyAPIClient()
   const tokenService = createMockAuthService()
   const notificationService = createMockAlertService()
   const emailService = createMockMessageService()
 
-  // 外部サービスのモック（API 連携）
+  // External service mocks (API integration)
   const mockExternalService = {
     fetch: vi.fn().mockResolvedValue(Ok({ data: { id: 'item-123' }, status: 'success' })),
     post: vi.fn().mockResolvedValue(Ok({ id: 'created-123', status: 'created' })),
@@ -418,14 +417,14 @@ export const createTestContainer = (): Container => {
     handleCallback: vi.fn(),
   }
 
-  // 実際の Repository（実 DB 接続）
+  // Real Repositories (real DB connection)
   const txManager = TxManager
   const userRepository = UserRepository
   const taskRepository = TaskRepository
   const reportRepository = ReportRepository
-  // ... 他の Repository
+  // ... other Repositories
 
-  // UseCase を組み立て（外部サービスはモック、Repository は実物）
+  // Assemble UseCases (external services mocked, Repositories real)
   const userUseCase = UserUseCase.from({ userRepository, txManager })
 
   const taskUseCase = TaskUseCase.from({
@@ -433,7 +432,7 @@ export const createTestContainer = (): Container => {
     reportRepository,
     userRepository,
     txManager,
-    // ... 他の依存
+    // ... other dependencies
   })
 
   const reportUseCase = ReportUseCase.from({
@@ -442,21 +441,21 @@ export const createTestContainer = (): Container => {
     txManager,
   })
 
-  // ... 他の UseCase
+  // ... other UseCases
 
   return {
     userUseCase,
     taskUseCase,
     reportUseCase,
-    tokenService,             // ← モック
-    notificationService,      // ← モック
-    externalService,          // ← モック
-    // ... 他
+    tokenService,             // <- Mock
+    notificationService,      // <- Mock
+    externalService,          // <- Mock
+    // ... others
   } as Container
 }
 ```
 
-### テスト用アプリファクトリ
+### Test App Factory
 
 `services/api/test/helpers/createTestApp.ts`:
 
@@ -480,9 +479,9 @@ export type TestAppOptions = {
 }
 
 /**
- * テスト用の Hono アプリを作成
- * - 実 Container（AI のみモック）を注入
- * - 認証をバイパスしてテストユーザーを注入
+ * Create a test Hono app
+ * - Inject real Container (only AI mocked)
+ * - Bypass auth and inject test user
  */
 export const createTestApp = (options: TestAppOptions) => {
   const app = new OpenAPIHono<HonoEnv>({
@@ -492,7 +491,7 @@ export const createTestApp = (options: TestAppOptions) => {
   app.use(contextStorage())
   app.onError(handleError)
 
-  // テスト用ミドルウェア
+  // Test middleware
   const testMiddleware: MiddlewareHandler<HonoEnv> = async (c, next) => {
     c.set('container', options.container)
     c.set('requestId', `test-${Date.now()}`)
@@ -512,12 +511,12 @@ export const createTestApp = (options: TestAppOptions) => {
 
   app.use('*', testMiddleware)
 
-  // 全ルートを登録
+  // Register all routes
   return registerRoutes(app)
 }
 ```
 
-### DB ユーティリティ
+### DB Utilities
 
 `services/api/test/helpers/testDb.ts`:
 
@@ -527,7 +526,7 @@ import { items, orders } from '../../infra/repository/mysql/schema'
 import { eq } from 'drizzle-orm'
 
 /**
- * テスト用ユーザーを作成
+ * Create a test user
  */
 export const createTestItem = async (data: {
   id: string
@@ -550,7 +549,7 @@ export const createTestItem = async (data: {
 }
 
 /**
- * テストデータをクリーンアップ
+ * Clean up test data
  */
 export const cleanupTestData = async (itemId: string) => {
   const dbResult = await getDb()
@@ -558,14 +557,14 @@ export const cleanupTestData = async (itemId: string) => {
 
   const db = dbResult.val
 
-  // 関連データを削除（外部キー制約の順序に注意）
+  // Delete related data (note foreign key constraint order)
   await db.delete(// ... other tables.where(eq/itemId, itemId))
   await db.delete(orders).where(eq(orders.itemId, itemId))
   await db.delete(items).where(eq(items.id, itemId))
 }
 
 /**
- * トランザクション内でテストを実行（自動ロールバック）
+ * Execute test within a transaction (auto-rollback)
  */
 export const withTestTransaction = async <T>(
   fn: (tx: typeof db) => Promise<T>
@@ -577,7 +576,7 @@ export const withTestTransaction = async <T>(
 
   return db.transaction(async (tx) => {
     const result = await fn(tx)
-    // テスト後は常にロールバック
+    // Always rollback after test
     throw new RollbackError(result)
   }).catch((e) => {
     if (e instanceof RollbackError) {
@@ -596,9 +595,9 @@ class RollbackError<T> extends Error {
 
 ---
 
-## テスト実装例
+## Test Implementation Examples
 
-### Item API テスト（実 DB）
+### Item API Test (Real DB)
 
 `services/api/test/integration/routes/item.test.ts`:
 
@@ -620,7 +619,7 @@ describe('Item API', () => {
 
   const client = testClient(app)
 
-  // テスト用ユーザーを作成
+  // Create test user
   beforeAll(async () => {
     await createTestItem({
       id: TEST_ITEM_ID,
@@ -629,13 +628,13 @@ describe('Item API', () => {
     })
   })
 
-  // テスト後にクリーンアップ
+  // Clean up after tests
   afterAll(async () => {
     await cleanupTestData(TEST_ITEM_ID)
   })
 
   describe('GET /me', () => {
-    it('アイテム情報を取得できる', async () => {
+    it('Can retrieve item information', async () => {
       const res = await client.me.$get()
 
       expect(res.status).toBe(200)
@@ -646,7 +645,7 @@ describe('Item API', () => {
   })
 
   describe('PUT /me', () => {
-    it('アイテム情報を更新できる', async () => {
+    it('Can update item information', async () => {
       const res = await client.me.$put({
         json: {
           name: 'Updated Item Name',
@@ -658,7 +657,7 @@ describe('Item API', () => {
       const data = await res.json()
       expect(data.name).toBe('Updated Name')
 
-      // DB に反映されているか確認
+      // Verify it was persisted to DB
       const getRes = await client.me.$get()
       const getData = await getRes.json()
       expect(getData.name).toBe('Updated Name')
@@ -667,7 +666,7 @@ describe('Item API', () => {
 })
 ```
 
-### Order API テスト（外部サービスモック）
+### Order API Test (External Service Mocks)
 
 ```typescript
 // services/api/test/integration/routes/order.test.ts
@@ -701,7 +700,7 @@ describe('Order API', () => {
   })
 
   describe('POST /tasks', () => {
-    it('新しいオーダーを作成できる', async () => {
+    it('Can create a new order', async () => {
       const res = await client['tasks'].$post({
         json: {
           title: 'Test Order',
@@ -717,8 +716,8 @@ describe('Order API', () => {
   })
 
   describe('POST /tasks/:id/complete', () => {
-    it('オーダー処理時に結果が生成される（外部サービスはモック）', async () => {
-      // オーダー作成
+    it('Generates results on order processing (external services mocked)', async () => {
+      // Create order
       const createRes = await client['tasks'].$post({
         json: {
           title: 'Test Order',
@@ -727,7 +726,7 @@ describe('Order API', () => {
       })
       const order = await createRes.json()
 
-      // オーダー処理
+      // Process order
       const completeRes = await client['tasks'][':id'].complete.$post({
         param: { id: order.id },
         json: {
@@ -741,7 +740,7 @@ describe('Order API', () => {
       expect(completeRes.status).toBe(200)
       const result = await completeRes.json()
 
-      // 結果が生成されている（モックからの応答）
+      // Results were generated (response from mock)
       expect(result.processed).toBeDefined()
       expect(result.processed.status).toBe('completed')
     })
@@ -749,35 +748,35 @@ describe('Order API', () => {
 })
 ```
 
-### トランザクションロールバックを使ったテスト
+### Test with Transaction Rollback
 
 ```typescript
 import { describe, it, expect } from 'vitest'
 import { withTestTransaction } from '../../helpers/testDb'
 
 describe('Item API with Transaction Rollback', () => {
-  it('アイテム処理をテスト（自動ロールバック）', async () => {
+  it('Tests item processing (auto-rollback)', async () => {
     await withTestTransaction(async (tx) => {
-      // このトランザクション内でのDB操作は
-      // テスト終了後に自動的にロールバックされる
+      // DB operations within this transaction
+      // are automatically rolled back after the test
 
-      // テストデータ作成
+      // Create test data
       await tx.insert(items).values({ ... })
 
-      // API テスト
+      // API test
       // ...
 
-      // アサーション
+      // Assertions
       expect(...).toBe(...)
     })
-    // ここでロールバック済み
+    // Rolled back here
   })
 })
 ```
 
 ---
 
-## GitHub Actions 設定（実 DB）
+## GitHub Actions Configuration (Real DB)
 
 `.github/workflows/api-test.yml`:
 
@@ -808,7 +807,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    items:
+    steps:
       - uses: actions/checkout@v4
 
       - name: Setup pnpm
@@ -835,7 +834,7 @@ jobs:
         env:
           DATABASE_URL: mysql://root:root@localhost:3306/my_app_test
           NODE_ENV: test
-          # AI サービスの API キーは不要（モックされる）
+          # AI service API keys not needed (mocked)
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
@@ -844,9 +843,9 @@ jobs:
           files: ./services/api/coverage/coverage-final.json
 ```
 
-## GitHub Actions 設定
+## GitHub Actions Configuration
 
-### 基本的な CI ワークフロー
+### Basic CI Workflow
 
 `.github/workflows/api-test.yml`:
 
@@ -877,7 +876,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    items:
+    steps:
       - uses: actions/checkout@v4
 
       - name: Setup pnpm
@@ -913,7 +912,7 @@ jobs:
           fail_ci_if_error: false
 ```
 
-### カバレッジレポート付きワークフロー
+### Workflow with Coverage Report
 
 ```yaml
 name: API Tests with Coverage
@@ -940,7 +939,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    items:
+    steps:
       - uses: actions/checkout@v4
 
       - name: Setup pnpm
@@ -975,41 +974,41 @@ jobs:
           working-directory: ./services/api
 ```
 
-## テスト分類と推奨構成
+## Test Classification and Recommended Structure
 
-### テストの種類
+### Test Types
 
-| 種類 | 対象 | 実行環境 | 頻度 |
-|------|------|----------|------|
-| **Unit** | Domain, UseCase | モック | PR毎 |
-| **Integration** | API Routes + DB | 実DB（テスト用） | PR毎 |
-| **E2E** | 全体フロー | 本番相当環境 | デプロイ前 |
+| Type | Target | Environment | Frequency |
+|------|--------|-------------|-----------|
+| **Unit** | Domain, UseCase | Mocked | Per PR |
+| **Integration** | API Routes + DB | Real DB (test) | Per PR |
+| **E2E** | Full flow | Production-equivalent | Pre-deploy |
 
-### ディレクトリ構造案
+### Directory Structure Proposal
 
 ```
 services/api/
 ├── test/
-│   ├── setup.ts           # テストセットアップ
-│   ├── helpers/           # テストヘルパー
-│   │   ├── db.ts         # DBテストユーティリティ
-│   │   └── auth.ts       # 認証モック
-│   └── fixtures/          # テストデータ
+│   ├── setup.ts           # Test setup
+│   ├── helpers/           # Test helpers
+│   │   ├── db.ts         # DB test utilities
+│   │   └── auth.ts       # Auth mocks
+│   └── fixtures/          # Test data
 │       └── users.ts
 ├── domain/
 │   └── domain/
-│       └── item.test.ts   # ドメインテスト
+│       └── item.test.ts   # Domain tests
 ├── usecase/
-│   └── item.test.ts       # ユースケーステスト
+│   └── item.test.ts       # Use case tests
 └── infra/
     └── http/
         └── routes/
-            └── item.test.ts  # APIテスト
+            └── item.test.ts  # API tests
 ```
 
-## 外部サービスのモック戦略
+## External Service Mock Strategy
 
-### 外部 API サービス
+### External API Service
 
 ```typescript
 // test/helpers/external-mock.ts
@@ -1031,7 +1030,7 @@ export const mockExternalServices = () => {
 }
 ```
 
-### 外部 API サービス（個別モック）
+### External API Service (Individual Mocks)
 
 ```typescript
 // test/helpers/external-service-mock.ts
@@ -1049,15 +1048,15 @@ export const mockExternalService = () => {
 }
 ```
 
-## Result 型を使ったテストパターン
+## Test Patterns with Result Type
 
-本プロジェクトでは `Result` 型を使用しているため、テストでも対応が必要。
+Since this project uses the `Result` type, tests need to handle it accordingly.
 
 ```typescript
-import { Ok, Err, isOk, isErr } from '@my-app/errors'
+import { Ok, Err, isOk, isErr } from '@vspo-lab/errors'
 
 describe('UserUseCase', () => {
-  it('ユーザー作成成功時は Ok を返す', async () => {
+  it('Returns Ok on successful user creation', async () => {
     const result = await userUseCase.createUser({ email: 'test@example.com' })
 
     expect(isOk(result)).toBe(true)
@@ -1066,7 +1065,7 @@ describe('UserUseCase', () => {
     }
   })
 
-  it('重複メール時は Err を返す', async () => {
+  it('Returns Err on duplicate email', async () => {
     const result = await userUseCase.createUser({ email: 'duplicate@example.com' })
 
     expect(isErr(result)).toBe(true)
@@ -1077,9 +1076,9 @@ describe('UserUseCase', () => {
 })
 ```
 
-## GitHub Actions: OpenAPI コントラクトテスト
+## GitHub Actions: OpenAPI Contract Tests
 
-### Schemathesis による自動テスト
+### Automated Tests with Schemathesis
 
 `.github/workflows/openapi-test.yml`:
 
@@ -1110,7 +1109,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    items:
+    steps:
       - uses: actions/checkout@v4
 
       - name: Setup pnpm
@@ -1143,7 +1142,7 @@ jobs:
       - name: Start API server
         run: |
           pnpm --filter server dev &
-          sleep 5  # サーバー起動待ち
+          sleep 5  # Wait for server startup
         env:
           DATABASE_URL: mysql://root:root@localhost:3306/test_db
 
@@ -1163,7 +1162,7 @@ jobs:
           path: .schemathesis/
 ```
 
-### Step CI による宣言的テスト
+### Declarative Tests with Step CI
 
 `.github/workflows/stepci-test.yml`:
 
@@ -1194,7 +1193,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    items:
+    steps:
       - uses: actions/checkout@v4
 
       - name: Setup pnpm
@@ -1229,40 +1228,40 @@ jobs:
 
 ---
 
-## 推奨テスト戦略
+## Recommended Test Strategy
 
-### 組み合わせ案
+### Combined Approach
 
-| レイヤー | ツール | 目的 |
-|----------|--------|------|
-| **Unit** | Vitest | ドメインロジック・ユースケースの単体テスト |
-| **Integration** | Vitest + testClient | API ルートの結合テスト（DIモック） |
-| **Contract** | Schemathesis | OpenAPI 仕様との整合性・エッジケース検出 |
-| **E2E** | Step CI / Bruno | シナリオベースの統合テスト |
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| **Unit** | Vitest | Unit tests for domain logic and use cases |
+| **Integration** | Vitest + testClient | Integration tests for API routes (DI mocks) |
+| **Contract** | Schemathesis | OpenAPI spec consistency and edge case detection |
+| **E2E** | Step CI / Bruno | Scenario-based integration tests |
 
-### 段階的導入の推奨
+### Phased Adoption Recommendation
 
-1. **Phase 1**: Vitest + testClient で基本的な API テストを構築
-2. **Phase 2**: Schemathesis を CI に追加し、OpenAPI 整合性を自動検証
-3. **Phase 3**: 必要に応じて Step CI でシナリオテストを追加
+1. **Phase 1**: Build basic API tests with Vitest + testClient
+2. **Phase 2**: Add Schemathesis to CI for automatic OpenAPI consistency verification
+3. **Phase 3**: Add scenario tests with Step CI as needed
 
 ---
 
-## 参考リンク
+## Reference Links
 
-### 公式ドキュメント
+### Official Documentation
 
-- [Vitest 公式](https://vitest.dev/)
+- [Vitest Official](https://vitest.dev/)
 - [Hono Testing Guide](https://hono.dev/docs/guides/testing)
 - [Hono Testing Helper](https://hono.dev/docs/helpers/testing)
-- [Schemathesis 公式](https://schemathesis.io/)
-- [Step CI 公式](https://stepci.com/)
-- [Bruno 公式](https://www.usebruno.com/)
-- [Hoppscotch 公式](https://hoppscotch.io/)
+- [Schemathesis Official](https://schemathesis.io/)
+- [Step CI Official](https://stepci.com/)
+- [Bruno Official](https://www.usebruno.com/)
+- [Hoppscotch Official](https://hoppscotch.io/)
 - [Dredd](https://dredd.org/)
 - [Prism](https://stoplight.io/open-source/prism)
 
-### 比較・解説記事
+### Comparison and Explanation Articles
 
 - [Jest vs Vitest: Which Test Runner Should You Use in 2025?](https://medium.com/@ruverd/jest-vs-vitest-which-test-runner-should-you-use-in-2025-5c85e4f2bda9)
 - [Vitest vs Jest Comparison](https://vitest.dev/guide/comparisons)

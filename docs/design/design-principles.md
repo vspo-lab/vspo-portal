@@ -1,131 +1,131 @@
-# デザイン原則
+# Design Principles
 
-## 概要
+## Overview
 
-デザイン原則は、一貫性のある優れたユーザー体験を提供するための基盤です。本ガイドラインでは、ユーザビリティを中心とした22項目のチェックリストを定義します。
+Design principles are the foundation for providing consistent, excellent user experiences. This guideline defines a 22-item checklist centered on usability.
 
-## ユーザビリティチェックリスト
+## Usability Checklist
 
-### 情報設計（1-5番）
+### Information Architecture (Items 1-5)
 
-ユーザーの業務理解と情報構造に関する項目です。
+Items related to understanding user tasks and information structure.
 
-| # | チェック項目 | 説明 |
-|---|-------------|------|
-| 1 | ユーザーの業務の理解を説明する | ユーザーがどのような業務を遂行するかを明確に理解し、設計に反映しているか |
-| 2 | 概念モデルを説明する | システムの構造や動作をユーザーに分かりやすく伝えているか |
-| 3 | オブジェクトに付随するプロパティとアクションはユーザーの業務遂行に十分か | 必要な情報と操作が揃っているか |
-| 4 | ビューの呼び出し関係を説明する | 画面遷移が論理的で予測可能か |
-| 5 | メインナビゲーションはユーザーの関心に沿って分類されているか | ユーザーの思考モデルに合ったナビゲーション構造か |
+| # | Check Item | Description |
+|---|-----------|-------------|
+| 1 | Explain understanding of user tasks | Have you clearly understood and reflected in the design what tasks users perform? |
+| 2 | Explain the conceptual model | Are you communicating the system's structure and behavior to users in an understandable way? |
+| 3 | Are the properties and actions associated with objects sufficient for user task completion? | Are the necessary information and operations available? |
+| 4 | Explain view navigation relationships | Are screen transitions logical and predictable? |
+| 5 | Is main navigation organized according to user interests? | Does the navigation structure align with the user's mental model? |
 
-### デザインパターン（6-16番）
+### Design Patterns (Items 6-16)
 
-視覚設計とインタラクションに関する項目です。
+Items related to visual design and interaction.
 
-| # | チェック項目 | 関連ガイドライン |
-|---|-------------|-----------------|
-| 6 | 「視線誘導」の基準に沿っているか | [デザインパターン - 視線誘導](./design-patterns.md#視線誘導) |
-| 7 | 「視覚的グルーピング」の基準に沿っているか | [デザインパターン - 視覚的グルーピング](./design-patterns.md#視覚的グルーピング) |
-| 8 | 「ページレイアウト」の基準に沿っているか | [デザインパターン - ページレイアウト](./design-patterns.md#ページレイアウト) |
-| 9 | 「余白の取り方」の基準に沿っているか | [CSS ガイドライン](../css.md) |
-| 10 | 「モバイルレイアウト」の基準に沿っているか | [デザインパターン - モバイルレイアウト](./design-patterns.md#モバイルレイアウト) |
-| 11 | ユーザーへの通知・フィードバックの出し方が「フィードバック」の基準に沿っているか | [デザインパターン - フィードバック](./design-patterns.md#フィードバック) |
-| 12 | モードがあるUIの場合は「モーダルなUI」の基準に沿っているか | [デザインパターン - モーダルUI](./design-patterns.md#モーダルui) |
-| 13 | テーブルを使う場合は適切な基準に沿っているか | データテーブルの設計原則 |
-| 14 | 入力要素が「デフォルト値」の基準に沿っているか | 適切なデフォルト値の設定 |
-| 15 | エラー状態が検討されており、エラーを回復・解消できるようなフィードバックの出し方が考慮されているか | [コンテンツガイドライン - エラーメッセージ](./content-guidelines.md) |
-| 16 | 削除含む危険な操作、やり直しができない操作の前にワンクッションはさんでいるか | 確認ダイアログの表示 |
+| # | Check Item | Related Guidelines |
+|---|-----------|-------------------|
+| 6 | Does it follow "Eye Flow Guidance" standards? | [Design Patterns - Eye Flow Guidance](./design-patterns.md#eye-flow-guidance) |
+| 7 | Does it follow "Visual Grouping" standards? | [Design Patterns - Visual Grouping](./design-patterns.md#visual-grouping) |
+| 8 | Does it follow "Page Layout" standards? | [Design Patterns - Page Layout](./design-patterns.md#page-layout) |
+| 9 | Does it follow "Spacing" standards? | [CSS Guidelines](../css.md) |
+| 10 | Does it follow "Mobile Layout" standards? | [Design Patterns - Mobile Layout](./design-patterns.md#mobile-layout) |
+| 11 | Does user notification/feedback follow "Feedback" standards? | [Design Patterns - Feedback](./design-patterns.md#feedback) |
+| 12 | For modal UIs, does it follow "Modal UI" standards? | [Design Patterns - Modal UI](./design-patterns.md#modal-ui) |
+| 13 | For tables, does it follow appropriate standards? | Data table design principles |
+| 14 | Do input elements follow "Default Values" standards? | Setting appropriate default values |
+| 15 | Have error states been considered with feedback to help users recover from errors? | [Content Guidelines - Error Messages](./content-guidelines.md) |
+| 16 | Is there a confirmation step before dangerous or irreversible actions including deletion? | Display confirmation dialogs |
 
-### コンポーネント（17-18番）
+### Components (Items 17-18)
 
-UIコンポーネントの使用に関する項目です。
+Items related to UI component usage.
 
-| # | チェック項目 | 説明 |
-|---|-------------|------|
-| 17 | UIライブラリと類似した独自のコンポーネントになっていないか | 既存コンポーネントを活用し、独自実装を避ける |
-| 18 | 各コンポーネントの基準に沿った利用方法をしているか | コンポーネントの設計意図に従った使用 |
+| # | Check Item | Description |
+|---|-----------|-------------|
+| 17 | Are there custom components that duplicate existing UI library components? | Utilize existing components and avoid custom implementations |
+| 18 | Are components being used according to their intended standards? | Follow the design intent of each component |
 
-### ライティング（19-21番）
+### Writing (Items 19-21)
 
-テキストコンテンツに関する項目です。
+Items related to text content.
 
-| # | チェック項目 | 関連ガイドライン |
-|---|-------------|-----------------|
-| 19 | 基本概念に合わせた命名をしているか | [ライティングガイドライン](./writing.md) |
-| 20 | 操作の導線やアクション名が基準に沿っているか | ボタンラベル、リンクテキストの統一 |
-| 21 | 「エラーメッセージ」の基準に沿っているか | [コンテンツガイドライン](./content-guidelines.md) |
+| # | Check Item | Related Guidelines |
+|---|-----------|-------------------|
+| 19 | Are names consistent with core concepts? | [Writing Guidelines](./writing.md) |
+| 20 | Do navigation flows and action names follow standards? | Unify button labels and link text |
+| 21 | Do error messages follow standards? | [Content Guidelines](./content-guidelines.md) |
 
-### アクセシビリティ（22番）
+### Accessibility (Item 22)
 
-| # | チェック項目 | 関連ガイドライン |
-|---|-------------|-----------------|
-| 22 | アクセシビリティ簡易チェックリストを用いてチェックしたか | [アクセシビリティガイドライン](./accessibility.md) |
+| # | Check Item | Related Guidelines |
+|---|-----------|-------------------|
+| 22 | Has the accessibility quick checklist been used for verification? | [Accessibility Guidelines](./accessibility.md) |
 
-## 各項目の詳細
+## Item Details
 
-### 1. ユーザーの業務の理解
+### 1. Understanding User Tasks
 
-設計前に以下を明確にする：
+Clarify the following before design:
 
-- ユーザーは誰か（ペルソナ）
-- どのような課題を解決しようとしているか
-- どのような状況で使用するか
-- 成功とは何か
+- Who are the users (personas)
+- What problems are they trying to solve
+- In what context will they use it
+- What constitutes success
 
-### 2. 概念モデル
+### 2. Conceptual Model
 
-ユーザーがシステムを理解するためのメンタルモデルを設計する：
+Design the mental model for users to understand the system:
 
-- システムの主要な「オブジェクト」は何か
-- オブジェクト間の関係性は何か
-- どのような操作が可能か
+- What are the main "objects" in the system
+- What are the relationships between objects
+- What operations are possible
 
-### 6. 視線誘導
+### 6. Eye Flow Guidance
 
-ユーザーの視線の流れを設計する：
+Design the flow of the user's gaze:
 
-- F型パターン（情報が上下に並ぶ画面）
-- Z型パターン（初見やスクロールが少ない画面）
-- 大きいものから小さいものへの視線移動
+- F-pattern (screens with vertically stacked information)
+- Z-pattern (first-visit screens or screens with little scrolling)
+- Eye movement from large elements to small elements
 
-### 15. エラー状態の考慮
+### 15. Error State Consideration
 
-エラーが発生した場合：
+When errors occur:
 
-1. **事象**: 何が起きたかを説明
-2. **原因**: なぜ起きたかを説明
-3. **対処**: どうすれば解決できるかを説明
+1. **Event**: Explain what happened
+2. **Cause**: Explain why it happened
+3. **Resolution**: Explain how to resolve it
 
-### 16. ワンクッションの確認
+### 16. Confirmation Step
 
-危険な操作の前に確認ダイアログを表示：
+Display a confirmation dialog before dangerous actions:
 
 ```tsx
-// 削除確認の例
+// Delete confirmation example
 <Dialog>
-  <DialogTitle>記事を削除しますか？</DialogTitle>
+  <DialogTitle>Delete this article?</DialogTitle>
   <DialogDescription>
-    この操作は取り消せません。記事「{title}」を完全に削除します。
+    This action cannot be undone. The article "{title}" will be permanently deleted.
   </DialogDescription>
   <DialogActions>
-    <Button variant="ghost" onClick={onCancel}>キャンセル</Button>
-    <Button variant="destructive" onClick={onConfirm}>削除する</Button>
+    <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+    <Button variant="destructive" onClick={onConfirm}>Delete</Button>
   </DialogActions>
 </Dialog>
 ```
 
-## チェックリストの使用タイミング
+## When to Use the Checklist
 
-| タイミング | 目的 |
-|-----------|------|
-| 設計開始時 | 設計方針の確認 |
-| 設計完了時 | 抜け漏れの確認 |
-| レビュー時 | 品質の担保 |
-| リリース前 | 最終確認 |
+| Timing | Purpose |
+|--------|---------|
+| At design start | Confirm design direction |
+| At design completion | Check for omissions |
+| During review | Ensure quality |
+| Before release | Final verification |
 
-## 参考リンク
+## References
 
-- [デザインパターン](./design-patterns.md)
-- [アクセシビリティチェックリスト](./accessibility.md)
-- [コンテンツガイドライン](./content-guidelines.md)
-- [デザインレビュー](./design-review.md)
+- [Design Patterns](./design-patterns.md)
+- [Accessibility Checklist](./accessibility.md)
+- [Content Guidelines](./content-guidelines.md)
+- [Design Review](./design-review.md)

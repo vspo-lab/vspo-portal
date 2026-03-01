@@ -1,34 +1,34 @@
 ---
-name: インフラ構築（tfactionベース）
-description: Terraformの設計・実装をtfaction中心で進めるためのスキル。state分割、module設計、GitHub Actions連携を標準化する。
+name: Infrastructure Bootstrap (tfaction-based)
+description: Skill for advancing Terraform design and implementation centered on tfaction. Standardizes state splitting, module design, and GitHub Actions integration.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- `infrastructure/terraform/` 配下で新規構築・構成変更を行うとき
-- `.github/workflows/terraform-*.yml` を追加・更新するとき
-- 環境（dev/stg/prod）や state 単位の分割方針を決めるとき
-- Terraform の運用ルールを docs 化するとき
+- When performing new setup or configuration changes under `infrastructure/terraform/`
+- When adding or updating `.github/workflows/terraform-*.yml`
+- When deciding on environment (dev/stg/prod) or state unit splitting strategies
+- When documenting Terraform operational rules in docs
 
-# 進め方
+# Approach
 
-1. 最初に `docs/infra/terraform-tfaction-guidelines.md` を参照し、state 分割と module 境界を決める
-2. `env/<environment>/<state-unit>/` を作成し、ルートモジュールを配置する
-3. `modules/` に再利用モジュールを作成し、`type` / `description` / validation を明示する
-4. `infrastructure/terraform/tfaction.yaml` の `target_groups` を更新する
-5. plan/apply workflow の `paths` と tfaction action 呼び出しを更新する
-6. `terraform fmt` / `validate` / `tflint` / `trivy` が CI で通る状態にする
+1. First, refer to `docs/infra/terraform-tfaction-guidelines.md` and decide on state splitting and module boundaries
+2. Create `env/<environment>/<state-unit>/` and place root modules
+3. Create reusable modules in `modules/` with explicit `type` / `description` / validation
+4. Update `target_groups` in `infrastructure/terraform/tfaction.yaml`
+5. Update `paths` and tfaction action calls in the plan/apply workflow
+6. Ensure `terraform fmt` / `validate` / `tflint` / `trivy` pass in CI
 
-# 実装ルール
+# Implementation Rules
 
-- `prod` への手動 `terraform apply` は禁止（CI/CD + 承認フローを必須化）
-- `terraform_remote_state` は原則使用しない
-- `--target` apply は `prod` で禁止
-- 認証情報は固定シークレットではなく OIDC を利用する
+- Manual `terraform apply` to `prod` is prohibited (CI/CD + approval flow is required)
+- `terraform_remote_state` should not be used in principle
+- `--target` apply is prohibited in `prod`
+- Use OIDC instead of static secrets for authentication
 
-# 参照ドキュメント
+# Reference Documents
 
-- `docs/infra/terraform-tfaction-guidelines.md` - tfaction前提のTerraform設計標準
-- `docs/infra/tfaction.md` - tfactionの設定とワークフロー
-- `docs/infra/ci-cd.md` - CI/CDと認証設計
-- `docs/infra/terraform.md` - Terraform基本規約
+- `docs/infra/terraform-tfaction-guidelines.md` - Terraform design standards with tfaction
+- `docs/infra/tfaction.md` - tfaction configuration and workflows
+- `docs/infra/ci-cd.md` - CI/CD and authentication design
+- `docs/infra/terraform.md` - Terraform basic conventions

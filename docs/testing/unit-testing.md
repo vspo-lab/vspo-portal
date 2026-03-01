@@ -1,30 +1,30 @@
-# Unit Testing 実装方針
+# Unit Testing Implementation Guidelines
 
-## 目的
+## Purpose
 
-- 純粋関数・ドメインモデル・小さなユースケースの振る舞いを高速に保証する
-- 仕様の粒度を小さく保ち、TDD の最短フィードバックループを回す
+- Guarantee the behavior of pure functions, domain models, and small use cases at high speed
+- Keep specification granularity small and run the shortest TDD feedback loop
 
-## 対象
+## Scope
 
-- `packages/*` の純粋ロジック
-- `services/api/domain/**` のドメインロジック
-- `services/web/shared/lib/**` のユーティリティ
+- Pure logic in `packages/*`
+- Domain logic in `services/api/domain/**`
+- Utilities in `services/web/shared/lib/**`
 
-## 実装ルール
+## Implementation Rules
 
-1. 1テスト1振る舞いを守る
-2. `it.each` / `test.each` によるテーブルドリブンを標準にする
-3. `Red -> Green -> Refactor` を1ケースずつ進める
-4. 実装詳細（private関数、内部state）ではなく、入出力契約を検証する
+1. One test, one behavior
+2. Use `it.each` / `test.each` table-driven tests as the standard
+3. Progress through `Red -> Green -> Refactor` one case at a time
+4. Verify input/output contracts, not implementation details (private functions, internal state)
 
-## モック方針
+## Mocking Policy
 
-- デフォルト: モックしない
-- 許可: 時刻、乱数、外部通信のような非決定要素のみ最小限で固定する
-- 禁止: 内部モジュールの過剰モックで実装詳細に結びつけること
+- Default: no mocking
+- Allowed: fix non-deterministic factors such as time, random numbers, and external communication with minimal stubs
+- Prohibited: over-mocking internal modules, which couples tests to implementation details
 
-## テーブルドリブンの基本形
+## Table-Driven Test Template
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -41,14 +41,14 @@ describe("normalizeText", () => {
 });
 ```
 
-## 実行コマンド
+## Execution Commands
 
-- 全体: `pnpm test:unit`
-- APIのみ: `pnpm --filter api test:run`
-- Webのみ: `pnpm --filter web vitest run`
+- All: `pnpm test:unit`
+- API only: `pnpm --filter api test:run`
+- Web only: `pnpm --filter web vitest run`
 
-## 参考（一次情報）
+## References (Primary Sources)
 
 - Vitest `test.each`: https://vitest.dev/api/#test-each
-- Vitest Mocking（過剰モックの注意）: https://vitest.dev/guide/mocking.html
-- t_wada方針: `docs/web-frontend/twada-tdd.md`
+- Vitest Mocking (over-mocking warnings): https://vitest.dev/guide/mocking.html
+- t_wada guidelines: `docs/web-frontend/twada-tdd.md`

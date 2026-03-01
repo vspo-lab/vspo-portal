@@ -1,188 +1,188 @@
-# デザイントークン
+# Design Tokens
 
-## 概要
+## Overview
 
-デザイントークンは、デザイナーとエンジニア間の共通言語として機能し、一貫性のあるUIを効率的に構築するための基盤です。本ガイドラインでは、トークンの種類と使用方法を定義します。
+Design tokens function as a shared language between designers and engineers, serving as the foundation for building consistent UIs efficiently. This guideline defines the types and usage of tokens.
 
-## トークンアーキテクチャ
+## Token Architecture
 
-**3層トークン構造**を採用しています：
+A **3-layer token structure** is adopted:
 
 ```
-Base Palette → Semantic Tokens → Component Tokens
+Base Palette -> Semantic Tokens -> Component Tokens
 ```
 
-1. **Base Palette**: 生のカラー値（OKLch形式）
-2. **Semantic Tokens**: 意図を表現するトークン（`--token-*`）
-3. **Component Tokens**: Tailwindで使用する最終トークン（`--color-*`）
+1. **Base Palette**: Raw color values (OKLch format)
+2. **Semantic Tokens**: Tokens that express intent (`--token-*`)
+3. **Component Tokens**: Final tokens used with Tailwind (`--color-*`)
 
-### OKLch カラーフォーマット
+### OKLch Color Format
 
-すべてのカラーは知覚的均一性のため **OKLch** 形式で定義します：
+All colors are defined in **OKLch** format for perceptual uniformity:
 
 ```css
 oklch(L C H / A)
-/* L: 明度 (0-1), C: 彩度 (0-0.4), H: 色相 (0-360), A: 透明度 */
+/* L: Lightness (0-1), C: Chroma (0-0.4), H: Hue (0-360), A: Alpha */
 ```
 
-OKLchの利点：
-- 知覚的に均一な明度スケール
-- アルファブレンドが直感的
-- CSSで直接計算可能
+Benefits of OKLch:
+- Perceptually uniform lightness scale
+- Intuitive alpha blending
+- Directly calculable in CSS
 
 ---
 
-## トークンの種類
+## Token Types
 
-### 1. Base Palette（プリミティブトークン）
+### 1. Base Palette (Primitive Tokens)
 
-具体性のある値であり、最も低レイヤーで原子的な意味を持つトークンです。
+Tokens with concrete values that carry atomic meaning at the lowest layer.
 
 ```css
-/* ニュートラル */
---palette-ink-900: oklch(...);    /* ダークテキスト */
---palette-ink-800: oklch(...);    /* ソフトテキスト */
---palette-ink-500: oklch(...);    /* ミュートテキスト */
---palette-cream-50: oklch(...);   /* 背景 */
---palette-white: oklch(1 0 0);    /* 純白 */
+/* Neutral */
+--palette-ink-900: oklch(...);    /* Dark text */
+--palette-ink-800: oklch(...);    /* Soft text */
+--palette-ink-500: oklch(...);    /* Muted text */
+--palette-cream-50: oklch(...);   /* Background */
+--palette-white: oklch(1 0 0);    /* Pure white */
 
-/* アクセントカラー */
---palette-accent-100: oklch(...); /* 主要アクセント */
---palette-info-100: oklch(...);   /* 情報 */
---palette-warning-100: oklch(...);/* 警告 */
---palette-success-100: oklch(...);/* 成功 */
+/* Accent colors */
+--palette-accent-100: oklch(...); /* Primary accent */
+--palette-info-100: oklch(...);   /* Information */
+--palette-warning-100: oklch(...);/* Warning */
+--palette-success-100: oklch(...);/* Success */
 
-/* ソフトバリアント（透明度付き）*/
+/* Soft variants (with alpha) */
 --palette-line: oklch(... / 0.3);
 ```
 
-### 2. Semantic Tokens（セマンティックトークン）
+### 2. Semantic Tokens
 
-特定のコンテキストに関連した値であり、トークンの意図した目的を伝えます。
+Values associated with specific contexts that convey the intended purpose of the token.
 
 ```css
-/* 背景 */
---token-canvas: var(--palette-cream-50);   /* メイン背景 */
---token-surface: var(--palette-white);     /* カード/パネル背景 */
+/* Background */
+--token-canvas: var(--palette-cream-50);   /* Main background */
+--token-surface: var(--palette-white);     /* Card/panel background */
 
-/* テキスト */
---token-text: var(--palette-ink-900);      /* プライマリテキスト */
---token-text-soft: var(--palette-ink-800); /* セカンダリテキスト */
---token-text-muted: var(--palette-ink-500);/* ミュートテキスト */
+/* Text */
+--token-text: var(--palette-ink-900);      /* Primary text */
+--token-text-soft: var(--palette-ink-800); /* Secondary text */
+--token-text-muted: var(--palette-ink-500);/* Muted text */
 
-/* ボーダー */
+/* Border */
 --token-border: var(--palette-line);
 
-/* アクセント */
+/* Accent */
 --token-accent: var(--palette-accent-100);
 
-/* 状態カラー */
+/* Status colors */
 --token-info: var(--palette-info-100);
 --token-warning: var(--palette-warning-100);
 --token-success: var(--palette-success-100);
 ```
 
-### 3. Component Tokens（Tailwind用トークン）
+### 3. Component Tokens (Tailwind Tokens)
 
-`@theme` ディレクティブで定義され、Tailwindユーティリティとして使用できます。
+Defined with the `@theme` directive and usable as Tailwind utilities.
 
 ```css
-/* 背景 */
+/* Background */
 --color-background: var(--token-canvas);
 --color-card: var(--token-surface);
 
-/* テキスト */
+/* Text */
 --color-foreground: var(--token-text);
 --color-foreground-soft: var(--token-text-soft);
 --color-muted-foreground: var(--token-text-muted);
 
-/* アクセント */
+/* Accent */
 --color-accent: var(--token-accent);
 
-/* 状態 */
+/* Status */
 --color-info: var(--token-info);
 --color-warning: var(--token-warning);
 --color-success: var(--token-success);
 
-/* ボーダー */
+/* Border */
 --color-border: var(--token-border);
 ```
 
 ---
 
-## レディアストークン
+## Radius Tokens
 
-角丸のスケールを定義します。
+Define the border-radius scale.
 
-| トークン | 値 | 用途 |
-|----------|-----|------|
-| `--radius-sm` | 0.5rem (8px) | 小さな要素、チップ |
-| `--radius-md` | 0.875rem (14px) | 標準要素、ボタン |
-| `--radius-lg` | 1.25rem (20px) | カード、パネル |
-| `--radius-xl` | 1.5rem (24px) | 大きなパネル |
-| `--radius-2xl` | 2rem (32px) | モーダル、大きなカード |
-
----
-
-## シャドウトークン
-
-エレベーション（浮遊感）を表現するシャドウです。
-
-| トークン | 用途 |
-|----------|------|
-| `--shadow-card` | カード、軽い浮遊感 |
-| `--shadow-action` | ボタン、インタラクティブ要素 |
-| `--shadow-hero` | ヒーロー要素、強調 |
-| `--shadow-focus` | フォーカスリング |
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--radius-sm` | 0.5rem (8px) | Small elements, chips |
+| `--radius-md` | 0.875rem (14px) | Standard elements, buttons |
+| `--radius-lg` | 1.25rem (20px) | Cards, panels |
+| `--radius-xl` | 1.5rem (24px) | Large panels |
+| `--radius-2xl` | 2rem (32px) | Modals, large cards |
 
 ---
 
-## モーショントークン
+## Shadow Tokens
 
-| トークン | 値 | 用途 |
-|----------|-----|------|
-| `--duration-fast` | 150ms | 即座のフィードバック（ホバー、フォーカス）|
-| `--duration-md` | 300ms | 標準トランジション（パネル開閉）|
-| `--ease-standard` | cubic-bezier(0.2, 0.7, 0.2, 1) | 標準イージング |
+Shadows that express elevation (floating effect).
 
----
-
-## タイポグラフィトークン
-
-| トークン | 用途 |
-|----------|------|
-| `--font-body` | 本文テキスト |
-| `--font-display` | 見出し（h1-h4）|
+| Token | Usage |
+|-------|-------|
+| `--shadow-card` | Cards, light elevation |
+| `--shadow-action` | Buttons, interactive elements |
+| `--shadow-hero` | Hero elements, emphasis |
+| `--shadow-focus` | Focus ring |
 
 ---
 
-## トークンの使用方法
+## Motion Tokens
 
-### Tailwind CSSでの使用
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--duration-fast` | 150ms | Immediate feedback (hover, focus) |
+| `--duration-md` | 300ms | Standard transitions (panel open/close) |
+| `--ease-standard` | cubic-bezier(0.2, 0.7, 0.2, 1) | Standard easing |
 
-`@theme` ディレクティブで定義されたトークンは、Tailwindユーティリティとして使用できます。
+---
+
+## Typography Tokens
+
+| Token | Usage |
+|-------|-------|
+| `--font-body` | Body text |
+| `--font-display` | Headings (h1-h4) |
+
+---
+
+## How to Use Tokens
+
+### Using with Tailwind CSS
+
+Tokens defined with the `@theme` directive can be used as Tailwind utilities.
 
 ```tsx
-// 背景色
+// Background colors
 <div className="bg-background" />
 <div className="bg-card" />
 
-// テキスト色
+// Text colors
 <p className="text-foreground" />
 <p className="text-muted-foreground" />
 
-// ボーダー
+// Border
 <div className="border border-border" />
 
-// 角丸
+// Border radius
 <div className="rounded-lg" />
 <div className="rounded-2xl" />
 
-// シャドウ
+// Shadow
 <div className="shadow-card" />
 ```
 
-### CSS変数としての使用
+### Using as CSS Variables
 
 ```css
 .custom-element {
@@ -195,38 +195,38 @@ OKLchの利点：
 
 ---
 
-## トークン設計のガイドライン
+## Token Design Guidelines
 
-### 命名規則
+### Naming Conventions
 
 ```
 --{layer}-{category}-{variant}
 
-例:
+Examples:
 --palette-ink-900      (Base Palette)
 --token-text-soft      (Semantic Token)
 --color-foreground     (Component Token)
 ```
 
-### 新しいトークンの追加
+### Adding New Tokens
 
-1. **プリミティブの追加**: まず `--palette-*` に値を追加
-2. **セマンティックの作成**: `--token-*` で意図を表現
-3. **Tailwind公開**: 必要に応じて `@theme` で `--color-*` を定義
-4. **ドキュメント化**: 本ドキュメントに追記
+1. **Add primitive**: First add a value to `--palette-*`
+2. **Create semantic**: Express intent with `--token-*`
+3. **Expose to Tailwind**: Define `--color-*` with `@theme` as needed
+4. **Document**: Add to this document
 
-### 禁止事項
+### Prohibited Practices
 
-- ハードコードされた値の直接使用（トークン経由で使用する）
-- 既存トークンの値の上書き
-- 意味のない略語の使用
-- Tailwind標準色（`bg-blue-500` など）の直接使用
+- Direct use of hardcoded values (use via tokens)
+- Overriding existing token values
+- Using meaningless abbreviations
+- Direct use of Tailwind default colors (e.g., `bg-blue-500`)
 
 ---
 
-## 参考リンク
+## References
 
-- [CSS ガイドライン](../web-frontend/css.md)
-- [カラーガイドライン](./colors.md)
-- [タイポグラフィガイドライン](./typography.md)
-- [ユーティリティクラス](./utilities.md)
+- [CSS Guidelines](../web-frontend/css.md)
+- [Color Guidelines](./colors.md)
+- [Typography Guidelines](./typography.md)
+- [Utility Classes](./utilities.md)

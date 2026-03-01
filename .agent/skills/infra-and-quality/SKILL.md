@@ -1,19 +1,19 @@
 ---
-name: インフラ・コード品質
-description: Terraform（GCP）、CI/CD（tfaction/GitHub Actions）、セキュリティスキャン、Biome lint、knip。
+name: Infrastructure & Code Quality
+description: Terraform (GCP), CI/CD (tfaction/GitHub Actions), security scanning, Biome lint, knip.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- `infrastructure/` 配下のファイルを編集するとき
-- CI/CD ワークフロー（`.github/workflows/`）を修正するとき
-- コード品質チェック（biome, knip, type-check）を実行するとき
+- When editing files under `infrastructure/`
+- When modifying CI/CD workflows (`.github/workflows/`)
+- When running code quality checks (biome, knip, type-check)
 
-# 参照ドキュメント
+# Reference Documents
 
-- `docs/infra/terraform-tfaction-guidelines.md` - Terraform設計ガイドライン（tfactionベース）
-- `docs/infra/terraform.md` - Terraform設計（modules/env分離、命名規則、State管理）
-- `docs/infra/tfaction.md` - tfactionワークフロー（PR→Plan, Merge→Apply）
-- `docs/infra/ci-cd.md` - CI/CDパイプライン（Workload Identity認証）
-- `docs/infra/multi-cloud-best-practices.md` - AWS/GCP/Azure/Cloudflare のインフラ構築ベストプラクティス
-- `docs/security/lint.md` - セキュリティ/lintルール
+- `docs/infra/terraform-tfaction-guidelines.md` - Terraform design guidelines (tfaction-based)
+- `docs/infra/terraform.md` - Terraform design (modules/env separation, naming conventions, state management)
+- `docs/infra/tfaction.md` - tfaction workflow (PR -> Plan, Merge -> Apply)
+- `docs/infra/ci-cd.md` - CI/CD pipeline (Workload Identity authentication)
+- `docs/infra/multi-cloud-best-practices.md` - AWS/GCP/Azure/Cloudflare infrastructure best practices
+- `docs/security/lint.md` - Security/lint rules

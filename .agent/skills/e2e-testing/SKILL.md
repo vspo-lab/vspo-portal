@@ -1,21 +1,21 @@
 ---
 name: e2e-testing
-description: Playwright でE2Eテストを構築し、主要ユーザーフローを本番相当経路で保証するときに使う。内部モックは避け、外部境界のみ最小モックに限定する。
+description: Build E2E tests with Playwright, ensuring major user flows through production-equivalent paths. Avoid internal mocks and limit mocking to external boundaries only.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- 主要ユーザーフローの回帰を保証したいとき
-- リリース前に画面/API/認証を跨ぐシナリオを追加するとき
+- When ensuring regression protection for major user flows
+- When adding scenarios that span screens/API/authentication before a release
 
-# 実行チェックリスト
+# Execution Checklist
 
-1. `docs/testing/e2e-testing.md` を確認する
-2. 業務シナリオ単位でケースを分割する
-3. 認証状態は `storageState` で再利用する
-4. 外部依存のみ `page.route()` で固定する
+1. Review `docs/testing/e2e-testing.md`
+2. Split cases by business scenario
+3. Reuse authentication state via `storageState`
+4. Pin only external dependencies using `page.route()`
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/testing/e2e-testing.md`
 - `docs/web-frontend/twada-tdd.md`

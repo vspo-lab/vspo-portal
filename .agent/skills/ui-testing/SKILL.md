@@ -1,21 +1,21 @@
 ---
 name: ui-testing
-description: UIテストを Testing Library 優先クエリとテーブルドリブンで実装し、ユーザー視点を保ちながらモック最小で検証するときに使う。
+description: Implement UI tests using Testing Library priority queries and table-driven approach, verifying from the user's perspective with minimal mocks.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- React コンポーネント/画面の挙動テストを追加するとき
-- 実装詳細ではなく利用者視点でUIを検証したいとき
+- When adding behavior tests for React components/screens
+- When verifying UI from the user's perspective rather than implementation details
 
-# 実行チェックリスト
+# Execution Checklist
 
-1. `docs/testing/ui-testing.md` を確認する
-2. `getByRole` 優先で要素を取得する
-3. `it.each` で state/props バリエーションを列挙する
-4. ネットワーク境界のみ必要最小限で固定する
+1. Review `docs/testing/ui-testing.md`
+2. Use `getByRole` as the preferred query for element selection
+3. Use `it.each` to enumerate state/props variations
+4. Pin only network boundaries with minimal mocking
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/testing/ui-testing.md`
 - `docs/web-frontend/twada-tdd.md`

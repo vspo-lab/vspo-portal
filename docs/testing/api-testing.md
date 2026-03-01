@@ -1,38 +1,38 @@
-# API Testing 実装方針
+# API Testing Implementation Guidelines
 
-## 目的
+## Purpose
 
-- HTTP エンドポイントの契約（status/header/body）を壊さない
-- OpenAPI と実装の乖離を早期検出する
+- Ensure HTTP endpoint contracts (status/header/body) are not broken
+- Detect divergence between OpenAPI and implementation early
 
-## 対象
+## Scope
 
-- `services/api/presentation/**` のルート
-- 認証、バリデーション、レスポンス整形
+- Routes in `services/api/presentation/**`
+- Authentication, validation, and response formatting
 
-## 実装ルール
+## Implementation Rules
 
-1. `testClient` または `app.request()` で Hono アプリを直接叩く
-2. 200系だけでなく、4xx/5xx の失敗契約を必ず含める
-3. テーブルドリブンで入力バリエーションを網羅する
-4. OpenAPI `/doc` を契約テストの入力源として使う
+1. Hit the Hono app directly using `testClient` or `app.request()`
+2. Always include failure contracts for 4xx/5xx, not just 200-series
+3. Cover input variations with table-driven tests
+4. Use the OpenAPI `/doc` as the input source for contract tests
 
-## モック方針
+## Mocking Policy
 
-- デフォルト: モックしない（ルート -> UseCase -> Repository を実体で通す）
-- 例外: 外部API呼び出しのみ境界で置き換える
+- Default: no mocking (pass through route -> UseCase -> Repository with real implementations)
+- Exception: replace only external API calls at the boundary
 
-## 契約テスト
+## Contract Testing
 
-- API ケース: Vitest + Hono testClient
-- OpenAPI 契約: Schemathesis などで `/doc` を検証
+- API cases: Vitest + Hono testClient
+- OpenAPI contracts: validate `/doc` with tools like Schemathesis
 
-## 実行コマンド
+## Execution Commands
 
-- APIユニット/結合: `pnpm --filter api test:run`
-- API結合（設定別）: `pnpm --filter api test:integration`
+- API unit/integration: `pnpm --filter api test:run`
+- API integration (separate config): `pnpm --filter api test:integration`
 
-## 参考（一次情報）
+## References (Primary Sources)
 
 - Hono Testing Helper: https://hono.dev/docs/helpers/testing
 - Hono `app.request()`: https://hono.dev/docs/api/hono#request

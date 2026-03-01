@@ -1,90 +1,90 @@
 # TypeScript Type System Usage Instructions
 
-## 基本方針
+## Core Policy
 
-1. Zod スキーマを型定義の Single Source of Truth として使用する
-2. 明示的な interface ではなく、スキーマから型を推論する
-3. ユーティリティではジェネリクスを使い、アプリコードを JavaScript ライクに保つ
-4. 推論による型の流れを確保し、冗長なアノテーションを避ける
-5. `as` はライブラリ境界に限定し、アプリロジックでは使わない
-6. やむを得ない `as` は utils に隔離し、コメントを残す
+1. Use Zod schemas as the Single Source of Truth for type definitions
+2. Infer types from schemas instead of explicit interfaces
+3. Use generics in utilities, keeping app code JavaScript-like
+4. Ensure type flow through inference, avoiding redundant annotations
+5. Limit `as` to library boundaries; do not use in app logic
+6. Isolate unavoidable `as` usage in utils and leave a comment
 
-## TypeScript 実装
+## TypeScript Implementation
 
-### Schema-First 開発
+### Schema-First Development
 
-- Zod スキーマをデータ構造の Single Source of Truth として定義する
-- `z.infer<typeof schemaName>` でスキーマから TypeScript 型を推論する
-- スキーマを拡張する場合は、ベーススキーマをインポートして `z.extend()` やユニオン型を使用する
-- 複雑な型にはスキーマ合成を使用する
+- Define Zod schemas as the Single Source of Truth for data structures
+- Infer TypeScript types from schemas with `z.infer<typeof schemaName>`
+- When extending schemas, import the base schema and use `z.extend()` or union types
+- Use schema composition for complex types
 
-例:
+Example:
 
 ```typescript
-// ベーススキーマ（Single Source of Truth）
+// Base schema (Single Source of Truth)
 const baseSchema = z.object({
   id: z.string(),
   createdAt: z.date()
 });
 
-// 拡張スキーマ
+// Extended schema
 const extendedSchema = baseSchema.extend({
   additionalField: z.boolean()
 });
 
-// 推論された型
+// Inferred types
 type Base = z.infer<typeof baseSchema>;
 type Extended = z.infer<typeof extendedSchema>;
 ```
 
-### 型安全性
+### Type Safety
 
-- `tsconfig.json` で `strict` を有効にして型安全性を最大化する
-- スキーマ/型のバリエーションには `Partial`, `Pick`, `Omit` を活用する
-- ライブラリ内の動的な変換にはマッピング型を使用する
-- `as` は utils に隔離し、アプリロジックでは使わない
-- 早期リターンによる制御フロー解析で型の絞り込みを行う
-- **オブジェクトリテラルの型チェックには `satisfies` を使用する**（以下参照）
+- Enable `strict` in `tsconfig.json` to maximize type safety
+- Use `Partial`, `Pick`, `Omit` for schema/type variations
+- Use mapped types for dynamic transformations within libraries
+- Isolate `as` in utils; do not use in app logic
+- Use early returns with control flow analysis for type narrowing
+- **Use `satisfies` for type-checking object literals** (see below)
 
-### `satisfies` オペレータによるオブジェクトリテラルの型チェック
+### Type-Checking Object Literals with the `satisfies` Operator
 
-オブジェクトリテラルを定義する際は、型アノテーション（`: Type`）ではなく `satisfies` を常に使用します。型の広がり（widening）を防ぎつつ、コンパイル時の型チェックを維持できます。
+When defining object literals, always use `satisfies` instead of type annotations (`: Type`). This prevents type widening while maintaining compile-time type checking.
 
-**`satisfies` を使う理由:**
+**Why use `satisfies`:**
 
-1. コンパイル時にオブジェクトの形状を検証する（プロパティの過不足を検出）
-2. リテラル型を保持する（例: `"candidate"` が `string` に広がらない）
-3. Discriminated Union の網羅性チェックが有効になる
-4. API レスポンス変換時のフィールド漏れバグを防ぐ
+1. Validates object shape at compile time (detects missing or extra properties)
+2. Preserves literal types (e.g., `"candidate"` does not widen to `string`)
+3. Enables exhaustiveness checking for Discriminated Unions
+4. Prevents field omission bugs in API response transformations
 
-**パターン: 型アノテーションの代わりに `satisfies` を使用する**
+**Pattern: Use `satisfies` instead of type annotations**
 
 ```typescript
-// ❌ BAD: 型アノテーションはリテラル型を広げる
+// ❌ BAD: Type annotation widens literal types
 const turn: LiveTranscript = {
-  role: "candidate",  // 型が string になる（"candidate" ではなく）
+  role: "candidate",  // Type becomes string (not "candidate")
   text: "Hello"
 };
 
-// ✅ GOOD: satisfies はリテラル型を保持する
+// ✅ GOOD: satisfies preserves literal types
 const turn = {
-  role: "candidate",  // 型は "candidate"（リテラル）
+  role: "candidate",  // Type is "candidate" (literal)
   text: "Hello"
 } satisfies LiveTranscript;
 ```
 
-**パターン: 関数の戻り値での `satisfies`**
+**Pattern: `satisfies` in function return values**
 
 ```typescript
-// ❌ BAD: プロパティ不足が定義箇所で検出されない
+// ❌ BAD: Missing properties not detected at definition site
 function createProfile(): UserProfile {
   return {
     name: "John",
-    // 'email' を忘れている - エラーが呼び出し側で出る
+    // Missing 'email' - error appears at call site
   };
 }
 
-// ✅ GOOD: satisfies がエラーを即座に検出する
+// ✅ GOOD: satisfies catches the error immediately
 function createProfile(): UserProfile {
   return {
     name: "John",
@@ -93,10 +93,10 @@ function createProfile(): UserProfile {
 }
 ```
 
-**パターン: Discriminated Union**
+**Pattern: Discriminated Unions**
 
 ```typescript
-// ✅ GOOD: satisfies がリテラル型を保持し、判別が可能になる
+// ✅ GOOD: satisfies preserves literal types, enabling discrimination
 function processResult(success: boolean) {
   if (success) {
     return { isMerged: true, data: result } satisfies MergeResult;
@@ -105,10 +105,10 @@ function processResult(success: boolean) {
 }
 ```
 
-**パターン: 設定オブジェクト**
+**Pattern: Configuration objects**
 
 ```typescript
-// ✅ GOOD: 推論を保持しつつ設定の形状を検証する
+// ✅ GOOD: Validates config shape while preserving inference
 const config = {
   apiEndpoint: "/api/v1",
   timeout: 5000,
@@ -116,29 +116,29 @@ const config = {
 } satisfies ApiConfig;
 ```
 
-**`satisfies` を使うべき場合:**
+**When to use `satisfies`:**
 
-- すべてのオブジェクトリテラル代入: `const x = {...} satisfies Type`
-- オブジェクトリテラルを含む return 文: `return {...} satisfies Type`
-- 設定オブジェクトと定数
-- API レスポンスの変換
-- Discriminated Union 型のオブジェクト
+- All object literal assignments: `const x = {...} satisfies Type`
+- Return statements with object literals: `return {...} satisfies Type`
+- Configuration objects and constants
+- API response transformations
+- Discriminated Union type objects
 
-**型アノテーションが適切な場合:**
+**When type annotations are appropriate:**
 
-- 初期値なしの変数宣言: `let x: Type;`
-- 関数パラメータ: `function foo(x: Type)`
-- ジェネリクスの型パラメータ: `useState<Type>()`
+- Variable declarations without initial values: `let x: Type;`
+- Function parameters: `function foo(x: Type)`
+- Generic type parameters: `useState<Type>()`
 
-### スキーマパターン
+### Schema Patterns
 
-1. **フィールド選択パターン**:
+1. **Field Selection Pattern**:
 
 ```typescript
-// ベーススキーマ
+// Base schema
 const dataSchema = z.object({ /* ... */ });
 
-// 選択スキーマ
+// Selection schema
 const selectionSchema = z.object({
   field1: z.boolean().optional(),
   field2: z.union([z.boolean(), z.array(z.number())]).optional()
@@ -147,7 +147,7 @@ const selectionSchema = z.object({
 type Selection = z.infer<typeof selectionSchema>;
 ```
 
-2. **メタデータパターン**:
+2. **Metadata Pattern**:
 
 ```typescript
 const MetadataSchema = z.object({
@@ -161,18 +161,18 @@ const MetadataSchema = z.object({
 type Metadata = z.infer<typeof MetadataSchema>;
 ```
 
-### ベストプラクティス
+### Best Practices
 
-1. ベーススキーマは必ずその Single Source of Truth からインポートする
-2. 型の合成よりスキーマの合成を優先する
-3. Zod の組み込みバリデーションを活用する
-4. バリデーションロジックはスキーマ定義に含める
-5. 複雑な状態のハンドリングには Discriminated Union を使用する
+1. Always import base schemas from their Single Source of Truth
+2. Prefer schema composition over type composition
+3. Leverage Zod's built-in validations
+4. Include validation logic within schema definitions
+5. Use Discriminated Unions for complex state handling
 
-複雑なパターンの例:
+Complex pattern example:
 
 ```typescript
-// タスク結果パターン
+// Task result pattern
 const TaskResultSchema = z.discriminatedUnion("ok", [
   z.object({
     ok: z.literal(true),

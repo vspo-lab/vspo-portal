@@ -1,127 +1,127 @@
-# アイコンガイドライン
+# Icon Guidelines
 
-## 概要
+## Overview
 
-アイコンは、UIの視認性と操作性を高める重要な視覚要素です。本ガイドラインでは、Lucide Reactを基本とし、必要に応じてオリジナルアイコンを作成する方針を定めます。
+Icons are important visual elements that enhance UI visibility and operability. This guideline establishes the policy of using Lucide React as the foundation and creating original icons as needed.
 
-## 基本方針
+## Basic Policy
 
-アイコンは、基本的に **Lucide React** から選定します。適したアイコンがない場合は、トンマナを合わせてオリジナルで作成します。
+Icons are primarily selected from **Lucide React**. When a suitable icon is not available, create an original one that matches the design tone and manner.
 
-### Lucide React の使用
+### Using Lucide React
 
-| 項目 | 推奨事項 |
-|------|----------|
-| パッケージ | lucide-react |
-| スタイル | アウトライン（デフォルト）を基本とする |
-| サイズ | 用途に応じて16px〜24pxを基本とする |
-| カラー | セマンティックカラーに従う |
+| Item | Recommendation |
+|------|---------------|
+| Package | lucide-react |
+| Style | Use outline (default) as the standard |
+| Size | Use 16px-24px as the standard depending on the use case |
+| Color | Follow semantic colors |
 
 ```tsx
-// Lucide React の使用例
+// Lucide React usage examples
 import { Search, User, Menu } from "lucide-react";
 
 <Search className="w-4 h-4 text-text-secondary" />
 <User className="w-5 h-5 text-text-primary" />
 ```
 
-### NavIconコンポーネントの使用
+### Using the NavIcon Component
 
-プロジェクトでは、`NavIcon`コンポーネントを通じてアイコンを使用します。これにより、アイコン名の一貫性を保ちつつ、Lucide Reactのアイコンを利用できます。
+In the project, icons are used through the `NavIcon` component. This ensures icon name consistency while leveraging Lucide React icons.
 
 ```tsx
 import { NavIcon } from "@/shared/components/presenters/NavIcon";
 
-// ナビゲーション用
+// For navigation
 <NavIcon name="home" className="w-5 h-5" />
 <NavIcon name="settings" className="w-5 h-5 text-muted-foreground" />
 ```
 
-#### 利用可能なアイコン名
+#### Available Icon Names
 
-| 名前 | 説明 | Lucideアイコン |
-|------|------|---------------|
-| home | ホーム | Home |
-| play | 再生 | Play |
-| clock | 時計 | Clock |
-| credit-card | クレジットカード | CreditCard |
-| settings | 設定 | Settings |
-| file-text | ファイル | FileText |
-| sparkles | スパークル | Sparkles |
-| pencil | ペンシル | Pencil |
-| target | ターゲット | Target |
-| chart-bar | 棒グラフ | BarChart3 |
+| Name | Description | Lucide Icon |
+|------|-------------|-------------|
+| home | Home | Home |
+| play | Play | Play |
+| clock | Clock | Clock |
+| credit-card | Credit Card | CreditCard |
+| settings | Settings | Settings |
+| file-text | File | FileText |
+| sparkles | Sparkles | Sparkles |
+| pencil | Pencil | Pencil |
+| target | Target | Target |
+| chart-bar | Bar Chart | BarChart3 |
 
-## オリジナルアイコン作成ルール
+## Original Icon Creation Rules
 
-Lucide Reactに適切なアイコンがない場合は、以下のルールに従ってオリジナルアイコンを作成します。
+When Lucide React does not have an appropriate icon, create an original one following these rules.
 
-### アートボードとサイズ
+### Artboard and Size
 
-| 項目 | 値 |
-|------|-----|
-| アートボードサイズ | 128 x 128 px |
-| 余白（上下左右） | 各 8px |
-| 実作成エリア | 112 x 112 px |
+| Item | Value |
+|------|-------|
+| Artboard size | 128 x 128 px |
+| Padding (all sides) | 8px each |
+| Actual creation area | 112 x 112 px |
 
 ```
 +---------------------+
 |        8px          |
 |   +-----------+     |
 |8px|  112x112  |8px  |
-|   |   作成    |     |
-|   |   エリア  |     |
+|   |  Creation |     |
+|   |    Area   |     |
 |   +-----------+     |
 |        8px          |
 +---------------------+
      128x128px
 ```
 
-### 線と角丸
+### Stroke and Border Radius
 
-| 項目 | 基本値 | 備考 |
-|------|--------|------|
-| 線の太さ | 10px | 調整可能 |
-| 角丸（基本） | 半径 8px | - |
-| 角丸（小） | 半径 4px | 基本と組み合わせ可 |
+| Item | Base Value | Notes |
+|------|-----------|-------|
+| Stroke width | 10px | Adjustable |
+| Border radius (standard) | Radius 8px | - |
+| Border radius (small) | Radius 4px | Can be combined with standard |
 
-### Solidスタイル作成時
+### Solid Style Creation
 
-Solidスタイルを作成する場合、隣接する色の間隔は **6px** を推奨します。
+When creating solid-style icons, a spacing of **6px** between adjacent colors is recommended.
 
-## スタイルバリエーション
+## Style Variations
 
-Lucide Reactの仕様に合わせて、アウトラインスタイルを基本とします。
+Following Lucide React's specifications, outline style is the standard.
 
-### Outline（デフォルト）
+### Outline (Default)
 
-- 線のみで構成されたアイコン
-- 通常状態での使用を推奨
-- strokeWidth: 2（デフォルト）
+- Icons composed of strokes only
+- Recommended for normal state usage
+- strokeWidth: 2 (default)
 
-### カスタマイズ
+### Customization
 
 ```tsx
-// 線の太さを変更
+// Change stroke width
 <Search strokeWidth={1.5} className="w-5 h-5" />
 
-// 色を変更
+// Change color
 <User className="w-5 h-5 text-primary" />
 ```
 
-## 作成ワークフロー
+## Creation Workflow
 
-1. **Lucide Reactで検索**: まずLucide Reactで適切なアイコンを探す
-2. **マスターデータの複製**: オリジナル作成時は、作業開始前に必ずマスターデータを複製する
-3. **Keylineへの整列**: 視覚的統一のため、Keylineに合わせてデザインする
-4. **レビュー依頼**: 完成後、デザインチームにレビューを依頼する
+1. **Search Lucide React**: First look for an appropriate icon in Lucide React
+2. **Duplicate master data**: When creating originals, always duplicate the master data before starting work
+3. **Align to keyline**: Align to the keyline for visual consistency
+4. **Request review**: After completion, request a review from the design team
 
-## アイコンの使用パターン
+## Icon Usage Patterns
 
-### ナビゲーション
+### Navigation
 
 ```tsx
-// ヘッダーナビゲーション
+// Header navigation
 import { NavIcon } from "@/shared/components/presenters/NavIcon";
 
 <nav className="flex items-center gap-4">
@@ -131,49 +131,49 @@ import { NavIcon } from "@/shared/components/presenters/NavIcon";
 </nav>
 ```
 
-### ボタン
+### Buttons
 
 ```tsx
-// アイコン付きボタン
+// Button with icon
 import { Plus } from "lucide-react";
 
 <button className="flex items-center gap-2">
   <Plus className="w-4 h-4" />
-  <span>追加する</span>
+  <span>Add</span>
 </button>
 ```
 
-### ステータス表示
+### Status Display
 
 ```tsx
-// ステータスアイコン
+// Status icon
 import { CheckCircle } from "lucide-react";
 
 <span className="flex items-center gap-1">
   <CheckCircle className="w-4 h-4 text-success" />
-  <span>完了</span>
+  <span>Complete</span>
 </span>
 ```
 
-## サイズガイド
+## Size Guide
 
-| 用途 | サイズ | クラス |
-|------|--------|--------|
-| インラインテキスト | 14px | `w-3.5 h-3.5` |
-| 小ボタン・バッジ | 16px | `w-4 h-4` |
-| 標準ボタン | 18px | `w-4.5 h-4.5` |
-| ナビゲーション | 20px | `w-5 h-5` |
-| 大見出し・ヒーロー | 24px | `w-6 h-6` |
+| Usage | Size | Class |
+|-------|------|-------|
+| Inline text | 14px | `w-3.5 h-3.5` |
+| Small button / badge | 16px | `w-4 h-4` |
+| Standard button | 18px | `w-4.5 h-4.5` |
+| Navigation | 20px | `w-5 h-5` |
+| Large heading / hero | 24px | `w-6 h-6` |
 
-## 禁止事項
+## Prohibited Practices
 
-- Lucide Reactのアイコンを変形・加工すること
-- オリジナルアイコンでLucide Reactと著しく異なるスタイルにすること
-- アイコンのみで情報を伝えること（テキストラベルを併用する）
-- 装飾目的での過剰なアイコン使用
+- Deforming or modifying Lucide React icons
+- Creating original icons with a style significantly different from Lucide React
+- Conveying information with icons alone (use text labels alongside)
+- Excessive use of icons for decorative purposes
 
-## 参考リンク
+## References
 
 - [Lucide Icons](https://lucide.dev/icons/)
-- [Lucide React ドキュメント](https://lucide.dev/guide/packages/lucide-react)
-- [アクセシビリティガイドライン](./accessibility.md)
+- [Lucide React Documentation](https://lucide.dev/guide/packages/lucide-react)
+- [Accessibility Guidelines](./accessibility.md)

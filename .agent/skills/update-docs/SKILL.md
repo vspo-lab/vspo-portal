@@ -1,28 +1,28 @@
 ---
-name: ドキュメント更新
-description: コード変更に伴う docs/ の更新。docs/ を常に最新に保つ。
+name: Documentation Update
+description: Update docs/ in response to code changes. Keep docs/ always up to date.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- 新機能の実装やアーキテクチャ変更を行った後
-- 既存の仕様・規約を変更した後
-- ユーザーから docs の更新を依頼されたとき
+- After implementing a new feature or making an architecture change
+- After changing an existing specification or convention
+- When the user requests a docs update
 
-# ルール
+# Rules
 
-- `docs/` が全ての技術ドキュメントの Single Source of Truth
-- コード変更に伴い、関連する docs/ ファイルを必ず更新する
-- 新しい概念・パターンを導入した場合は、対応する docs/ ファイルを新規作成する
-- Skills の SKILL.md は docs/ へのポインタのみ。詳細を skills に書かない
+- `docs/` is the Single Source of Truth for all technical documentation
+- When code changes, always update the related docs/ files
+- When introducing a new concept or pattern, create a corresponding docs/ file
+- SKILL.md in skills should only be pointers to docs/. Do not write details in skills
 
-# docs 構成
+# docs Structure
 
-- `docs/domain/` - ドメイン仕様（概要、エンティティ、ユースケース、用語集）
-- `docs/plan/` - 機能仕様（Spec-Driven Development、機能ごとの仕様・チェックリスト）
-- `docs/testing/` - テスト実装方針（Unit/Integration/API/UI/VRT/E2E）
-- `docs/web-frontend/` - フロントエンド（アーキテクチャ、hooks、CSS、a11y、テスト、エラーハンドリング、TypeScript）
-- `docs/backend/` - バックエンド（サーバーアーキテクチャ、ドメインモデル、API設計、UseCase実装ルール、関数ドキュメント規約、PRガイドライン、日時処理）
-- `docs/design/` - デザインシステム（トークン、カラー、タイポグラフィ、UIパターン、原則、a11y）
-- `docs/infra/` - インフラ（Terraform、tfaction、CI/CD）
-- `docs/security/` - セキュリティ（lint、スキャン）
+- `docs/domain/` - Domain specifications (overview, entities, use cases, glossary)
+- `docs/plan/` - Feature specifications (Spec-Driven Development, per-feature specs & checklists)
+- `docs/testing/` - Testing implementation guidelines (Unit/Integration/API/UI/VRT/E2E)
+- `docs/web-frontend/` - Frontend (architecture, hooks, CSS, a11y, testing, error handling, TypeScript)
+- `docs/backend/` - Backend (server architecture, domain modeling, API design, UseCase implementation rules, function documentation conventions, PR guidelines, datetime handling)
+- `docs/design/` - Design system (tokens, colors, typography, UI patterns, principles, a11y)
+- `docs/infra/` - Infrastructure (Terraform, tfaction, CI/CD)
+- `docs/security/` - Security (lint, scanning)

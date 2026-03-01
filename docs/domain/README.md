@@ -1,30 +1,32 @@
-# ドメイン仕様
+# Domain Specification
 
-プロジェクト固有のドメイン知識をここに集約する。
+This directory is the **Single Source of Truth** for domain knowledge of the vspo-portal project (Spodule). All domain concepts, entity definitions, use cases, terminology, and architectural decisions are documented here.
 
-## 構成
+## Contents
 
-| ファイル | 内容 |
+| File | Description |
 | --- | --- |
-| `overview.md` | プロジェクト概要・ビジョン・ターゲットユーザー・非機能要件 |
-| `entities.md` | ドメインエンティティ・集約・関係・ルール |
-| `usecases.md` | ユースケース一覧・優先度（MVP/Phase2/Phase3） |
-| `glossary.md` | 用語集（ユビキタス言語） |
-| `decisions.md` | 仕様決定ログ（なぜその仕様にしたか） |
+| `overview.md` | Project overview, vision, target users, tech stack, and non-functional requirements |
+| `entities.md` | Domain entities, attributes, relationships, and business rules |
+| `usecases.md` | Use case catalog with priorities (MVP / Phase 2 / Phase 3) |
+| `glossary.md` | Glossary of ubiquitous language and domain terms |
+| `decisions.md` | Architectural Decision Records -- why each decision was made |
 
-## 作成・更新フロー
+## Creation and Update Flow
 
-1. 初回仕様策定: `/domain-spec-kickoff`
-2. 実装中の仕様育成: `/domain-doc-evolution`
-3. 仕様変更が発生したら、まず `docs/domain` を更新してからコードを変更
+1. Initial specification: `/domain-spec-kickoff`
+2. Specification evolution during implementation: `/domain-doc-evolution`
+3. When a specification change occurs, update `docs/domain/` **before** modifying code. Verbal agreements are not specifications.
 
-## 方針
+## Principles
 
-- このディレクトリをドメイン知識の Single Source of Truth とする
-- エンティティ定義は Zod Schema First (`docs/web-frontend/typescript.md` 参照)
-- 重要な仕様判断は `decisions.md` に理由付きで残す
-- 未確定事項は `TBD` と明記し、次アクションを `usecases.md` または `decisions.md` に記録する
+- This directory is the single source of truth for domain knowledge.
+- Entity definitions follow Zod Schema First (`z.infer<typeof schema>`).
+- Important specification decisions are recorded in `decisions.md` with rationale.
+- Undecided items are marked `TBD` with next actions noted in `usecases.md` or `decisions.md`.
 
-## 関連
+## Related
 
-- `docs/plan/` - 機能単位の仕様ドキュメント（Spec-Driven Development）
+- `docs/plan/` -- Feature-level specification documents (Spec-Driven Development)
+- `docs/web-frontend/` -- Frontend technical documentation
+- `docs/backend/` -- Backend technical documentation

@@ -1,21 +1,21 @@
 ---
 name: unit-testing
-description: Unitテストを Vitest のテーブルドリブンで実装し、モック最小でドメイン/ユーティリティの振る舞いを検証するときに使う。
+description: Implement unit tests using Vitest table-driven approach, verifying domain/utility behavior with minimal mocks.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- `*.test.ts` で単体テストを追加・更新するとき
-- ドメインモデルや純粋関数をTDDで実装するとき
+- When adding or updating unit tests in `*.test.ts`
+- When implementing domain models or pure functions with TDD
 
-# 実行チェックリスト
+# Execution Checklist
 
-1. `docs/testing/unit-testing.md` を確認する
-2. 1振る舞いの失敗テスト（Red）を先に書く
-3. `it.each` / `test.each` でケースを拡張する
-4. リファクタリング後に全ケース再実行する
+1. Review `docs/testing/unit-testing.md`
+2. Write a failing test (Red) for a single behavior first
+3. Expand cases using `it.each` / `test.each`
+4. Re-run all cases after refactoring
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/testing/unit-testing.md`
 - `docs/web-frontend/twada-tdd.md`

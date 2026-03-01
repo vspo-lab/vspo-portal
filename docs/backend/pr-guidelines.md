@@ -1,57 +1,56 @@
-# PR ガイドライン
+# PR Guidelines
 
-## 概要
+## Overview
 
-Pull Request の品質を一定に保つための規約です。
-PR の説明に必要な情報を記載することで、レビュー効率の向上と変更意図の明確化を図ります。
+Conventions for maintaining consistent Pull Request quality.
+By including required information in the PR description, we improve review efficiency and clarify change intent.
 
-## PR 説明の必須項目
+## Required Items in PR Description
 
-PR の Description には以下の 3 項目を記載します。
+The PR Description must include the following 3 items:
 
-### 1. 現状 (Current State)
+### 1. Current State
 
-変更前の状態を簡潔に記述します。
+Briefly describe the state before the change.
 
-### 2. 問題 (Problem)
+### 2. Problem
 
-このまま変更しない場合に起きる問題を記述します。
-「なぜこの変更が必要か」を明確にします。
+Describe the problem that would occur if this change is not made.
+Clarify "why this change is necessary."
 
-### 3. 実装内容 (Implementation)
+### 3. Implementation
 
-何をどう変更したかを記述します。
-技術的な変更点を箇条書きで示します。
+Describe what was changed and how.
+List technical changes as bullet points.
 
-## 1 PR 1 関心事
+## One PR, One Concern
 
-1 つの PR には 1 つの関心事だけを含めます。
+Include only one concern per PR.
 
 ```
-# ✅ Good: 1つの関心事
-- PR: "アイテム作成 API を追加"
+# Good: one concern
+- PR: "Add item creation API"
   - domain/item.ts, usecase/item.ts, repository/item.ts, http/item.ts
 
-# ❌ Bad: 複数の関心事を混在
-- PR: "アイテム作成 API 追加 + リファクタリング + テスト修正"
+# Bad: mixing multiple concerns
+- PR: "Add item creation API + refactoring + test fixes"
 ```
 
-複数の変更が混在すると以下の問題が起きます。
+Mixing multiple changes causes the following problems:
 
-- レビュー負荷が増大する
-- バグ発生時の原因特定が困難になる
-- revert が難しくなる
+- Review burden increases
+- Root cause identification becomes difficult when bugs occur
+- Revert becomes difficult
 
-## 影響範囲
+## Impact Scope
 
-変更が他のモジュールや機能に影響する場合は影響範囲を記載します。
+If the change affects other modules or features, document the impact scope.
 
-## PR テンプレート
+## PR Template
 
-`.github/pull_request_template.md` に定義されたテンプレートを使用してください（GitHub が PR 作成時に自動適用します）。
+Use the template defined in `.github/pull_request_template.md` (GitHub auto-applies it when creating a PR).
 
-## 関連ドキュメント
+## Related Documents
 
-- [Server Architecture](./server-architecture.md) - アーキテクチャ全体
-- [UseCase 実装ルール](./usecase-rules.md) - UseCase の実装規約
-- [コードレビュースキル](../../.agent/skills/code-review/SKILL.md) - `/code-review` で実行
+- [Server Architecture](./server-architecture.md) - Overall architecture
+- [Code Review Skill](../../.agent/skills/code-review/SKILL.md) - Execute with `/code-review`

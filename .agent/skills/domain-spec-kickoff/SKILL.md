@@ -1,32 +1,32 @@
 ---
-name: ドメイン仕様キックオフ
-description: 1回のヒアリングで docs/domain を初期化し、MVPと未確定事項を整理する。
+name: Domain Spec Kickoff
+description: Initialize docs/domain with a single interview session, organizing the MVP and open items.
 user_invocable: true
 ---
 
-# 概要
+# Overview
 
-テンプレートリポジトリを新規プロジェクトとして開始するときに使う skill。
-1回のヒアリングで `docs/domain/` をプロジェクト固有に初期化する。
+A skill used when starting a template repository as a new project.
+Initializes `docs/domain/` to be project-specific through a single interview session.
 
-# 実行手順
+# Execution Steps
 
-## Step 1: 一括ヒアリング
+## Step 1: Consolidated Interview
 
-以下を1回の質問でまとめて確認する。
+Confirm the following in a single set of questions:
 
-1. プロジェクト名（表示名 / 識別子）
-2. 解決したい課題と提供価値
-3. ターゲットユーザー
+1. Project name (display name / identifier)
+2. Problem to solve and value proposition
+3. Target users
 4. In Scope / Out of Scope
-5. 主要エンティティ（3-5個）
-6. MVPユースケース（3-5個）
-7. 用語集（ユビキタス言語）
-8. 未確定事項と決定期限
+5. Key entities (3-5)
+6. MVP use cases (3-5)
+7. Glossary (ubiquitous language)
+8. Open items and decision deadlines
 
-## Step 2: docs/domain の初期化
+## Step 2: Initialize docs/domain
 
-回答をもとに次を更新する。
+Based on the answers, update the following:
 
 - `docs/domain/overview.md`
 - `docs/domain/entities.md`
@@ -34,18 +34,17 @@ user_invocable: true
 - `docs/domain/glossary.md`
 - `docs/domain/decisions.md`
 
-未確定事項は `TBD` のままにせず、`usecases.md` または `decisions.md` に論点として残す。
+Do not leave open items as `TBD`; instead, record them as discussion points in `usecases.md` or `decisions.md`.
 
-## Step 3: 実装前チェック
+## Step 3: Pre-Implementation Check
 
-更新後に以下を明確化して提示する。
+After updating, clarify and present the following:
 
-1. MVPで実装する範囲
-2. 実装を保留する範囲
-3. 次に決めるべき論点（期限付き）
+1. Scope to implement for MVP
+2. Scope to defer
+3. Next discussion points to resolve (with deadlines)
 
-# 参照ドキュメント
+# Reference Documents
 
 - `docs/domain/README.md`
-- `docs/backend/domain-modeling.md`
 - `docs/web-frontend/typescript.md`

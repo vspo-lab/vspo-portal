@@ -1,39 +1,39 @@
-# VRT (Visual Regression Testing) 実装方針
+# VRT (Visual Regression Testing) Implementation Guidelines
 
-## 目的
+## Purpose
 
-- UI の見た目退行を差分で検出する
-- コンポーネント単位でデザイン変更の意図有無を判定できる状態にする
+- Detect visual regressions in UI through diff comparison
+- Maintain the ability to determine whether design changes per component are intentional
 
-## 対象
+## Scope
 
 - `services/web/vrt/storybook.spec.ts`
-- Storybook ストーリー（デザインシステム、主要UI）
+- Storybook stories (design system, key UI elements)
 
-## 実装ルール
+## Implementation Rules
 
-1. Storybook の 1 story を 1 VRT ケースとして扱う
-2. Playwright の `toHaveScreenshot()` で差分比較する
-3. Viewport・フォント・時刻・アニメーションを固定して非決定性を除去する
-4. スナップショット更新は「仕様変更PR」でのみ実行する
+1. Treat one Storybook story as one VRT case
+2. Compare diffs using Playwright's `toHaveScreenshot()`
+3. Fix viewport, fonts, time, and animations to eliminate non-determinism
+4. Update snapshots only in "spec change PRs"
 
-## モック方針
+## Mocking Policy
 
-- デフォルト: モックしない
-- 例外: story が外部API依存を持つ場合だけ、MSW で固定レスポンスを返す
-- 目的: レイアウト/配色/タイポグラフィの退行検知を安定させる
+- Default: no mocking
+- Exception: return fixed responses via MSW only when stories depend on external APIs
+- Purpose: stabilize regression detection for layout, color, and typography
 
-## 運用ルール
+## Operational Rules
 
-- Baseline 更新時は PR に「差分の意図」を記載する
-- 変化が大きい場合は VRT だけでなく UI/E2E の影響も確認する
+- When updating baselines, describe the "intent of the diff" in the PR
+- If the change is significant, also confirm the impact on UI/E2E tests
 
-## 実行コマンド
+## Execution Commands
 
 - `pnpm --filter web vrt`
-- 更新: `pnpm --filter web vrt:update`
+- Update: `pnpm --filter web vrt:update`
 
-## 参考（一次情報）
+## References (Primary Sources)
 
 - Playwright Visual Comparisons: https://playwright.dev/docs/test-snapshots
 - Storybook Visual Testing: https://storybook.js.org/docs/writing-tests/visual-testing

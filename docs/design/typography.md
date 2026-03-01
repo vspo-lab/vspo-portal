@@ -1,47 +1,47 @@
-# タイポグラフィガイドライン
+# Typography Guidelines
 
-## 概要
+## Overview
 
-プロジェクトの目的やブランドに合わせたフォントを選択してください。
+Select fonts that match your project's purpose and brand.
 
-## フォント選択の原則
+## Font Selection Principles
 
-### 本文フォント
+### Body Font
 
-可読性が高く、長文でも疲れにくいフォントを選択します。
+Select a font with high readability that is comfortable for reading long text.
 
 ```css
 --font-body: "your-body-font", system-ui, sans-serif;
 ```
 
-### 見出しフォント
+### Display Font
 
-ブランドの個性を表現するフォントを選択します。本文フォントとの対比でメリハリを出します。
+Select a font that expresses the brand's personality. Create visual contrast with the body font.
 
 ```css
 --font-display: "your-display-font", system-ui, serif;
 ```
 
-## Google Fonts 読み込み
+## Google Fonts Loading
 
 ```css
 @import url("https://fonts.googleapis.com/css2?family=YOUR_FONT:wght@400;500;700&display=swap");
 ```
 
-## ウェイト
+## Weights
 
-最低限以下のウェイトを用意してください：
+Prepare at least the following weights:
 
-| 用途 | 推奨ウェイト |
-|------|-------------|
-| 本文 | 400 (Regular) |
-| 強調 | 500 (Medium) or 700 (Bold) |
-| 見出し | 600 (SemiBold) or 700 (Bold) |
+| Usage | Recommended Weight |
+|-------|-------------------|
+| Body | 400 (Regular) |
+| Emphasis | 500 (Medium) or 700 (Bold) |
+| Headings | 600 (SemiBold) or 700 (Bold) |
 
-## 適用ルール
+## Application Rules
 
-- `h1` ~ `h4`: `--font-display`
-- その他: `--font-body`
+- `h1` through `h4`: `--font-display`
+- Everything else: `--font-body`
 
 ```css
 h1, h2, h3, h4 {
@@ -49,17 +49,17 @@ h1, h2, h3, h4 {
 }
 ```
 
-## テキストサイズユーティリティ
+## Text Size Utilities
 
-| クラス | サイズ | 用途 |
-|--------|--------|------|
-| `text-3xs` | 0.65rem (10.4px) | 極小テキスト |
-| `text-2xs` | 0.7rem (11.2px) | 小さなラベル |
-| `text-xs` | 0.75rem (12px) | キャプション |
-| `text-sm` | 0.875rem (14px) | 小さな本文 |
-| `text-base` | 1rem (16px) | 標準本文 |
+| Class | Size | Usage |
+|-------|------|-------|
+| `text-3xs` | 0.65rem (10.4px) | Extra small text |
+| `text-2xs` | 0.7rem (11.2px) | Small labels |
+| `text-xs` | 0.75rem (12px) | Captions |
+| `text-sm` | 0.875rem (14px) | Small body text |
+| `text-base` | 1rem (16px) | Standard body text |
 
-## 禁止事項
+## Prohibited Practices
 
-- 10px未満のフォントサイズを使用すること（可読性の確保）
-- 行間を1.4未満に設定すること（日本語テキストの可読性）
+- Using font sizes below 10px (to ensure readability)
+- Setting line height below 1.4 (for readability of Japanese text)

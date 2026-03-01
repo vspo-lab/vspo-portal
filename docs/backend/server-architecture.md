@@ -2,674 +2,326 @@
 
 ## Overview
 
-サーバーは **Clean Architecture** と **Domain-Driven Design (DDD)** の原則に基づいて設計されています。
-Hexagonal Architecture (Ports & Adapters) パターンを採用し、ビジネスロジックを外部システムから分離しています。
+vspo-portal is a **Next.js 15 App Router frontend** deployed on **Cloudflare Workers** via the OpenNext adapter. There is no backend server in this repository. The application consumes an external REST API through the `@vspo-lab/api` package, which provides an OpenAPI-generated client.
 
-## ディレクトリ構成
+The architecture follows a "frontend-only" model: Server Components fetch data from the external API at request time, and the rendered HTML is delivered to the client. All business logic and data persistence reside in the external API service.
 
-```
-services/api/
-├── domain/              # ドメイン層 - ビジネスロジック
-├── usecase/             # ユースケース層 - アプリケーションロジック
-├── infra/               # インフラストラクチャ層 - 外部システムとの接続
-│   ├── di/              # 依存性注入コンテナ
-│   ├── repository/      # データアクセス層
-│   ├── http/            # HTTP/REST API
-│   ├── ai/              # AI サービス連携
-│   ├── external/        # 外部API連携
-│   └── auth/            # 認証
-├── cmd/                 # エントリーポイント
-└── pkg/                 # 共有ユーティリティ
-```
+---
 
-## レイヤー構成
+## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     HTTP Handlers                            │
-│                   (Hono + OpenAPI)                          │
-└───────────────────────┬─────────────────────────────────────┘
-                        │
-┌───────────────────────▼─────────────────────────────────────┐
-│                    Use Case Layer                            │
-│              (アプリケーションロジック)                        │
-└───────────────────────┬─────────────────────────────────────┘
-                        │
-┌───────────────────────▼─────────────────────────────────────┐
-│                    Domain Layer                              │
-│                 (ビジネスロジック)                            │
-└───────────────────────┬─────────────────────────────────────┘
-                        │
-┌───────────────────────▼─────────────────────────────────────┐
-│                 Infrastructure Layer                         │
-│     (Repository, AI Service, Message Queue, etc.)           │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                    Cloudflare Workers                       │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │              Next.js 15 App Router                     │ │
+│  │                                                       │ │
+│  │  Server Components ─── @vspo-lab/api ──── External   │ │
+│  │  Client Components     (Axios + Retry)     REST API  │ │
+│  │  Route Handlers                                       │ │
+│  └───────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────┘
 ```
 
-## 設計原則
+Key points:
 
-### 1. 依存性逆転の原則 (DIP)
+- **No backend logic** lives in this repository. No database, no ORM, no DI container.
+- **Server Components** call the external API directly via `VSPOApi`.
+- **Cloudflare Access** headers authenticate requests to the external API.
+- **OpenNext adapter** bridges Next.js to the Cloudflare Workers runtime.
 
-- 上位レイヤーは下位レイヤーに依存しない
-- 抽象（型定義）に依存し、具象（実装）には依存しない
-- ドメイン層は他のレイヤーに依存しない
+---
+
+## Package Structure
+
+### `packages/api/` -- OpenAPI-Generated Client (Orval)
+
+The API client is auto-generated from an OpenAPI specification using Orval. It provides the `VSPOApi` class, which exposes entity-specific getters for each API domain.
 
 ```typescript
-// UseCase は Repository の型（抽象）に依存
-type Dependencies = Readonly<{
-  itemRepository: ItemRepository;  // 型定義
-  txManager: TxManager;
-}>;
+import { VSPOApi } from "@vspo-lab/api";
 
-// 具象は DI コンテナで注入
-const itemUseCase = ItemUseCase.from({
-  itemRepository: ItemRepository,  // 実装
-  txManager: TxManager,
-});
-```
-
-### 2. Result 型によるエラーハンドリング
-
-`try-catch` を使用せず、すべてのエラーを `Result<T, E>` 型で表現します。
-
-```typescript
-// Result 型の定義
-type Result<T, E extends BaseError> = OkResult<T> | ErrResult<E>;
-
-// 使用例
-const itemResult = await itemRepository.from({ tx }).getById(itemId);
-if (itemResult.err) {
-  return itemResult;  // エラーを伝播
-}
-const item = itemResult.val;  // 成功時の値
-```
-
-**メリット:**
-- エラーフローが明示的
-- 型システムでエラーハンドリングを強制
-- 予期しない例外が発生しにくい
-
-### 3. Zod Schema First
-
-すべての型定義は Zod スキーマから導出します。
-
-```typescript
-// スキーマが型の源泉
-const itemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.string().email(),
-  // ...
+const api = new VSPOApi({
+  apiKey: "...",
+  cfAccessClientId: "...",
+  cfAccessClientSecret: "...",
+  sessionId: "...",
+  baseUrl: "https://api.example.com",
+  retry: { attempts: 3, backoffMs: 1000 },
 });
 
-// 型はスキーマから推論
-type Item = z.infer<typeof itemSchema>;
+// Entity-specific getters
+const streamsResult = await api.streams.list({ status: "live" });
+const creatorsResult = await api.creators.getById("creator-id");
+const clipsResult = await api.clips.list({ limit: 20 });
+const eventsResult = await api.events.list({});
+const freechatsResult = await api.freechats.list({});
 ```
 
-### 4. イミュータブルな更新
+Entity getters:
 
-ドメインオブジェクトは不変で、更新操作は新しいオブジェクトを返します。
+| Getter | Domain |
+|--------|--------|
+| `.streams` | Live streams, scheduled streams, archives |
+| `.creators` | VTuber / creator profiles |
+| `.clips` | Clip videos |
+| `.events` | Events and announcements |
+| `.freechats` | Free chat streams |
+
+### `packages/errors/` -- Result Type and AppError
+
+Provides the `Result<T, AppError>` discriminated union for explicit error handling. Application code must never use `try-catch`.
 
 ```typescript
-// 現在のユーザーを更新して新しいユーザーを返す
-const updatedUser = Item.update(item, { name: "新しい名前" });
-const completedTask = Item.archive(item);
+import { Ok, Err, AppError, wrap } from "@vspo-lab/error";
+
+// AppError structure
+type AppError = {
+  code: string;
+  message: string;
+  status: number;
+  retry: boolean;
+  cause?: unknown;
+};
+
+// Result is a discriminated union
+type Result<T, E> = { ok: true; val: T } | { ok: false; err: E };
+```
+
+### `packages/dayjs/` -- UTC-First Date Utilities
+
+Wraps dayjs with UTC-first conventions. All date operations default to UTC, and localized formatting is available per language code.
+
+```typescript
+import { convertToUTC, formatToLocalizedDate } from "@vspo-lab/dayjs";
+```
+
+### `packages/logging/` -- Structured Logging
+
+Provides structured logging with `AsyncLocalStorage` for automatic `requestId` propagation across the request lifecycle.
+
+```typescript
+import { logger } from "@vspo-lab/logging";
+
+logger.info("Fetching streams", { count: 10 });
+// Output includes requestId from AsyncLocalStorage context
 ```
 
 ---
 
-## Domain Layer
+## Data Flow
 
-### 集約 (Aggregate)
-
-DDDの集約パターンを採用し、関連するエンティティをグループ化します。
+The primary data flow for a page render:
 
 ```
-domain/
-├── [your-domain]/           # アプリケーション固有の集約
-│   ├── [aggregate-root].ts  # 集約ルート
-│   ├── [entity].ts          # 子エンティティ
-│   └── [value-object].ts    # 値オブジェクト
-└── [reference-data].ts     # 参照データ（マスタデータなど）
+1. User requests a page
+2. Cloudflare Workers invokes Next.js App Router
+3. Server Component calls VSPOApi method
+4. VSPOApi sends HTTP request to external API
+   - Includes CF-Access headers for authentication
+   - Includes x-session-id header for session tracking
+   - Axios handles the HTTP transport
+5. External API returns JSON response
+6. VSPOApi wraps response in Result<T, AppError>
+7. Server Component checks result.ok
+   - If true: renders data
+   - If false: renders error state
+8. HTML is returned to the client
 ```
 
-### コンパニオンオブジェクトパターン
-
-ドメインモデルは、同名のコンパニオンオブジェクトにファクトリメソッドやビジネスロジックを持ちます。
+Example in a Server Component:
 
 ```typescript
-// 型定義
-const itemSchema = z.object({ ... });
-export type Item = z.infer<typeof itemSchema>;
-
-// コンパニオンオブジェクト（ドメインロジック）
-export const Item = {
-  new: (props: CreateUserProps): User => { ... },
-  update: (user: User, props: UpdateProps): User => { ... },
-  recordLogin: (user: User): User => { ... },
-} as const;
-```
-
-### Discriminated Union
-
-複雑な状態を持つ値オブジェクトは Discriminated Union で表現します。
-
-```typescript
-// ItemStatus は status によって異なる型
-type ActiveItem = {
-  status: "active";
-  publishedAt: Date;
-  viewCount: number;
-  // ...
-};
-
-type ArchivedItem = {
-  status: "archived";
-  archivedAt: Date;
-  // ...
-};
-
-type DraftItem = {
-  status: "draft";
-  lastEditedAt: Date;
-  // ...
-};
-
-type ItemStatus = ActiveItem | ArchivedItem | DraftItem;
-
-// 型ガード
-export const ItemStatus = {
-  isActive: (item: ItemStatus): item is ActiveItem =>
-    item.status === "active",
-  isArchived: (item: ItemStatus): item is ArchivedItem =>
-    item.status === "archived",
-} as const;
-```
-
----
-
-## UseCase Layer
-
-詳細な実装ルールは [UseCase 実装ルール](./usecase-rules.md) を参照。
-
-### ファクトリパターンによる依存性注入
-
-```typescript
-type Dependencies = Readonly<{
-  itemRepository: ItemRepository;
-  txManager: TxManager;
-}>;
-
-type ItemUseCaseType = Readonly<{
-  from: (deps: Dependencies) => Readonly<{
-    getById: (input: GetItemInput) => Promise<Result<Item, AppError>>;
-    update: (input: UpdateItemInput) => Promise<Result<Item, AppError>>;
-  }>;
-}>;
-
-export const ItemUseCase = {
-  from: ({ orderRepository, txManager }: Dependencies) => ({
-    getById: async ({ itemId }) => {
-      return await txManager.runTx(async (tx) => {
-        return await itemRepository.from({ tx }).getById(itemId);
-      });
-    },
-    // ...
-  }),
-} as const satisfies ItemUseCaseType;
-```
-
-### トランザクション管理
-
-すべてのデータベース操作は `txManager.runTx()` でトランザクションにラップします。
-
-```typescript
-return await txManager.runTx(async (tx) => {
-  // 複数のリポジトリ操作が同一トランザクション内で実行される
-  const itemRepo = itemRepository.from({ tx });
-  const orderRepo = itemRepository.from({ tx });
-
-  const itemResult = await itemRepo.complete(task);
-  if (itemResult.err) return taskResult;
-
-  const itemResult = await orderRepo.incrementCount(user);
-  if (itemResult.err) return itemResult;
-
-  return Ok(result);
-});
-```
-
-### 複合操作のオーケストレーション
-
-UseCase は複数のドメイン操作とリポジトリ操作を調整します。
-
-```typescript
-// OrderUseCase.completeTask
-return await txManager.runTx(async (tx) => {
-  // 1. タスクを完了状態に更新
-  const completedTask = Item.archive(item);
-  await itemRepo.update(completedTask);
-
-  // 2. ユーザーの使用回数をインクリメント
-  const updatedUser = User.incrementCount(user);
-  await orderRepo.update(updatedUser);
-
-  // 3. 結果のプレースホルダーを作成
-  const pendingResult = Result.createPending({ taskId });
-  await resultRepo.create(pendingResult);
-
-  // 4. 非同期処理タスクを発行
-  await messageQueue.publishProcessingTask({ taskId, resultId });
-
-  return Ok(result);
-});
-```
-
----
-
-## Infrastructure Layer
-
-### Repository パターン
-
-リポジトリはファクトリパターンでトランザクションを受け取ります。
-
-```typescript
-type Dependencies = Readonly<{ tx: Transaction }>;
-
-export type ItemRepository = Readonly<{
-  from: (deps: Dependencies) => Readonly<{
-    create: (item: Item) => Promise<Result<Item, AppError>>;
-    getById: (id: string) => Promise<Result<Item, AppError>>;
-    update: (item: Item) => Promise<Result<Item, AppError>>;
-    delete: (id: string) => Promise<Result<Item, AppError>>;
-  }>;
-}>;
-```
-
-### Method Naming Convention for Repository and UseCase
-
-Use **primitive, short method names** when the context makes the operation self-evident.
-
-#### Principle
-
-Since the repository/usecase is already scoped to a specific domain (e.g., `OrderRepository`, `ItemUseCase`), method names should not redundantly include the domain name.
-
-#### Good Examples
-
-```typescript
-// OrderRepository - domain context is clear
-export type OrderRepository = Readonly<{
-  from: (deps: Dependencies) => Readonly<{
-    create: (feedback: Feedback) => Promise<Result<Feedback, AppError>>;
-    getById: (id: string) => Promise<Result<Feedback, AppError>>;
-    update: (feedback: Feedback) => Promise<Result<Feedback, AppError>>;  // ✅ Not "updateFeedback"
-    delete: (id: string) => Promise<Result<void, AppError>>;
-  }>;
-}>;
-
-// ItemUseCase - domain context is clear
-const ItemUseCase = {
-  from: (deps: Dependencies) => ({
-    getById: async (userId: string) => { ... },  // ✅ Not "getById"
-    update: async (user: User) => { ... },       // ✅ Not "update"
-    delete: async (userId: string) => { ... },   // ✅ Not "deleteUser"
-  }),
-};
-```
-
-#### Bad Examples
-
-```typescript
-// ❌ Redundant - "Feedback" is already in the repository name
-OrderRepository.updateFeedback(feedback);
-OrderRepository.getFeedbackById(id);
-OrderRepository.deleteFeedback(id);
-
-// ❌ Redundant - "User" is already in the usecase name
-ItemUseCase.getById(id);
-ItemUseCase.update(user);
-```
-
-#### Exceptions
-
-When methods operate on **related but different entities**, include the entity name for clarity:
-
-```typescript
-// OrderRepository may also manage LineItems
-export type OrderRepository = Readonly<{
-  from: (deps: Dependencies) => Readonly<{
-    getById: (id: string) => Promise<Result<Order, AppError>>;
-    update: (order: Order) => Promise<Result<Order, AppError>>;
-    // LineItems are related entities - include name for clarity
-    getLineItemsByOrderId: (orderId: string) => Promise<Result<LineItem[], AppError>>;
-    saveLineItems: (orderId: string, items: LineItem[]) => Promise<Result<void, AppError>>;
-  }>;
-}>;
-```
-
-#### Standard CRUD Method Names
-
-| Operation | Method Name | Parameters |
-|-----------|-------------|------------|
-| Create | `create` | Domain object |
-| Read by ID | `getById` | ID string |
-| Read multiple | `list`, `getAll`, `findBy*` | Query params |
-| Update | `update` | Domain object |
-| Delete | `delete` | ID string |
-| Check existence | `exists` | ID string |
-
-#### Anti-pattern: Mixing Multiple Domains in One Repository
-
-Do NOT combine multiple domain entities into a single repository. This forces redundant method names and violates single responsibility.
-
-```typescript
-// ❌ Bad - Multiple domains in one repository forces verbose naming
-export type BillingRepository = Readonly<{
-  from: (deps: Dependencies) => Readonly<{
-    createSubscription: (subscription: Subscription) => Promise<...>;
-    updateSubscription: (subscription: Subscription) => Promise<...>;
-    createPaymentHistory: (payment: PaymentHistory) => Promise<...>;
-    getPaymentHistoryByUserId: (userId: string) => Promise<...>;
-  }>;
-}>;
-
-// ✅ Good - Separate repositories with clean naming
-export type SubscriptionRepository = Readonly<{
-  from: (deps: Dependencies) => Readonly<{
-    create: (subscription: Subscription) => Promise<...>;
-    update: (subscription: Subscription) => Promise<...>;
-    getByUserId: (userId: string) => Promise<...>;
-  }>;
-}>;
-
-export type PaymentHistoryRepository = Readonly<{
-  from: (deps: Dependencies) => Readonly<{
-    create: (payment: PaymentHistory) => Promise<...>;
-    getByUserId: (userId: string, limit?: number) => Promise<...>;
-  }>;
-}>;
-```
-
-### drizzle-zod スキーマの活用
-
-DB からドメインへの変換には drizzle-zod が生成するスキーマを DTO として活用します。
-
-```typescript
-import { selectHighlightsSchema } from "./mysql/schema";
-
-// drizzle-zod スキーマを直接使用
-return Ok(selectItemsSchema.parse(result.val[0]));
-
-// 集約の子エンティティにも使用
-const toTaskAggregate = (task, steps) => ({
-  ...task,
-  steps: steps.map((row) => selectStepsSchema.parse(row)),
-});
-```
-
-### N+1 問題の回避
-
-複数の関連エンティティは一括取得してクライアント側でグループ化します。
-
-```typescript
-// Good: 一括取得
-const taskIds = tasks.map((t) => t.id);
-const stepsResult = await tx
-  .select()
-  .from(stepsTable)
-  .where(inArray(stepsTable.taskId, taskIds));
-
-// グループ化
-const stepsByTaskId = new Map<string, SelectStep[]>();
-for (const step of stepsResult.val) {
-  const existing = stepsByTaskId.get(step.taskId) ?? [];
-  existing.push(step);
-  stepsByTaskId.set(step.taskId, existing);
-}
-
-// Bad: N+1 クエリ
-for (const task of tasks) {
-  const steps = await tx
-    .select()
-    .from(stepsTable)
-    .where(eq(stepsTable.taskId, task.id));
-}
-```
-
-### 集約の永続化
-
-集約ルートとその子エンティティをアトミックに保存します。
-
-```typescript
-saveAggregate: async (task: Task) => {
-  // 1. タスクヘッダーを更新
-  await tx.update(tasksTable)
-    .set({ status: task.status, ... })
-    .where(eq(tasksTable.id, task.id));
-
-  // 2. 既存の steps を削除
-  await tx.delete(stepsTable)
-    .where(eq(stepsTable.taskId, task.id));
-
-  // 3. 新しい steps を挿入
-  if (task.steps.length > 0) {
-    await tx.insert(stepsTable)
-      .values(task.steps.map(step => ({ ... })));
+// app/schedule/page.tsx (Server Component)
+import { createApi } from "@/lib/api";
+
+export default async function SchedulePage() {
+  const api = createApi();
+  const result = await api.streams.list({ status: "scheduled" });
+
+  if (!result.ok) {
+    return <ErrorDisplay error={result.err} />;
   }
 
-  return Ok(task);
+  return <ScheduleList streams={result.val} />;
 }
 ```
 
 ---
 
-## 依存性注入 (DI)
+## API Client Pattern
 
-### 手動によるファクトリベース DI
+### Constructor Configuration
 
-外部の DI フレームワークを使用せず、手動でコンテナを構築します。
+The `VSPOApi` class accepts the following configuration:
 
-```typescript
-// infra/di/container.ts
-export const createContainer = (): Container => {
-  // 1. インフラストラクチャ層のインスタンス化
-  const txManager = TxManager;
-  const orderRepository = UserRepository;
-  const orderRepository = OrderRepository;
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `apiKey` | `string` | API key for authenticating with the external API |
+| `cfAccessClientId` | `string` | Cloudflare Access Service Token client ID |
+| `cfAccessClientSecret` | `string` | Cloudflare Access Service Token client secret |
+| `sessionId` | `string` | Session ID for request tracking |
+| `baseUrl` | `string` | Base URL of the external API |
+| `retry` | `{ attempts: number; backoffMs: number }` | Retry configuration |
 
-  // 2. ユースケース層のインスタンス化（依存性を注入）
-  const itemUseCase = ItemUseCase.from({
-    orderRepository,
-    txManager,
-  });
+### Request Headers
 
-  const orderUseCase = OrderUseCase.from({
-    itemRepository,
-    txManager,
-  });
+Every API request includes the following headers:
 
-  // 3. コンテナを返却
-  return {
-    userUseCase,
-    orderUseCase,
-    // ...
-  };
-};
+```
+CF-Access-Client-Id: <cfAccessClientId>
+CF-Access-Client-Secret: <cfAccessClientSecret>
+x-api-key: <apiKey>
+x-session-id: <sessionId>
 ```
 
-### Hono ミドルウェアでの注入
+### Retry Logic
+
+The client includes built-in retry with exponential backoff:
+
+- **Default attempts**: 3
+- **Backoff strategy**: Exponential (e.g., 1s, 2s, 4s)
+- **Retryable conditions**: Network errors and 5xx responses
+- **Non-retryable**: 4xx responses (client errors)
 
 ```typescript
-// HTTP リクエストごとにコンテナを注入
-app.use("*", async (c, next) => {
-  const container = createContainer();
-  c.set("container", container);
-  await next();
-});
+// Retry is transparent to the caller
+const result = await api.streams.list({ status: "live" });
+// If the first attempt fails with a 503, the client automatically retries
+// up to the configured number of attempts before returning an Err result.
+```
 
-// ハンドラーで使用
-app.openapi(route, async (c) => {
-  const container = c.get("container");
-  const result = await container.userUseCase.getById({ itemId });
-  // ...
-});
+### Return Type
+
+All entity methods return `Promise<Result<T, AppError>>`:
+
+```typescript
+const result = await api.streams.list(params);
+
+if (result.ok) {
+  const streams = result.val; // T -- the typed response data
+} else {
+  const error = result.err;  // AppError -- structured error
+  console.error(error.message, { code: error.code, status: error.status });
+}
 ```
 
 ---
 
-## エラーハンドリング
+## Error Handling
 
-### AppError
+### Result<T, AppError> Pattern
+
+All fallible operations return `Result<T, AppError>` instead of throwing exceptions.
 
 ```typescript
-class AppError extends BaseError {
-  constructor(params: {
-    message: string;
-    code: ErrorCode;
-    cause?: unknown;
-    context?: Record<string, unknown>;
-  }) { ... }
+// Checking results
+const result = await api.creators.getById(id);
+
+if (!result.ok) {
+  // Handle error -- result.err is AppError
+  logger.error("Failed to fetch creator", {
+    code: result.err.code,
+    message: result.err.message,
+    status: result.err.status,
+  });
+  return;
 }
 
-// エラーコード
-type ErrorCode =
-  | "NOT_FOUND"
-  | "NOT_UNIQUE"
-  | "VALIDATION_ERROR"
-  | "UNAUTHORIZED"
-  | "FORBIDDEN"
-  | "INTERNAL_SERVER_ERROR";
+// Safe to access result.val
+const creator = result.val;
 ```
 
-### wrap ユーティリティ
+### AppError Properties
 
-Promise を Result 型に変換します。
+| Property | Type | Description |
+|----------|------|-------------|
+| `code` | `string` | Machine-readable error code (e.g., `"NOT_FOUND"`, `"INTERNAL_SERVER_ERROR"`) |
+| `message` | `string` | Human-readable error description |
+| `status` | `number` | HTTP status code |
+| `retry` | `boolean` | Whether the operation is safe to retry |
+| `cause` | `unknown` | Original error, if any |
+
+### The `wrap` Utility
+
+The `wrap` function converts a Promise into a `Result`, catching any thrown exceptions:
 
 ```typescript
+import { wrap, AppError } from "@vspo-lab/error";
+
 const result = await wrap(
-  tx.select().from(itemsTable).where(eq(itemsTable.id, id)).limit(1),
+  axios.get("/some-endpoint"),
   (err) => new AppError({
-    message: "Failed to get item",
+    message: "Request failed",
     code: "INTERNAL_SERVER_ERROR",
+    status: 500,
+    retry: true,
     cause: err,
   }),
 );
 ```
 
-### HTTP エラーハンドリング
+---
 
-グローバルエラーハンドラーで AppError を HTTP レスポンスに変換します。
+## Mock System
+
+For local development, the API client supports a mock mode through `MockHandler`.
+
+When `isLocalEnv()` returns `true`, API methods return mock data instead of making actual HTTP calls. This allows frontend development without a running external API.
 
 ```typescript
-// エラーコードから HTTP ステータスへのマッピング
-const statusMap: Record<ErrorCode, number> = {
-  NOT_FOUND: 404,
-  NOT_UNIQUE: 409,
-  VALIDATION_ERROR: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  INTERNAL_SERVER_ERROR: 500,
-};
-
-// レスポンス形式
-{
-  "error": {
-    "code": "NOT_FOUND",
-    "message": "Item not found",
-    "requestId": "req_abc123"
-  }
+// Internally, the VSPOApi checks the environment
+if (isLocalEnv()) {
+  // Returns predefined mock data wrapped in Ok(...)
+  return Ok(mockStreamsData);
 }
+
+// Otherwise, makes the real HTTP request
+const response = await axios.get(...);
 ```
+
+Mock data is colocated with the API client package and mirrors the shape of real API responses.
 
 ---
 
-## 外部サービス連携
+## Web Application
 
-### AI サービス
+The web application is located at:
 
-```typescript
-// infra/ai/contentGenerator.ts
-export const ContentGenerator = {
-  generate: async (params: GenerateParams): Promise<Result<ContentOutput, AppError>> => {
-    // 1. プロンプト構築
-    const prompt = buildPrompt(params);
-
-    // 2. AI サービス API 呼び出し
-    const response = await aiClient.generateContent(prompt);
-
-    // 3. レスポンスをパース・バリデーション
-    const parsed = contentOutputSchema.safeParse(response);
-    if (!parsed.success) {
-      return Err(new AppError({ ... }));
-    }
-
-    // 4. ドメインオブジェクトに変換
-    const items = ContentItem.fromAIOutput(parsed.data);
-    return Ok({ items, ... });
-  },
-};
+```
+service/vspo-schedule/v2/web/
 ```
 
-### メッセージキュー
+### Feature-Based Directory Structure
 
-非同期処理にはメッセージキューを使用します。
-
-```typescript
-// タスク発行
-await messageQueue.publishProcessingTask({
-  itemId,
-  requestId,
-});
-
-// ワーカーでの購読
-await messageQueue.subscribe(async (message) => {
-  const task = processingTaskSchema.parse(message.data);
-  await contentGenerator.generate(task);
-  message.ack();
-});
 ```
+src/
+├── features/
+│   ├── schedule/      # Stream schedule views (daily, weekly)
+│   ├── clips/         # Clip video browsing and filtering
+│   ├── freechat/      # Free chat stream listings
+│   ├── site-news/     # Site announcements and updates
+│   ├── shared/        # Cross-feature components and utilities
+│   └── multiview/     # Multi-stream viewing layout
+├── app/               # Next.js App Router pages and layouts
+├── lib/               # Application-level utilities
+└── components/        # Global UI components
+```
+
+Each feature directory contains its own components, hooks, and utilities scoped to that feature. Shared logic that crosses feature boundaries lives in `features/shared/`.
 
 ---
 
-## テスト戦略
+## Summary
 
-### レイヤー別テスト
-
-| レイヤー | テスト対象 | アプローチ |
-|---------|-----------|-----------|
-| Domain | ビジネスロジック | 純粋な単体テスト |
-| UseCase | オーケストレーション | モックリポジトリを使用 |
-| Repository | データアクセス | テスト用DBを使用 |
-| HTTP | API エンドポイント | 統合テスト |
-
-### 依存性のモック
-
-ファクトリパターンにより、テスト時に依存性を差し替え可能です。
-
-```typescript
-const mockItemRepository = {
-  from: () => ({
-    getById: async () => Ok(mockItem),
-    update: async (item) => Ok(item),
-  }),
-};
-
-const useCase = ItemUseCase.from({
-  orderRepository: mockItemRepository,
-  txManager: mockTxManager,
-});
-```
-
----
-
-## まとめ
-
-このアーキテクチャの主な特徴：
-
-1. **明確なレイヤー分離**: Domain/UseCase/Infrastructure の責務が明確
-2. **型安全性**: Zod スキーマと TypeScript による完全な型推論
-3. **エラーハンドリング**: Result 型による明示的なエラーフロー
-4. **テスタビリティ**: ファクトリパターンによる依存性の差し替え
-5. **トランザクション管理**: 複数操作のアトミック性を保証
-6. **イミュータブル更新**: 予測可能な状態管理
-7. **集約パターン**: 整合性境界の明確化
+| Aspect | Approach |
+|--------|----------|
+| Runtime | Cloudflare Workers via OpenNext |
+| Framework | Next.js 15 App Router |
+| API Communication | `@vspo-lab/api` (Orval-generated, Axios-based) |
+| Error Handling | `Result<T, AppError>` -- no try-catch |
+| Authentication | Cloudflare Access headers + API key |
+| Retry | Exponential backoff (default 3 attempts) |
+| Local Development | MockHandler returns mock data when `isLocalEnv()` is true |
+| Code Organization | Feature-based structure under `src/features/` |

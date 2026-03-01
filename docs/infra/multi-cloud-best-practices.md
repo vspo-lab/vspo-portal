@@ -1,82 +1,82 @@
-# マルチクラウド インフラ構築ベストプラクティス（AWS / GCP / Azure / Cloudflare）
+# Multi-Cloud Infrastructure Best Practices (AWS / GCP / Azure / Cloudflare)
 
-## 概要
+## Overview
 
-このドキュメントは、AWS / GCP / Azure / Cloudflare でインフラを設計・運用するときの実践指針を、各クラウドの一次情報（公式ドキュメント）に基づいて整理したものです。  
-調査日: 2026-02-28
+This document consolidates practical guidelines for designing and operating infrastructure on AWS / GCP / Azure / Cloudflare, based on primary sources (official documentation) from each cloud provider.
+Research date: 2026-02-28
 
-## 共通原則（4クラウド共通）
+## Common Principles (Across All 4 Clouds)
 
-1. **Well-Architected系フレームワークを最上位原則にする**
-   - まず各クラウドの公式フレームワークで非機能要件（セキュリティ、可用性、コスト、運用）を定義する。
-2. **Landing Zone / 基盤層を先に作る**
-   - アカウント/サブスクリプション/プロジェクト分離、IAM、ネットワーク、ログ集約を先行実装する。
-3. **IaCを唯一の変更経路にする**
-   - Terraformなどで宣言的に管理し、手動変更は例外運用に限定する。
-4. **Stateと権限を分離する**
-   - 環境ごとにStateを分離し、CI/CDは短命クレデンシャル（OIDCなど）＋最小権限を徹底する。
-5. **ポリシー/監査/スキャンをパイプラインに組み込む**
-   - Policy as Code、静的解析、監査ログの中央集約を標準化する。
+1. **Use Well-Architected frameworks as the top-level principles**
+   - First define non-functional requirements (security, availability, cost, operations) using each cloud's official framework.
+2. **Build the Landing Zone / foundation layer first**
+   - Implement account/subscription/project separation, IAM, networking, and log aggregation before application workloads.
+3. **Make IaC the sole change path**
+   - Manage declaratively with Terraform or similar tools, and limit manual changes to exceptional operations only.
+4. **Separate state and permissions**
+   - Separate state per environment, and enforce short-lived credentials (e.g., OIDC) + least privilege for CI/CD.
+5. **Embed policy/audit/scanning into the pipeline**
+   - Standardize Policy as Code, static analysis, and centralized audit log aggregation.
 
-## クラウド別ベストプラクティス
+## Cloud-Specific Best Practices
 
 ### AWS
 
-1. **設計基準**
-   - AWS Well-Architected Framework（2024-11-06版）を設計レビュー基準にする。
-2. **組織設計（Landing Zone / Multi-account）**
-   - AWS Control Tower + AWS Organizations をベースに multi-account を前提化する。
-   - ワークロード分離は「複数アカウント」を基本とし、管理アカウントへのワークロード配置を避ける。
-3. **Terraform運用**
-   - AWS Prescriptive Guidance に沿って、以下を標準化する:
-     - OIDC連携で短命クレデンシャル化（GitHub Actions/GitLab）
-     - 最小権限IAM、Secrets Manager活用
-     - S3リモートバックエンド + 環境別バックエンド分離
-     - Stateのバージョニング/監査ログ（CloudTrail）とCIでのバージョンチェック
+1. **Design Standards**
+   - Use the AWS Well-Architected Framework (2024-11-06 edition) as the design review standard.
+2. **Organization Design (Landing Zone / Multi-account)**
+   - Use AWS Control Tower + AWS Organizations as the basis, with multi-account as the default.
+   - Workload isolation defaults to "multiple accounts," avoiding workload placement in the management account.
+3. **Terraform Operations**
+   - Standardize the following per AWS Prescriptive Guidance:
+     - Short-lived credentials via OIDC integration (GitHub Actions/GitLab)
+     - Least privilege IAM, Secrets Manager usage
+     - S3 remote backend + per-environment backend separation
+     - State versioning/audit logs (CloudTrail) and CI-based version checking
 
 ### GCP
 
-1. **設計基準**
-   - Google Cloud Well-Architected Framework（Last reviewed: 2026-01-28）を採用する。
-2. **基盤設計（Foundation）**
-   - Enterprise foundations blueprint を参照し、組織階層・組織ポリシー・ログ集約・シークレット管理を標準化する。
-3. **Terraform運用**
-   - Terraform best practices（general style / reusable modules）に沿って、以下を徹底する:
-     - 命名規約の統一（識別子の一貫性）
-     - 目的単位のファイル分割（過分割しない）
-     - モジュールとルート構成の分離、`docs/`への補助文書配置
+1. **Design Standards**
+   - Adopt the Google Cloud Well-Architected Framework (Last reviewed: 2026-01-28).
+2. **Foundation Design**
+   - Reference the Enterprise foundations blueprint to standardize organization hierarchy, organization policies, log aggregation, and secret management.
+3. **Terraform Operations**
+   - Follow Terraform best practices (general style / reusable modules) to enforce:
+     - Unified naming conventions (identifier consistency)
+     - Purpose-based file splitting (avoid over-splitting)
+     - Separation of modules and root configuration, with supplementary documentation in `docs/`
 
 ### Azure
 
-1. **設計基準**
-   - Azure Well-Architected Framework の 5 Pillars（Reliability / Security / Cost Optimization / Operational Excellence / Performance Efficiency）で非機能要件を固定する。
-2. **Landing Zone設計**
-   - Platform Landing Zone と Application Landing Zone を分離し、管理グループとポリシー継承で統制する。
-3. **Terraform運用**
-   - Azure Verified Modules (AVM) for Platform Landing Zones（2025-01-21）と Azure landing zone accelerator を優先する。
-   - ブートストラップでリポジトリ/パイプライン/State管理基盤を先に作成し、以降はCI/CD経由で更新する。
+1. **Design Standards**
+   - Fix non-functional requirements using the Azure Well-Architected Framework's 5 Pillars (Reliability / Security / Cost Optimization / Operational Excellence / Performance Efficiency).
+2. **Landing Zone Design**
+   - Separate Platform Landing Zone and Application Landing Zone, governing through management groups and policy inheritance.
+3. **Terraform Operations**
+   - Prioritize Azure Verified Modules (AVM) for Platform Landing Zones (2025-01-21) and Azure landing zone accelerator.
+   - Bootstrap creates the repository/pipeline/state management infrastructure first, with subsequent updates via CI/CD.
 
 ### Cloudflare
 
-1. **Terraform適用方針**
-   - Cloudflare公式のTerraform Best Practicesに沿って、対象リソースはTerraform側で一元管理する。
-2. **構成分離**
-   - アカウント・ゾーン・プロダクト単位でディレクトリを分離し、所有権とStateスコープを明確化する。
-   - 環境（staging/QA/UAT/prod）はアカウント・ドメイン分離を推奨。
-3. **認証・State管理**
-   - APIトークンは用途に応じて Account API Token を使い、権限は必要最小化（Read/Editを明示選択）。
-   - 必要に応じてR2をリモートバックエンドとして使い、ローカルStateを移行する。
+1. **Terraform Application Policy**
+   - Follow Cloudflare's official Terraform Best Practices to centrally manage target resources through Terraform.
+2. **Configuration Separation**
+   - Separate directories by account, zone, and product to clarify ownership and state scope.
+   - For environments (staging/QA/UAT/prod), account and domain separation is recommended.
+3. **Authentication & State Management**
+   - Use Account API Tokens scoped per purpose, with permissions minimized (explicitly select Read/Edit).
+   - Use R2 as a remote backend as needed, migrating from local state.
 
-## 実装チェックリスト（最小セット）
+## Implementation Checklist (Minimum Set)
 
-1. 全クラウドで「設計基準フレームワーク」を1つずつ選定済み
-2. Landing Zone（組織構造・ネットワーク・IAM・監査ログ）の初期構築完了
-3. IaCリポジトリで環境分離（dev/stg/prod）とState分離を実装済み
-4. CI/CDで `plan -> review -> apply` とセキュリティスキャンを実装済み
-5. 短命クレデンシャル（OIDC等）へ移行し、長期シークレットを排除済み
-6. 例外的な手動変更を検出・ドリフト修復する運用手順を定義済み
+1. A "design standard framework" has been selected for each cloud
+2. Initial Landing Zone build complete (organization structure, networking, IAM, audit logs)
+3. Environment separation (dev/stg/prod) and state separation implemented in the IaC repository
+4. `plan -> review -> apply` and security scanning implemented in CI/CD
+5. Migrated to short-lived credentials (OIDC, etc.) and eliminated long-lived secrets
+6. Operational procedures defined for detecting exceptional manual changes and remediating drift
 
-## 参照（一次情報）
+## References (Primary Sources)
 
 ### AWS
 - [AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html)

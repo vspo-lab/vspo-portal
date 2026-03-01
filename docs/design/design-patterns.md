@@ -1,265 +1,265 @@
-# デザインパターン
+# Design Patterns
 
-## 概要
+## Overview
 
-デザインパターンは、繰り返し発生するUI課題に対する検証済みの解決策です。本ガイドラインでは、8つの主要なデザインパターンを定義します。
+Design patterns are proven solutions to recurring UI challenges. This guideline defines 8 major design patterns.
 
-## 視線誘導
+## Eye Flow Guidance
 
-ユーザーの視線の流れを設計し、重要な情報へ自然に導くパターンです。
+Patterns that design the flow of the user's gaze to naturally guide them to important information.
 
-### 基本法則
+### Fundamental Principles
 
-#### 1. 視線は上から下に移動する
+#### 1. The eye moves from top to bottom
 
-| パターン | 特徴 | 適用場面 |
-|----------|------|----------|
-| F型 | 左上から右へ、そして下へ繰り返し | 一覧画面、設定画面、情報が上下に並ぶ画面 |
-| Z型 | 左上から右上、左下から右下へ | モーダル、ログイン画面、初見やスクロールが少ない画面 |
+| Pattern | Characteristics | Application |
+|---------|----------------|-------------|
+| F-pattern | Left-to-right, then downward repeatedly | List screens, settings screens, screens with vertically stacked information |
+| Z-pattern | Top-left to top-right, bottom-left to bottom-right | Modals, login screens, first-visit screens or screens with little scrolling |
 
-#### 2. 視線は大きいものから小さいものへ移動する
+#### 2. The eye moves from large elements to small elements
 
-見出しレベルを順序立てて使用し、内側の余白を外側より狭くすることで階層的な視線誘導を実現します。
+Use heading levels in order and make inner padding narrower than outer padding to achieve hierarchical eye flow guidance.
 
-### 実装上の注意点
+### Implementation Notes
 
-- ユーザーが明確な目的を持つ場合、法則は機能しないことを認識する
-- 複数の法則が相互作用することを意識する
-- 見出しや余白で「視線移動の起点・境界」を設定する
-- デバイスや画面幅による効果の変動を考慮する
-- アクセシビリティ対応と併用し、視線誘導のみに依存しない
+- Recognize that principles may not apply when users have a clear objective
+- Be aware that multiple principles interact with each other
+- Set "starting points and boundaries for eye movement" using headings and whitespace
+- Consider variations in effectiveness across devices and screen widths
+- Combine with accessibility support; do not rely solely on eye flow guidance
 
-## 視覚的グルーピング
+## Visual Grouping
 
-関連性のある複数の要素に視覚的なまとまりを持たせるパターンです。
+Patterns that give visual cohesion to multiple related elements.
 
-### 3つの表現方法
+### 3 Expression Methods
 
-| 手法 | 特徴 | 使用場面 |
-|------|------|----------|
-| 余白 | 画面の複雑性を抑制 | 関連度による要素配置が可能な場合 |
-| 矩形 | グループ範囲を明確化 | 複数の子グループを含む場合 |
-| 罫線 | 明確な境界を表示 | 余白・矩形では対応困難な場合の最終手段 |
+| Method | Characteristics | Use Case |
+|--------|----------------|----------|
+| Whitespace | Reduces screen complexity | When elements can be arranged by relevance |
+| Rectangle | Clarifies group boundaries | When containing multiple sub-groups |
+| Divider line | Displays clear boundaries | Last resort when whitespace or rectangles are insufficient |
 
-### 階層構造
-
-```
-セクション（見出し + コンテンツ）
-└── ブロック（セクション内のグループ）
-    └── 要素
-```
-
-### 設計指針
-
-- **一貫性の維持**: 同じ階層の要素には同じグルーピング手法を適用
-- **階層の深さに注意**: 深くなるほど情報の関係性の把握が難しくなる
-- **TabBar/SideNav活用**: 複数セクションの切り替えには専用コンポーネントを使用
-
-## ページレイアウト
-
-ページ全体の構成を設計するパターンです。
-
-### 基本構成
+### Hierarchy Structure
 
 ```
-┌─────────────────────────────┐
-│         AppHeader           │
-├─────────────────────────────┤
-│ Container                   │
-│ ┌─────────────────────────┐ │
-│ │ ページタイトル + リード文│ │
-│ ├─────────────────────────┤ │
-│ │                         │ │
-│ │      メインコンテンツ   │ │
-│ │                         │ │
-│ └─────────────────────────┘ │
-└─────────────────────────────┘
+Section (heading + content)
++-- Block (group within a section)
+    +-- Element
 ```
 
-### 6つのレイアウトタイプ
+### Design Guidelines
 
-| タイプ | 説明 | 用途 |
-|--------|------|------|
-| Collection (Table/List) | オブジェクトの一覧表示 | 記事一覧、ユーザーリスト |
-| Single (1-Column) | 並列的な情報のセクション | 詳細ページ、設定画面 |
-| Single (2-Column) | 主/副情報の区別 | プロフィール、ダッシュボード |
-| Single (Custom View) | 2Dインタラクティブコンテンツ | マップ、チャート |
-| Side Navigation + Content | 広範なナビゲーション | 設定、ドキュメント |
-| Collection + Single | リスト・詳細のペア表示 | メール、チャット |
+- **Maintain consistency**: Apply the same grouping method to elements at the same hierarchy level
+- **Be cautious of hierarchy depth**: Deeper hierarchies make it harder to understand information relationships
+- **Use TabBar/SideNav**: Use dedicated components for switching between multiple sections
 
-### リード文
+## Page Layout
 
-ヘッダーエリアにリード文を実装し、ユーザーがページの目的を素早く把握できるようにします。
+Patterns for designing the overall page structure.
+
+### Basic Structure
+
+```
++-----------------------------+
+|         AppHeader           |
++-----------------------------+
+| Container                   |
+| +-------------------------+ |
+| | Page Title + Lead Text  | |
+| +-------------------------+ |
+| |                         | |
+| |      Main Content       | |
+| |                         | |
+| +-------------------------+ |
++-----------------------------+
+```
+
+### 6 Layout Types
+
+| Type | Description | Usage |
+|------|-------------|-------|
+| Collection (Table/List) | Display a list of objects | Article list, user list |
+| Single (1-Column) | Sections with parallel information | Detail page, settings screen |
+| Single (2-Column) | Distinguishing primary/secondary information | Profile, dashboard |
+| Single (Custom View) | 2D interactive content | Map, chart |
+| Side Navigation + Content | Extensive navigation | Settings, documentation |
+| Collection + Single | List-detail pair display | Email, chat |
+
+### Lead Text
+
+Implement lead text in the header area so users can quickly understand the page's purpose.
 
 ```tsx
 <header>
-  <h1>記事一覧</h1>
+  <h1>Article List</h1>
   <p className="text-text-secondary">
-    公開中の記事を管理できます。新しい記事を作成したり、既存の記事を編集できます。
+    Manage published articles. Create new articles or edit existing ones.
   </p>
 </header>
 ```
 
-### ページ長の管理
+### Page Length Management
 
-過度に長い縦スクロールを避ける方法：
+Methods to avoid excessively long vertical scrolling:
 
-- ディスクロージャーでコンテンツを折りたたむ
-- TabBar、SideNav、SideMenuでページを分割
-- 情報密度を下げる
+- Collapse content with disclosure widgets
+- Split pages using TabBar, SideNav, or SideMenu
+- Reduce information density
 
-## モバイルレイアウト
+## Mobile Layout
 
-スマートフォン向けのUI設計パターンです。
+UI design patterns for smartphones.
 
-### 基本原則
+### Core Principles
 
-| 項目 | デスクトップ | モバイル |
-|------|-------------|---------|
-| カラム | マルチカラム可 | シングルカラム推奨 |
-| スクロール | 2D可（マップ等） | 縦スクロールのみ推奨 |
-| 情報量 | 詳細表示可 | 厳選した情報のみ |
-| 操作 | 複数操作可 | シンプルな操作に限定 |
+| Item | Desktop | Mobile |
+|------|---------|--------|
+| Columns | Multi-column possible | Single column recommended |
+| Scrolling | 2D possible (maps, etc.) | Vertical scrolling only recommended |
+| Information volume | Detailed display possible | Selected information only |
+| Operations | Multiple operations possible | Limited to simple operations |
 
-### 設計アプローチ
+### Design Approach
 
 ```tsx
-// レスポンシブ vs アダプティブ
-// レスポンシブ: 同じ要素、構造、データでレイアウトのみ変更
-// アダプティブ: 画面幅やデバイスに応じて構造、データ、表現を変更
+// Responsive vs Adaptive
+// Responsive: Same elements, structure, and data; only layout changes
+// Adaptive: Structure, data, and presentation change based on screen width or device
 ```
 
-### 実装
+### Implementation
 
 ```tsx
-// モバイル判定
+// Mobile detection
 const { isMobile } = useEnvironment();
 
-// レスポンシブクラス
+// Responsive classes
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-  {/* カード */}
+  {/* Cards */}
 </div>
 ```
 
-## フィードバック
+## Feedback
 
-ユーザーの操作に対する応答を設計するパターンです。
+Patterns for designing responses to user actions.
 
-### 基本原則
+### Core Principles
 
-| 原則 | 説明 |
-|------|------|
-| 受動的認識 | ユーザーが能動的に確認しなくても結果がわかる |
-| 近接表示 | 操作した要素の近くにフィードバックを表示 |
-| スクリーンリーダー対応 | 適切な読み上げ順序を維持 |
+| Principle | Description |
+|-----------|-------------|
+| Passive recognition | Users can understand the result without actively checking |
+| Proximity display | Display feedback near the element that was operated on |
+| Screen reader support | Maintain appropriate reading order |
 
-### フィードバックのパターン
+### Feedback Patterns
 
-#### フォーム入力・送信
+#### Form Input & Submission
 
 ```tsx
-// バリデーションエラー
+// Validation error
 <FormControl error={!!errors.email}>
-  <Label>メールアドレス</Label>
+  <Label>Email Address</Label>
   <Input {...register("email")} />
   {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
 </FormControl>
 ```
 
-#### 処理中状態
+#### Processing State
 
 ```tsx
 <Button loading={isSubmitting}>
-  {isSubmitting ? "送信中..." : "送信する"}
+  {isSubmitting ? "Submitting..." : "Submit"}
 </Button>
 ```
 
-#### 完了通知
+#### Completion Notification
 
 ```tsx
-// 成功時
+// On success
 <ResponseMessage status="success">
-  保存しました
+  Saved successfully
 </ResponseMessage>
 
-// エラー時
+// On error
 <ResponseMessage status="error">
-  保存に失敗しました。再度お試しください。
+  Failed to save. Please try again.
 </ResponseMessage>
 ```
 
-## モーダルUI
+## Modal UI
 
-特定のタスクを完了させるためのモード付きUIパターンです。
+Modal UI patterns for completing specific tasks.
 
-### 使用場面
+### Use Cases
 
-| 場面 | 例 |
-|------|-----|
-| オブジェクトの追加・編集 | 記事作成、プロフィール編集 |
-| データの並べ替え | 一覧のソート設定 |
-| データの取り込み・書き出し | CSVインポート/エクスポート |
-| 破壊的処理の確認 | 削除確認 |
-| 複雑な一連操作 | ウィザード |
+| Scenario | Example |
+|----------|---------|
+| Adding/editing objects | Creating articles, editing profiles |
+| Sorting data | Sort settings for lists |
+| Importing/exporting data | CSV import/export |
+| Confirming destructive actions | Delete confirmation |
+| Complex sequential operations | Wizards |
 
-### 実装パターン
+### Implementation Patterns
 
-| パターン | コンポーネント | 用途 |
-|----------|--------------|------|
-| モーダルダイアログ | Dialog | 小〜中規模のフォーム |
-| ページ全体モード | FloatArea | 情報量が多い場合 |
-| ページ部分モード | Drawer | 元のレイアウト認知を維持 |
-| ステップ分割 | StepFormDialog | 複数ステップの操作 |
+| Pattern | Component | Usage |
+|---------|-----------|-------|
+| Modal dialog | Dialog | Small to medium forms |
+| Full-page mode | FloatArea | When there is a large amount of information |
+| Partial-page mode | Drawer | Maintain awareness of original layout |
+| Step-based | StepFormDialog | Multi-step operations |
 
-### 構成要素
+### Components
 
 ```tsx
 <Dialog>
-  <DialogTitle>記事を作成</DialogTitle>
-  <DialogDescription>新しい記事の情報を入力してください。</DialogDescription>
+  <DialogTitle>Create Article</DialogTitle>
+  <DialogDescription>Enter the information for the new article.</DialogDescription>
 
   <DialogContent>
     <FormControl>
-      <Label>タイトル</Label>
+      <Label>Title</Label>
       <Input />
     </FormControl>
   </DialogContent>
 
   <DialogActions>
-    <Button variant="ghost" onClick={onCancel}>キャンセル</Button>
-    <Button onClick={onSubmit}>作成する</Button>
+    <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+    <Button onClick={onSubmit}>Create</Button>
   </DialogActions>
 </Dialog>
 ```
 
-### アクセシビリティ
+### Accessibility
 
-**完了ボタンの無効化は避ける**。入力不備がある場合も、ユーザーにボタンを押させてからエラーフィードバックを表示します。
+**Avoid disabling the submit button.** Even when there are input errors, let the user press the button and then display error feedback.
 
-## ウィザード
+## Wizard
 
-複数ステップに分けて操作を完了させるパターンです。
+Patterns for completing operations across multiple steps.
 
-### 使用場面
+### Use Cases
 
-| 場面 | 例 |
-|------|-----|
-| 複雑な操作 | オブジェクトの検索と選択、ファイル編集 |
-| 条件分岐がある場合 | 入力内容によって後続項目が変わる |
-| パラメーター入力を伴う確認操作 | 削除前の条件設定 |
+| Scenario | Example |
+|----------|---------|
+| Complex operations | Searching and selecting objects, editing files |
+| Conditional branching | Subsequent items change based on input content |
+| Confirmation with parameter input | Setting conditions before deletion |
 
-### 基本原則
+### Core Principles
 
-- **乱用を避ける**: ユーザー行動を制限するため、特に有効な場合に限定
-- **進捗表示**: 全体のステップ数と現在のステップを常に表示
+- **Avoid overuse**: Limit to particularly effective cases since it restricts user behavior
+- **Show progress**: Always display the total number of steps and the current step
 
-### 実装
+### Implementation
 
 ```tsx
 <StepFormDialog
   currentStep={currentStep}
   totalSteps={3}
-  title={`記事のインポート (${currentStep}/3)`}
+  title={`Import Articles (${currentStep}/3)`}
 >
   {currentStep === 1 && <Step1 />}
   {currentStep === 2 && <Step2 />}
@@ -267,57 +267,57 @@ const { isMobile } = useEnvironment();
 
   <DialogActions>
     {currentStep > 1 && (
-      <Button variant="ghost" onClick={onBack}>戻る</Button>
+      <Button variant="ghost" onClick={onBack}>Back</Button>
     )}
-    <Button variant="ghost" onClick={onCancel}>キャンセル</Button>
+    <Button variant="ghost" onClick={onCancel}>Cancel</Button>
     {currentStep < 3 ? (
-      <Button onClick={onNext}>次へ</Button>
+      <Button onClick={onNext}>Next</Button>
     ) : (
-      <Button onClick={onComplete}>インポートする</Button>
+      <Button onClick={onComplete}>Import</Button>
     )}
   </DialogActions>
 </StepFormDialog>
 ```
 
-## 権限による表示制御
+## Permission-Based Display Control
 
-ユーザーの権限に応じてUIの表示・非表示を制御するパターンです。
+Patterns for controlling UI visibility based on user permissions.
 
-### 4つのパターン
+### 4 Patterns
 
-| パターン | 対応 | 例 |
-|----------|------|-----|
-| A | UIを非表示、理由も非表示 | 権限なしユーザーには機能自体を見せない |
-| B | UIを非表示にし、その理由を明示 | システム標準権限（削除不可）の説明 |
-| C | UIはdisabledとし、その理由を明示 | 使用中のため削除不可 |
-| D | UIを表示・操作可能 | 通常状態 |
+| Pattern | Behavior | Example |
+|---------|----------|---------|
+| A | Hide UI, hide reason | Do not show the feature at all to users without permission |
+| B | Hide UI, show reason | Explanation for system-level permissions (cannot be deleted) |
+| C | Disable UI, show reason | Cannot delete because it is in use |
+| D | Show and enable UI | Normal state |
 
-### 理由の表示方法
+### Displaying the Reason
 
 ```tsx
-// Tooltipで理由を表示
-<Tooltip content="この権限はシステムで使用されているため削除できません">
-  <Button disabled>削除</Button>
+// Display reason via Tooltip
+<Tooltip content="This permission cannot be deleted because it is used by the system">
+  <Button disabled>Delete</Button>
 </Tooltip>
 
-// disabledReasonを使用
+// Using disabledReason
 <Button
   disabled
-  disabledReason="編集中のユーザーがいるため削除できません"
+  disabledReason="Cannot delete because another user is currently editing"
 >
-  削除
+  Delete
 </Button>
 ```
 
-### ライティング基本方針
+### Writing Guidelines
 
-| 状況 | 表現 |
-|------|------|
-| ユーザーが対応可能 | 「〜がないので、〜できません」 |
-| ユーザーが対応不可 | 「〜できません」 |
+| Situation | Expression |
+|-----------|------------|
+| User can take action | "Cannot [action] because [reason]" |
+| User cannot take action | "Cannot [action]" |
 
-## 参考リンク
+## References
 
-- [デザイン原則](./design-principles.md)
-- [アクセシビリティガイドライン](./accessibility.md)
-- [CSS ガイドライン](../css.md)
+- [Design Principles](./design-principles.md)
+- [Accessibility Guidelines](./accessibility.md)
+- [CSS Guidelines](../css.md)

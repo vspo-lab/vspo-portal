@@ -2,109 +2,109 @@
 
 ## Overview
 
-本プロジェクトでは **Terraform** を使用して Google Cloud Platform (GCP) のインフラストラクチャを管理しています。
-Infrastructure as Code (IaC) により、インフラの変更を Git で追跡し、レビュープロセスを通じて安全にデプロイします。
+This project uses **Terraform** to manage Google Cloud Platform (GCP) infrastructure.
+Infrastructure as Code (IaC) enables tracking infrastructure changes in Git and deploying safely through a review process.
 
-tfaction ベースの運用標準と設計判断の詳細は以下を参照してください。
+For tfaction-based operational standards and design decisions, see:
 
 - `docs/infra/terraform-tfaction-guidelines.md`
 
-## ディレクトリ構成
+## Directory Structure
 
 ```
 infrastructure/terraform/
-├── tfaction.yaml              # tfaction ルート設定
-├── .tflint.hcl                # TFLint 設定
-├── env/                       # 環境別設定
-│   ├── dev/                   # 開発環境
-│   │   └── backend/           # Terraform バックエンド設定
-│   │       ├── main.tf        # モジュール呼び出し
-│   │       ├── provider.tf    # プロバイダ設定
-│   │       ├── variable.tf    # 変数定義
-│   │       ├── outputs.tf     # 出力定義
-│   │       └── tfaction.yaml  # tfaction 個別設定
-│   ├── staging/               # ステージング環境
-│   └── prod/                  # 本番環境
-└── modules/                   # 再利用可能モジュール
-    └── terraform_backend/     # Terraform バックエンド用モジュール
-        ├── terraform.tf       # サービスアカウント設定
-        ├── github_oidc.tf     # GitHub OIDC 設定
-        ├── state_bucket.tf    # State バケット設定
-        ├── variable.tf        # 変数定義
-        ├── outputs.tf         # 出力定義
-        └── tfaction_module.yaml
++-- tfaction.yaml              # tfaction root configuration
++-- .tflint.hcl                # TFLint configuration
++-- env/                       # Per-environment configuration
+|   +-- dev/                   # Development environment
+|   |   +-- backend/           # Terraform backend configuration
+|   |       +-- main.tf        # Module invocations
+|   |       +-- provider.tf    # Provider configuration
+|   |       +-- variable.tf    # Variable definitions
+|   |       +-- outputs.tf     # Output definitions
+|   |       +-- tfaction.yaml  # tfaction per-directory configuration
+|   +-- staging/               # Staging environment
+|   +-- prod/                  # Production environment
++-- modules/                   # Reusable modules
+    +-- terraform_backend/     # Terraform backend module
+        +-- terraform.tf       # Service account configuration
+        +-- github_oidc.tf     # GitHub OIDC configuration
+        +-- state_bucket.tf    # State bucket configuration
+        +-- variable.tf        # Variable definitions
+        +-- outputs.tf         # Output definitions
+        +-- tfaction_module.yaml
 ```
 
-### 構成原則
+### Structural Principles
 
-- **modules/**: 再利用可能なインフラコンポーネント
-- **env/**: 環境ごとのルートモジュール（dev/staging/prod）
-- 各環境は独立した State を持ち、相互に影響しない
+- **modules/**: Reusable infrastructure components
+- **env/**: Root modules per environment (dev/staging/prod)
+- Each environment has independent state and does not affect others
 
 ---
 
-## ファイル命名規則
+## File Naming Conventions
 
-### 標準ファイル構成
+### Standard File Structure
 
-| ファイル名 | 用途 |
+| File Name | Purpose |
 |-----------|------|
-| `main.tf` | リソース定義、モジュール呼び出し |
-| `provider.tf` | プロバイダとバックエンド設定 |
-| `variables.tf` | 変数宣言 |
-| `outputs.tf` | 出力値定義 |
-| `versions.tf` | Terraform/プロバイダバージョン制約 |
+| `main.tf` | Resource definitions, module invocations |
+| `provider.tf` | Provider and backend configuration |
+| `variables.tf` | Variable declarations |
+| `outputs.tf` | Output value definitions |
+| `versions.tf` | Terraform/provider version constraints |
 
-### リソース命名
+### Resource Naming
 
-リソース名には **アンダースコア区切り** を使用します。
+Use **underscore-separated** naming for resource names.
 
 ```hcl
-# Good: アンダースコア区切り
+# Good: underscore-separated
 resource "google_storage_bucket" "terraform_state" {
-  name = "my-project-tfstate"  # name 引数はハイフン可
+  name = "my-project-tfstate"  # name argument can use hyphens
 }
 
 resource "google_service_account" "github_actions_sa" {
   account_id = "gha-terraform-sa"
 }
 
-# Bad: ハイフン区切り（リソース名）
-resource "google_storage_bucket" "terraform-state" {  # ❌
+# Bad: hyphen-separated (resource name)
+resource "google_storage_bucket" "terraform-state" {  # Bad
   ...
 }
 ```
 
-### リソース名の簡潔化
+### Keep Resource Names Concise
 
-リソースタイプで既に明確な場合、名前に冗長な情報を含めない。
+When the resource type already makes it clear, do not include redundant information in the name.
 
 ```hcl
-# Good: シンプルな名前
+# Good: simple name
 resource "google_storage_bucket" "state" { ... }
 
-# Bad: 冗長
-resource "google_storage_bucket" "state_bucket" { ... }  # ❌ bucket が重複
+# Bad: redundant
+resource "google_storage_bucket" "state_bucket" { ... }  # Bad: bucket is redundant
 ```
 
 ---
 
-## モジュール設計
+## Module Design
 
-### モジュール構造
+### Module Structure
 
 ```
 modules/
-└── terraform_backend/
-    ├── main.tf           # 主要リソース（または機能別ファイル）
-    ├── variables.tf      # 入力変数
-    ├── outputs.tf        # 出力値
-    └── README.md         # モジュールドキュメント（任意）
++-- terraform_backend/
+    +-- main.tf           # Main resources (or function-specific files)
+    +-- variables.tf      # Input variables
+    +-- outputs.tf        # Output values
+    +-- README.md         # Module documentation (optional)
 ```
 
-### モジュール呼び出し
+### Module Invocation
 
-相対パスを使用してモジュールを呼び出します。
+Use relative paths to invoke modules.
 
 ```hcl
 # env/dev/backend/main.tf
@@ -114,29 +114,29 @@ module "terraform_backend" {
 }
 ```
 
-### 設計原則
+### Design Principles
 
-1. **単一責任**: 1つのモジュールは1つの機能に集中
-2. **入力変数**: すべての設定可能な値を変数化
-3. **出力値**: 他のモジュールやリソースが参照する値を出力
-4. **バージョン固定**: 外部モジュールはバージョンを固定
+1. **Single responsibility**: One module focuses on one function
+2. **Input variables**: Parameterize all configurable values
+3. **Output values**: Output values that other modules or resources reference
+4. **Pin versions**: Pin versions for external modules
 
 ```hcl
-# 外部モジュールの場合
+# For external modules
 module "vpc" {
   source  = "terraform-google-modules/network/google"
-  version = "~> 9.0"  # バージョン固定
+  version = "~> 9.0"  # Pin version
   ...
 }
 ```
 
 ---
 
-## State 管理
+## State Management
 
-### Remote State 設定
+### Remote State Configuration
 
-GCS (Google Cloud Storage) を使用して State を管理します。
+Use GCS (Google Cloud Storage) to manage state.
 
 ```hcl
 # provider.tf
@@ -157,7 +157,7 @@ terraform {
 }
 ```
 
-### State バケット設定
+### State Bucket Configuration
 
 ```hcl
 resource "google_storage_bucket" "state" {
@@ -166,16 +166,16 @@ resource "google_storage_bucket" "state" {
   location      = "asia-northeast1"
   storage_class = "STANDARD"
 
-  # セキュリティ設定
+  # Security settings
   uniform_bucket_level_access = true
   public_access_prevention    = "enforced"
 
-  # バージョニング（誤削除対策）
+  # Versioning (protection against accidental deletion)
   versioning {
     enabled = true
   }
 
-  # ライフサイクル（古いバージョンの自動削除）
+  # Lifecycle (auto-delete old versions)
   lifecycle_rule {
     condition {
       num_newer_versions = 10
@@ -187,19 +187,19 @@ resource "google_storage_bucket" "state" {
 }
 ```
 
-### State 分離のベストプラクティス
+### State Separation Best Practices
 
-| ルール | 理由 |
+| Rule | Reason |
 |-------|------|
-| 環境ごとに State を分離 | dev の変更が prod に影響しない |
-| 100 リソース以下を維持 | refresh が高速、blast radius を縮小 |
-| 関連リソースをグループ化 | 論理的な境界で State を分割 |
+| Separate state per environment | dev changes do not affect prod |
+| Keep under 100 resources | Fast refresh, reduced blast radius |
+| Group related resources | Split state at logical boundaries |
 
 ---
 
-## 変数とアウトプット
+## Variables and Outputs
 
-### 変数定義
+### Variable Definitions
 
 ```hcl
 # variables.tf
@@ -227,15 +227,15 @@ variable "enable_public_access" {
 }
 ```
 
-### 変数命名規則
+### Variable Naming Conventions
 
-| パターン | 例 | 説明 |
+| Pattern | Example | Description |
 |---------|-----|------|
-| 単位サフィックス | `disk_size_gb`, `timeout_seconds` | 単位を明確に |
-| 正の boolean | `enable_*`, `is_*`, `has_*` | 二重否定を避ける |
-| 説明必須 | `description = "..."` | すべての変数に説明 |
+| Unit suffix | `disk_size_gb`, `timeout_seconds` | Make units explicit |
+| Positive boolean | `enable_*`, `is_*`, `has_*` | Avoid double negation |
+| Description required | `description = "..."` | All variables must have a description |
 
-### アウトプット定義
+### Output Definitions
 
 ```hcl
 # outputs.tf
@@ -252,11 +252,11 @@ output "service_account_email" {
 
 ---
 
-## セキュリティ
+## Security
 
-### GitHub Actions OIDC 認証
+### GitHub Actions OIDC Authentication
 
-Workload Identity Federation を使用して、シークレットなしで GCP 認証を行います。
+Use Workload Identity Federation for secret-free GCP authentication.
 
 ```hcl
 # Workload Identity Pool
@@ -275,7 +275,7 @@ resource "google_iam_workload_identity_pool_provider" "gha_provider" {
     "attribute.repository" = "assertion.repository"
   }
 
-  # リポジトリを制限
+  # Restrict to repository
   attribute_condition = "assertion.repository == 'owner/repo'"
 
   oidc {
@@ -284,18 +284,18 @@ resource "google_iam_workload_identity_pool_provider" "gha_provider" {
 }
 ```
 
-### 最小権限の原則
+### Principle of Least Privilege
 
-サービスアカウントには必要最小限の権限のみ付与します。
+Grant only the minimum required permissions to service accounts.
 
 ```hcl
-# GitHub Actions 用サービスアカウント
+# Service account for GitHub Actions
 resource "google_service_account" "gha_terraform_sa" {
   account_id   = "gha-terraform-sa"
   display_name = "GitHub Actions Terraform SA"
 }
 
-# 必要な権限のみ付与
+# Grant only required permissions
 resource "google_project_iam_member" "terraform_editor" {
   project = var.project_id
   role    = "roles/editor"
@@ -303,16 +303,16 @@ resource "google_project_iam_member" "terraform_editor" {
 }
 ```
 
-### データ保護
+### Data Protection
 
-ステートフルなリソースには `prevent_destroy` を設定します。
+Set `prevent_destroy` for stateful resources.
 
 ```hcl
 resource "google_sql_database_instance" "main" {
   name = "main-db"
 
   lifecycle {
-    prevent_destroy = true  # 誤削除を防止
+    prevent_destroy = true  # Prevent accidental deletion
   }
 }
 ```
@@ -321,7 +321,7 @@ resource "google_sql_database_instance" "main" {
 
 ## Linting & Validation
 
-### TFLint 設定
+### TFLint Configuration
 
 ```hcl
 # .tflint.hcl
@@ -341,7 +341,7 @@ rule "terraform_naming_convention" {
 }
 ```
 
-### 実行方法
+### How to Run
 
 ```bash
 # TFLint
@@ -351,28 +351,28 @@ tflint
 # Terraform Validate
 terraform validate
 
-# Trivy（セキュリティスキャン）
+# Trivy (security scan)
 trivy config --severity HIGH,CRITICAL .
 ```
 
-### CI での自動チェック
+### Automated Checks in CI
 
-tfaction ワークフローで以下が自動実行されます:
+The following are automatically executed in the tfaction workflow:
 
-1. `terraform fmt` - フォーマットチェック
-2. `terraform validate` - 構文チェック
-3. `tflint` - ベストプラクティスチェック
-4. `trivy` - セキュリティスキャン
+1. `terraform fmt` - Format check
+2. `terraform validate` - Syntax check
+3. `tflint` - Best practices check
+4. `trivy` - Security scan
 
 ---
 
-## まとめ
+## Summary
 
-| カテゴリ | ベストプラクティス |
+| Category | Best Practice |
 |---------|-------------------|
-| 構成 | modules/ と env/ を分離 |
-| 命名 | アンダースコア区切り、簡潔な名前 |
-| State | 環境別分離、100 リソース以下 |
-| 変数 | 説明必須、単位サフィックス |
-| セキュリティ | OIDC 認証、最小権限、prevent_destroy |
-| 品質 | TFLint + Trivy で自動チェック |
+| Structure | Separate modules/ and env/ |
+| Naming | Underscore-separated, concise names |
+| State | Separate per environment, under 100 resources |
+| Variables | Description required, unit suffixes |
+| Security | OIDC authentication, least privilege, prevent_destroy |
+| Quality | Automated checks with TFLint + Trivy |

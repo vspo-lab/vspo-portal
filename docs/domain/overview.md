@@ -1,53 +1,95 @@
 # Overview
 
-## プロジェクト基本情報
+## Project Information
 
-| 項目 | 内容 |
+| Item | Value |
 | --- | --- |
-| プロジェクト名 | TBD |
-| リポジトリ識別子 | TBD |
-| ドメイン | TBD |
-| 作成日 | TBD |
-| 最終更新日 | TBD |
+| Project Name | vspo-portal |
+| Service Name | Spodule |
+| Domain | VTuber content aggregation for VSPO! |
+| Repository | vspo-portal |
+| Last Updated | 2026-03-01 |
 
-## 概要
+## Summary
 
-- 何を作るか: TBD
-- 解決する課題: TBD
-- 提供価値: TBD
+vspo-portal is a content discovery platform for **VSPO!** (Japanese VTuber group). The main service, **Spodule**, aggregates streams, clips, events, and free chats from multiple platforms (YouTube, Twitch, Twitcasting, Niconico) into a single unified interface.
 
-## ターゲットユーザー
+### Problem
 
-| ユーザー種別 | 課題 | 期待する成果 |
+VSPO! fans must manually check multiple streaming platforms and channels to find current and upcoming content. There is no single place that consolidates streams, clips, events, and free chats across all platforms where VSPO! members are active.
+
+### Solution
+
+Spodule provides a centralized schedule and content browser. It normalizes stream data from YouTube, Twitch, Twitcasting, and Niconico into a unified format, enabling fans to discover content regardless of the originating platform.
+
+### Value Proposition
+
+- One-stop schedule for all VSPO! streams and events
+- Cross-platform content discovery (YouTube, Twitch, Twitcasting, Niconico)
+- International accessibility with 5-language support
+- Real-time status tracking (live, upcoming, ended)
+
+## Target Users
+
+| User Type | Problem | Expected Outcome |
 | --- | --- | --- |
-| TBD | TBD | TBD |
+| VSPO! Fan (International) | Cannot easily find streams across platforms and languages | Unified schedule in their preferred language (en, ja, cn, tw, ko) |
+| VSPO! Fan (Japanese) | Must check multiple YouTube/Twitch channels individually | One page showing all live, upcoming, and recent streams |
+| Clip Viewer | Difficulty discovering fan-made clips and shorts | Browsable clip library with filtering and sorting |
+| Event Follower | Misses events and special broadcasts | Event calendar with date-based browsing |
 
-## スコープ
+## Scope
 
 ### In Scope
 
-- TBD
+- Stream schedule aggregation (live, upcoming, ended) from YouTube, Twitch, Twitcasting, Niconico
+- Clip and short browsing with filtering
+- Free chat room listing
+- Event calendar
+- Multi-language UI (en, ja, cn, tw, ko)
+- Timezone-aware display
+- Multiview for watching multiple streams simultaneously
 
 ### Out of Scope
 
-- TBD
+- User accounts and authentication
+- Chat interaction or messaging
+- Stream hosting or restreaming
+- Content creation tools
+- Monetization features
 
-## 成功指標 (MVP)
+## Tech Stack
 
-| 指標 | 目標値 | 計測方法 |
-| --- | --- | --- |
-| TBD | TBD | TBD |
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 15 |
+| UI Library | React 19 |
+| Styling | MUI v7 + TailwindCSS v4 |
+| Deployment | Cloudflare Workers via OpenNext adapter |
+| Package Manager | pnpm (monorepo) |
+| i18n | 5 languages (en, ja, cn, tw, ko) |
 
-## 非機能要件
+## Internal Packages
 
-- 可用性: TBD
-- 性能: TBD
-- セキュリティ: TBD
-- 運用: TBD
+| Package | Purpose |
+| --- | --- |
+| `@vspo-lab/api` | OpenAPI client for the external backend API |
+| `@vspo-lab/error` | Result type for error handling (`Ok`, `Err`, `AppError`) |
+| `@vspo-lab/dayjs` | Date/time utilities with timezone support |
+| `@vspo-lab/logging` | Structured logging |
 
-## 技術スタック（テンプレート既定）
+## Web Application
 
-- Frontend: Next.js 16, React 19, TypeScript, TailwindCSS v4
-- Backend: Hono, TypeScript, Drizzle ORM
-- Database: TiDB/MySQL
-- Authentication: Better Auth
+The primary web application lives at:
+
+```
+service/vspo-schedule/v2/web/
+```
+
+## Non-Functional Requirements
+
+- **Availability**: High -- deployed on Cloudflare Workers (edge network)
+- **Performance**: Sub-second page loads via edge rendering and caching
+- **Internationalization**: 5-language support with locale-aware date/time formatting
+- **Accessibility**: Standard web accessibility practices
+- **Operations**: Serverless deployment, no infrastructure management

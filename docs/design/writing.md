@@ -1,199 +1,200 @@
-# ライティングガイドライン
+# Writing Guidelines
 
-## 概要
+## Overview
 
-伝わる文章を書くことは、ユーザー体験を向上させる重要な要素です。本ガイドラインでは、一貫性があり、読みやすく、わかりやすい文章を作成するための原則とルールを定めます。
+Writing clear text is an important element for improving the user experience. This guideline establishes principles and rules for creating consistent, readable, and understandable text.
 
-## 3つの基本原則
+## 3 Core Principles
 
-### 1. 目的に合わせた情報の取捨選択
+### 1. Select Information Based on Purpose
 
-読み手となる相手の状況（読む場面、事前知識など）を踏まえ、言葉にする内容や表現を厳選します。
+Carefully choose what to express and how to express it, considering the reader's context (reading situation, prior knowledge, etc.).
 
-| 考慮すべきポイント | 例 |
-|------------------|-----|
-| 読者の知識レベル | 専門用語を使うか、平易な言葉に置き換えるか |
-| 読む場面 | 急いでいる時に読むか、じっくり読むか |
-| 求めている情報 | 概要だけ知りたいか、詳細まで知りたいか |
+| Point to Consider | Example |
+|-------------------|---------|
+| Reader's knowledge level | Whether to use technical terms or simpler language |
+| Reading context | Whether they are reading in a hurry or at leisure |
+| Desired information | Whether they want just an overview or full details |
 
-### 2. 適切な言葉選び
+### 2. Choose Appropriate Words
 
-読者が受け取る印象を意識しながら、言葉を注意深く選択します。
+Select words carefully while being mindful of the impression the reader receives.
 
-- 肯定的な表現を優先する
-- 曖昧な表現を避ける
-- 読者に馴染みのある言葉を使う
+- Prioritize positive expressions
+- Avoid ambiguous expressions
+- Use words familiar to the reader
 
-### 3. 正しい文法
+### 3. Use Correct Grammar
 
-文章を構成する要素を意識し、文法を正しく守ります。
+Be mindful of the elements that compose sentences and use proper grammar.
 
-- 主語と述語の対応
-- 修飾語の位置
-- 助詞の適切な使用
+- Subject-predicate agreement
+- Modifier placement
+- Appropriate use of particles
 
-## 実践ルール
+## Practical Rules
 
-### 一文は50文字程度
+### Keep sentences around 50 characters
 
-長い文章は読みにくく、理解しづらくなります。一文は50文字程度を目安にします。
-
-```
-❌ NG: この機能を使用することで、ユーザーは自分のアカウント設定画面から
-      通知の受信設定を変更することができるようになります。（60文字）
-
-✅ OK: この機能でアカウント設定から通知設定を変更できます。（27文字）
-```
-
-### 主語と格助詞の明確化
-
-主語を明確にし、格助詞（を、に、が等）を省略しません。
+Long sentences are hard to read and understand. Aim for approximately 50 characters per sentence.
 
 ```
-❌ NG: データ削除しました。
-✅ OK: データを削除しました。
+NG: By using this feature, users will be able to change
+    notification reception settings from their own account
+    settings screen. (too long)
 
-❌ NG: 設定変更できます。
-✅ OK: 設定を変更できます。
+OK: This feature lets you change notification settings from account settings. (concise)
 ```
 
-### 読点の適切な使用
+### Clarify subjects and particles
 
-意味のかたまり（チャンク）の区切りに読点を打ちます。ただし、無駄な読点で細切れにしないよう注意します。
-
-```
-❌ NG: 明日、田中さんと、会議室で、打ち合わせを、します。
-✅ OK: 明日、田中さんと会議室で打ち合わせをします。
-```
-
-### 二重否定を避ける
-
-二重否定は理解しづらいため、肯定文を優先します。
+Make subjects clear and do not omit particles.
 
 ```
-❌ NG: 入力しないと完了できません。
-✅ OK: 入力すると完了できます。
+NG: Data deleted.
+OK: The data has been deleted.
 
-❌ NG: 設定しなければ通知されないことはありません。
-✅ OK: 設定しなくても通知されます。
+NG: Can change settings.
+OK: You can change the settings.
 ```
 
-### 表記の統一
+### Use punctuation appropriately
 
-常用漢字を基本とし、プロジェクト内で表記を統一します。
-
-| カテゴリ | ルール |
-|----------|--------|
-| 漢字 | 常用漢字を基本とする |
-| 数字 | 半角数字、3桁ごとにカンマ（例: 100,000） |
-| 記号 | 全角を使用（句読点、括弧など） |
-| 単位 | 数字と単位の間にスペースなし（例: 10px） |
-
-## ドキュメント（Markdown）の書き方
-
-UI文言だけでなく、`docs/` に書く技術文書にも同じ品質基準を適用します。
-
-### 見出しの設計
-
-- 1ファイルに `#` は1つだけ使う
-- セクションは `##`、必要に応じて `###` までを基本にする
-- 見出しだけで内容が想像できる名前を使う
-
-### 冒頭で目的を明記する
-
-本文の最初に「このドキュメントで何を定義するか」を1〜2文で書きます。  
-読み手が必要な情報かどうかをすぐ判断できる状態を作ります。
-
-### 箇条書きと手順の使い分け
-
-- 順序がある説明は番号付きリストを使う
-- 順序がない説明は箇条書きを使う
-- 1項目1メッセージを守る
-
-### コードブロックの原則
-
-- 実行可能な単位で掲載する
-- `bash`, `ts`, `json` など言語指定を付ける
-- 前提条件がある場合は、コードブロックの直前に書く
-
-### リンク運用
-
-- リポジトリ内参照は相対パスを使う
-- 「こちら」「ここ」ではなく、遷移先が分かるリンクテキストにする
-- 仕様の根拠は一次情報（公式ドキュメント）を優先する
-
-### textlint との併用
-
-文章品質は、人手レビューと `textlint` を併用して担保します。  
-詳細な運用方針は [docs/security/textlint.md](../security/textlint.md) を参照してください。
-
-## 5つのライティング目標
-
-### 1. 一貫性
-
-画面ごとに表記がばらつかないよう、統一された表現を使用します。
+Place commas at meaningful chunk boundaries. However, avoid excessive commas that fragment the text.
 
 ```
-❌ NG: A画面では「保存する」、B画面では「保存」
-✅ OK: すべての画面で「保存」に統一
+NG: Tomorrow, I will, have a meeting, with Mr. Tanaka, in the conference room.
+OK: Tomorrow, I will have a meeting with Mr. Tanaka in the conference room.
 ```
 
-### 2. 統一感
+### Avoid double negatives
 
-プロダクト全体で使用する言葉を統一し、画面ごとに雰囲気が違うといった違和感をユーザーに与えません。
-
-### 3. 検索性
-
-ユーザーが必要な情報に辿り着きやすい構造にしたり、馴染みのある言葉を使います。
-
-- 一般的に使われる用語を優先
-- 検索されやすいキーワードを含める
-
-### 4. 標準化
-
-言葉を決める際の根拠を公開することで、個人のスキルや好みに依らず一定の品質で言葉を決められるようにします。
-
-### 5. 効率化
-
-必要な言葉をスムーズに決定できるよう、ライティングパターンや事例を活用します。
-
-## UI上のテキストルール
-
-### ボタンラベル
-
-| 種類 | 形式 | 例 |
-|------|------|-----|
-| アクションボタン | 動詞で終わる | 保存する、削除する |
-| 確認ボタン | 名詞または動詞 | OK、キャンセル、閉じる |
-| ナビゲーション | 名詞 | ホーム、設定 |
-
-### エラーメッセージ
-
-[コンテンツガイドライン](./content-guidelines.md)を参照してください。
-
-### プレースホルダー
+Double negatives are difficult to understand; prioritize affirmative sentences.
 
 ```
-❌ NG: 入力してください
-✅ OK: 例: 山田太郎
+NG: You cannot complete without entering.
+OK: You can complete by entering.
+
+NG: It is not the case that you will not be notified unless you configure.
+OK: You will be notified even without configuration.
 ```
 
-### ラベル
+### Maintain consistent notation
+
+Use standard characters as the baseline and unify notation within the project.
+
+| Category | Rule |
+|----------|------|
+| Characters | Use standard character sets as the baseline |
+| Numbers | Half-width digits, commas every 3 digits (e.g., 100,000) |
+| Symbols | Use full-width characters (punctuation, parentheses, etc.) |
+| Units | No space between numbers and units (e.g., 10px) |
+
+## Writing Documents (Markdown)
+
+Apply the same quality standards to technical documents in `docs/`, not just UI text.
+
+### Heading Design
+
+- Use only one `#` per file
+- Use `##` for sections, and `###` as needed as the standard
+- Use heading names that convey the content at a glance
+
+### State the Purpose at the Beginning
+
+Write 1-2 sentences at the start of the document about "what this document defines."
+Create a state where the reader can immediately judge whether the information is relevant.
+
+### Distinguish Between Bullet Lists and Numbered Steps
+
+- Use numbered lists for sequential explanations
+- Use bullet lists for non-sequential explanations
+- Follow the rule of one message per item
+
+### Code Block Principles
+
+- Include code in executable units
+- Specify the language: `bash`, `ts`, `json`, etc.
+- Write prerequisites immediately before the code block
+
+### Link Management
+
+- Use relative paths for within-repository references
+- Use link text that indicates the destination instead of "here" or "click here"
+- Prioritize primary sources (official documentation) as specification references
+
+### Combined Use with textlint
+
+Text quality is ensured through a combination of human review and `textlint`.
+See [docs/security/textlint.md](../security/textlint.md) for detailed operational policies.
+
+## 5 Writing Goals
+
+### 1. Consistency
+
+Use unified expressions to prevent notation variations across screens.
 
 ```
-❌ NG: お名前を入力:
-✅ OK: お名前
+NG: "Save" on screen A, "Save changes" on screen B
+OK: Use "Save" consistently across all screens
 ```
 
-## 禁止事項
+### 2. Cohesion
 
-- 機械翻訳をそのまま使用すること
-- 専門用語の説明なしの使用
-- 敬語の過剰使用（丁寧すぎる表現）
-- 命令形の使用（ユーザーへの指示を除く）
-- 「など」「等」の多用
+Unify the language used across the entire product so users do not feel inconsistencies between screens.
 
-## 参考リンク
+### 3. Searchability
 
-- [コンテンツガイドライン](./content-guidelines.md)
-- [アクセシビリティガイドライン](./accessibility.md)
+Structure content so users can easily find the information they need, and use familiar language.
+
+- Prioritize commonly used terminology
+- Include keywords that are likely to be searched
+
+### 4. Standardization
+
+By publishing the rationale behind word choices, maintain consistent quality regardless of individual skill or preference.
+
+### 5. Efficiency
+
+Utilize writing patterns and examples to enable smooth decision-making for choosing the right words.
+
+## UI Text Rules
+
+### Button Labels
+
+| Type | Format | Example |
+|------|--------|---------|
+| Action button | End with a verb | Save, Delete |
+| Confirmation button | Noun or verb | OK, Cancel, Close |
+| Navigation | Noun | Home, Settings |
+
+### Error Messages
+
+See [Content Guidelines](./content-guidelines.md).
+
+### Placeholders
+
+```
+NG: Please enter
+OK: e.g., John Smith
+```
+
+### Labels
+
+```
+NG: Enter your name:
+OK: Name
+```
+
+## Prohibited Practices
+
+- Using machine translations as-is
+- Using specialized terms without explanation
+- Overuse of honorifics (overly polite expressions)
+- Using imperative forms (except for user instructions)
+- Excessive use of "etc." or "and so on"
+
+## References
+
+- [Content Guidelines](./content-guidelines.md)
+- [Accessibility Guidelines](./accessibility.md)

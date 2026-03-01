@@ -1,33 +1,33 @@
-# textlint 運用ガイド
+# textlint Operational Guide
 
-## 目的
+## Purpose
 
-`textlint` は、ドキュメントの表記ゆれや読みにくい文章を機械的に検出するためのツールです。  
-このテンプレートでは、`docs/` の可読性と保守性を保つために利用します。
+`textlint` is a tool for mechanically detecting inconsistent terminology and hard-to-read text in documentation.
+In this template, it is used to maintain readability and maintainability of `docs/`.
 
-## 運用方針
+## Operational Policy
 
-1. 文章品質は `textlint` と人手レビューの両方で担保する
-2. `textlint` は「機械検出が得意な項目」に限定する
-3. ドメイン固有の言い回しは、レビューで最終判断する
+1. Text quality is ensured by both `textlint` and manual review
+2. `textlint` is limited to items where mechanical detection excels
+3. Domain-specific expressions are given final judgment in review
 
-## チェック対象
+## Check Targets
 
 - `docs/**/*.md`
 - `README.md`
 
-## ルール設計の考え方
+## Rule Design Philosophy
 
-最初から厳しすぎるルールを入れると修正コストが高くなります。  
-以下の順で段階的に強化してください。
+Introducing overly strict rules from the start increases correction costs.
+Strengthen rules incrementally in the following order:
 
-1. 表記ゆれ・誤字検知（導入初期）
-2. 読みやすさ（一文の長さ、冗長表現）
-3. プロジェクト固有辞書（用語統一）
+1. Terminology inconsistency and typo detection (initial adoption)
+2. Readability (sentence length, verbose expressions)
+3. Project-specific dictionary (terminology standardization)
 
-## このプロジェクトの設定
+## Project Configuration
 
-依存パッケージ:
+Dependencies:
 
 ```json
 "textlint": "^15.x",
@@ -35,7 +35,7 @@
 "@textlint/textlint-plugin-markdown": "^15.x"
 ```
 
-設定ファイル:
+Configuration files:
 
 - `.textlintrc.json`
 - `.textlintignore`
@@ -51,20 +51,20 @@
 }
 ```
 
-## 実行方法
+## How to Run
 
 ```bash
 pnpm textlint
 pnpm textlint:fix
 ```
 
-## 導入初期の運用
+## Initial Adoption Operations
 
-既存ドキュメントの一括修正を避けるため、初期設定では一部ルールを無効化しています。  
-対象は `.textlintrc.json` に明記し、既存文書の整理が進んだら段階的に有効化します。
+To avoid bulk-fixing existing documentation, some rules are disabled in the initial configuration.
+These are documented in `.textlintrc.json` and will be incrementally enabled as existing documents are cleaned up.
 
-## PR チェックで見るポイント
+## Points to Check in PR Reviews
 
-1. 新規文章で同種の指摘が繰り返されていない
-2. ルール無効化（`textlint-disable`）に理由が書かれている
-3. 修正により文意が変わっていない
+1. The same type of issue is not recurring in new text
+2. Rule disabling (`textlint-disable`) has a documented reason
+3. The fix does not change the intended meaning

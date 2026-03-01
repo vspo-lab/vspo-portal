@@ -1,14 +1,14 @@
 ---
-name: エラーハンドリング
-description: try-catchを使わないResult型ベースのエラーハンドリング。wrap/Ok/Err/AppErrorによる型安全なエラーフロー。
+name: Error Handling
+description: Result-type-based error handling without try-catch. Type-safe error flow using wrap/Ok/Err/AppError.
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- エラーハンドリングのコードを書くとき
-- 新しいエラーコードを追加するとき
-- try-catch を書こうとしたとき（禁止）
+- When writing error handling code
+- When adding new error codes
+- When about to write try-catch (prohibited)
 
-# 参照ドキュメント
+# Reference Documents
 
-- `docs/web-frontend/error-handling.md` - Result型の使い方、ドメインエラーコード体系（E1xxx-E4xxx）
+- `docs/web-frontend/error-handling.md` - How to use the Result type, domain error code system (E1xxx-E4xxx)

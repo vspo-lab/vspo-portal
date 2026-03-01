@@ -1,226 +1,226 @@
-# コンテンツガイドライン
+# Content Guidelines
 
-## 概要
+## Overview
 
-コンテンツガイドラインは、ユーザー向けのテキストコンテンツを一貫性を持って作成するための指針です。本ガイドラインでは、エラーメッセージ、ヘルプページ、リリースノートの作成方法を定義します。
+Content guidelines provide direction for creating user-facing text content with consistency. This guideline defines how to write error messages, help pages, and release notes.
 
-## エラーメッセージ
+## Error Messages
 
-### 目的
+### Purpose
 
-エラーメッセージの役割は、**ユーザーがメッセージを見て問題を解決でき、次の操作に進める**状態にすることです。
+The role of an error message is to **enable users to understand the problem and proceed to the next action** upon seeing the message.
 
-### 3つの基本要素
+### 3 Core Elements
 
-| 要素 | 説明 | 例 |
-|------|------|-----|
-| 事象 | 何が起きたか（ユーザー視点） | 「記事を保存できませんでした」 |
-| 原因 | なぜ起きたか | 「タイトルが入力されていません」 |
-| 対処 | どう解決するか | 「タイトルを入力してください」 |
+| Element | Description | Example |
+|---------|-------------|---------|
+| Event | What happened (from the user's perspective) | "Could not save the article" |
+| Cause | Why it happened | "The title has not been entered" |
+| Resolution | How to resolve it | "Please enter a title" |
 
-### 優先順位
+### Priority
 
-すべての要素を表示できない場合は、以下の優先順位で表示します：
+When not all elements can be displayed, show them in the following priority order:
 
 ```
-1. 原因 → 2. 対処 → 3. 事象
+1. Cause -> 2. Resolution -> 3. Event
 ```
 
-**理由**: ユーザーの最優先事項は「操作を完了すること」であり、解決方法の情報が最も重要です。
+**Reason**: The user's top priority is "completing the action," so information about the resolution is most important.
 
-### 実装例
+### Implementation Examples
 
-#### フルメッセージ（十分なスペースがある場合）
+#### Full Message (when sufficient space is available)
 
 ```tsx
 <ErrorMessage>
-  <p>記事を保存できませんでした。</p>
-  <p>タイトルが入力されていません。タイトルを入力してください。</p>
+  <p>Could not save the article.</p>
+  <p>The title has not been entered. Please enter a title.</p>
 </ErrorMessage>
 ```
 
-#### 簡潔なメッセージ（スペースが限られる場合）
+#### Concise Message (when space is limited)
 
 ```tsx
 <ErrorMessage>
-  タイトルを入力してください
+  Please enter a title
 </ErrorMessage>
 ```
 
-### エラーメッセージのパターン
+### Error Message Patterns
 
-#### 入力エラー
+#### Input Errors
 
-| 種類 | メッセージ例 |
-|------|-------------|
-| 必須項目の未入力 | 「〇〇を入力してください」 |
-| 形式エラー | 「〇〇の形式が正しくありません」 |
-| 文字数制限 | 「〇〇は△△文字以内で入力してください」 |
-| 重複エラー | 「この〇〇はすでに使用されています」 |
+| Type | Message Example |
+|------|-----------------|
+| Required field empty | "Please enter [field name]" |
+| Format error | "The format of [field name] is incorrect" |
+| Character limit | "Please enter [field name] within [N] characters" |
+| Duplicate error | "This [field name] is already in use" |
 
-#### システムエラー
+#### System Errors
 
-| 種類 | メッセージ例 |
-|------|-------------|
-| 通信エラー | 「通信に失敗しました。しばらくしてから再度お試しください」 |
-| 権限エラー | 「この操作を行う権限がありません」 |
-| 存在しないリソース | 「お探しのページは見つかりませんでした」 |
+| Type | Message Example |
+|------|-----------------|
+| Communication error | "Communication failed. Please try again later" |
+| Permission error | "You do not have permission to perform this action" |
+| Non-existent resource | "The page you are looking for was not found" |
 
-### 禁止事項
+### Prohibited Practices
 
-- 技術的なエラーコードのみの表示（例: `Error: 500`）
-- ユーザーを責める表現（例: 「入力ミスです」）
-- 曖昧な表現（例: 「エラーが発生しました」のみ）
-- 解決方法のない警告
+- Displaying only technical error codes (e.g., `Error: 500`)
+- Expressions that blame the user (e.g., "Input mistake")
+- Vague expressions (e.g., only "An error occurred")
+- Warnings without a resolution
 
-## ヘルプページ
+## Help Pages
 
-### 5種類の構成
+### 5 Types of Structure
 
-ユーザーの「知りたいこと」に合わせて、5種類のヘルプページを用意します。
+Prepare 5 types of help pages tailored to what users "want to know."
 
-| 種類 | 目的 | 内容 |
-|------|------|------|
-| 機能概要 | 機能とは何かを説明 | 機能の定義、設計思想、できること |
-| 操作手順 | 操作方法を説明 | ステップバイステップの手順、注意点 |
-| 仕様一覧 | 設定項目や制限を整理 | 設定値、制限事項、対応フォーマット |
-| FAQ | 特定の質問に回答 | エラー対処、仕様の疑問、よくある質問 |
-| 用語説明 | 専門用語を定義 | アプリ固有の用語、業界用語 |
+| Type | Purpose | Content |
+|------|---------|---------|
+| Feature Overview | Explain what the feature is | Feature definition, design philosophy, capabilities |
+| Step-by-Step Instructions | Explain how to operate | Step-by-step procedures, precautions |
+| Specification List | Organize settings and limitations | Setting values, restrictions, supported formats |
+| FAQ | Answer specific questions | Error resolution, specification questions, common questions |
+| Glossary | Define specialized terms | App-specific terms, industry terms |
 
-### 機能概要ページの構成
-
-```markdown
-# 機能名
-
-## この機能でできること
-[機能の概要を1〜2文で説明]
-
-## 主な特徴
-- [特徴1]
-- [特徴2]
-- [特徴3]
-
-## 関連する機能
-- [関連機能へのリンク]
-```
-
-### 操作手順ページの構成
+### Feature Overview Page Structure
 
 ```markdown
-# 〇〇の方法
+# Feature Name
 
-## 前提条件
-[事前に必要な設定や権限]
+## What You Can Do with This Feature
+[Explain the feature overview in 1-2 sentences]
 
-## 手順
-1. [ステップ1]
-2. [ステップ2]
-3. [ステップ3]
+## Key Features
+- [Feature 1]
+- [Feature 2]
+- [Feature 3]
 
-## 注意事項
-- [注意点1]
-- [注意点2]
-
-## 関連する操作
-- [関連操作へのリンク]
+## Related Features
+- [Link to related feature]
 ```
 
-### FAQページの構成
+### Step-by-Step Instructions Page Structure
 
 ```markdown
-# よくある質問
+# How to [Action]
 
-## カテゴリ1
-### Q. [質問内容]
-A. [回答]
+## Prerequisites
+[Required settings or permissions beforehand]
 
-### Q. [質問内容]
-A. [回答]
+## Steps
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
 
-## カテゴリ2
-### Q. [質問内容]
-A. [回答]
+## Notes
+- [Note 1]
+- [Note 2]
+
+## Related Operations
+- [Link to related operation]
 ```
 
-### ライティングの注意点
-
-- ユーザーのメンタルモデルを考慮する
-- 必要な情報の深さを適切に判断する
-- 不要な情報（ノイズ）を排除する
-- 専門用語は必要に応じて説明を加える
-
-## リリースノート
-
-### 目的
-
-リリースノートは、機能追加やバグ修正などのアップデート内容をユーザーに伝えるためのドキュメントです。
-
-### 基本原則
-
-**「何が変わったか」ではなく、「ユーザーがどう使えるようになったか」**を記述します。
-
-| アプローチ | 例 |
-|-----------|-----|
-| ❌ 機能の変更点を列挙 | 「通知機能にフィルター機能を追加」 |
-| ✅ ユーザーの体験を説明 | 「通知を種類別に絞り込めるようになりました」 |
-
-### 構成
+### FAQ Page Structure
 
 ```markdown
-# リリースノート
+# Frequently Asked Questions
 
-## YYYY年MM月DD日
+## Category 1
+### Q. [Question]
+A. [Answer]
 
-### 新機能
-- [ユーザーができるようになったこと]
-- [ユーザーができるようになったこと]
+### Q. [Question]
+A. [Answer]
 
-### 改善
-- [より便利になったこと]
-- [より便利になったこと]
-
-### 修正
-- [解消された問題]
-- [解消された問題]
+## Category 2
+### Q. [Question]
+A. [Answer]
 ```
 
-### カテゴリ
+### Writing Considerations
 
-| カテゴリ | 説明 | 例 |
-|----------|------|-----|
-| 新機能 | 新しく追加された機能 | 「記事をCSVでエクスポートできるようになりました」 |
-| 改善 | 既存機能の向上 | 「検索結果の表示速度が向上しました」 |
-| 修正 | バグの修正 | 「特定条件で画像がアップロードできない問題を解消しました」 |
+- Consider the user's mental model
+- Appropriately judge the necessary depth of information
+- Eliminate unnecessary information (noise)
+- Add explanations for specialized terms as needed
 
-### ライティングのポイント
+## Release Notes
 
-| ポイント | 説明 |
-|----------|------|
-| 具体的に書く | 「改善しました」ではなく、何がどう良くなったか |
-| ユーザー視点で書く | 技術的な変更ではなく、ユーザーへの影響 |
-| 簡潔に書く | 1項目1〜2文程度 |
-| 前向きな表現 | 「〜できなかった問題」より「〜できるようになりました」 |
+### Purpose
 
-### 禁止事項
+Release notes are documents that communicate update content such as feature additions and bug fixes to users.
 
-- 技術的な変更内容のみの記載
-- ユーザーに関係のない内部変更の記載
-- 曖昧な表現（「各種改善」「パフォーマンス向上」のみ）
+### Core Principle
 
-## アクセシビリティ関連のライティング
+Describe **"how users can now use it"** rather than **"what changed."**
 
-### 分類
+| Approach | Example |
+|----------|---------|
+| NG: List feature changes | "Added filter functionality to notifications" |
+| OK: Describe the user experience | "You can now filter notifications by type" |
 
-ユーザーサポートに関連するテキストは、アクセシビリティの観点からも重要です。
+### Structure
 
-| 対象 | 考慮点 |
-|------|--------|
-| エラーメッセージ | スクリーンリーダーで読み上げられることを考慮 |
-| ヘルプページ | 見出し構造を適切に設定し、ナビゲーションを容易に |
-| リリースノート | 簡潔で明確な文章で、すべてのユーザーが理解できるように |
+```markdown
+# Release Notes
 
-## 参考リンク
+## YYYY-MM-DD
 
-- [ライティングガイドライン](./writing.md)
-- [アクセシビリティチェックリスト](./accessibility.md)
-- [デザインパターン - フィードバック](./design-patterns.md#フィードバック)
+### New Features
+- [What users can now do]
+- [What users can now do]
+
+### Improvements
+- [What became more convenient]
+- [What became more convenient]
+
+### Fixes
+- [Issue that was resolved]
+- [Issue that was resolved]
+```
+
+### Categories
+
+| Category | Description | Example |
+|----------|-------------|---------|
+| New Features | Newly added features | "You can now export articles as CSV" |
+| Improvements | Enhancements to existing features | "Search result display speed has improved" |
+| Fixes | Bug fixes | "Fixed an issue where images could not be uploaded under certain conditions" |
+
+### Writing Tips
+
+| Tip | Description |
+|-----|-------------|
+| Be specific | Rather than "improved," describe what improved and how |
+| Write from the user's perspective | Focus on user impact, not technical changes |
+| Be concise | 1-2 sentences per item |
+| Use positive expressions | Prefer "you can now [action]" over "fixed issue where [action] failed" |
+
+### Prohibited Practices
+
+- Listing only technical changes
+- Including internal changes unrelated to users
+- Vague expressions (only "various improvements" or "performance enhancements")
+
+## Accessibility-Related Writing
+
+### Classification
+
+Text related to user support is also important from an accessibility perspective.
+
+| Target | Consideration |
+|--------|---------------|
+| Error messages | Consider that they will be read aloud by screen readers |
+| Help pages | Set heading structure appropriately to facilitate navigation |
+| Release notes | Write concise and clear sentences so all users can understand |
+
+## References
+
+- [Writing Guidelines](./writing.md)
+- [Accessibility Checklist](./accessibility.md)
+- [Design Patterns - Feedback](./design-patterns.md#feedback)

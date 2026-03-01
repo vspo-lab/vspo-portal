@@ -1,31 +1,31 @@
 ---
-name: 構成図作成（draw.io MCP）
-description: draw.io MCPサーバー（open_drawio_mermaid / open_drawio_xml）で構成図を作成し、docs/infra/diagrams に反映する。
+name: Architecture Diagram Creation (draw.io MCP)
+description: Create architecture diagrams using the draw.io MCP server (open_drawio_mermaid / open_drawio_xml) and reflect them in docs/infra/diagrams.
 user_invocable: true
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- 構成図、アーキテクチャ図、システム図、ネットワーク図の作成依頼
-- draw.io / diagrams.net を使った図作成依頼
-- `open_drawio_mermaid` や `open_drawio_xml` を指定されたとき
+- Requests for architecture diagrams, system diagrams, or network diagrams
+- Requests to create diagrams using draw.io / diagrams.net
+- When `open_drawio_mermaid` or `open_drawio_xml` is specified
 
-# 実行手順
+# Execution Steps
 
-1. `docs/` から対象システムの構成要素と依存関係を抽出する
-2. まず `open_drawio_mermaid` で図を作る（標準）
-3. 厳密レイアウトが必要な場合のみ `open_drawio_xml` を使う
-4. 図の成果物を `docs/infra/diagrams/` に保存し、対応する docs を更新する
+1. Extract target system components and dependencies from `docs/`
+2. First create the diagram using `open_drawio_mermaid` (standard approach)
+3. Use `open_drawio_xml` only when precise layout is required
+4. Save diagram artifacts to `docs/infra/diagrams/` and update corresponding docs
 
-# ルール
+# Rules
 
-- 構成図作成は draw.io MCP を優先する
-- 図だけ作って終わらず、意図・読み方を `docs/` に残す
-- 命名は `kebab-case` を使い、用途が分かるファイル名にする
+- Prioritize draw.io MCP for diagram creation
+- Do not just create a diagram and stop; document the intent and how to read it in `docs/`
+- Use `kebab-case` naming with descriptive file names
 
-# 参照ドキュメント
+# Reference Documents
 
-- `docs/infra/drawio-mcp.md` - 導入設定、運用手順、参考リンク
-- `docs/web-frontend/architecture.md` - フロントエンド構成
-- `docs/backend/server-architecture.md` - バックエンド構成
-- `docs/infra/ci-cd.md` - CI/CD と Terraform 構成
+- `docs/infra/drawio-mcp.md` - Setup configuration, operational procedures, reference links
+- `docs/web-frontend/architecture.md` - Frontend architecture
+- `docs/backend/server-architecture.md` - Backend architecture
+- `docs/infra/ci-cd.md` - CI/CD and Terraform architecture

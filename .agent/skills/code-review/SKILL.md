@@ -1,51 +1,49 @@
 ---
-name: コードレビュー
-description: アーキテクチャルールに基づくPR/コードレビュー。UseCase実装ルール、Result型、JSDoc規約の違反を検出する。
+name: Code Review
+description: PR/code review based on architecture rules. Detects violations of UseCase implementation rules, Result type, and JSDoc conventions.
 user_invocable: true
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- ユーザーからコードレビューを依頼されたとき
-- PR の差分を確認するとき
+- When the user requests a code review
+- When reviewing PR diffs
 
-# レビューチェックリスト
+# Review Checklist
 
-## アーキテクチャ違反
+## Architecture Violations
 
-1. UseCase から UseCase を呼んでいないか
-2. UseCase 内で環境変数に直接アクセスしていないか
-3. UseCase 内で直接 PubSub/メッセージキューを操作していないか
-4. UseCase が「上から下への逐次実行」になっているか
-5. ループ内に複数条件分岐がないか
+1. Is a UseCase calling another UseCase?
+2. Is a UseCase directly accessing environment variables?
+3. Is a UseCase directly operating PubSub/message queues?
+4. Does the UseCase follow a "top-to-bottom sequential execution" pattern?
+5. Are there multiple conditional branches inside loops?
 
-## コード規約
+## Code Conventions
 
-6. try-catch を使っていないか（Result 型必須）
-7. interface を直接定義していないか（Zod Schema First）
-8. Domain/UseCase の公開関数に JSDoc（事前条件・事後条件）があるか
-9. UseCase 関数に冪等性（`@idempotent`）が記述されているか
+6. Is try-catch being used? (Result type is required)
+7. Are interfaces defined directly? (Zod Schema First is required)
+8. Do public functions in Domain/UseCase have JSDoc (preconditions/postconditions)?
+9. Is idempotency (`@idempotent`) documented on UseCase functions?
 
-## テスト
+## Testing
 
-10. Domain 関数の追加・変更にテストが伴っているか
+10. Do Domain function additions/changes come with tests?
 
-# 出力形式
+# Output Format
 
-各指摘を以下の形式で出力する:
+Output each finding in the following format:
 
-- `違反箇所`: ファイルパス + 行番号
-- `違反ルール`: docs/ 内の該当ドキュメント + セクション名
-- `違反内容`: 1 文で具体化
-- `修正案`: 最小変更での修正方針
+- `Violation Location`: File path + line number
+- `Violated Rule`: Corresponding document in docs/ + section name
+- `Violation Details`: Specific description in one sentence
+- `Fix Suggestion`: Minimal-change fix approach
 
-ルール出典を示せない場合は「改善提案」として分離し、違反指摘として断定しない。
+If the rule source cannot be cited, separate it as an "improvement suggestion" and do not assert it as a violation.
 
-# 参照ドキュメント
+# Reference Documents
 
-- `docs/backend/usecase-rules.md` - UseCase実装ルール
-- `docs/backend/function-documentation.md` - 関数ドキュメント規約
-- `docs/backend/server-architecture.md` - アーキテクチャ全体
-- `docs/backend/domain-modeling.md` - ドメインモデル設計
-- `docs/backend/pr-guidelines.md` - PRガイドライン
+- `docs/backend/function-documentation.md` - Function documentation conventions
+- `docs/backend/server-architecture.md` - Overall architecture
+- `docs/backend/pr-guidelines.md` - PR guidelines
 - `docs/security/lint.md` - Lint / Quality Check

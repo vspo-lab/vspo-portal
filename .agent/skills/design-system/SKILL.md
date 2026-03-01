@@ -1,21 +1,21 @@
 ---
-name: デザインシステム
-description: デザイントークン（OKLch）、カラーパレット、タイポグラフィ、UIパターン、アクセシビリティ（WCAG 2.2）。
+name: Design System
+description: Design tokens (OKLch), color palette, typography, UI patterns, accessibility (WCAG 2.2).
 ---
 
-# トリガー条件
+# Trigger Conditions
 
-- UI コンポーネントのデザイン・スタイリングを行うとき
-- 新しいカラーやトークンを追加するとき
-- アクセシビリティ対応を行うとき
+- When designing or styling UI components
+- When adding new colors or tokens
+- When implementing accessibility features
 
-# 参照ドキュメント
+# Reference Documents
 
-- `docs/design/design-tokens.md` - 3層トークン構造（Palette → Semantic → Component）
-- `docs/design/colors.md` - カラーパレット・コントラスト比ルール
-- `docs/design/typography.md` - フォント選択・テキストサイズ
-- `docs/design/design-patterns.md` - UIパターン（レイアウト、モーダル、ウィザード）
-- `docs/design/design-principles.md` - デザイン原則
-- `docs/design/accessibility.md` - WCAG 2.2準拠
-- `docs/design/icons.md` - アイコン
-- `docs/design/content-guidelines.md` - コンテンツガイドライン
+- `docs/design/design-tokens.md` - 3-layer token structure (Palette -> Semantic -> Component)
+- `docs/design/colors.md` - Color palette and contrast ratio rules
+- `docs/design/typography.md` - Font selection and text sizes
+- `docs/design/design-patterns.md` - UI patterns (layout, modal, wizard)
+- `docs/design/design-principles.md` - Design principles
+- `docs/design/accessibility.md` - WCAG 2.2 compliance
+- `docs/design/icons.md` - Icons
+- `docs/design/content-guidelines.md` - Content guidelines

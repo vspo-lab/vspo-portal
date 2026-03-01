@@ -1,32 +1,32 @@
-# Cache Components ガイドライン (Next.js 16)
+# Cache Components Guidelines (Next.js 16)
 
-## 前提
+## Prerequisites
 
-本テンプレートの `services/web/next.config.ts` では、次をデフォルトで有効化する。
+In this template's `services/web/next.config.ts`, the following are enabled by default:
 
 - `reactCompiler: true`
 - `cacheComponents: true`
 
-この前提で、App Router の設計は「Server Components + Cache Components + Suspense 境界」を基本にする。
+Under these settings, App Router design is based on "Server Components + Cache Components + Suspense boundaries."
 
-## 設計原則
+## Design Principles
 
-1. **キャッシュ可能な処理を明示する**
-   - キャッシュ対象の Server Component / 関数に `'use cache'` を付ける。
-   - キャッシュ更新戦略を `cacheLife` と `cacheTag` で明示する。
-2. **動的データ境界を先に決める**
-   - `cookies()`, `headers()`, `searchParams` などリクエスト依存データを読む箇所は動的境界として扱う。
-   - 動的境界の下位に `<Suspense>` を置き、静的シェルを先に返す。
-3. **パーソナライズと共有キャッシュを分離する**
-   - ユーザー固有データは `'use cache: private'` を使う。
-   - 共有可能データは通常の `'use cache'` で扱う。
-4. **`'use cache'` は責務の小さい単位で使う**
-   - ページ全体を一括キャッシュせず、意味のあるサブツリー/関数単位で適用する。
-   - 再利用しやすい「データ関数 + Presenter」に分離する。
+1. **Make cacheable operations explicit**
+   - Add `'use cache'` to Server Components / functions that should be cached.
+   - Specify cache update strategies explicitly with `cacheLife` and `cacheTag`.
+2. **Define dynamic data boundaries first**
+   - Treat locations that read request-dependent data such as `cookies()`, `headers()`, `searchParams` as dynamic boundaries.
+   - Place `<Suspense>` below dynamic boundaries to return the static shell first.
+3. **Separate personalization from shared cache**
+   - Use `'use cache: private'` for user-specific data.
+   - Use regular `'use cache'` for shareable data.
+4. **Apply `'use cache'` at small units of responsibility**
+   - Do not cache an entire page at once; apply it at meaningful subtree/function granularity.
+   - Separate into reusable "data function + Presenter" units.
 
-## 推奨パターン
+## Recommended Patterns
 
-### 1. キャッシュ可能な読み取り関数を分離
+### 1. Separate Cacheable Read Functions
 
 ```tsx
 import { cacheLife, cacheTag } from "next/cache";
@@ -41,7 +41,7 @@ export async function getCatalog() {
 }
 ```
 
-### 2. 動的データは非キャッシュ層で取得して引き渡す
+### 2. Fetch Dynamic Data in a Non-Cached Layer and Pass It Down
 
 ```tsx
 import { cookies } from "next/headers";
@@ -58,7 +58,7 @@ async function CachedProfile({ sessionId }: { sessionId: string }) {
 }
 ```
 
-### 3. ユーザー固有情報は private cache を使う
+### 3. Use Private Cache for User-Specific Information
 
 ```tsx
 import { cacheLife, cacheTag } from "next/cache";
@@ -74,13 +74,13 @@ async function getRecommendations(productId: string) {
 }
 ```
 
-## 避ける実装
+## Implementations to Avoid
 
-- `cookies()` や `headers()` を読んだ同じ関数に、そのまま共有キャッシュを置く
-- キャッシュ更新条件 (`cacheTag` / `cacheLife`) を定義せずに `'use cache'` だけで運用する
-- キャッシュ境界なしで大きなページ全体を動的レンダリングに倒す
+- Placing a shared cache on the same function that reads `cookies()` or `headers()`
+- Using `'use cache'` alone without defining cache update conditions (`cacheTag` / `cacheLife`)
+- Falling back to dynamic rendering for an entire large page without cache boundaries
 
-## 参照
+## References
 
 - Next.js `cacheComponents`: https://nextjs.org/docs/app/getting-started/cache-components
 - Next.js `'use cache'`: https://nextjs.org/docs/app/api-reference/directives/use-cache

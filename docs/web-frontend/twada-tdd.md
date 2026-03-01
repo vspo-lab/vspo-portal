@@ -1,68 +1,68 @@
-# t_wada式 TDD 戦略
+# t_wada-style TDD Strategy
 
-このドキュメントは、本テンプレートで t_wada ベースの TDD を実践するための最小ルールを定義する。
+This document defines the minimal rules for practicing t_wada-based TDD in this template.
 
-## 目的
+## Purpose
 
-- 変更に強いコードを小さなステップで育てる
-- バグ修正時に再発防止テストを先に追加する
-- 設計判断を実装後ではなくテスト作成時に引き出す
+- Grow code that is resilient to change through small steps
+- Add regression-prevention tests first when fixing bugs
+- Draw out design decisions during test creation, not after implementation
 
-## 基本原則
+## Core Principles
 
-- Red-Green-Refactor を短いサイクルで回す
-- 1テストで1つの振る舞いだけを検証する
-- 先にテストリストを作り、実装順を固定する
-- Green では最小実装だけを入れ、一般化は後回しにする
-- リファクタリングはテストが通っている状態でのみ行う
+- Run Red-Green-Refactor in short cycles
+- Verify only one behavior per test
+- Create a test list first and fix the implementation order
+- In Green, only add the minimal implementation; defer generalization
+- Only refactor when tests are passing
 
-## 実装パターン
+## Implementation Patterns
 
-### 仮実装から始める
+### Start with Fake Implementation
 
-- 最初は定数返却などの仮実装で Green にする
-- 次のケース追加で破綻を確認し、実装を育てる
+- Start with a fake implementation such as returning a constant to achieve Green
+- Confirm the failure with the next case addition and grow the implementation
 
-### 三角測量で一般化する
+### Generalize with Triangulation
 
-- 2つ以上の具体例で同じ実装が通る形へ寄せる
-- 早い段階で抽象化しすぎない
+- Converge toward an implementation that passes with two or more concrete examples
+- Avoid abstracting too early
 
-### 明白な実装を選ぶ
+### Choose Obvious Implementation
 
-- 実装が十分に明らかな場合は直接本実装を書く
-- ただしテストファーストは崩さない
+- When the implementation is sufficiently clear, write the real implementation directly
+- However, do not break the test-first approach
 
-## このテンプレートでの適用順序
+## Application Order in This Template
 
-1. ドメインモデル
-2. ユースケース
-3. Hono エンドポイント
-4. フロントエンドの重要ユースケース
+1. Domain models
+2. Use cases
+3. Hono endpoints
+4. Critical frontend use cases
 
-`docs/web-frontend/unit-testing.md` のテーブルドリブンテストを基本形として利用する。
+Use the table-driven tests from `docs/web-frontend/unit-testing.md` as the base format.
 
-## 1ストーリーの進め方
+## How to Progress Through One Story
 
-1. テストリストから次の 1 項目を選ぶ
-2. 失敗するテストを書く（Red）
-3. 最小実装で通す（Green）
-4. 重複除去と命名改善を行う（Refactor）
-5. 必要なら次のケースを追加して三角測量する
+1. Pick the next item from the test list
+2. Write a failing test (Red)
+3. Pass it with the minimal implementation (Green)
+4. Remove duplication and improve naming (Refactor)
+5. Add the next case and triangulate if needed
 
-## バグ修正フロー
+## Bug Fix Flow
 
-1. バグを再現する失敗テストを先に追加する
-2. そのテストだけを通す最小修正を入れる
-3. 近傍ケースを追加し、退行リスクを下げる
+1. Add a failing test that reproduces the bug first
+2. Apply the minimal fix to pass only that test
+3. Add neighboring cases to reduce regression risk
 
-## 運用チェックリスト
+## Operational Checklist
 
-- テスト名は仕様を読める文章になっているか
-- テストデータの重複を `it.each` で整理できているか
-- 外部依存は境界でモックし、ドメインは実体で検証しているか
-- リファクタリングで振る舞いを変えていないか
+- Are test names readable as specifications?
+- Is test data duplication organized with `it.each`?
+- Are external dependencies mocked at the boundary while testing domain with real objects?
+- Has the refactoring changed no behavior?
 
-## 参考
+## References
 
 - https://speakerdeck.com/twada/growing-reliable-code-php-conference-fukuoka-2025

@@ -1,16 +1,16 @@
-# ユーティリティクラス
+# Utility Classes
 
-## 概要
+## Overview
 
-`globals.css` の `@layer utilities` で定義されているカスタムユーティリティクラスです。Tailwind CSS の標準ユーティリティを補完し、プロジェクト固有のスタイルを提供します。
+Custom utility classes defined in `@layer utilities` of `globals.css`. These complement Tailwind CSS standard utilities and provide project-specific styles.
 
 ---
 
-## テキストユーティリティ
+## Text Utilities
 
 ### text-balance
 
-テキストの行末のバランスを調整し、より美しい組版を実現します。
+Adjusts text line-end balance for more beautiful typesetting.
 
 ```css
 .text-balance {
@@ -18,39 +18,39 @@
 }
 ```
 
-**使用場面**: 見出し、キャッチコピーなど短いテキスト
+**Use case**: Headings, taglines, and other short text
 
 ### text-2xs / text-3xs
 
-Tailwind 標準より小さいテキストサイズ。
+Text sizes smaller than Tailwind defaults.
 
-| クラス | サイズ | 行高さ | 用途 |
-|--------|--------|--------|------|
-| `text-2xs` | 0.7rem (11.2px) | 1rem | 小さなラベル、補足情報 |
-| `text-3xs` | 0.65rem (10.4px) | 0.9rem | 極小テキスト、タイムスタンプ |
+| Class | Size | Line Height | Usage |
+|-------|------|-------------|-------|
+| `text-2xs` | 0.7rem (11.2px) | 1rem | Small labels, supplementary info |
+| `text-3xs` | 0.65rem (10.4px) | 0.9rem | Extra small text, timestamps |
 
 ---
 
-## アニメーションユーティリティ
+## Animation Utilities
 
 ### animate-fade-up / animate-fade-up-slow
 
-下から上へフェードインするアニメーション。
+Fade-in animation from bottom to top.
 
-| クラス | 時間 | 用途 |
-|--------|------|------|
-| `animate-fade-up` | 0.8s | 標準的なフェードイン |
-| `animate-fade-up-slow` | 1.2s | ゆっくりしたフェードイン |
+| Class | Duration | Usage |
+|-------|----------|-------|
+| `animate-fade-up` | 0.8s | Standard fade-in |
+| `animate-fade-up-slow` | 1.2s | Slow fade-in |
 
 ```tsx
 <div className="animate-fade-up">
-  コンテンツがフェードインします
+  Content fades in
 </div>
 ```
 
 ### animate-floaty
 
-上下に浮遊するアニメーション（無限ループ）。
+Floating up-and-down animation (infinite loop).
 
 ```css
 .animate-floaty {
@@ -58,11 +58,11 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: ヒーローセクションのアバター、装飾要素
+**Use case**: Hero section avatars, decorative elements
 
 ### animate-soft-pulse
 
-ソフトなパルスアニメーション（無限ループ）。
+Soft pulse animation (infinite loop).
 
 ```css
 .animate-soft-pulse {
@@ -70,11 +70,11 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: CTAボタン、注目を引く要素
+**Use case**: CTA buttons, elements that draw attention
 
 ### animate-fade-in
 
-シンプルなフェードインアニメーション。
+Simple fade-in animation.
 
 ```css
 .animate-fade-in {
@@ -82,53 +82,53 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: モーダル、ツールチップの表示
+**Use case**: Modals, tooltip display
 
 ---
 
-## シャドウユーティリティ
+## Shadow Utilities
 
-| クラス | 用途 | 値 |
-|--------|------|-----|
-| `shadow-card` | カード、パネル | `var(--shadow-card)` |
-| `shadow-action` | ボタン、インタラクティブ要素 | `var(--shadow-action)` |
-| `shadow-hero` | ヒーロー要素、強調 | `var(--shadow-hero)` |
+| Class | Usage | Value |
+|-------|-------|-------|
+| `shadow-card` | Cards, panels | `var(--shadow-card)` |
+| `shadow-action` | Buttons, interactive elements | `var(--shadow-action)` |
+| `shadow-hero` | Hero elements, emphasis | `var(--shadow-hero)` |
 
 ```tsx
-<div className="shadow-card">カード</div>
-<button className="shadow-action">ボタン</button>
+<div className="shadow-card">Card</div>
+<button className="shadow-action">Button</button>
 ```
 
 ---
 
-## モーションユーティリティ
+## Motion Utilities
 
-| クラス | 値 | 用途 |
-|--------|-----|------|
-| `duration-fast` | 150ms | ホバー、フォーカス |
-| `duration-md` | 300ms | パネル開閉、状態変化 |
-| `ease-standard` | `cubic-bezier(0.2, 0.7, 0.2, 1)` | 標準イージング |
-| `transition-width` | `width` | 幅のトランジション |
+| Class | Value | Usage |
+|-------|-------|-------|
+| `duration-fast` | 150ms | Hover, focus |
+| `duration-md` | 300ms | Panel open/close, state changes |
+| `ease-standard` | `cubic-bezier(0.2, 0.7, 0.2, 1)` | Standard easing |
+| `transition-width` | `width` | Width transition |
 
 ```tsx
 <div className="transition-width duration-fast ease-standard">
-  幅がスムーズに変化
+  Width changes smoothly
 </div>
 ```
 
 ---
 
-## サーフェスユーティリティ
+## Surface Utilities
 
-半透明背景とボーダーを持つパネルスタイル。
+Panel styles with semi-transparent backgrounds and borders.
 
 ### surface-panel / surface-panel-compact / surface-panel-input
 
-| クラス | フォントサイズ | 背景透明度 | 用途 |
-|--------|--------------|----------|------|
-| `surface-panel` | 0.875rem | 80% | 標準パネル |
-| `surface-panel-compact` | 0.75rem | 80% | コンパクトパネル |
-| `surface-panel-input` | 0.75rem | 90% | 入力フィールド風 |
+| Class | Font Size | Background Opacity | Usage |
+|-------|-----------|-------------------|-------|
+| `surface-panel` | 0.875rem | 80% | Standard panel |
+| `surface-panel-compact` | 0.75rem | 80% | Compact panel |
+| `surface-panel-input` | 0.75rem | 90% | Input field style |
 
 ```css
 .surface-panel {
@@ -141,7 +141,7 @@ Tailwind 標準より小さいテキストサイズ。
 
 ### input-surface
 
-入力フィールド用のサーフェス。
+Surface for input fields.
 
 ```css
 .input-surface {
@@ -154,29 +154,29 @@ Tailwind 標準より小さいテキストサイズ。
 
 ### surface-info / surface-alert
 
-情報・アラート表示用のサーフェス。
+Surfaces for information and alert displays.
 
-| クラス | 背景色 | 用途 |
-|--------|--------|------|
-| `surface-info` | `var(--color-info-soft)` | 情報パネル |
-| `surface-alert` | `var(--color-accent-soft)` | アラートパネル |
+| Class | Background Color | Usage |
+|-------|-----------------|-------|
+| `surface-info` | `var(--color-info-soft)` | Information panel |
+| `surface-alert` | `var(--color-accent-soft)` | Alert panel |
 
 ### surface-metric / surface-metric-lg
 
-メトリクス表示用のサーフェス。
+Surfaces for metric displays.
 
-| クラス | パディング | 用途 |
-|--------|----------|------|
-| `surface-metric` | 0.5rem 0.75rem | 小さなメトリクス |
-| `surface-metric-lg` | 0.75rem | 大きなメトリクス |
+| Class | Padding | Usage |
+|-------|---------|-------|
+| `surface-metric` | 0.5rem 0.75rem | Small metrics |
+| `surface-metric-lg` | 0.75rem | Large metrics |
 
 ---
 
-## ピル/バッジユーティリティ
+## Pill / Badge Utilities
 
 ### pill-outline
 
-アウトラインスタイルのピル。
+Outline-style pill.
 
 ```css
 .pill-outline {
@@ -190,7 +190,7 @@ Tailwind 標準より小さいテキストサイズ。
 
 ### field-surface
 
-フォームフィールド用のサーフェス。
+Surface for form fields.
 
 ```css
 .field-surface {
@@ -203,9 +203,9 @@ Tailwind 標準より小さいテキストサイズ。
 
 ---
 
-## ビデオUI専用ユーティリティ
+## Video UI Utilities
 
-ビデオオーバーレイで使用する専用クラス。
+Dedicated classes for video overlays.
 
 ### badge-video-overlay
 
@@ -220,11 +220,11 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: ビデオ上のタイムスタンプ、ステータス表示
+**Use case**: Timestamps and status displays on top of videos
 
 ### badge-alert
 
-パルスアニメーション付きのアラートバッジ。
+Alert badge with pulse animation.
 
 ```css
 .badge-alert {
@@ -236,11 +236,11 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: 重要な警告、制限時間超過
+**Use case**: Important warnings, time limit exceeded
 
 ### badge-speaking
 
-発話中を示すバッジ。
+Badge indicating active speaking.
 
 ```css
 .badge-speaking {
@@ -249,29 +249,29 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: ユーザーまたはAIが発話中であることを示す
+**Use case**: Indicating that a user or AI is currently speaking
 
 ### badge-name / badge-name-sm
 
-名前表示用のバッジ。
+Badges for name display.
 
-| クラス | フォントサイズ | 用途 |
-|--------|--------------|------|
-| `badge-name` | 0.875rem | 標準の名前表示 |
-| `badge-name-sm` | 0.75rem | 小さな名前表示 |
+| Class | Font Size | Usage |
+|-------|-----------|-------|
+| `badge-name` | 0.875rem | Standard name display |
+| `badge-name-sm` | 0.75rem | Small name display |
 
 ### overlay-panel-dark / overlay-panel-alert
 
-オーバーレイパネル。
+Overlay panels.
 
-| クラス | 背景色 | 用途 |
-|--------|--------|------|
-| `overlay-panel-dark` | `oklch(0 0 0 / 0.7)` | 暗いオーバーレイ |
-| `overlay-panel-alert` | `oklch(0.63 0.24 25 / 0.9)` | アラート用オーバーレイ |
+| Class | Background Color | Usage |
+|-------|-----------------|-------|
+| `overlay-panel-dark` | `oklch(0 0 0 / 0.7)` | Dark overlay |
+| `overlay-panel-alert` | `oklch(0.63 0.24 25 / 0.9)` | Alert overlay |
 
 ### badge-pose-feedback
 
-姿勢フィードバック用のバッジ。
+Badge for posture feedback.
 
 ```css
 .badge-pose-feedback {
@@ -281,40 +281,40 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: 姿勢に関するリアルタイムフィードバック
+**Use case**: Real-time feedback on posture
 
 ---
 
-## レイアウトユーティリティ
+## Layout Utilities
 
-| クラス | 値 | 用途 |
-|--------|-----|------|
-| `min-h-stage` | 80vh | ヒーローセクション |
-| `min-w-pricing-table` | 600px | 価格表の最小幅 |
-| `min-h-answer` | 140px | 回答エリア |
-| `min-h-suspense` | 60vh | ローディング状態 |
-| `min-h-textarea` | 150px | テキストエリア |
-| `min-w-action-btn` | 120px | アクションボタン |
-| `max-w-chat-bubble` | 80% | チャットバブル |
-| `aspect-avatar` | 4:5 | アバター表示 |
+| Class | Value | Usage |
+|-------|-------|-------|
+| `min-h-stage` | 80vh | Hero section |
+| `min-w-pricing-table` | 600px | Pricing table minimum width |
+| `min-h-answer` | 140px | Answer area |
+| `min-h-suspense` | 60vh | Loading state |
+| `min-h-textarea` | 150px | Text area |
+| `min-w-action-btn` | 120px | Action button |
+| `max-w-chat-bubble` | 80% | Chat bubble |
+| `aspect-avatar` | 4:5 | Avatar display |
 
 ```tsx
 <section className="min-h-stage">
-  ヒーローセクション
+  Hero Section
 </section>
 
 <div className="aspect-avatar">
-  <img src="/avatar.png" alt="アバター" />
+  <img src="/avatar.png" alt="Avatar" />
 </div>
 ```
 
 ---
 
-## グリッドユーティリティ
+## Grid Utilities
 
 ### lg:grid-cols-mic-check
 
-マイクチェックページ専用のグリッドレイアウト。
+Grid layout dedicated to the mic check page.
 
 ```css
 @media (min-width: 1024px) {
@@ -326,11 +326,11 @@ Tailwind 標準より小さいテキストサイズ。
 
 ---
 
-## 背景ユーティリティ
+## Background Utilities
 
 ### bg-app-gradient
 
-アプリケーション全体で使用するグラデーション背景。
+Gradient background used across the application.
 
 ```css
 .bg-app-gradient {
@@ -353,12 +353,12 @@ Tailwind 標準より小さいテキストサイズ。
 }
 ```
 
-**使用場面**: ランディングページ、オンボーディング
+**Use case**: Landing pages, onboarding
 
 ---
 
-## 参考
+## References
 
-- [デザイントークン](./design-tokens.md)
-- [CSS ガイドライン](../css.md)
-- [アクセシビリティ](../accessibility.md)
+- [Design Tokens](./design-tokens.md)
+- [CSS Guidelines](../css.md)
+- [Accessibility](../accessibility.md)

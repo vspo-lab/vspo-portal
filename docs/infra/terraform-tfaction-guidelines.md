@@ -1,76 +1,76 @@
-# Terraform 設計ガイドライン（tfaction ベース）
+# Terraform Design Guidelines (tfaction-Based)
 
-## 目的
+## Purpose
 
-このドキュメントは、Terraform 設計ガイドラインをベースにしつつ、このテンプレートで採用する **tfaction 中心の運用標準** を定義する。
+This document defines the **tfaction-centric operational standards** adopted in this template, building on the Terraform design guidelines.
 
-- 対象: `infrastructure/terraform/` と `.github/workflows/terraform-*.yml`
-- 前提: Pull Request ベースで `plan`、マージ後に `apply`
-- 更新日: 2026-02-28
+- Target: `infrastructure/terraform/` and `.github/workflows/terraform-*.yml`
+- Premise: `plan` on Pull Request, `apply` after merge
+- Last updated: 2026-02-28
 
-## 基本方針
+## Core Principles
 
-1. Terraform 実行は GitHub Actions + tfaction を基本経路にする
-2. `prod` は IaC 適用を必須とし、手動差分を残さない
-3. `state` はリモート管理し、環境ごとに分離する
-4. モジュールはフラット構成を維持し、過剰な抽象化を避ける
-5. 認証は OIDC を使い、長期シークレットを置かない
+1. Terraform execution uses GitHub Actions + tfaction as the standard path
+2. `prod` requires IaC application; no manual drift is allowed
+3. `state` is managed remotely and separated per environment
+4. Modules maintain a flat structure; avoid over-abstraction
+5. Authentication uses OIDC; no long-lived secrets
 
-## 標準ディレクトリ構成
+## Standard Directory Structure
 
 ```text
 infrastructure/terraform/
-├── tfaction.yaml
-├── .tflint.hcl
-├── env/
-│   ├── dev/
-│   │   ├── network/
-│   │   ├── platform/
-│   │   └── app/
-│   ├── stg/
-│   └── prod/
-└── modules/
-    ├── network_core/
-    ├── platform_identity/
-    └── app_runtime/
++-- tfaction.yaml
++-- .tflint.hcl
++-- env/
+|   +-- dev/
+|   |   +-- network/
+|   |   +-- platform/
+|   |   +-- app/
+|   +-- stg/
+|   +-- prod/
++-- modules/
+    +-- network_core/
+    +-- platform_identity/
+    +-- app_runtime/
 ```
 
-- `env/*/*` は Terraform を直接実行するルートモジュール（state 単位）
-- `modules/*` は再利用前提の子モジュール
-- `state` 分割は「ライフサイクル差」と「オーナー差」を基準にする
+- `env/*/*` are root modules where Terraform is directly executed (state units)
+- `modules/*` are child modules intended for reuse
+- `state` splitting is based on "lifecycle differences" and "ownership differences"
 
-## State 設計ルール
+## State Design Rules
 
-- ローカル state は禁止。オブジェクトストレージのリモート state を使う
-- `dev/stg/prod` で state を分離する
-- 1 state あたりのリソース数は目安として 100 以下を保つ
-- `terraform_remote_state` 参照は原則避け、Data Source + 命名規則で参照する
-- state バケットは専用化し、バージョニングと削除保護を有効化する
+- Local state is prohibited. Use remote state on object storage
+- Separate state across `dev/stg/prod`
+- Keep resource count per state under approximately 100
+- Avoid `terraform_remote_state` references in principle; use Data Sources + naming conventions instead
+- State buckets should be dedicated, with versioning and deletion protection enabled
 
-## モジュール設計ルール
+## Module Design Rules
 
-- モジュール標準構成は `main.tf`, `variables.tf`, `outputs.tf`
-- `variables.tf` / `outputs.tf` は `type` と `description` を必須にする
-- 入力変数は必要最小限に絞る。`any` は使わない
-- ネストモジュール（module から module 呼び出し）は原則禁止
-- 単一リソースを薄く包むだけのモジュールは作らない
+- Standard module structure: `main.tf`, `variables.tf`, `outputs.tf`
+- `variables.tf` / `outputs.tf` must include `type` and `description`
+- Limit input variables to the minimum necessary. Do not use `any`
+- Nested modules (module calling module) are prohibited in principle
+- Do not create modules that merely thin-wrap a single resource
 
-## 命名・ファイルルール
+## Naming and File Rules
 
-- リソース名・変数名は `snake_case`
-- リソース名にリソース種別を重複させない
-- ルートモジュールは `main.tf` 集約 + 標準補助ファイル（`providers.tf`, `terraform.tf`, `locals.tf`, `variables.tf`）で構成する
-- `terraform fmt`, `terraform validate`, `tflint`, `trivy` を CI で必須実行する
+- Resource names and variable names use `snake_case`
+- Do not duplicate resource type information in resource names
+- Root modules consist of consolidated `main.tf` + standard auxiliary files (`providers.tf`, `terraform.tf`, `locals.tf`, `variables.tf`)
+- `terraform fmt`, `terraform validate`, `tflint`, and `trivy` are required in CI
 
-## バージョン管理
+## Version Management
 
-- Terraform / Provider は完全一致で固定する（例: `= 1.14.2`）
-- 実行バージョンは `.terraform-version` と `required_version` を同期させる
-- バージョンアップは定期運用（四半期または半期）でまとめて実施する
+- Terraform / Provider versions are pinned with exact match (e.g., `= 1.14.2`)
+- Execution version is synchronized between `.terraform-version` and `required_version`
+- Version upgrades are batched in periodic operations (quarterly or semi-annually)
 
-## tfaction 標準構成
+## tfaction Standard Configuration
 
-### ルート設定（`infrastructure/terraform/tfaction.yaml`）
+### Root Configuration (`infrastructure/terraform/tfaction.yaml`)
 
 ```yaml
 ---
@@ -94,45 +94,45 @@ target_groups:
     target: my-app/prod/
 ```
 
-### GitHub Actions の最小構成
+### Minimal GitHub Actions Configuration
 
-- `plan`: `pull_request` トリガーで `list-targets` -> `test` -> `plan`
-- `apply`: `push` トリガーで `list-targets` -> `apply`
-- 必須 env:
+- `plan`: `pull_request` trigger with `list-targets` -> `test` -> `plan`
+- `apply`: `push` trigger with `list-targets` -> `apply`
+- Required env:
   - `TFACTION_TARGET`
   - `TFACTION_WORKING_DIR`
   - `TFACTION_JOB_TYPE`
-  - `TFACTION_IS_APPLY`（apply workflow のみ）
-- 失敗時は `create-follow-up-pr` で復旧 PR を作成する
+  - `TFACTION_IS_APPLY` (apply workflow only)
+- On failure, create a recovery PR with `create-follow-up-pr`
 
-## セキュリティ方針
+## Security Policy
 
-- 認証は GitHub OIDC（Workload Identity Federation）を利用する
-- `plan` と `apply` で実行ロールを分離する
-- ローカル端末からの `apply` は `dev` を除き禁止
-- `prod` では `--target` apply を禁止する
+- Authentication uses GitHub OIDC (Workload Identity Federation)
+- Separate execution roles for `plan` and `apply`
+- Local terminal `apply` is prohibited except for `dev`
+- `--target` apply is prohibited for `prod`
 
-## 実装チェックリスト
+## Implementation Checklists
 
-### 新しい state 単位を追加する場合
+### When Adding a New State Unit
 
-1. `env/<environment>/<state-unit>/` を作成
-2. `backend` 設定と provider バージョン固定を追加
-3. ルート `tfaction.yaml` の `target_groups` を更新
-4. plan/apply workflow の `paths` を更新
-5. docs と運用ルールを更新
+1. Create `env/<environment>/<state-unit>/`
+2. Add `backend` configuration and pin provider versions
+3. Update `target_groups` in the root `tfaction.yaml`
+4. Update `paths` in plan/apply workflows
+5. Update docs and operational rules
 
-### 新しい module を追加する場合
+### When Adding a New Module
 
-1. `modules/<module_name>/` を作成
-2. `main.tf`, `variables.tf`, `outputs.tf` を作成
-3. 入力の `type`/`description` と validation を記述
-4. 呼び出し側の `main.tf` から相対パスで参照
-5. 影響対象 environment の plan を確認
+1. Create `modules/<module_name>/`
+2. Create `main.tf`, `variables.tf`, `outputs.tf`
+3. Document input `type`/`description` and validation
+4. Reference from the caller's `main.tf` via relative path
+5. Verify the plan for affected environments
 
-## 参照
+## References
 
-- Future Terraform 設計ガイドライン:
+- Future Terraform Design Guidelines:
   - https://future-architect.github.io/arch-guidelines/documents/forTerraform/terraform_guidelines.html
 - HashiCorp Terraform Style:
   - https://developer.hashicorp.com/terraform/language/style

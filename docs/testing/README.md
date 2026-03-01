@@ -1,39 +1,39 @@
 # Testing Strategy Overview
 
-このディレクトリは、テスト種別ごとの実装方針の Single Source of Truth。
+This directory is the Single Source of Truth for implementation guidelines per test type.
 
-## 共通原則
+## Common Principles
 
-- t_wada ベースの `Red-Green-Refactor` を短いサイクルで回す
-- テーブルドリブンテスト（`it.each` / `test.each`）を基本形にする
-- デフォルトは「モックしない」。内部依存は実体を通す
-- 例外として、外部SaaS・決済・メールなど自分たちが制御できない境界のみモックする
-- 実装詳細ではなく、利用者から見える振る舞いを検証する
+- Follow t_wada-based `Red-Green-Refactor` in short cycles
+- Use table-driven tests (`it.each` / `test.each`) as the standard form
+- Default is "no mocking." Pass through internal dependencies with real implementations
+- Exception: mock only boundaries outside your control, such as external SaaS, payment, and email services
+- Verify behavior visible to the consumer, not implementation details
 
-## テストタイプと責務
+## Test Types and Responsibilities
 
-| 種別 | 目的 | 主なツール | 方針 |
+| Type | Purpose | Primary Tools | Guidelines |
 | --- | --- | --- | --- |
-| Unit | 関数/ドメインの局所的な振る舞い確認 | Vitest | 高速・純粋・副作用最小 |
-| Integration | 複数モジュール連携の確認 | Vitest + 実DB | Repository/UseCase/DB を通す |
-| API | エンドポイント契約と入出力保証 | Hono testClient + OpenAPI | ルートを実体で叩く |
-| UI | コンポーネントの利用者視点検証 | Vitest + Testing Library | Role ベース選択・実DOM重視 |
-| VRT | 見た目の退行検知 | Storybook + Playwright | スナップショット安定化 |
-| E2E | ユーザーフロー全体保証 | Playwright | 本番相当環境で経路検証 |
+| Unit | Verify local behavior of functions/domains | Vitest | Fast, pure, minimal side effects |
+| Integration | Verify collaboration across multiple modules | Vitest + real DB | Pass through Repository/UseCase/DB |
+| API | Ensure endpoint contracts and input/output guarantees | Hono testClient + OpenAPI | Hit routes with real implementations |
+| UI | Verify components from the user's perspective | Vitest + Testing Library | Role-based selection, real DOM focus |
+| VRT | Detect visual regressions | Storybook + Playwright | Stabilize snapshots |
+| E2E | Guarantee entire user flows | Playwright | Verify paths in production-equivalent environments |
 
-## カバレッジポリシー
+## Coverage Policy
 
-| 対象パッケージ | 最低カバレッジ | CI 強制 |
+| Target Package | Minimum Coverage | CI Enforced |
 | --- | --- | --- |
 | `services/api/domain/**` | 60% | Yes |
 | `packages/**` | 60% | Yes |
-| `services/web/shared/lib/**` | 50% | No（推奨） |
+| `services/web/shared/lib/**` | 50% | No (recommended) |
 
-- カバレッジが閾値を下回る PR は CI で失敗させる
-- 閾値は段階的に引き上げる（初期設定は控えめに）
-- カバレッジのための無意味なテストは書かない。振る舞いを検証するテストで自然に到達する
+- PRs that fall below the threshold will fail in CI
+- Thresholds are raised incrementally (initial settings are conservative)
+- Do not write meaningless tests just for coverage. Achieve coverage naturally through tests that verify behavior
 
-## ドキュメント一覧
+## Document Index
 
 - [unit-testing.md](./unit-testing.md)
 - [integration-testing.md](./integration-testing.md)
