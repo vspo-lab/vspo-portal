@@ -3,27 +3,38 @@
   "plansDirectory": "./docs/plan",
   "permissions": {
     "allow": [
-      "Bash(ls *)",
-      "Bash(cat *)",
-      "Bash(grep *)",
-      "Bash(rg *)",
-      "Bash(find *)",
-      "Bash(head *)",
-      "Bash(tail *)",
-      "Bash(sed *)",
-      "Bash(awk *)",
-      "Bash(wc *)",
-      "Bash(jq *)",
-      "Bash(git status *)",
-      "Bash(git diff *)",
-      "Bash(git log *)",
-      "Bash(git show *)",
-      "Bash(pnpm build)",
-      "Bash(pnpm biome:check)",
-      "Bash(pnpm knip)",
-      "Bash(pnpm tsc)"
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "MultiEdit(*)",
+      "Skill:*",
+      "TodoRead(*)",
+      "TodoWrite(*)",
+      "WebSearch(*)",
+      "Agent(*)",
+      "Bash(./scripts/*)"
     ],
-    "deny": ["Read(.env*)", "Read(**/.env*)", "Read(*.pem)", "Read(*.key)"]
+    "deny": [
+      "Read(.env*)",
+      "Read(**/.env*)",
+      "Read(*.pem)",
+      "Read(*.key)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(dd if=*)",
+      "Bash(mkfs*)",
+      "Bash(chmod -R 777 /)",
+      "Bash(> /dev/sda*)",
+      "Bash(shutdown*)",
+      "Bash(reboot*)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | bash)",
+      "Bash(curl * | sh)",
+      "Bash(wget * | sh)",
+      "Bash(pnpm publish*)",
+      "Bash(npm publish*)"
+    ]
   },
   "hooks": {
     "PreToolUse": [

@@ -2,325 +2,202 @@
 
 ## Overview
 
-The frontend architecture adopts a Feature-based approach, organizing code by domain functionality rather than technical layers. This structure follows DDD principles adapted for frontend development. Within each Feature, the Container/Presentational pattern (Container-first design) is implemented to separate business logic from UI rendering.
+Next.js 15 application using the **Pages Router**, deployed to Cloudflare Workers via OpenNextJS. UI is built with **MUI v7 + Emotion**. Code is organized into feature modules following the **Container/Presenter** pattern.
 
-This architecture is designed for the Next.js App Router, where **Features and pages have a 1:1 correspondence**. Each route in `app/` maps to a single Feature, keeping routing and Feature logic tightly coupled.
+## Tech Stack
 
-## Rendering Foundation (React Compiler + Cache Components)
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 15 (Pages Router) |
+| UI Library | MUI v7 (Material UI) + Emotion CSS-in-JS |
+| Language | TypeScript 5.9 (strict mode, Zod Schema First) |
+| i18n | next-i18next (ja, en, cn, tw, ko) |
+| Error Handling | Result type (`@vspo-lab/error`) |
+| Date | date-fns + date-fns-tz (display), `@vspo-lab/dayjs` (UTC ops) |
+| Runtime | Cloudflare Workers |
 
-The frontend is designed with the following default settings:
+## Related Documents
 
-- `reactCompiler: true` in `services/web/next.config.ts`
-- `cacheComponents: true` in `services/web/next.config.ts`
-- Server Components by default; Client Components only when interactivity is needed
-
-Design implications:
-
-1. **Compiler-first memoization**: Do not add `useMemo`/`useCallback` solely for speculative performance
-2. **Cache-first rendering**: Define cacheable data boundaries with `'use cache'` and invalidate explicitly
-3. **Explicit dynamic boundaries**: Wrap dynamic parts with `<Suspense>` and keep the static shell outside
-
-Refer to the following for specific rules:
-
-- `docs/web-frontend/react-hooks.md`
-- `docs/web-frontend/cache-components.md`
+| Document | Description |
+|----------|-------------|
+| [Routing](./routing.md) | Pages Router, route map, layout system, middleware |
+| [Data Fetching](./data-fetching.md) | serverSideProps, dual API support, Result pattern |
+| [State Management](./state-management.md) | Context providers, cookies, LocalStorage |
+| [i18n](./i18n.md) | Internationalization setup and locale resolution |
+| [Styling](./styling.md) | MUI + Emotion theming and component styling |
+| [Shared Components](./shared-components.md) | Layout, VideoCard, VideoModal, common UI elements |
+| [Multiview](./multiview.md) | Multi-stream viewer, grid layouts, playback controls |
+| [Middleware](./middleware.md) | Locale routing, timezone, session tracking |
+| [PWA](./pwa.md) | Progressive Web App configuration and caching |
 
 ## Directory Structure
 
-The directory structure is as follows:
+```
+service/vspo-schedule/v2/web/src/
+├── pages/                         # Next.js Pages Router (route entry points)
+│   ├── _app.tsx                   # Provider stack + per-page layout
+│   ├── _document.tsx              # HTML document (MUI SSR, analytics, PWA)
+│   ├── schedule/[status].tsx      # /schedule/all, /schedule/live, etc.
+│   ├── clips/                     # /clips, /clips/youtube, /clips/twitch
+│   ├── freechat.tsx               # /freechat
+│   ├── multiview.tsx              # /multiview
+│   ├── about.tsx                  # /about
+│   ├── site-news/                 # /site-news, /site-news/[id]
+│   ├── privacy-policy.tsx         # /privacy-policy
+│   └── terms.tsx                  # /terms
+│
+├── features/                      # Feature modules (business logic + UI)
+│   ├── schedule/                  # Livestream schedule
+│   ├── clips/                     # YouTube/Twitch clips
+│   ├── freechat/                  # Free chat rooms
+│   ├── multiview/                 # Multi-stream viewer
+│   ├── site-news/                 # Site announcements
+│   ├── about/                     # About page
+│   ├── legal-documents/           # Privacy policy, Terms
+│   └── shared/                    # Cross-feature code
+│       ├── domain/                # Zod schemas + types
+│       ├── api/                   # API fetch functions (Result-based)
+│       ├── components/            # Shared UI (Layout, Card, Modal, etc.)
+│       ├── utils/                 # Video embed URL helpers
+│       └── types/                 # Worker API type definitions
+│
+├── context/                       # React contexts (Theme, TimeZone, VideoModal)
+├── lib/                           # Utilities (Const, i18n, cloudflare, markdown)
+├── constants/navigation.ts        # Route definitions
+├── hooks/                         # Shared hooks (useCookie, etc.)
+├── middleware.ts                   # Locale, timezone, session ID handling
+└── styles/                        # Global styles
+```
+
+## Feature Module Structure
+
+Each feature follows a consistent layout:
 
 ```
-app/                          # Next.js App Router (routes and pages)
-├── layout.tsx                # Root layout
-├── globals.css               # Global styles
-├── (public)/                 # Public pages (terms of service, contact, etc.)
-├── (auth)/                   # Authentication pages ([feature-name])
-└── (protected)/              # Authenticated pages (home, etc.)
-│
-features/                     # Feature modules (business logic)
-├── [your-feature]/           # Core Feature module
-│   ├── api/                  # Feature API module
-│   ├── components/
-│   │   ├── containers/       # Business logic containers
-│   │   └── presenters/       # UI presenters
-│   ├── hooks/                # Custom Hooks
-│   └── types/                # Type definitions
-├── [feature-name]/           # Individual Feature modules
-│
-shared/                       # App-wide shared code
-├── components/               # Shared UI building blocks
-│   ├── ui/                   # Base design system (Button, Input, Card, etc.)
-│   ├── presenters/           # Reusable presentation components
-│   └── containers/           # Shared container components (AppShell, AuthGuard)
-├── lib/                      # Shared libraries (apiConfig, etc.)
-└── utils/
+features/<feature>/
+├── api/                           # Feature-specific data orchestration
+│   └── <feature>Service.ts        # Composes shared API calls
+├── components/
+│   ├── containers/                # Business logic (state, effects, handlers)
+│   └── presenters/                # Pure UI rendering
+├── pages/
+│   └── <PageName>/
+│       ├── container.tsx           # Page-level container
+│       ├── presenter.tsx           # Page-level presenter
+│       └── serverSideProps.ts      # getServerSideProps logic
+├── hooks/                         # Feature-specific hooks
+├── types/                         # Feature-specific types
+└── utils/                         # Feature-specific utilities
 ```
 
-## Container/Presentational Pattern
+Not every feature has all directories -- only include what is needed.
 
-A Container-first approach is adopted to separate concerns within components.
+### Feature Catalog
 
-### Container Components
+| Feature | Data Source | Key Patterns |
+|---------|-------------|--------------|
+| **schedule** | fetchLivestreams, fetchEvents | Status tabs (all/live/upcoming/archive), date grouping, favorite filters |
+| **clips** | fetchClips (3x parallel), fetchVspoMembers | Per-platform pages, pagination, sort by viewCount/date |
+| **freechat** | fetchFreechats | Simple list display |
+| **multiview** | fetchLivestreams (2x) | Grid layout, LocalStorage persistence, URL sharing, PlaybackContext |
+| **site-news** | Markdown files | Static content, no API |
+| **about** | Markdown files | Static content, no API |
+| **legal-documents** | Translations | getStaticProps |
 
-- Responsible for "what to do":
-  - Data fetching and state management
-  - Business logic
-  - Event handling
-  - Data transformation
-- Pass data and callbacks to Presentational components
-- Do not contain large markup or styling
+See [Routing](./routing.md) for the full route map.
 
-### Presentational Components
+## Container/Presenter Pattern
 
-- Responsible for "how to display":
-  - UI rendering
-  - Styling
-  - Animation
-  - Accessibility
-- Receive data and callbacks via props
-- Typically pure function components
+Every UI feature separates business logic from rendering.
+
+### Container
+
+- Manages state (`useState`, `useEffect`, custom hooks)
+- Orchestrates data (received from `serverSideProps` via page props)
+- Defines event handlers
+- Passes computed props to presenter
+- Minimal JSX
+
+```tsx
+// features/schedule/pages/ScheduleStatus/container.tsx
+export const ScheduleStatus: React.FC<ScheduleStatusProps> = ({
+  livestreams, events, timeZone, locale, liveStatus, ...
+}) => {
+  const [currentStatusFilter, setCurrentStatusFilter] = useState(liveStatus);
+  const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+  const { groupedLivestreams } = useGroupedLivestreams(livestreams, timeZone);
+
+  return (
+    <ScheduleStatusPresenter
+      groupedLivestreams={groupedLivestreams}
+      currentStatusFilter={currentStatusFilter}
+      onStatusFilterChange={setCurrentStatusFilter}
+      onSearchDialogOpen={() => setIsSearchDialogOpen(true)}
+      // ...
+    />
+  );
+};
+```
+
+### Presenter
+
+- Receives all data and callbacks via props
+- Handles rendering, styling, and accessibility
+- Pure functional component (no direct state or effects)
 - Reusable across different containers
 
-### Example
-
-**Container** (`ItemPage.tsx`):
-
 ```tsx
-"use client";
-
-import { fetchItemData } from "../api/itemApi";
-import { ItemPagePresenter } from "../presenters/ItemPagePresenter";
-
-export const ItemPage = () => {
-  // Data fetching + device selection logic goes here
-  return <ItemPagePresenter /* props */ />;
+// features/schedule/pages/ScheduleStatus/presenter.tsx
+export const ScheduleStatusPresenter: React.FC<PresenterProps> = ({
+  groupedLivestreams, currentStatusFilter, onStatusFilterChange, ...
+}) => {
+  return (
+    <Box>
+      <Tabs value={currentStatusFilter} onChange={(_, v) => onStatusFilterChange(v)}>
+        {/* tab items */}
+      </Tabs>
+      {/* content */}
+    </Box>
+  );
 };
 ```
 
-**Presenter** (`ItemPagePresenter.tsx`):
-
-```tsx
-type Props = {
-  items: Array<{ id: string; name: string; status: string }>;
-};
-
-export const ItemPagePresenter = ({ items }: Props) => {
-  return <section>{/* Render items */}</section>;
-};
-```
-
-### Key Points
+### Guidelines
 
 | Container | Presenter |
 |-----------|-----------|
-| `useState`, `useEffect` | Props only |
-| Business logic (filtering, etc.) | Pure rendering |
-| Event handler logic | `onClick={onXxx}` |
-| Minimal JSX | Rich JSX and styling |
+| `useState`, `useEffect`, hooks | Props only |
+| Business logic (filtering, sorting) | Pure rendering |
+| Event handler definitions | `onClick={onXxx}` callbacks |
+| Minimal JSX | Rich JSX + MUI components |
 
-## API Access
-
-- Feature-specific API modules are placed in `features/<feature>/api/`
-- Use `shared/lib/apiConfig.ts` for the base URL
-- API functions return `Result` from `@vspo-lab/errors`
-- Feature-specific endpoints are defined per module
-
-## Component Organization
-
-Components are organized in three ways:
-
-1. **Page-specific components** (`_components/`): Placed within each route, used only on that page. The `_` prefix indicates it is private to the route and excluded from routing.
-
-   ```
-   app/feature/
-   ├── page.tsx
-   └── _components/        # Private to this route (underscore prefix)
-       ├── FeatureTimer.tsx
-       ├── StatusBadge.tsx
-       └── ...
-   ```
-
-2. **Feature-specific components**: Placed within each Feature module, reused within that Feature.
-
-   ```
-   features/item/components/
-   ├── containers/
-   │   ├── ItemPage.tsx
-   │   └── ...
-   └── presenters/
-       ├── ItemPagePresenter.tsx
-       └── ...
-   ```
-
-3. **Shared components**: Placed in `shared/components/`, reused across Features.
-
-   ```
-   shared/components/
-   ├── containers/
-   │   ├── Modal.tsx
-   │   ├── Pagination.tsx
-   │   └── ...
-   └── presenters/
-       ├── Button.tsx
-       ├── Card.tsx
-       └── ...
-   ```
-
-## App Router Structure
-
-In the Next.js App Router, Features and pages have a **1:1 correspondence**. Each route maps to a single Feature.
-
-### Route Structure
-
-```
-app/                        # Entry page
-├── page.tsx
-└── _components/            # Page-specific components (optional)
-app/feature/
-├── page.tsx                # Feature page
-├── loading.tsx             # Loading UI (optional)
-├── error.tsx               # Error UI (optional)
-└── _components/            # Page-specific components (optional)
-```
-
-### Naming Conventions
-
-- **`_` prefix**: Page-specific folders (e.g., `_components/`, `_hooks/`) use an underscore prefix because:
-  - It indicates they are private to the route
-  - It prevents Next.js from treating them as route segments
-  - It clearly distinguishes page-specific code from shared code
-
-### Page Component Pattern
-
-```tsx
-// app/items/page.tsx (Server Component)
-import { getItems } from '@/features/items/api'
-import { ItemList } from './_components/UserList'
-
-export default async function ItemsPage() {
-  const items = await getItems()
-  return <ItemList items={items} />
-}
-```
-
-```tsx
-// app/items/_components/ItemList.tsx (Client or Server Component)
-import { ItemCard } from './ItemCard'
-import type { Item } from '@/features/items/types'
-
-type Props = {
-  items: Item[]
-}
-
-export function ItemList({ users }: Props) {
-  return (
-    <div>
-      { items.map(item => (
-        <ItemCard key={item.id} item={item} />
-      ))}
-    </div>
-  )
-}
-```
-
-## Design Principles
-
-1. **Feature-Page 1:1 mapping**: Each route in `app/` corresponds to exactly one Feature. Routing and business logic are kept tightly coupled.
-2. **Feature isolation**: Each Feature is self-contained, minimizing dependencies on other Features. Avoid cross-Feature imports.
-3. **Shared components**: Common UI elements are placed in `shared/components/` for reuse.
-4. **Domain-driven**: Features are designed around business domains, not technical concerns.
-5. **Container-first design**: Always start with a container to define what needs to be done, then create the presenter.
-6. **Separation of concerns**:
-   - Containers handle logic and data
-   - Presenters handle UI and styling
-7. **Layered approach within Features**:
-   - UI Layer: Presenters
-   - Application Layer: Containers, Hooks
-   - Domain Layer: Business logic, data transformation
-   - Infrastructure Layer: API calls, external service integration
-8. **Colocation**: Related code is placed close together. Page-specific components go in `_components/` within the route.
-9. **Compiler-first Hooks**: Start with plain computations and event handlers; use memoization Hooks only when behavior/control is needed.
-10. **Cache-first App Router**: Treat cache boundaries (`'use cache'`, `cacheLife`, `cacheTag`) as part of Feature design, not an afterthought.
-
-## Data Flow
-
-1. Container components fetch and manage data
-2. Data flows to Presentational components via props
-3. User events in Presentational components trigger callbacks defined in Containers
-4. Container components update state based on events
+When a container would be a trivial pass-through (no logic), skip it and use the presenter directly from the page.
 
 ## Dependency Direction
 
-Dependencies flow in one direction:
-
 ```
-      shared/
-         ↓
-     features/
-         ↓
-       app/
+@vspo-lab/* packages (error, api, dayjs, logging)
+         |
+    features/shared/ (domain, api, components)
+         |
+    features/<feature>/ (schedule, clips, etc.)
+         |
+       pages/ (route entry points)
 ```
 
 ### Rules
 
-- **Shared → Features**: Shared code is available to all Features
-- **Features → App**: Features can be imported from app routes
-- **Prohibited**: A Feature must not import from another Feature
-- **Prohibited**: Shared code must not import from features or app
-- Within a Feature: Container → Presenter (one-way)
+- **Shared -> Features**: Shared domain/api/components available to all features
+- **Features -> Pages**: Features imported by page files
+- **Prohibited**: Feature must not import from another feature
+- **Prohibited**: Shared code must not import from features or pages
+- Within a feature: Container -> Presenter (one-way)
 
-### Cross-Feature Communication
+## Domain Models
 
-Compose at the app level instead of cross-Feature imports.
+All defined as Zod schemas in `features/shared/domain/`. Types are inferred via `z.infer<>`.
 
-```tsx
-// ❌ Bad: Cross-Feature import
-// features/reviews/components/ReviewList.tsx
-import { Avatar } from '@/shared/components'
+The domain entity "Stream" is called `Livestream` in frontend code. The entity "Creator" maps to the `Channel` type. See [Entities](../domain/entities.md) for full attribute tables and business rules.
 
-// ✅ Good: Compose at app level
-// app/items/[id]/_components/ItemReviews.tsx
-import { ReviewList } from '@/features/reviews/components'
-import { Avatar } from '@/shared/components'
-```
-
-## Testing Strategy
-
-- Container tests: Test business logic and state management
-- Presenter tests: Test UI rendering and interactions
-- Integration tests: Test Container and Presenter pair integration
-- E2E tests: Test entire user flows
-
-## Implementation Guidelines
-
-- Use TypeScript throughout the application for type safety
-- Keep `reactCompiler` and `cacheComponents` enabled unless there is a proven blocker
-- Maintain consistent naming conventions for files and components
-  - ContainerName.tsx and NamePresenter.tsx
-  - Use `_` prefix for page-specific folders (`_components/`, `_hooks/`)
-- Keep Presenters as pure functions whenever possible
-- Document component APIs with JSDoc or Storybook
-- Use custom Hooks to extract and reuse complex logic from Containers
-- Default to Server Components; use `'use client'` only when necessary
-- Import files directly instead of using barrel files (better for tree shaking)
-
-## State Management
-
-- Feature-specific state is confined within the Feature module
-- Cross-Feature state is managed with a central store or context
-- Prefer Server Components and URL state over client-side state whenever possible
-
-## Feature Structure
-
-Features include only the necessary folders:
-
-```
-features/awesome-feature/
-├── api/          # API request declarations and Hooks
-├── components/   # Components scoped to this Feature
-│   ├── containers/
-│   └── presenters/
-├── hooks/        # Hooks scoped to this Feature
-├── types/        # TypeScript type definitions for this Feature
-└── utils/        # Utility functions for this Feature
-```
+**Platform enum**: `youtube`, `twitch`, `twitcasting`, `niconico`, `unknown`.
+**Status enum**: `live`, `upcoming`, `ended`, `unknown`.

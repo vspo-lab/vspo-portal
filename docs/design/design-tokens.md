@@ -226,7 +226,7 @@ Examples:
 
 ## References
 
-- [CSS Guidelines](../web-frontend/css.md)
+- [Styling Guidelines](../web-frontend/styling.md)
 - [Color Guidelines](./colors.md)
 - [Typography Guidelines](./typography.md)
 - [Utility Classes](./utilities.md)

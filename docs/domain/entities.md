@@ -9,7 +9,7 @@
 | Clip | Clip | External API | A fan-made highlight clip or short derived from stream content |
 | Event | Event | External API | A scheduled event such as a tournament, collab, or special broadcast |
 | FreeChat | FreeChat | External API | A standing free-chat room on YouTube (always-open chat space) |
-| SiteNews | SiteNews | Local | Announcement or changelog entry for the Spodule application itself |
+| SiteNews | SiteNews | Local | Announcement or changelog entry for the vspo-portal application itself |
 
 ## Relationships
 
@@ -163,13 +163,14 @@ A standing free-chat room on YouTube. Structurally identical to Stream.
 
 ### 6. SiteNews
 
-Application-local announcement or changelog entry. Not sourced from the external API.
+Application-local announcement or changelog entry. Stored as markdown files under `public/content/site-news/{locale}/`, not sourced from the external API.
 
 | Attribute | Type | Required | Description |
 | --- | --- | --- | --- |
-| id | number | yes | Auto-incrementing identifier |
+| id | number | yes | Numeric identifier (from markdown frontmatter) |
 | title | string | yes | News title |
-| content | string | yes | News body text |
+| content | string | yes | News body text (markdown) |
+| html | string or null | no | Rendered HTML content |
 | updated | string | yes | ISO 8601 last-updated timestamp |
 | tags | enum[] | yes | One or more of: `feat`, `fix` |
 | tweetLink | string | no | URL to a related tweet/post |
@@ -177,4 +178,5 @@ Application-local announcement or changelog entry. Not sourced from the external
 #### Business Rules
 
 - `tags` categorize the news entry as a feature announcement (`feat`) or bug fix notice (`fix`).
-- SiteNews is managed within the frontend codebase, not via the external API.
+- SiteNews is stored as locale-specific markdown files and parsed at build/request time via `lib/markdown.ts`.
+- The `SiteNewsMarkdownItem` type in code corresponds to this entity.

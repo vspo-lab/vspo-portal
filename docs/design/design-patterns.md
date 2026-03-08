@@ -320,4 +320,4 @@ Patterns for controlling UI visibility based on user permissions.
 
 - [Design Principles](./design-principles.md)
 - [Accessibility Guidelines](./accessibility.md)
-- [CSS Guidelines](../css.md)
+- [Styling](../web-frontend/styling.md)

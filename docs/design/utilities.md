@@ -360,5 +360,5 @@ Gradient background used across the application.
 ## References
 
 - [Design Tokens](./design-tokens.md)
-- [CSS Guidelines](../css.md)
-- [Accessibility](../accessibility.md)
+- [Styling](../web-frontend/styling.md)
+- [Accessibility](./accessibility.md)

@@ -6,9 +6,9 @@ application code. Asynchronous boundaries are wrapped with `wrap`, which returns
 
 ## Implementation
 
-[result.ts](../packages/errors/result.ts)
-[base.ts](../packages/errors/base.ts)
-[error.ts](../packages/errors/error.ts)
+- [result.ts](../../packages/errors/result.ts) — Result type, Ok, Err, wrap
+- [base.ts](../../packages/errors/base.ts) — BaseError type
+- [error.ts](../../packages/errors/error.ts) — AppError class
 
 ## Usage
 Example:
@@ -106,20 +106,12 @@ E4xxx - Validation related
 ```
 packages/errors/
 ├── code.ts           # Unified ErrorCodeSchema (generic + domain)
-├── domain-code.ts    # Domain error code definitions (E1xxx-E4xxx)
-├── domain-context.ts # Context type definitions per error code
-└── error.ts          # AppError (with domain code support)
-
-services/api/
-└── infra/http/hono/error.ts  # Error response with context
-
-services/web/
-└── shared/lib/
-    ├── errors/
-    │   ├── error-messages.ts    # Error code → user-facing message
-    │   └── api-error-handler.ts # Error resolution and context interpolation logic
-    └── parseResponse.ts         # Structured error response handling
+├── error.ts          # AppError (with domain code support)
+├── base.ts           # BaseError type
+└── result.ts         # Result type, Ok, Err, wrap
 ```
+
+> Note: The domain error code system (E1xxx-E4xxx) described below is a planned extension. Files like `domain-code.ts` and `domain-context.ts` are not yet implemented.
 
 ### Error Response Format
 
@@ -239,6 +231,6 @@ export const ERROR_MESSAGES = {
 
 ### Related Files
 
-- [domain-code.ts](../packages/errors/domain-code.ts) - Domain error code definitions
-- [domain-context.ts](../packages/errors/domain-context.ts) - Context type definitions
-- [error-messages.ts](../services/web/shared/lib/errors/error-messages.ts) - User-facing messages
+- [code.ts](../../packages/errors/code.ts) — Error code definitions
+- [error.ts](../../packages/errors/error.ts) — AppError class
+- [result.ts](../../packages/errors/result.ts) — Result type utilities
