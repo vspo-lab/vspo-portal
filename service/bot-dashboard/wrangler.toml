@@ -1,0 +1,14 @@
+name = "bot-dashboard"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+main = "./build/server/index.js"
+assets = { directory = "./build/client" }
+
+[vars]
+# DISCORD_CLIENT_ID = ""
+# DISCORD_CLIENT_SECRET = ""
+# DISCORD_REDIRECT_URI = ""
+# DISCORD_BOT_CLIENT_ID = ""
+# VSPO_API_URL = ""
+# VSPO_API_KEY = ""
+# SESSION_SECRET = ""

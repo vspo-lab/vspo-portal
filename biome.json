@@ -32,7 +32,8 @@
       "!**/service/vspo-schedule/v2/web/**/*.d.ts",
       "!**/.pnpm-store/**/*",
       "!**/*.css",
-      "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*"
+      "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*",
+      "!**/.react-router/**/*"
     ]
   },
   "formatter": {
