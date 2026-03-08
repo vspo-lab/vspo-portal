@@ -27,7 +27,7 @@ Items related to visual design and interaction.
 | 6 | Does it follow "Eye Flow Guidance" standards? | [Design Patterns - Eye Flow Guidance](./design-patterns.md#eye-flow-guidance) |
 | 7 | Does it follow "Visual Grouping" standards? | [Design Patterns - Visual Grouping](./design-patterns.md#visual-grouping) |
 | 8 | Does it follow "Page Layout" standards? | [Design Patterns - Page Layout](./design-patterns.md#page-layout) |
-| 9 | Does it follow "Spacing" standards? | [CSS Guidelines](../css.md) |
+| 9 | Does it follow "Spacing" standards? | [Styling](../web-frontend/styling.md) |
 | 10 | Does it follow "Mobile Layout" standards? | [Design Patterns - Mobile Layout](./design-patterns.md#mobile-layout) |
 | 11 | Does user notification/feedback follow "Feedback" standards? | [Design Patterns - Feedback](./design-patterns.md#feedback) |
 | 12 | For modal UIs, does it follow "Modal UI" standards? | [Design Patterns - Modal UI](./design-patterns.md#modal-ui) |

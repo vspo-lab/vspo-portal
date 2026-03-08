@@ -332,6 +332,38 @@ By using GitHub Environments:
 
 ---
 
+## Web Deployment
+
+The web frontend has a separate deployment pipeline via `deploy-web-workers.yaml`.
+
+### Trigger
+
+```yaml
+on:
+  push:
+    branches: [main, develop]
+    paths: ['service/vspo-schedule/v2/web/**']
+  workflow_dispatch:
+```
+
+### Pipeline
+
+1. Checkout and setup (pnpm, Node.js)
+2. Install dependencies (`pnpm install`)
+3. Build with OpenNextJS (`pnpm build:web`)
+4. Deploy to Cloudflare Workers via Wrangler v3
+
+### Environment Mapping
+
+| Branch | Environment | Wrangler Config |
+|--------|-------------|-----------------|
+| `develop` | dev | `config/wrangler/dev/wrangler.jsonc` |
+| `main` | prd | `config/wrangler/prd/wrangler.jsonc` |
+
+See [Cloudflare Workers](./cloudflare-workers.md) for deployment architecture details.
+
+---
+
 ## Summary
 
 | Phase | Action | Tools |
@@ -339,4 +371,5 @@ By using GitHub Environments:
 | CI (Plan) | Change detection -> Lint -> Scan -> Plan | tfaction, tflint, trivy |
 | Review | Review plan results -> Approve | GitHub PR |
 | CD (Apply) | Apply -> Follow-up PR | tfaction |
+| Web Deploy | Build -> Wrangler deploy | OpenNextJS, Wrangler |
 | Monitoring | Drift Detection | tfaction |

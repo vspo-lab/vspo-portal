@@ -16,14 +16,30 @@ After making changes, always run the following command:
 `post-edit-check.sh` executes the following in order:
 
 ```bash
-pnpm build
-pnpm biome
-pnpm textlint
-pnpm knip
-pnpm type-check
-pnpm test
-pnpm security-scan
+pnpm biome:check   # Biome linter + formatter
+pnpm knip           # Unused code detection
+pnpm tsc            # TypeScript type checking
 ```
+
+## Security Scanning
+
+Run the full security scan locally:
+
+```bash
+./scripts/security-scan.sh           # Without Docker image scan
+./scripts/security-scan.sh --docker  # Include Docker image scan
+```
+
+The script runs four scans:
+
+| Scan | Tool | What it detects |
+|------|------|-----------------|
+| Filesystem vulnerabilities | Trivy | CRITICAL/HIGH severity CVEs in dependencies |
+| Container vulnerabilities | Trivy (with `--docker`) | Image-level CVEs |
+| Secret detection | gitleaks | Hardcoded secrets and credentials |
+| Static analysis | Semgrep | Code-level security issues (auto config) |
+
+Each tool runs via local installation (aqua) if available, falling back to Docker containers. Exit code is 1 if any scan fails.
 
 ## Additional Checks for Documentation Changes
 
