@@ -18,9 +18,6 @@
       "routes": [
         { "pattern": "dev-discord.vspo-schedule.com", "custom_domain": true }
       ],
-      "kv_namespaces": [
-        { "binding": "SESSION", "id": "SESSION_KV_NAMESPACE_ID" }
-      ],
       "services": [
         {
           "binding": "APP_WORKER",
@@ -40,9 +37,6 @@
       "name": "prd-bot-dashboard",
       "routes": [
         { "pattern": "discord.vspo-schedule.com", "custom_domain": true }
-      ],
-      "kv_namespaces": [
-        { "binding": "SESSION", "id": "SESSION_KV_NAMESPACE_ID" }
       ],
       "services": [
         {
