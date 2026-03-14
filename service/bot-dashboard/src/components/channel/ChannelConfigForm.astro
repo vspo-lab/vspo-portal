@@ -4,15 +4,20 @@ import Button from "~/components/ui/Button.astro";
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { MemberType } from "~/features/channel/domain/member-type";
 import type { CreatorType } from "~/features/shared/domain/creator";
+import { t, type Locale } from "~/i18n/dict";
 
 interface Props {
   channel: ChannelConfigType;
   creators: CreatorType[];
   guildId: string;
+  locale: Locale;
 }
 
-const { channel, creators, guildId } = Astro.props;
-const memberTypeOptions = MemberType.options();
+const { channel, creators, guildId, locale } = Astro.props;
+const memberTypeOptions = MemberType.schema.options.map((value) => ({
+  value,
+  label: t(locale, `memberType.${value}` as any),
+}));
 const showCustomMembers = MemberType.requiresCustomSelection(
   channel.memberType,
 );
@@ -26,7 +31,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
     class="mx-4 w-full max-w-lg rounded-lg border border-border bg-card p-6"
   >
     <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-semibold">#{channel.channelName} の設定</h2>
+      <h2 class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
       <a
         href={`/dashboard/${guildId}`}
         class="text-muted-foreground hover:text-foreground"
@@ -40,19 +45,19 @@ const showCustomMembers = MemberType.requiresCustomSelection(
       <input type="hidden" name="channelId" value={channel.channelId} />
 
       <div class="space-y-2">
-        <label for="language" class="text-sm font-medium">言語</label>
+        <label for="language" class="text-sm font-medium">{t(locale, "channelConfig.language")}</label>
         <select
           id="language"
           name="language"
           class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         >
-          <option value="ja" selected={channel.language === "ja"}>日本語</option>
-          <option value="en" selected={channel.language === "en"}>English</option>
+          <option value="ja" selected={channel.language === "ja"}>{t(locale, "channelConfig.language.ja")}</option>
+          <option value="en" selected={channel.language === "en"}>{t(locale, "channelConfig.language.en")}</option>
         </select>
       </div>
 
       <div class="space-y-2">
-        <span class="text-sm font-medium">メンバータイプ</span>
+        <span class="text-sm font-medium">{t(locale, "channelConfig.memberType")}</span>
         <div class="space-y-2">
           {
             memberTypeOptions.map((opt) => (
@@ -74,7 +79,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
       {
         showCustomMembers && (
           <div class="space-y-2">
-            <span class="text-sm font-medium">カスタムメンバー</span>
+            <span class="text-sm font-medium">{t(locale, "channelConfig.customMembers")}</span>
             <div class="max-h-48 space-y-1 overflow-y-auto rounded-md border border-border p-2">
               {creators.map((creator) => (
                 <label class="flex items-center gap-2 rounded px-2 py-1 hover:bg-accent/50">
@@ -102,9 +107,9 @@ const showCustomMembers = MemberType.requiresCustomSelection(
 
       <div class="flex justify-end gap-2 pt-2">
         <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
-          キャンセル
+          {t(locale, "channelConfig.cancel")}
         </Button>
-        <Button type="submit" variant="discord">保存</Button>
+        <Button type="submit" variant="discord">{t(locale, "channelConfig.save")}</Button>
       </div>
     </form>
   </div>

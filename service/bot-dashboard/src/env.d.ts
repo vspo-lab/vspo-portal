@@ -17,5 +17,6 @@ declare namespace App {
   interface Locals {
     user: SessionData["user"] | null;
     accessToken: string | null;
+    locale: import("~/i18n/dict").Locale;
   }
 }

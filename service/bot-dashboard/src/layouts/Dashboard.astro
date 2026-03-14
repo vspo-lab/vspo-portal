@@ -3,28 +3,31 @@ import Base from "./Base.astro";
 import UserMenu from "~/components/auth/UserMenu.astro";
 import AvatarFallback from "~/components/ui/AvatarFallback.astro";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
+import { t, type Locale } from "~/i18n/dict";
 
 interface Props {
   title: string;
   guilds: { id: string; name: string; iconUrl: string | null }[];
+  locale: Locale;
 }
 
-const { title, guilds } = Astro.props;
+const { title, guilds, locale } = Astro.props;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
 const currentPath = Astro.url.pathname;
 const avatarUrl = DiscordUser.avatarUrl(user);
 ---
 
-<Base title={title}>
+<Base title={title} locale={locale}>
   <div class="flex min-h-screen flex-col">
     <header
       class="flex h-14 items-center justify-between border-b border-border px-6"
     >
-      <a href="/dashboard" class="text-lg font-bold">Spodule Bot</a>
+      <a href="/dashboard" class="text-lg font-bold">{t(locale, "app.name")}</a>
       <UserMenu
         displayName={user.displayName}
         avatarUrl={avatarUrl}
+        locale={locale}
       />
     </header>
     <div class="flex flex-1">
@@ -34,7 +37,7 @@ const avatarUrl = DiscordUser.avatarUrl(user);
             href="/dashboard"
             class={`block rounded-md px-3 py-2 text-sm ${currentPath === "/dashboard" || currentPath === "/dashboard/" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50"}`}
           >
-            全サーバー
+            {t(locale, "dashboard.allServers")}
           </a>
           {
             guilds.map((guild) => (

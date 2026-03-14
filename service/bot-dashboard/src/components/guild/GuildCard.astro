@@ -4,13 +4,15 @@ import Button from "~/components/ui/Button.astro";
 import Card from "~/components/ui/Card.astro";
 import type { GuildSummaryType } from "~/features/guild/domain/guild";
 import { GuildSummary } from "~/features/guild/domain/guild";
+import { t, type Locale } from "~/i18n/dict";
 
 interface Props {
   guild: GuildSummaryType;
   botClientId: string;
+  locale: Locale;
 }
 
-const { guild, botClientId } = Astro.props;
+const { guild, botClientId, locale } = Astro.props;
 const iconUrl = GuildSummary.iconUrl(guild);
 ---
 
@@ -31,7 +33,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
           size="sm"
           class="w-full"
         >
-          設定を管理
+          {t(locale, "guild.manageSettings")}
         </Button>
       ) : (
         <Button
@@ -43,7 +45,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
           target="_blank"
           rel="noopener noreferrer"
         >
-          Bot を追加
+          {t(locale, "guild.addBot")}
         </Button>
       )
     }

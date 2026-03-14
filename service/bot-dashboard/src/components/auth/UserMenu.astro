@@ -1,13 +1,15 @@
 ---
 import AvatarFallback from "~/components/ui/AvatarFallback.astro";
 import Button from "~/components/ui/Button.astro";
+import { t, type Locale } from "~/i18n/dict";
 
 interface Props {
   displayName: string;
   avatarUrl: string | null;
+  locale: Locale;
 }
 
-const { displayName, avatarUrl } = Astro.props;
+const { displayName, avatarUrl, locale } = Astro.props;
 ---
 
 <div class="flex items-center gap-3">
@@ -15,7 +17,7 @@ const { displayName, avatarUrl } = Astro.props;
   <span class="text-sm font-medium">{displayName}</span>
   <form method="post" action="/auth/logout">
     <Button variant="ghost" size="sm" type="submit">
-      ログアウト
+      {t(locale, "auth.logout")}
     </Button>
   </form>
 </div>

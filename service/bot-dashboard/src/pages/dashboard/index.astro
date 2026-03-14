@@ -3,7 +3,9 @@ import { env } from "cloudflare:workers";
 import GuildCard from "~/components/guild/GuildCard.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
+import { t } from "~/i18n/dict";
 
+const locale = Astro.locals.locale;
 const accessToken = Astro.locals.accessToken;
 if (!accessToken) {
   return Astro.redirect("/");
@@ -22,22 +24,22 @@ const { installed, notInstalled, sidebarGuilds } = result.val;
 const botClientId = env.DISCORD_BOT_CLIENT_ID;
 ---
 
-<Dashboard title="サーバー一覧" guilds={sidebarGuilds}>
+<Dashboard title={t(locale, "dashboard.servers")} guilds={sidebarGuilds} locale={locale}>
   <div class="space-y-8">
     <div>
-      <h1 class="text-2xl font-bold tracking-tight">サーバー一覧</h1>
+      <h1 class="text-2xl font-bold tracking-tight">{t(locale, "dashboard.servers")}</h1>
       <p class="text-muted-foreground">
-        Bot が導入されているサーバーの設定を管理できます。
+        {t(locale, "dashboard.servers.desc")}
       </p>
     </div>
 
     {
       installed.length > 0 && (
         <section class="space-y-4">
-          <h2 class="text-lg font-semibold">Bot 導入済み</h2>
+          <h2 class="text-lg font-semibold">{t(locale, "dashboard.installed")}</h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {installed.map((guild) => (
-              <GuildCard guild={guild} botClientId={botClientId} />
+              <GuildCard guild={guild} botClientId={botClientId} locale={locale} />
             ))}
           </div>
         </section>
@@ -48,11 +50,11 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
       notInstalled.length > 0 && (
         <section class="space-y-4">
           <h2 class="text-lg font-semibold text-muted-foreground">
-            Bot 未導入
+            {t(locale, "dashboard.notInstalled")}
           </h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {notInstalled.map((guild) => (
-              <GuildCard guild={guild} botClientId={botClientId} />
+              <GuildCard guild={guild} botClientId={botClientId} locale={locale} />
             ))}
           </div>
         </section>
@@ -62,7 +64,7 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
     {
       installed.length === 0 && notInstalled.length === 0 && (
         <p class="text-muted-foreground">
-          管理権限を持つサーバーがありません。
+          {t(locale, "dashboard.noServers")}
         </p>
       )
     }

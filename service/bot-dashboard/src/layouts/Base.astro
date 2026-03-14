@@ -1,19 +1,21 @@
 ---
 import "~/app.css";
+import { t, type Locale } from "~/i18n/dict";
 
 interface Props {
   title: string;
+  locale: Locale;
 }
 
-const { title } = Astro.props;
+const { title, locale } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="ja" class="dark">
+<html lang={locale} class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} | Spodule Bot Dashboard</title>
+    <title>{title} | {t(locale, "app.title")}</title>
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
     <slot />
