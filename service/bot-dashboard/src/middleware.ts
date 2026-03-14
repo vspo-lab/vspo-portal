@@ -1,9 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
-import type { Locale } from "~/i18n/dict";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const preferred = context.preferredLocale;
-  context.locals.locale = (preferred === "en" ? "en" : "ja") as Locale;
+  context.locals.locale = context.preferredLocale === "en" ? "en" : "ja";
 
   const user = await context.session?.get("user");
   context.locals.user = user ?? null;

@@ -158,5 +158,5 @@ export const t = (
 
 /** Type-safe key for member type translation lookup */
 export const memberTypeKey = (
-  value: "vspo_jp" | "vspo_en" | "all" | "custom",
+  value: import("~/features/channel/domain/member-type").MemberTypeValue,
 ): MemberTypeKey => `memberType.${value}` as MemberTypeKey;
