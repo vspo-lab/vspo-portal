@@ -1,0 +1,51 @@
+---
+import AvatarFallback from "~/components/ui/AvatarFallback.astro";
+import Button from "~/components/ui/Button.astro";
+import Card from "~/components/ui/Card.astro";
+import type { GuildSummaryType } from "~/features/guild/domain/guild";
+import { GuildSummary } from "~/features/guild/domain/guild";
+
+interface Props {
+  guild: GuildSummaryType;
+  botClientId: string;
+}
+
+const { guild, botClientId } = Astro.props;
+const iconUrl = GuildSummary.iconUrl(guild);
+---
+
+<Card class="transition-colors hover:border-foreground/20">
+  <div class="flex flex-row items-center gap-3 p-6 pb-2">
+    <AvatarFallback src={iconUrl} name={guild.name} size="md" />
+    <h3 class="text-base font-semibold leading-none tracking-tight">
+      {guild.name}
+    </h3>
+  </div>
+  <div class="p-6 pt-0">
+    {
+      guild.botInstalled ? (
+        <Button
+          as="a"
+          href={`/dashboard/${guild.id}`}
+          variant="secondary"
+          size="sm"
+          class="w-full"
+        >
+          設定を管理
+        </Button>
+      ) : (
+        <Button
+          as="a"
+          href={GuildSummary.inviteUrl(guild, botClientId)}
+          variant="outline"
+          size="sm"
+          class="w-full"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Bot を追加
+        </Button>
+      )
+    }
+  </div>
+</Card>

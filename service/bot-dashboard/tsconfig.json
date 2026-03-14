@@ -1,24 +1,9 @@
 {
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".react-router/types/**/*"
-  ],
-  "exclude": ["node_modules"],
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["@cloudflare/workers-types/2023-07-01", "vite/client"],
-    "strict": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "isolatedModules": true,
-    "rootDirs": [".", "./.react-router/types"],
+    "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["src/*"]
     }
   }
 }

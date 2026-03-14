@@ -1,0 +1,21 @@
+---
+import AvatarFallback from "~/components/ui/AvatarFallback.astro";
+import Button from "~/components/ui/Button.astro";
+
+interface Props {
+  displayName: string;
+  avatarUrl: string | null;
+}
+
+const { displayName, avatarUrl } = Astro.props;
+---
+
+<div class="flex items-center gap-3">
+  <AvatarFallback src={avatarUrl} name={displayName} size="sm" />
+  <span class="text-sm font-medium">{displayName}</span>
+  <form method="post" action="/auth/logout">
+    <Button variant="ghost" size="sm" type="submit">
+      ログアウト
+    </Button>
+  </form>
+</div>
