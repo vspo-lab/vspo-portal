@@ -46,7 +46,7 @@ const editingChannel = editChannelId
   : null;
 ---
 
-<Dashboard title={`Server ${guildId}`} guilds={sidebarGuilds} locale={locale}>
+<Dashboard title={`Server ${guildId}`} guilds={sidebarGuilds}>
   <div class="space-y-6">
     <div>
       <h1 class="text-2xl font-bold tracking-tight">Server {guildId}</h1>
@@ -63,7 +63,7 @@ const editingChannel = editChannelId
       )
     }
 
-    <ChannelTable channels={channels} guildId={guildId} locale={locale} />
+    <ChannelTable channels={channels} guildId={guildId} />
 
     {
       editingChannel && (
@@ -71,7 +71,6 @@ const editingChannel = editChannelId
           channel={editingChannel}
           creators={[]}
           guildId={guildId}
-          locale={locale}
         />
       )
     }

@@ -4,6 +4,10 @@ import { defineConfig } from "astro/config";
 
 export default defineConfig({
   output: "server",
+  i18n: {
+    defaultLocale: "ja",
+    locales: ["ja", "en"],
+  },
   adapter: cloudflare({
     sessionKVBindingName: "SESSION",
   }),

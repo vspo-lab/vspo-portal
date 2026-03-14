@@ -131,6 +131,7 @@ const en: Record<keyof typeof ja, string> = {
 
 export type Locale = "ja" | "en";
 export type TranslationKey = keyof typeof ja;
+type MemberTypeKey = Extract<TranslationKey, `memberType.${string}`>;
 
 const dictionaries: Record<Locale, Record<TranslationKey, string>> = {
   ja,
@@ -155,13 +156,7 @@ export const t = (
   return value;
 };
 
-/**
- * Detect locale from Accept-Language header.
- * Returns "ja" if Japanese is preferred, "en" otherwise.
- */
-export const detectLocale = (acceptLanguage: string | null): Locale => {
-  if (!acceptLanguage) return "ja";
-  const first = acceptLanguage.split(",")[0]?.trim().toLowerCase() ?? "";
-  if (first.startsWith("ja")) return "ja";
-  return "en";
-};
+/** Type-safe key for member type translation lookup */
+export const memberTypeKey = (
+  value: "vspo_jp" | "vspo_en" | "all" | "custom",
+): MemberTypeKey => `memberType.${value}` as MemberTypeKey;

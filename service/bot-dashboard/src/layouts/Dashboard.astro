@@ -3,22 +3,22 @@ import Base from "./Base.astro";
 import UserMenu from "~/components/auth/UserMenu.astro";
 import AvatarFallback from "~/components/ui/AvatarFallback.astro";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
-import { t, type Locale } from "~/i18n/dict";
+import { t } from "~/i18n/dict";
 
 interface Props {
   title: string;
   guilds: { id: string; name: string; iconUrl: string | null }[];
-  locale: Locale;
 }
 
-const { title, guilds, locale } = Astro.props;
+const { title, guilds } = Astro.props;
+const { locale } = Astro.locals;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
 const currentPath = Astro.url.pathname;
 const avatarUrl = DiscordUser.avatarUrl(user);
 ---
 
-<Base title={title} locale={locale}>
+<Base title={title}>
   <div class="flex min-h-screen flex-col">
     <header
       class="flex h-14 items-center justify-between border-b border-border px-6"
@@ -27,7 +27,6 @@ const avatarUrl = DiscordUser.avatarUrl(user);
       <UserMenu
         displayName={user.displayName}
         avatarUrl={avatarUrl}
-        locale={locale}
       />
     </header>
     <div class="flex flex-1">

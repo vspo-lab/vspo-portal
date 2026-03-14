@@ -4,19 +4,19 @@ import Button from "~/components/ui/Button.astro";
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { MemberType } from "~/features/channel/domain/member-type";
 import type { CreatorType } from "~/features/shared/domain/creator";
-import { t, type Locale } from "~/i18n/dict";
+import { t, memberTypeKey } from "~/i18n/dict";
 
 interface Props {
   channel: ChannelConfigType;
   creators: CreatorType[];
   guildId: string;
-  locale: Locale;
 }
 
-const { channel, creators, guildId, locale } = Astro.props;
+const { channel, creators, guildId } = Astro.props;
+const { locale } = Astro.locals;
 const memberTypeOptions = MemberType.schema.options.map((value) => ({
   value,
-  label: t(locale, `memberType.${value}` as any),
+  label: t(locale, memberTypeKey(value)),
 }));
 const showCustomMembers = MemberType.requiresCustomSelection(
   channel.memberType,

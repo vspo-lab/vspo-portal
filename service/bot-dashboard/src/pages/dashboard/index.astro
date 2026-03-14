@@ -24,7 +24,7 @@ const { installed, notInstalled, sidebarGuilds } = result.val;
 const botClientId = env.DISCORD_BOT_CLIENT_ID;
 ---
 
-<Dashboard title={t(locale, "dashboard.servers")} guilds={sidebarGuilds} locale={locale}>
+<Dashboard title={t(locale, "dashboard.servers")} guilds={sidebarGuilds}>
   <div class="space-y-8">
     <div>
       <h1 class="text-2xl font-bold tracking-tight">{t(locale, "dashboard.servers")}</h1>
@@ -39,7 +39,7 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
           <h2 class="text-lg font-semibold">{t(locale, "dashboard.installed")}</h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {installed.map((guild) => (
-              <GuildCard guild={guild} botClientId={botClientId} locale={locale} />
+              <GuildCard guild={guild} botClientId={botClientId} />
             ))}
           </div>
         </section>
@@ -54,7 +54,7 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
           </h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {notInstalled.map((guild) => (
-              <GuildCard guild={guild} botClientId={botClientId} locale={locale} />
+              <GuildCard guild={guild} botClientId={botClientId} />
             ))}
           </div>
         </section>

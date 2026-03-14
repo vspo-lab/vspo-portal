@@ -4,15 +4,15 @@ import Button from "~/components/ui/Button.astro";
 import Card from "~/components/ui/Card.astro";
 import type { GuildSummaryType } from "~/features/guild/domain/guild";
 import { GuildSummary } from "~/features/guild/domain/guild";
-import { t, type Locale } from "~/i18n/dict";
+import { t } from "~/i18n/dict";
 
 interface Props {
   guild: GuildSummaryType;
   botClientId: string;
-  locale: Locale;
 }
 
-const { guild, botClientId, locale } = Astro.props;
+const { guild, botClientId } = Astro.props;
+const { locale } = Astro.locals;
 const iconUrl = GuildSummary.iconUrl(guild);
 ---
 

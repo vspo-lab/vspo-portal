@@ -1,13 +1,13 @@
 ---
 import "~/app.css";
-import { t, type Locale } from "~/i18n/dict";
+import { t } from "~/i18n/dict";
 
 interface Props {
   title: string;
-  locale: Locale;
 }
 
-const { title, locale } = Astro.props;
+const { title } = Astro.props;
+const { locale } = Astro.locals;
 ---
 
 <!doctype html>
