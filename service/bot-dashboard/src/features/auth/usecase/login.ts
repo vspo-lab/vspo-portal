@@ -1,24 +1,30 @@
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
-import type { DiscordUserType } from "../domain/discord-user";
-import { DiscordUser } from "../domain/discord-user";
+import { z } from "zod";
+import { DiscordUser, type DiscordUserType } from "../domain/discord-user";
 import { DiscordApiRepository } from "../repository/discord-api";
 
-type AuthUrlEnv = {
-  DISCORD_CLIENT_ID: string;
-  DISCORD_REDIRECT_URI: string;
-};
+const AuthUrlEnvSchema = z.object({
+  DISCORD_CLIENT_ID: z.string(),
+  DISCORD_REDIRECT_URI: z.string(),
+});
 
-type LoginEnv = AuthUrlEnv & {
-  DISCORD_CLIENT_SECRET: string;
-};
+type AuthUrlEnv = z.infer<typeof AuthUrlEnvSchema>;
 
-type LoginResult = {
-  user: DiscordUserType;
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-};
+const LoginEnvSchema = AuthUrlEnvSchema.extend({
+  DISCORD_CLIENT_SECRET: z.string(),
+});
+
+type LoginEnv = z.infer<typeof LoginEnvSchema>;
+
+const LoginResultSchema = z.object({
+  user: z.custom<DiscordUserType>(),
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  expiresAt: z.number(),
+});
+
+type LoginResult = z.infer<typeof LoginResultSchema>;
 
 /**
  * Discord OAuth2 Authorization URL を生成する

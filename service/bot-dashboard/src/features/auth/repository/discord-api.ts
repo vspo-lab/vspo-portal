@@ -1,34 +1,44 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
+import { z } from "zod";
+import { parseResult } from "~/features/shared/lib/parse";
 
-type DiscordTokenResponse = {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  token_type: string;
-  scope: string;
-};
+const DiscordTokenResponseSchema = z.object({
+  access_token: z.string(),
+  refresh_token: z.string(),
+  expires_in: z.number(),
+  token_type: z.string(),
+  scope: z.string(),
+});
 
-type DiscordApiUser = {
-  id: string;
-  username: string;
-  global_name: string | null;
-  avatar: string | null;
-};
+type DiscordTokenResponse = z.infer<typeof DiscordTokenResponseSchema>;
 
-type DiscordApiGuild = {
-  id: string;
-  name: string;
-  icon: string | null;
-  permissions: string;
-};
+const DiscordApiUserSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  global_name: z.string().nullable(),
+  avatar: z.string().nullable(),
+});
 
-type ExchangeCodeParams = {
-  code: string;
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-};
+type DiscordApiUser = z.infer<typeof DiscordApiUserSchema>;
+
+const DiscordApiGuildSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  icon: z.string().nullable(),
+  permissions: z.string(),
+});
+
+type DiscordApiGuild = z.infer<typeof DiscordApiGuildSchema>;
+
+const ExchangeCodeParamsSchema = z.object({
+  code: z.string(),
+  clientId: z.string(),
+  clientSecret: z.string(),
+  redirectUri: z.string(),
+});
+
+type ExchangeCodeParams = z.infer<typeof ExchangeCodeParamsSchema>;
 
 /**
  * Discord OAuth2/REST API アクセス層
@@ -62,8 +72,7 @@ const DiscordApiRepository = {
       );
     }
 
-    const data = (await res.json()) as DiscordTokenResponse;
-    return Ok(data);
+    return parseResult(DiscordTokenResponseSchema, await res.json());
   },
 
   /** リフレッシュトークンでアクセストークンを更新する */
@@ -94,8 +103,7 @@ const DiscordApiRepository = {
       );
     }
 
-    const data = (await res.json()) as DiscordTokenResponse;
-    return Ok(data);
+    return parseResult(DiscordTokenResponseSchema, await res.json());
   },
 
   /** ログインユーザー情報を取得する */
@@ -115,8 +123,7 @@ const DiscordApiRepository = {
       );
     }
 
-    const data = (await res.json()) as DiscordApiUser;
-    return Ok(data);
+    return parseResult(DiscordApiUserSchema, await res.json());
   },
 
   /** ユーザーが参加しているサーバー一覧を取得する */
@@ -136,8 +143,7 @@ const DiscordApiRepository = {
       );
     }
 
-    const data = (await res.json()) as DiscordApiGuild[];
-    return Ok(data);
+    return parseResult(z.array(DiscordApiGuildSchema), await res.json());
   },
 } as const;
 

@@ -16,6 +16,11 @@ type ListGuildsResult = {
   sidebarGuilds: { id: string; name: string; iconUrl: string | null }[];
 };
 
+/**
+ * ユーザーが管理可能なサーバー一覧を取得する
+ * @precondition 有効な accessToken と appWorker が必要
+ * @postcondition installed / notInstalled / sidebarGuilds に分類して返す
+ */
 const execute = async (
   params: ListGuildsParams,
 ): Promise<Result<ListGuildsResult, AppError>> => {

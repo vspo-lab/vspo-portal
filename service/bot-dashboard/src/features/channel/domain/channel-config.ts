@@ -1,4 +1,4 @@
-import type { AppError, Result } from "@vspo-lab/error";
+import { type Result, AppError, Err } from "@vspo-lab/error";
 import { z } from "zod";
 import { parseResult } from "~/features/shared/lib/parse";
 import { MemberType } from "./member-type";
@@ -42,12 +42,22 @@ const ChannelConfig = {
       memberType: true,
       customMembers: true,
     });
+    const rawCustomMembers = (formData.get("customMembers") as string) || "[]";
+    let customMembers: unknown;
+    try {
+      customMembers = JSON.parse(rawCustomMembers);
+    } catch {
+      return Err(
+        new AppError({
+          message: "customMembers is invalid JSON",
+          code: "BAD_REQUEST",
+        }),
+      );
+    }
     return parseResult(schema, {
       language: formData.get("language"),
       memberType: formData.get("memberType"),
-      customMembers: JSON.parse(
-        (formData.get("customMembers") as string) || "[]",
-      ),
+      customMembers,
     });
   },
 } as const;
