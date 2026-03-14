@@ -1,0 +1,20 @@
+/// <reference path="../.astro/types.d.ts" />
+
+declare namespace App {
+  interface SessionData {
+    /** Spec deviation: displayName, refreshToken, expiresAt added to support token refresh and display name */
+    user: {
+      id: string;
+      username: string;
+      displayName: string;
+      avatar: string | null;
+    };
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number;
+  }
+  interface Locals {
+    user: SessionData["user"] | null;
+    accessToken: string | null;
+  }
+}

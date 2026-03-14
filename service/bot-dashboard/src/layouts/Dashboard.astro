@@ -1,0 +1,61 @@
+---
+import Base from "./Base.astro";
+import UserMenu from "~/components/auth/UserMenu.astro";
+import AvatarFallback from "~/components/ui/AvatarFallback.astro";
+import { DiscordUser } from "~/features/auth/domain/discord-user";
+
+interface Props {
+  title: string;
+  guilds: { id: string; name: string; iconUrl: string | null }[];
+}
+
+const { title, guilds } = Astro.props;
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/");
+const currentPath = Astro.url.pathname;
+const avatarUrl = DiscordUser.avatarUrl(user);
+---
+
+<Base title={title}>
+  <div class="flex min-h-screen flex-col">
+    <header
+      class="flex h-14 items-center justify-between border-b border-border px-6"
+    >
+      <a href="/dashboard" class="text-lg font-bold">Spodule Bot</a>
+      <UserMenu
+        displayName={user.displayName}
+        avatarUrl={avatarUrl}
+      />
+    </header>
+    <div class="flex flex-1">
+      <aside class="hidden w-64 border-r border-border p-4 lg:block">
+        <nav class="space-y-2">
+          <a
+            href="/dashboard"
+            class={`block rounded-md px-3 py-2 text-sm ${currentPath === "/dashboard" || currentPath === "/dashboard/" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50"}`}
+          >
+            全サーバー
+          </a>
+          {
+            guilds.map((guild) => (
+              <a
+                href={`/dashboard/${guild.id}`}
+                class={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${currentPath === `/dashboard/${guild.id}` ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50"}`}
+              >
+                <AvatarFallback
+                  src={guild.iconUrl}
+                  name={guild.name}
+                  size="xs"
+                />
+                <span class="truncate">{guild.name}</span>
+              </a>
+            ))
+          }
+        </nav>
+      </aside>
+      <main class="flex-1 p-6">
+        <slot />
+      </main>
+    </div>
+  </div>
+</Base>

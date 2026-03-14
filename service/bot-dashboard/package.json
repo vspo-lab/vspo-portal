@@ -3,35 +3,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "react-router dev",
-    "build": "react-router build",
-    "start": "react-router-serve ./build/server/index.js",
-    "cf:dev": "wrangler dev",
-    "cf:build": "react-router build",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
     "cf:deploy": "wrangler deploy",
     "cf:typegen": "wrangler types",
-    "typecheck": "react-router typegen && tsc --noEmit"
+    "typecheck": "astro check && tsc --noEmit"
   },
   "dependencies": {
-    "@react-router/cloudflare": "^7.6.2",
+    "@astrojs/check": "^0.9.0",
+    "@astrojs/cloudflare": "^13.0.0",
+    "astro": "^6.0.0",
     "@vspo-lab/error": "workspace:^",
-    "isbot": "^5.1.35",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-router": "^7.6.2",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
-    "@react-router/dev": "^7.6.2",
     "@tailwindcss/vite": "^4.1.8",
-    "@types/node": "catalog:",
-    "@types/react": "^19.2.3",
-    "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.1.8",
     "typescript": "catalog:",
-    "vite": "^6.3.5",
-    "vite-tsconfig-paths": "^5.1.4",
     "wrangler": "catalog:"
   }
 }

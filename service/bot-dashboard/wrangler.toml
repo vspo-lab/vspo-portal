@@ -1,8 +1,10 @@
 name = "bot-dashboard"
 compatibility_date = "2025-04-01"
 compatibility_flags = ["nodejs_compat"]
-main = "./build/server/index.js"
-assets = { directory = "./build/client" }
+
+[[kv_namespaces]]
+binding = "SESSION"
+id = "SESSION_KV_NAMESPACE_ID"
 
 [vars]
 # DISCORD_CLIENT_ID = ""
@@ -11,4 +13,3 @@ assets = { directory = "./build/client" }
 # DISCORD_BOT_CLIENT_ID = ""
 # VSPO_API_URL = ""
 # VSPO_API_KEY = ""
-# SESSION_SECRET = ""

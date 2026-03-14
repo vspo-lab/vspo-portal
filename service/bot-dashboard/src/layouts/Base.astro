@@ -1,0 +1,21 @@
+---
+import "~/app.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} | Spodule Bot Dashboard</title>
+  </head>
+  <body class="min-h-screen bg-background text-foreground antialiased">
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,75 @@
+---
+import { actions } from "astro:actions";
+import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
+import { MemberType } from "~/features/channel/domain/member-type";
+
+interface Props {
+  channels: ChannelConfigType[];
+  guildId: string;
+}
+
+const { channels, guildId } = Astro.props;
+---
+
+<div class="overflow-x-auto rounded-lg border border-border">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-border bg-muted/50">
+        <th class="px-4 py-3 text-left font-medium">チャンネル</th>
+        <th class="px-4 py-3 text-left font-medium">有効</th>
+        <th class="px-4 py-3 text-left font-medium">言語</th>
+        <th class="px-4 py-3 text-left font-medium">メンバー</th>
+        <th class="px-4 py-3 text-right font-medium">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        channels.map((ch) => (
+          <tr class="border-b border-border last:border-0">
+            <td class="px-4 py-3 font-medium">#{ch.channelName}</td>
+            <td class="px-4 py-3">
+              <form
+                method="post"
+                action={actions.toggleChannel}
+              >
+                <input type="hidden" name="guildId" value={guildId} />
+                <input type="hidden" name="channelId" value={ch.channelId} />
+                <input type="hidden" name="enable" value={ch.enabled ? "false" : "true"} />
+                <button
+                  type="submit"
+                  class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${ch.enabled ? "bg-discord" : "bg-muted"}`}
+                  aria-label={ch.enabled ? "無効化" : "有効化"}
+                >
+                  <span
+                    class={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${ch.enabled ? "translate-x-6" : "translate-x-1"}`}
+                  />
+                </button>
+              </form>
+            </td>
+            <td class="px-4 py-3 text-muted-foreground">
+              {ch.language.toUpperCase()}
+            </td>
+            <td class="px-4 py-3 text-muted-foreground">
+              {MemberType.label(ch.memberType)}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <a
+                href={`?edit=${ch.channelId}`}
+                class="rounded-md px-3 py-1 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              >
+                編集
+              </a>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  {
+    channels.length === 0 && (
+      <p class="p-6 text-center text-muted-foreground">
+        設定されたチャンネルがありません。
+      </p>
+    )
+  }
+</div>

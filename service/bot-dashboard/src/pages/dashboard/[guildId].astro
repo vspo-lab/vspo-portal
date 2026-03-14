@@ -1,0 +1,78 @@
+---
+import { actions } from "astro:actions";
+import { env } from "cloudflare:workers";
+import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
+import ChannelTable from "~/components/channel/ChannelTable.astro";
+import Dashboard from "~/layouts/Dashboard.astro";
+import { ListChannelsUsecase } from "~/features/channel/usecase/list-channels";
+import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
+
+const { guildId } = Astro.params;
+if (!guildId) {
+  return Astro.redirect("/dashboard");
+}
+
+const accessToken = Astro.locals.accessToken;
+if (!accessToken) {
+  return Astro.redirect("/");
+}
+
+const [guildsResult, channelsResult] = await Promise.all([
+  ListGuildsUsecase.execute({
+    accessToken,
+    apiUrl: env.VSPO_API_URL,
+    apiKey: env.VSPO_API_KEY,
+  }),
+  ListChannelsUsecase.execute({
+    apiUrl: env.VSPO_API_URL,
+    apiKey: env.VSPO_API_KEY,
+    guildId,
+  }),
+]);
+
+const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
+const channels = channelsResult.err ? [] : channelsResult.val.channels;
+const enabledCount = channels.filter((c) => c.enabled).length;
+
+// Handle action results
+const updateResult = Astro.getActionResult(actions.updateChannel);
+const toggleResult = Astro.getActionResult(actions.toggleChannel);
+const actionError = updateResult?.error ?? toggleResult?.error;
+
+// Editing state via query param
+const editChannelId = Astro.url.searchParams.get("edit");
+const editingChannel = editChannelId
+  ? channels.find((c) => c.channelId === editChannelId)
+  : null;
+---
+
+<Dashboard title={`Server ${guildId}`} guilds={sidebarGuilds}>
+  <div class="space-y-6">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Server {guildId}</h1>
+      <p class="text-muted-foreground">
+        {enabledCount}/{channels.length} チャンネルで有効
+      </p>
+    </div>
+
+    {
+      actionError && (
+        <div class="rounded-md border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
+          エラー: {actionError.message}
+        </div>
+      )
+    }
+
+    <ChannelTable channels={channels} guildId={guildId} />
+
+    {
+      editingChannel && (
+        <ChannelConfigForm
+          channel={editingChannel}
+          creators={[]}
+          guildId={guildId}
+        />
+      )
+    }
+  </div>
+</Dashboard>
