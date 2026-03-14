@@ -31,10 +31,8 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           wranglerVersion: "4.6.0"
-          workingDirectory: service/bot-dashboard/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
-          command: deploy
-          preCommands: |
-            cp -R ./ ../../..
+          workingDirectory: service/bot-dashboard
+          command: deploy --env ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
           secrets: |
             DISCORD_CLIENT_ID
             DISCORD_CLIENT_SECRET
