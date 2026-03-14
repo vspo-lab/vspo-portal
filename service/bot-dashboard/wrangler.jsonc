@@ -8,16 +8,9 @@
   },
 
   /**
-   * KV Namespaces
-   * https://developers.cloudflare.com/workers/wrangler/configuration/#kv-namespaces
-   */
-  "kv_namespaces": [
-    { "binding": "SESSION", "id": "SESSION_KV_NAMESPACE_ID" }
-  ],
-
-  /**
    * Environments
-   * https://developers.cloudflare.com/workers/wrangler/configuration/#environments
+   * Non-inheritable keys (vars, kv_namespaces, services) must be defined per env.
+   * https://developers.cloudflare.com/workers/wrangler/environments
    */
   "env": {
     "dev": {
@@ -35,9 +28,7 @@
           "entrypoint": "ApplicationService"
         }
       ],
-      /**
-       * Discord OAuth secrets — overridden by `wrangler secret put --env dev`
-       */
+      /** Overridden by `wrangler secret put --env dev` */
       "vars": {
         "DISCORD_CLIENT_ID": "",
         "DISCORD_CLIENT_SECRET": "",

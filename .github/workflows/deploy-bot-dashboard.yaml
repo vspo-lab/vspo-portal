@@ -33,6 +33,7 @@ jobs:
           wranglerVersion: "4.6.0"
           workingDirectory: service/bot-dashboard
           command: deploy --env ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
+          environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
           secrets: |
             DISCORD_CLIENT_ID
             DISCORD_CLIENT_SECRET
