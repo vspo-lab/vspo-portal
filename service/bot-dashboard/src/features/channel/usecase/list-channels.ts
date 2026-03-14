@@ -3,8 +3,7 @@ import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 import { VspoChannelApiRepository } from "../repository/vspo-channel-api";
 
 type ListChannelsParams = {
-  apiUrl: string;
-  apiKey: string;
+  appWorker: Fetcher;
   guildId: string;
 };
 
@@ -12,8 +11,7 @@ const execute = async (
   params: ListChannelsParams,
 ): Promise<Result<GuildBotConfigType, AppError>> => {
   return VspoChannelApiRepository.getGuildConfig(
-    params.apiUrl,
-    params.apiKey,
+    params.appWorker,
     params.guildId,
   );
 };

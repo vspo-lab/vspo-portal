@@ -11,8 +11,7 @@ if (!accessToken) {
 
 const result = await ListGuildsUsecase.execute({
   accessToken,
-  apiUrl: env.VSPO_API_URL,
-  apiKey: env.VSPO_API_KEY,
+  appWorker: env.APP_WORKER,
 });
 
 if (result.err) {

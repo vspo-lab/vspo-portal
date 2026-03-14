@@ -7,8 +7,7 @@ import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
 
 type ListGuildsParams = {
   accessToken: string;
-  apiUrl: string;
-  apiKey: string;
+  appWorker: Fetcher;
 };
 
 type ListGuildsResult = {
@@ -22,7 +21,7 @@ const execute = async (
 ): Promise<Result<ListGuildsResult, AppError>> => {
   const [guildsResult, botGuildIdsResult] = await Promise.all([
     DiscordApiRepository.getUserGuilds(params.accessToken),
-    VspoGuildApiRepository.getBotGuildIds(params.apiUrl, params.apiKey),
+    VspoGuildApiRepository.getBotGuildIds(params.appWorker),
   ]);
 
   if (guildsResult.err) return guildsResult;

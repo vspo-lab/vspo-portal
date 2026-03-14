@@ -1,16 +1,15 @@
 import type { Result } from "@vspo-lab/error";
-import { type AppError, Err, Ok } from "@vspo-lab/error";
+import { type AppError, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 
 /**
  * vspo-server の Channel 設定 API アクセス層
- * @precondition VSPO_API_URL と VSPO_API_KEY が設定されていること
+ * @precondition APP_WORKER Service Binding が設定されていること
  */
 const VspoChannelApiRepository = {
   /** サーバーの Bot 設定を取得する */
   getGuildConfig: async (
-    _apiUrl: string,
-    _apiKey: string,
+    _appWorker: Fetcher,
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
     // TODO: Phase 5 で vspo-server API に接続
@@ -48,8 +47,7 @@ const VspoChannelApiRepository = {
 
   /** チャンネル設定を更新する */
   updateChannel: async (
-    _apiUrl: string,
-    _apiKey: string,
+    _appWorker: Fetcher,
     _guildId: string,
     _channelId: string,
     _data: {
@@ -64,8 +62,7 @@ const VspoChannelApiRepository = {
 
   /** Bot を有効化する */
   enableChannel: async (
-    _apiUrl: string,
-    _apiKey: string,
+    _appWorker: Fetcher,
     _guildId: string,
     _channelId: string,
   ): Promise<Result<void, AppError>> => {
@@ -75,8 +72,7 @@ const VspoChannelApiRepository = {
 
   /** Bot を無効化する */
   disableChannel: async (
-    _apiUrl: string,
-    _apiKey: string,
+    _appWorker: Fetcher,
     _guildId: string,
     _channelId: string,
   ): Promise<Result<void, AppError>> => {

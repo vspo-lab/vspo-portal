@@ -25,8 +25,7 @@ export const server = {
       requireAuth(context);
 
       const result = await VspoChannelApiRepository.updateChannel(
-        env.VSPO_API_URL,
-        env.VSPO_API_KEY,
+        env.APP_WORKER,
         input.guildId,
         input.channelId,
         {
@@ -56,8 +55,7 @@ export const server = {
       requireAuth(context);
 
       const result = await ToggleChannelUsecase.execute({
-        apiUrl: env.VSPO_API_URL,
-        apiKey: env.VSPO_API_KEY,
+        appWorker: env.APP_WORKER,
         guildId: input.guildId,
         channelId: input.channelId,
         enable: input.enable,

@@ -20,12 +20,10 @@ if (!accessToken) {
 const [guildsResult, channelsResult] = await Promise.all([
   ListGuildsUsecase.execute({
     accessToken,
-    apiUrl: env.VSPO_API_URL,
-    apiKey: env.VSPO_API_KEY,
+    appWorker: env.APP_WORKER,
   }),
   ListChannelsUsecase.execute({
-    apiUrl: env.VSPO_API_URL,
-    apiKey: env.VSPO_API_KEY,
+    appWorker: env.APP_WORKER,
     guildId,
   }),
 ]);
