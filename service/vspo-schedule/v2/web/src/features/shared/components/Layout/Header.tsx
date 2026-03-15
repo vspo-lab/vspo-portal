@@ -103,6 +103,7 @@ export const Header: React.FC<Props> = ({ title }) => {
                 width={40}
                 height={40}
                 sizes="40px"
+                priority
               />
               <Box>
                 <StyledTypography variant="h6">{t("spodule")}</StyledTypography>

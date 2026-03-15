@@ -8,6 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { alpha, styled } from "@mui/material/styles";
+import Image from "next/image";
 import type React from "react";
 import { useEffect, useState } from "react";
 import type { Clip } from "@/features/shared/domain";
@@ -39,10 +40,10 @@ const CarouselSlide = styled(Box)(() => ({
   },
 }));
 
-const CarouselImage = styled("img")(() => ({
+const CarouselImageWrapper = styled(Box)(() => ({
+  position: "relative",
   width: "100%",
   height: "100%",
-  objectFit: "contain",
   backgroundColor: "black",
 }));
 
@@ -125,7 +126,16 @@ export const ClipCarouselPresenter: React.FC<ClipCarouselPresenterProps> = ({
           onClick={() => pushVideo(clip)}
           sx={{ cursor: "pointer" }}
         >
-          <CarouselImage src={clip.thumbnailUrl} alt={clip.title} />
+          <CarouselImageWrapper>
+            <Image
+              src={clip.thumbnailUrl}
+              alt={clip.title}
+              fill
+              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              style={{ objectFit: "contain" }}
+              priority={index === 0}
+            />
+          </CarouselImageWrapper>
           <CarouselContent>
             <Typography
               variant={isMobile ? "subtitle1" : "h5"}
@@ -149,10 +159,10 @@ export const ClipCarouselPresenter: React.FC<ClipCarouselPresenterProps> = ({
       ))}
 
       <CarouselControls>
-        <CarouselButton onClick={handlePrevSlide}>
+        <CarouselButton onClick={handlePrevSlide} aria-label="Previous slide">
           <NavigateBeforeIcon />
         </CarouselButton>
-        <CarouselButton onClick={handleNextSlide}>
+        <CarouselButton onClick={handleNextSlide} aria-label="Next slide">
           <NavigateNextIcon />
         </CarouselButton>
       </CarouselControls>
