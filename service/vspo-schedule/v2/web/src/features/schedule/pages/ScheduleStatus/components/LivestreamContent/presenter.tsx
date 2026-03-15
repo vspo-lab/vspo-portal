@@ -149,67 +149,71 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
 
   return (
     <Box>
-      {Object.entries(livestreamsByTimeBlock).map(([date, timeBlocks]) => (
-        <ContentSection key={date}>
-          <DateHeader>
-            <Typography
-              variant="h5"
-              sx={(theme) => ({
-                fontWeight: 600,
-                color: theme.vars.palette.text.primary,
-              })}
-            >
-              {formatDate(date, "MM/dd (EEE)", { timeZone })}
-            </Typography>
-            <DateNavigation>
-              <NavButton
-                size="small"
-                variant="outlined"
-                onClick={() => navigateToDate(date, -1)}
-                startIcon={<ChevronLeftIcon fontSize="small" />}
+      {Object.entries(livestreamsByTimeBlock).map(
+        ([date, timeBlocks], dateIndex) => (
+          <ContentSection key={date}>
+            <DateHeader>
+              <Typography
+                variant="h5"
+                sx={(theme) => ({
+                  fontWeight: 600,
+                  color: theme.vars.palette.text.primary,
+                })}
               >
-                {t("navigation.previousDay")}
-              </NavButton>
-              <NavButton
-                size="small"
-                variant="outlined"
-                onClick={() => navigateToDate(date, 1)}
-                endIcon={<ChevronRightIcon fontSize="small" />}
-              >
-                {t("navigation.nextDay")}
-              </NavButton>
-            </DateNavigation>
-          </DateHeader>
-
-          {Object.entries(timeBlocks).map(([timeBlock, livestreams]) => (
-            <Box key={`${date}-${timeBlock}`}>
-              <TimeBlockHeader sx={{ mt: 2 }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 600,
-                    color: "text.primary",
-                  }}
+                {formatDate(date, "MM/dd (EEE)", { timeZone })}
+              </Typography>
+              <DateNavigation>
+                <NavButton
+                  size="small"
+                  variant="outlined"
+                  onClick={() => navigateToDate(date, -1)}
+                  startIcon={<ChevronLeftIcon fontSize="small" />}
                 >
-                  {timeBlock}
-                </Typography>
-              </TimeBlockHeader>
+                  {t("navigation.previousDay")}
+                </NavButton>
+                <NavButton
+                  size="small"
+                  variant="outlined"
+                  onClick={() => navigateToDate(date, 1)}
+                  endIcon={<ChevronRightIcon fontSize="small" />}
+                >
+                  {t("navigation.nextDay")}
+                </NavButton>
+              </DateNavigation>
+            </DateHeader>
 
-              <LivestreamGrid container spacing={{ xs: 1, sm: 2, md: 3 }}>
-                {livestreams.map((livestream) => (
-                  <Grid size={{ xs: 6, sm: 6, md: 4 }} key={livestream.id}>
-                    <LivestreamCard
-                      livestream={livestream}
-                      isFreechat={false}
-                      timeZone={timeZone}
-                    />
-                  </Grid>
-                ))}
-              </LivestreamGrid>
-            </Box>
-          ))}
-        </ContentSection>
-      ))}
+            {Object.entries(timeBlocks).map(([timeBlock, livestreams]) => (
+              <Box key={`${date}-${timeBlock}`}>
+                <TimeBlockHeader sx={{ mt: 2 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 600,
+                      color: "text.primary",
+                    }}
+                  >
+                    {timeBlock}
+                  </Typography>
+                </TimeBlockHeader>
+
+                <LivestreamGrid container spacing={{ xs: 1, sm: 2, md: 3 }}>
+                  {livestreams.map((livestream, index) => (
+                    <Grid size={{ xs: 6, sm: 6, md: 4 }} key={livestream.id}>
+                      {/* Prioritize first 4 above-the-fold cards for LCP */}
+                      <LivestreamCard
+                        livestream={livestream}
+                        isFreechat={false}
+                        timeZone={timeZone}
+                        priority={dateIndex === 0 && index < 4}
+                      />
+                    </Grid>
+                  ))}
+                </LivestreamGrid>
+              </Box>
+            ))}
+          </ContentSection>
+        ),
+      )}
     </Box>
   );
 };

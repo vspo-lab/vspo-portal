@@ -19,7 +19,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
           alt="Youtube Icon"
           style={{ objectFit: "cover" }}
           height={20}
-          width={28.2}
+          width={28}
         />
       );
     case "twitch":
