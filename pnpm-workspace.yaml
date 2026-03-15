@@ -12,6 +12,6 @@ catalog:
   tsup: ^8.5.0
   typescript: ^5.9.3
   wrangler: ^4.73.0
-  zod: ^3.25.76
+  zod: ^4.0.0
 
 sharedWorkspaceLockfile: false
