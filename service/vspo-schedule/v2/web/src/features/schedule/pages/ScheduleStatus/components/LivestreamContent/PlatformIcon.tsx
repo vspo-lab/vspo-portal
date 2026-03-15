@@ -20,6 +20,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
           style={{ objectFit: "cover" }}
           height={20}
           width={28}
+          loading="lazy"
         />
       );
     case "twitch":
@@ -31,12 +32,21 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
         <Image
           src="/twitcasting-icon.png"
           alt="Twitcasting"
-          width="20"
-          height="20"
+          width={20}
+          height={20}
+          loading="lazy"
         />
       );
     case "niconico":
-      return <Image src="/nc-icon.png" alt="niconico" width="20" height="20" />;
+      return (
+        <Image
+          src="/nc-icon.png"
+          alt="niconico"
+          width={20}
+          height={20}
+          loading="lazy"
+        />
+      );
     default:
       return <></>;
   }

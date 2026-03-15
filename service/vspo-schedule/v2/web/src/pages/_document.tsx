@@ -24,7 +24,6 @@ export default function MyDocument(
     <Html lang={currentLocale}>
       <Head>
         <DocumentHeadTags {...props} />
-        <link rel="preconnect" href="https://www.youtube.com" />
         <link
           rel="preconnect"
           href="https://yt3.ggpht.com"
