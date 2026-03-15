@@ -30,9 +30,6 @@ export default function MyDocument(
           crossOrigin="anonymous"
         />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://player.twitch.tv" />
-        <link rel="dns-prefetch" href="https://static-cdn.jtvnw.net" />
-        <link rel="dns-prefetch" href="https://i.ytimg.com" />
         {process.env.ENV === "production" && (
           <script
             async

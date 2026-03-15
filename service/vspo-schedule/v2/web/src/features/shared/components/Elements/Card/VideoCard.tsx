@@ -103,7 +103,6 @@ export const VideoCard: React.FC<Props> = ({
               sizes="(max-width: 600px) 50vw, (max-width: 900px) 50vw, 33vw"
               style={{ objectFit: "cover" }}
               priority={priority}
-              fetchPriority={priority ? "high" : undefined}
             />
             {video.type === "livestream" && (
               <PlatformIconWrapper>

@@ -34,7 +34,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
           style={{ objectFit: "cover" }}
           height={20}
           width={28}
-          loading="lazy"
+          unoptimized
         />
       );
     case "twitch":
@@ -48,7 +48,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
           alt="Twitcasting"
           width={20}
           height={20}
-          loading="lazy"
+          unoptimized
         />
       );
     case "niconico":
@@ -58,7 +58,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
           alt="niconico"
           width={20}
           height={20}
-          loading="lazy"
+          unoptimized
         />
       );
     default:
