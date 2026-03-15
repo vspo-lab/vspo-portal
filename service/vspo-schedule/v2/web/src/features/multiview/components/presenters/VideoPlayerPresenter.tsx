@@ -272,7 +272,11 @@ export const VideoPlayerPresenter = forwardRef<
             >
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
-            <CloseButton size="small" onClick={onRemove}>
+            <CloseButton
+              size="small"
+              onClick={onRemove}
+              aria-label={t("player.close.ariaLabel", "配信を閉じる")}
+            >
               <CloseIcon fontSize="small" />
             </CloseButton>
           </HeaderActions>
@@ -301,6 +305,7 @@ export const VideoPlayerPresenter = forwardRef<
               title={`${stream.channelTitle} - ${stream.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               allowFullScreen
+              loading="lazy"
               onLoad={onPlayerReady}
               onError={onPlayerError}
               style={{ display: isLoading ? "none" : "block" }}

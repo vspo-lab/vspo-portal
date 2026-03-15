@@ -132,6 +132,7 @@ export const SimplePlaybackControlsPresenter: React.FC<
         <IconButton
           onClick={onToggleGlobalPlay}
           size="medium"
+          aria-label={allPlaying ? t("controls.pauseAll", "すべて一時停止") : t("controls.playAll", "すべて再生")}
           sx={{
             backgroundColor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
@@ -144,7 +145,7 @@ export const SimplePlaybackControlsPresenter: React.FC<
         </IconButton>
 
         <VolumeControl>
-          <IconButton size="small" onClick={onToggleGlobalMute}>
+          <IconButton size="small" onClick={onToggleGlobalMute} aria-label={isGlobalMuted ? t("controls.unmute", "ミュート解除") : t("controls.mute", "ミュート")}>
             {isGlobalMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
           </IconButton>
           <Slider
@@ -201,6 +202,7 @@ export const SimplePlaybackControlsPresenter: React.FC<
                 size="small"
                 onClick={() => onToggleStreamPlay(stream.id)}
                 disabled={stream.platform === "twitch"}
+                aria-label={state.isPlaying ? t("controls.pause", "一時停止") : t("controls.play", "再生")}
                 sx={{
                   color:
                     stream.platform === "twitch"
@@ -227,6 +229,7 @@ export const SimplePlaybackControlsPresenter: React.FC<
                 size="small"
                 onClick={() => onToggleStreamMute(stream.id)}
                 disabled={stream.platform === "twitch"}
+                aria-label={state.isMuted ? t("controls.unmute", "ミュート解除") : t("controls.mute", "ミュート")}
               >
                 {state.isMuted ? (
                   <VolumeOffIcon fontSize="small" />
