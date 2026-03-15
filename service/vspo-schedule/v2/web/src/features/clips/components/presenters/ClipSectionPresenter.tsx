@@ -6,11 +6,11 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  CardMedia,
   Grid,
   Typography,
 } from "@mui/material";
 import { styled, type Theme } from "@mui/material/styles";
+import Image from "next/image";
 import { useTranslation } from "next-i18next";
 import type React from "react";
 import type { Clip } from "@/features/shared/domain";
@@ -128,13 +128,17 @@ export const ClipSectionPresenter: React.FC<ClipSectionPresenterProps> = ({
           <Box key={clip.id} sx={{ width: "180px", flexShrink: 0 }}>
             <ShortsCard>
               <CardActionArea onClick={() => pushVideo(clip)}>
-                <CardMedia
-                  component="img"
-                  height="320px"
-                  image={clip.thumbnailUrl}
-                  alt={clip.title}
-                  sx={{ aspectRatio: "9/16" }}
-                />
+                <Box sx={{ position: "relative", height: "320px" }}>
+                  <Image
+                    src={
+                      clip.thumbnailUrl || "/images/placeholder-thumbnail.jpg"
+                    }
+                    alt={clip.title}
+                    fill
+                    sizes="180px"
+                    style={{ objectFit: "cover" }}
+                  />
+                </Box>
                 <CardOverlay>
                   <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                     <VisibilityIcon fontSize="small" sx={{ mr: 0.5 }} />
@@ -161,14 +165,17 @@ export const ClipSectionPresenter: React.FC<ClipSectionPresenterProps> = ({
             <ModernCard>
               <CardActionArea onClick={() => pushVideo(clip)}>
                 <CardMediaWrapper>
-                  <CardMedia
-                    component="img"
-                    height="158px"
-                    image={
-                      clip.thumbnailUrl || "/images/placeholder-thumbnail.jpg"
-                    }
-                    alt={clip.title}
-                  />
+                  <Box sx={{ position: "relative", height: "158px" }}>
+                    <Image
+                      src={
+                        clip.thumbnailUrl || "/images/placeholder-thumbnail.jpg"
+                      }
+                      alt={clip.title}
+                      fill
+                      sizes="280px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </Box>
                   <CardOverlay>
                     <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                       <VisibilityIcon fontSize="small" sx={{ mr: 0.5 }} />
@@ -215,15 +222,23 @@ export const ClipSectionPresenter: React.FC<ClipSectionPresenterProps> = ({
             <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2 }} key={clip.id}>
               <ShortsCard>
                 <CardActionArea onClick={() => pushVideo(clip)}>
-                  <CardMedia
-                    component="img"
-                    height="100%"
-                    image={
-                      clip.thumbnailUrl || "/images/placeholder-thumbnail.jpg"
-                    }
-                    alt={clip.title}
-                    sx={{ aspectRatio: "9/16" }}
-                  />
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: "100%",
+                      aspectRatio: "9/16",
+                    }}
+                  >
+                    <Image
+                      src={
+                        clip.thumbnailUrl || "/images/placeholder-thumbnail.jpg"
+                      }
+                      alt={clip.title}
+                      fill
+                      sizes="(max-width: 600px) 50vw, (max-width: 900px) 33vw, 16vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </Box>
                   <CardOverlay>
                     <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                       <VisibilityIcon fontSize="small" sx={{ mr: 0.5 }} />
@@ -249,14 +264,17 @@ export const ClipSectionPresenter: React.FC<ClipSectionPresenterProps> = ({
             <ModernCard>
               <CardActionArea onClick={() => pushVideo(clip)}>
                 <CardMediaWrapper>
-                  <CardMedia
-                    component="img"
-                    height="180"
-                    image={
-                      clip.thumbnailUrl || "/images/placeholder-thumbnail.jpg"
-                    }
-                    alt={clip.title}
-                  />
+                  <Box sx={{ position: "relative", height: "180px" }}>
+                    <Image
+                      src={
+                        clip.thumbnailUrl || "/images/placeholder-thumbnail.jpg"
+                      }
+                      alt={clip.title}
+                      fill
+                      sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </Box>
                   <CardOverlay>
                     <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                       <VisibilityIcon fontSize="small" sx={{ mr: 0.5 }} />

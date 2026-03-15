@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loading } from "@/features/shared/components/Elements";
 import type { Clip } from "@/features/shared/domain";
 import { ClipCarousel, ClipSection } from "../../components/containers";
@@ -194,8 +194,12 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
     );
   };
 
-  const carouselClips = [...popularYoutubeClips, ...popularTwitchClips].sort(
-    () => Math.random() - 0.5,
+  const carouselClips = useMemo(
+    () =>
+      [...popularYoutubeClips, ...popularTwitchClips].sort(
+        () => Math.random() - 0.5,
+      ),
+    [popularYoutubeClips, popularTwitchClips],
   );
 
   if (isProcessing) {

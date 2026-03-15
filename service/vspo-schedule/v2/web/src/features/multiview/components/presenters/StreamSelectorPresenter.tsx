@@ -20,6 +20,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
+import Image from "next/image";
 import React from "react";
 
 const SelectorContainer = styled(Paper)(({ theme }) => ({
@@ -186,10 +187,17 @@ export const StreamSelectorPresenter: React.FC<
                 >
                   <ListItemAvatar>
                     <Avatar
-                      src={stream.channelThumbnailUrl}
-                      alt={stream.channelTitle}
                       sx={{ width: 40, height: 40 }}
-                    />
+                    >
+                      <Image
+                        src={stream.channelThumbnailUrl}
+                        alt={stream.channelTitle}
+                        width={40}
+                        height={40}
+                        loading="lazy"
+                        style={{ objectFit: "cover" }}
+                      />
+                    </Avatar>
                   </ListItemAvatar>
                   <ListItemText
                     primary={

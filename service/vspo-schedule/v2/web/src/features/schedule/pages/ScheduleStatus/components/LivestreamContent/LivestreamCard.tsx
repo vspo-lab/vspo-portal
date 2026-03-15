@@ -146,15 +146,19 @@ type LivestreamCardProps =
       isFreechat: false;
       timeZone: string;
       additionalMembers?: Member[];
+      /** Set to true for above-the-fold images (LCP candidates) */
+      priority?: boolean;
     }
   | {
       livestream: Livestream;
       isFreechat: true;
       additionalMembers?: Member[];
+      /** Set to true for above-the-fold images (LCP candidates) */
+      priority?: boolean;
     };
 
 export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
-  const { livestream, isFreechat, additionalMembers = [] } = props;
+  const { livestream, isFreechat, additionalMembers = [], priority } = props;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -182,7 +186,7 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
       : "";
 
   return (
-    <VideoCard video={livestream} highlight={highlight}>
+    <VideoCard video={livestream} highlight={highlight} priority={priority}>
       <StyledCard>
         <StyledCardContent>
           <Box sx={{ display: "flex", flexDirection: "column" }}>

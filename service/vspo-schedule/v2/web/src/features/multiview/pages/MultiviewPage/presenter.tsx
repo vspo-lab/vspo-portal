@@ -449,6 +449,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                       onClick={() =>
                         setStreamSelectorCollapsed(!streamSelectorCollapsed)
                       }
+                      aria-label={streamSelectorCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
                       sx={{ ml: 1 }}
                     >
                       {streamSelectorCollapsed ? (
@@ -490,6 +491,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                     <IconButton
                       size="small"
                       onClick={() => setUrlInputCollapsed(!urlInputCollapsed)}
+                      aria-label={urlInputCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
                       sx={{ ml: 1 }}
                     >
                       {urlInputCollapsed ? (
@@ -533,6 +535,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                       onClick={() =>
                         setLayoutSectionCollapsed(!layoutSectionCollapsed)
                       }
+                      aria-label={layoutSectionCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
                       sx={{ ml: 1 }}
                     >
                       {layoutSectionCollapsed ? (

@@ -5,7 +5,7 @@ import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { remark } from "remark";
 import html from "remark-html";
 
-export type MarkdownContent = {
+type MarkdownContent = {
   content: string;
   data: Record<string, unknown>;
   html?: string;

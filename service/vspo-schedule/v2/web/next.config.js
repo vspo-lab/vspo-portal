@@ -47,6 +47,8 @@ const nextConfig = {
   },
   serverExternalPackages: emotionPackages,
   images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 3600,
     remotePatterns: [
       {
         hostname: "localhost",

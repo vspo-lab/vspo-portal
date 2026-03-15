@@ -15,6 +15,8 @@ type Props = {
     color: string;
     bold: boolean;
   };
+  /** Set to true for above-the-fold images (LCP candidates) */
+  priority?: boolean;
 };
 
 const StyledHighlightedVideoChip = styled(HighlightedVideoChip)(
@@ -72,7 +74,12 @@ const StyledCardMedia = styled(Box)({
   objectFit: "contain",
 });
 
-export const VideoCard: React.FC<Props> = ({ video, highlight, children }) => {
+export const VideoCard: React.FC<Props> = ({
+  video,
+  highlight,
+  children,
+  priority = false,
+}) => {
   const { pushVideo } = useVideoModalContext();
   const { t } = useTranslation("common");
   const platform = video.platform;
@@ -93,7 +100,9 @@ export const VideoCard: React.FC<Props> = ({ video, highlight, children }) => {
               src={video.thumbnailUrl}
               alt={video.title}
               fill
+              sizes="(max-width: 600px) 50vw, (max-width: 900px) 50vw, 33vw"
               style={{ objectFit: "cover" }}
+              priority={priority}
             />
             {video.type === "livestream" && (
               <PlatformIconWrapper>
