@@ -244,7 +244,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
           y: row,
           w: 12 / cols,
           h: 1,
-          minW: 3,
+          minW: 2,
           minH: 1,
         };
       });
@@ -432,8 +432,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         onLayoutChange={handleLayoutChange}
         draggableHandle=".drag-handle"
         compactType={null}
-        preventCollision={true}
-        margin={isFullscreen ? [0, 0] : [6, 6]}
+        preventCollision={false}
+        margin={isFullscreen ? [0, 0] : [4, 4]}
         containerPadding={[0, 0]}
         style={{ minHeight: isFullscreen ? "100vh" : "auto", width: "100%" }}
       >
@@ -449,7 +449,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
           >
             <VideoPlayer
               stream={stream}
-              index={selectedStreams.findIndex((s) => s.id === stream.id)}
+              index={index}
               onRemove={() => handleRemoveStream(stream.id)}
             />
           </div>

@@ -30,9 +30,6 @@ const PlayerContainer = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     minHeight: "150px",
   },
-  "&:hover .player-header": {
-    opacity: 1,
-  },
   [theme.getColorSchemeSelector("dark")]: {
     backgroundColor: theme.vars.palette.customColors.darkGray,
   },
@@ -44,33 +41,27 @@ const PlayerHeader = styled(Box)(({ theme }) => ({
   left: 0,
   right: 0,
   zIndex: 10,
-  background: "linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)",
-  padding: theme.spacing(1),
+  backgroundColor: "rgba(0,0,0,0.6)",
+  padding: theme.spacing(0, 1),
+  height: 32,
+  minHeight: 32,
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "flex-start",
-  opacity: 0,
-  transition: "opacity 0.3s ease",
+  alignItems: "center",
+  cursor: "grab",
+  "&:active": {
+    cursor: "grabbing",
+  },
 }));
 
 const DragHandle = styled(IconButton)(({ theme }) => ({
   color: theme.palette.common.white,
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, 0.1)"
-      : "rgba(0, 0, 0, 0.5)",
   cursor: "grab",
-  "&:hover": {
-    backgroundColor:
-      theme.palette.mode === "dark"
-        ? "rgba(255, 255, 255, 0.2)"
-        : "rgba(0, 0, 0, 0.7)",
-  },
   "&:active": {
     cursor: "grabbing",
   },
   marginRight: theme.spacing(0.5),
-  padding: theme.spacing(0.5),
+  padding: theme.spacing(0.25),
 }));
 
 const HeaderActions = styled(Box)({
@@ -170,7 +161,8 @@ export const VideoPlayerPresenter = forwardRef<
             stream.link?.match(/watch\?v=([^&]+)/)?.[1] ||
             stream.id;
           // Enable YouTube iframe API with proper parameters
-          return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${window.location.origin}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
+          const origin = typeof window !== "undefined" ? window.location.origin : "https://localhost";
+          return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
         } else if (stream.platform === "twitch") {
           // Extract channel name from different sources
           let channelName = "";
@@ -231,36 +223,25 @@ export const VideoPlayerPresenter = forwardRef<
     };
 
     return (
-      <PlayerContainer
-        role="button"
-        aria-label={t(
-          "player.dragHandle.ariaLabel",
-          `${stream.channelTitle}の配信をドラッグして移動`,
-        )}
-        tabIndex={0}
-      >
-        <PlayerHeader className="player-header">
+      <PlayerContainer>
+        <PlayerHeader
+          className="player-header drag-handle"
+          aria-label={t(
+            "player.dragHandle.ariaLabel",
+            `${stream.channelTitle}の配信をドラッグして移動`,
+          )}
+        >
           <StreamInfo>
             <Typography
               variant="caption"
+              noWrap
               sx={{
                 fontWeight: 600,
                 display: "block",
-                textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
-              }}
-            >
-              {stream.channelTitle}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                opacity: 0.9,
-                display: "block",
-                textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
                 fontSize: "0.75rem",
               }}
             >
-              {truncateTitle(stream.title)}
+              {stream.channelTitle}
             </Typography>
           </StreamInfo>
           <HeaderActions>
@@ -305,10 +286,11 @@ export const VideoPlayerPresenter = forwardRef<
               title={`${stream.channelTitle} - ${stream.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               allowFullScreen
-              loading="lazy"
               onLoad={onPlayerReady}
               onError={onPlayerError}
-              style={{ display: isLoading ? "none" : "block" }}
+              style={{
+                visibility: isLoading ? "hidden" : "visible",
+              }}
             />
           </>
         )}
