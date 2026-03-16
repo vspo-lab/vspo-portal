@@ -24,16 +24,12 @@ export default function MyDocument(
     <Html lang={currentLocale}>
       <Head>
         <DocumentHeadTags {...props} />
-        <link rel="preconnect" href="https://www.youtube.com" />
         <link
           rel="preconnect"
           href="https://yt3.ggpht.com"
           crossOrigin="anonymous"
         />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://player.twitch.tv" />
-        <link rel="dns-prefetch" href="https://static-cdn.jtvnw.net" />
-        <link rel="dns-prefetch" href="https://i.ytimg.com" />
         {process.env.ENV === "production" && (
           <script
             async
