@@ -218,7 +218,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
     setSaveDialogOpen(false);
     setLayoutName("");
     setSnackbarMessage(
-      t("multiview:customLayout.saved", "レイアウトを保存しました"),
+      t("multiview:customLayout.saved", "配信とレイアウトを保存しました"),
     );
     setSnackbarOpen(true);
   }, [layoutName, selectedLayout, t]);
@@ -726,7 +726,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           startIcon={<ShareIcon />}
                           onClick={handleShare}
                         >
-                          {t("multiview:share.button", "レイアウトを共有")}
+                          {t("multiview:share.button", "配信とレイアウトを共有")}
                         </Button>
                         <Button
                           fullWidth
@@ -736,7 +736,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                         >
                           {t(
                             "multiview:customLayout.save",
-                            "レイアウトを保存",
+                            "配信とレイアウトを保存",
                           )}
                         </Button>
                       </Box>
@@ -815,7 +815,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         fullWidth
       >
         <DialogTitle>
-          {t("multiview:customLayout.dialogTitle", "レイアウトを保存")}
+          {t("multiview:customLayout.dialogTitle", "配信とレイアウトを保存")}
           <IconButton
             aria-label={t("common:close", "閉じる")}
             onClick={() => setSaveDialogOpen(false)}
