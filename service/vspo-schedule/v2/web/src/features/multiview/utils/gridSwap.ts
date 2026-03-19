@@ -80,8 +80,11 @@ export const resolveOverlaps = (
     : -1;
 
   if (fixedIndex >= 0) {
-    solveAxis(rects, fixedIndex, "x");
-    solveAxis(rects, fixedIndex, "y");
+    // Iterate X→Y→X→Y to let both axes converge
+    for (let pass = 0; pass < 3; pass++) {
+      solveAxis(rects, fixedIndex, "x");
+      solveAxis(rects, fixedIndex, "y");
+    }
   } else {
     removeOverlaps(rects);
   }
@@ -110,8 +113,10 @@ export const resolveOverlaps = (
       (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
     );
     if (fixedIndex >= 0) {
-      solveAxis(rects2, fixedIndex, "x");
-      solveAxis(rects2, fixedIndex, "y");
+      for (let pass = 0; pass < 3; pass++) {
+        solveAxis(rects2, fixedIndex, "x");
+        solveAxis(rects2, fixedIndex, "y");
+      }
     } else {
       removeOverlaps(rects2);
     }
