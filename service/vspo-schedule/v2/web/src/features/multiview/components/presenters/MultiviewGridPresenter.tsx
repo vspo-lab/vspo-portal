@@ -546,25 +546,19 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   };
 
   const handleDragStop = (
-    _layout: GridLayout.Layout[],
+    rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
+    _newItem: GridLayout.Layout,
   ) => {
     cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
     dragOriginRef.current = null;
     lastSwappedRef.current = null;
 
-    // Place the dragged item at its drop position, then resolve ALL overlaps
-    // across all items (no fixed item) to handle varying player sizes
-    setInternalLayout((prev) => {
-      const dropped = prev.map((item) =>
-        item.i === newItem.i
-          ? { ...item, x: newItem.x, y: newItem.y }
-          : item,
-      );
-      return resolveOverlaps(dropped);
-    });
+    // Use react-grid-layout's current layout (all items with their actual positions)
+    // and resolve ALL overlaps from scratch — don't rely on React state which may
+    // be stale due to startTransition
+    setInternalLayout(resolveOverlaps(rglLayout));
 
     requestAnimationFrame(() => {
       isDraggingRef.current = false;
