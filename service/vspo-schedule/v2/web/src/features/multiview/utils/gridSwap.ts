@@ -6,7 +6,6 @@ import {
   Solver,
   generateXConstraints,
   generateYConstraints,
-  removeOverlaps,
 } from "webcola";
 
 /** Weight for fixed items — high enough to pin position in VPSC. */
@@ -65,64 +64,76 @@ const solveAxis = (
  * @param fixedId - 固定するアイテムのID（省略可）
  * @returns 重なりが解消されたレイアウト
  */
-/** Check if any pair of items overlaps. */
-const hasAnyOverlap = (items: GridLayout.Layout[]): boolean =>
-  items.some((a, i) =>
-    items.some((b, j) => {
+/** Check if any pair of rectangles overlaps. */
+const rectsOverlap = (rects: Rectangle[]): boolean =>
+  rects.some((a, i) =>
+    rects.some((b, j) => {
       if (i >= j) return false;
-      return (
-        Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) > 0 &&
-        Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) > 0
-      );
+      return a.overlapX(b) > 0 && a.overlapY(b) > 0;
     }),
   );
 
-/** Run VPSC on a layout and return integer-rounded positions. */
-const runVpsc = (
-  items: GridLayout.Layout[],
-  fixedIndex: number,
-): GridLayout.Layout[] => {
-  const rects = items.map(
-    (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
-  );
+/**
+ * Iterative VPSC: solve X→Y, check for remaining overlaps, repeat.
+ *
+ * webcola's removeOverlaps solves X then Y independently (per the paper
+ * "Fast Node Overlap Removal", Dwyer+2005). Y-axis resolution can
+ * re-introduce X-axis overlaps. We iterate X→Y until convergence.
+ *
+ * Uses webcola's generateXConstraints/generateYConstraints + Solver
+ * directly for full control over iteration.
+ */
+const iterativeRemoveOverlaps = (rects: Rectangle[], maxIterations = 5): void => {
+  for (let iter = 0; iter < maxIterations; iter++) {
+    // X axis
+    const xVars = rects.map((r) => new Variable(r.cx()));
+    const xCs = generateXConstraints(rects, xVars);
+    new Solver(xVars, xCs).solve();
+    xVars.forEach((v, i) => rects[i].setXCentre(v.position()));
 
-  if (fixedIndex >= 0) {
-    solveAxis(rects, fixedIndex, "x");
-    solveAxis(rects, fixedIndex, "y");
-  } else {
-    removeOverlaps(rects);
+    // Y axis
+    const yVars = rects.map((r) => new Variable(r.cy()));
+    const yCs = generateYConstraints(rects, yVars);
+    new Solver(yVars, yCs).solve();
+    yVars.forEach((v, i) => rects[i].setYCentre(v.position()));
+
+    // Check convergence — no overlaps remain
+    if (!rectsOverlap(rects)) break;
   }
-
-  return items.map((item, i) => ({
-    ...item,
-    x: Math.max(0, Math.round(rects[i].x)),
-    y: Math.max(0, Math.round(rects[i].y)),
-  }));
 };
 
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
-  fixedId?: string,
+  _fixedId?: string,
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
-  const fixedIndex = fixedId
-    ? layout.findIndex((item) => item.i === fixedId)
-    : -1;
+  // Build rectangles from layout items (x, x+w, y, y+h)
+  const rects = layout.map(
+    (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
+  );
 
-  // First pass: weighted VPSC (fixed item pinned) then round
-  let result = runVpsc(layout, fixedIndex);
+  // Iterative VPSC: X→Y repeated until no overlaps remain
+  iterativeRemoveOverlaps(rects);
 
-  // Second pass: if overlaps remain, use removeOverlaps (both axes at once)
-  // as the final guarantee. This is webcola's standard algorithm without
-  // per-item weighting but resolves both axes simultaneously.
-  if (hasAnyOverlap(result)) {
-    result = runVpsc(result, -1); // -1 = use removeOverlaps
-  }
+  // Round to integer grid positions
+  const result = layout.map((item, i) => ({
+    ...item,
+    x: Math.max(0, Math.round(rects[i].x)),
+    y: Math.max(0, Math.round(rects[i].y)),
+  }));
 
-  // Third pass: one more retry on integer coords if still overlapping
-  if (hasAnyOverlap(result)) {
-    result = runVpsc(result, -1);
+  // If rounding re-introduced overlaps, run again on integer coords
+  const intRects = result.map(
+    (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
+  );
+  if (rectsOverlap(intRects)) {
+    iterativeRemoveOverlaps(intRects);
+    return result.map((item, i) => ({
+      ...item,
+      x: Math.max(0, Math.round(intRects[i].x)),
+      y: Math.max(0, Math.round(intRects[i].y)),
+    }));
   }
 
   return result;
