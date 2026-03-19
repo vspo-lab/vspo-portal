@@ -60,6 +60,9 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
     onError: useCallback(() => {}, []),
   });
 
+  // Track whether the page was opened with a ?s= query parameter
+  const openedWithUrlStateRef = useRef(false);
+
   // Load state on mount only (skip if already loaded)
   const hasLoadedRef = useRef(false);
   useEffect(() => {
@@ -73,16 +76,15 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
         if (compactState) {
           const expanded = expandCompactState(compactState, props.livestreams);
           if (expanded) {
+            openedWithUrlStateRef.current = true;
             setSelectedStreams(expanded.streams);
             setSelectedLayout(expanded.layout);
-
-            // Keep URL state for bookmarkability
             return;
           }
         }
       }
 
-      // Then check localStorage
+      // Then check localStorage (don't write back to URL)
       const localState = loadStateFromLocalStorage();
       if (localState) {
         const restoredStreams = localState.selectedStreams.map((saved) =>
@@ -91,7 +93,6 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
 
         setSelectedStreams(restoredStreams);
         setSelectedLayout(localState.layout);
-
       }
     };
 
@@ -102,15 +103,17 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (selectedStreams.length > 0) {
-      // Generate shareable URL and keep address bar in sync
+      // Always generate shareable URL for the share button
       const newUrl = generateShareableUrl(selectedStreams, selectedLayout);
       setShareableUrl(newUrl);
 
-      // Update browser URL without triggering navigation
-      try {
-        window.history.replaceState({}, "", newUrl);
-      } catch {
-        // Silently ignore if URL update fails (e.g., SSR)
+      // Only sync URL bar if the page was opened with ?s= parameter
+      if (openedWithUrlStateRef.current) {
+        try {
+          window.history.replaceState({}, "", newUrl);
+        } catch {
+          // Silently ignore if URL update fails
+        }
       }
 
       // Debounce localStorage write (synchronous / blocking)
