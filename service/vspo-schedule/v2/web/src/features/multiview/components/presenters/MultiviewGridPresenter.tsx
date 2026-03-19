@@ -431,6 +431,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         isResizable={!isMobile}
         onLayoutChange={handleLayoutChange}
         draggableHandle=".drag-handle"
+        draggableCancel=".no-drag"
         compactType={null}
         preventCollision={false}
         margin={isFullscreen ? [0, 0] : [4, 4]}

@@ -161,8 +161,8 @@ export const VideoPlayerPresenter = forwardRef<
             stream.link?.match(/watch\?v=([^&]+)/)?.[1] ||
             stream.id;
           // Enable YouTube iframe API with proper parameters
-          const origin = typeof window !== "undefined" ? window.location.origin : "https://localhost";
-          return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
+          const originParam = typeof window !== "undefined" ? `&origin=${window.location.origin}` : "";
+          return `https://www.youtube.com/embed/${videoId}?enablejsapi=1${originParam}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
         } else if (stream.platform === "twitch") {
           // Extract channel name from different sources
           let channelName = "";
@@ -254,6 +254,7 @@ export const VideoPlayerPresenter = forwardRef<
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
             <CloseButton
+              className="no-drag"
               size="small"
               onClick={onRemove}
               aria-label={t("player.close.ariaLabel", "配信を閉じる")}
