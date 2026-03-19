@@ -8,7 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -46,6 +46,65 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   },
   "&.is-dragging .react-grid-item": {
     willChange: "transform",
+  },
+  // Resize handles on all edges — hidden by default, visible on grid item hover
+  "& .react-grid-item .react-resizable-handle": {
+    position: "absolute",
+    background: "transparent",
+    zIndex: 2,
+    opacity: 0,
+    transition: "opacity 0.15s",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      backgroundColor: "rgba(128,128,128,0.3)",
+      borderRadius: 2,
+    },
+    "&:hover::after": {
+      backgroundColor: "rgba(128,128,128,0.6)",
+    },
+  },
+  "& .react-grid-item:hover .react-resizable-handle": {
+    opacity: 1,
+  },
+  // Corner handles
+  "& .react-resizable-handle-se": {
+    width: 16, height: 16, right: 0, bottom: 0, cursor: "se-resize",
+    "&::after": { width: 8, height: 8, right: 2, bottom: 2 },
+  },
+  "& .react-resizable-handle-sw": {
+    width: 16, height: 16, left: 0, bottom: 0, cursor: "sw-resize",
+    "&::after": { width: 8, height: 8, left: 2, bottom: 2 },
+  },
+  "& .react-resizable-handle-ne": {
+    width: 16, height: 16, right: 0, top: 0, cursor: "ne-resize",
+    "&::after": { width: 8, height: 8, right: 2, top: 2 },
+  },
+  "& .react-resizable-handle-nw": {
+    width: 16, height: 16, left: 0, top: 0, cursor: "nw-resize",
+    "&::after": { width: 8, height: 8, left: 2, top: 2 },
+  },
+  // Edge handles
+  "& .react-resizable-handle-n": {
+    width: "100%", height: 8, top: 0, left: 0, cursor: "n-resize",
+    "&::after": { width: 40, height: 3, top: 2, left: "calc(50% - 20px)" },
+  },
+  "& .react-resizable-handle-s": {
+    width: "100%", height: 8, bottom: 0, left: 0, cursor: "s-resize",
+    "&::after": { width: 40, height: 3, bottom: 2, left: "calc(50% - 20px)" },
+  },
+  "& .react-resizable-handle-e": {
+    width: 8, height: "100%", right: 0, top: 0, cursor: "e-resize",
+    "&::after": { width: 3, height: 40, right: 2, top: "calc(50% - 20px)" },
+  },
+  "& .react-resizable-handle-w": {
+    width: 8, height: "100%", left: 0, top: 0, cursor: "w-resize",
+    "&::after": { width: 3, height: 40, left: 2, top: "calc(50% - 20px)" },
+  },
+  // Long-press drag mode — highlight border
+  "&.drag-ready .react-grid-item": {
+    outline: "2px dashed rgba(128,128,128,0.5)",
+    cursor: "grab",
   },
 }));
 
@@ -231,6 +290,34 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const [availableHeight, setAvailableHeight] = useState(600);
+  // Long-press drag: hold for 500ms to enable dragging anywhere on the item
+  const [dragReady, setDragReady] = useState(false);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearLongPress = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
+
+  const handlePointerDown = useCallback(() => {
+    clearLongPress();
+    longPressTimerRef.current = setTimeout(() => {
+      setDragReady(true);
+      containerRef.current?.classList.add("drag-ready");
+    }, 500);
+  }, [clearLongPress]);
+
+  const handlePointerUp = useCallback(() => {
+    clearLongPress();
+    setDragReady(false);
+    containerRef.current?.classList.remove("drag-ready");
+  }, [clearLongPress]);
+
+  useEffect(() => {
+    return () => clearLongPress();
+  }, [clearLongPress]);
+
   // Drag swap state
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
   const lastSwappedRef = useRef<string | null>(null);
@@ -579,6 +666,9 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     <GridContainer
       elevation={1}
       ref={containerRef}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
       style={{
         maxHeight: availableHeight,
         // Visual guide lines: 12 column divisions + row divisions matching layout
@@ -592,15 +682,15 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         cols={GRID_COLS}
         rowHeight={rowHeight}
         width={containerWidth}
-        isDraggable={!isMobile}
+        isDraggable={!isMobile && dragReady}
         isResizable={!isMobile}
+        resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
         onLayoutChange={handleGridLayoutChange}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragStop={handleDragStop}
         onResizeStart={handleResizeStart}
         onResizeStop={handleResizeStop}
-        draggableHandle=".drag-handle"
         draggableCancel=".no-drag"
         compactType={null}
         allowOverlap={true}
