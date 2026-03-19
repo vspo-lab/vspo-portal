@@ -8,7 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, startTransition } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -523,13 +523,16 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
           dragOriginRef.current = { x: swappedItem.x, y: swappedItem.y };
         }
         lastSwappedRef.current = swappedId;
-        setInternalLayout(
-          swappedLayout.map((item) =>
-            item.i === newItem.i
-              ? { ...item, x: dragOriginRef.current!.x, y: dragOriginRef.current!.y }
-              : item,
-          ),
-        );
+        // Low-priority update — don't block drag visual feedback
+        startTransition(() => {
+          setInternalLayout(
+            swappedLayout.map((item) =>
+              item.i === newItem.i
+                ? { ...item, x: dragOriginRef.current!.x, y: dragOriginRef.current!.y }
+                : item,
+            ),
+          );
+        });
       }
     });
   };

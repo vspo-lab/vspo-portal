@@ -32,7 +32,6 @@ export type MultiviewPageProps = {
 export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
   props,
 ) => {
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [selectedStreams, setSelectedStreams] = useState<Livestream[]>([]);
   const [selectedLayout, setSelectedLayout] = useState<LayoutType>("auto");
   const [shareableUrl, setShareableUrl] = useState<string>("");
@@ -127,20 +126,8 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
     };
   }, [selectedStreams, selectedLayout]);
 
-  useEffect(() => {
-    // Check if we have a loaded configuration, otherwise use default behavior
-    if (configLoader.isReady && configLoader.state.loadedConfig) {
-      setIsProcessing(false);
-    } else if (!configLoader.state.isLoading && !configLoader.needsUserAction) {
-      // No configuration loading in progress and no user action needed
-      setIsProcessing(false);
-    }
-  }, [
-    configLoader.isReady,
-    configLoader.state.isLoading,
-    configLoader.needsUserAction,
-    configLoader.state.loadedConfig,
-  ]);
+  // Derived: processing while config is actively loading
+  const isProcessing = configLoader.state.isLoading;
 
   const handleStreamSelection = (stream: Livestream) => {
     setSelectedStreams((prev) => {
@@ -230,7 +217,7 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
           selectedStreams={selectedStreams}
           chatStreamIds={chatStreamIds}
           selectedLayout={selectedLayout}
-          isProcessing={isProcessing || configLoader.state.isLoading}
+          isProcessing={isProcessing}
           shareableUrl={shareableUrl}
           onStreamSelection={handleStreamSelection}
           onRemoveStream={handleRemoveStreamWithChat}

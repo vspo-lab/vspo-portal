@@ -1,6 +1,5 @@
 import GridLayout from "react-grid-layout";
 import {
-  Constraint,
   Rectangle,
   Variable,
   Solver,
@@ -8,51 +7,7 @@ import {
   generateYConstraints,
 } from "webcola";
 
-/** Weight for fixed items — high enough to pin position in VPSC. */
-const FIXED_WEIGHT = 10000;
-
-/** Weight for the boundary anchor — must exceed FIXED_WEIGHT. */
-const BOUNDARY_WEIGHT = FIXED_WEIGHT * 10;
-
 /**
- * Solve one axis with weighted VPSC and boundary constraints (position >= 0).
- *
- * Uses webcola's Variable weight to pin the fixed item in place and
- * Constraint objects to enforce non-negative positions (grid boundary).
- */
-const solveAxis = (
-  rects: Rectangle[],
-  fixedIndex: number,
-  axis: "x" | "y",
-): void => {
-  const center = axis === "x" ? (r: Rectangle) => r.cx() : (r: Rectangle) => r.cy();
-  const halfSize = axis === "x"
-    ? (r: Rectangle) => (r.X - r.x) / 2
-    : (r: Rectangle) => (r.Y - r.y) / 2;
-  const setCenter = axis === "x"
-    ? (r: Rectangle, v: number) => r.setXCentre(v)
-    : (r: Rectangle, v: number) => r.setYCentre(v);
-  const genConstraints = axis === "x" ? generateXConstraints : generateYConstraints;
-
-  const vars = rects.map(
-    (r, i) => new Variable(center(r), i === fixedIndex ? FIXED_WEIGHT : 1),
-  );
-
-  const constraints = genConstraints(rects, vars);
-
-  // Boundary: center >= halfSize  ⟹  left/top edge >= 0
-  const boundary = new Variable(0, BOUNDARY_WEIGHT);
-  for (let i = 0; i < rects.length; i++) {
-    constraints.push(new Constraint(boundary, vars[i], halfSize(rects[i])));
-  }
-
-  new Solver([...vars, boundary], constraints).solve();
-  vars.forEach((v, i) => setCenter(rects[i], v.position()));
-};
-
-/**
- * webcola の VPSC アルゴリズムでレイアウトの重なりを解消する。
- *
  * 参考論文: "Fast Node Overlap Removal" (Dwyer, Marriott, Stuckey, 2005)
  * https://people.eng.unimelb.edu.au/pstuckey/papers/gd2005b.pdf
  *
