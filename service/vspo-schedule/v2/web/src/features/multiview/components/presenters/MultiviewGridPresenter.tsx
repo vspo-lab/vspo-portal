@@ -38,11 +38,9 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   height: "auto",
   overflowY: "auto",
   overflowX: "hidden",
-  // Vertical grid guidelines (12 columns) — horizontal lines are set dynamically via inline style
-  backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS}))`,
+  // Grid guidelines are set dynamically via inline style (square cells matching containerWidth / 12)
   [theme.getColorSchemeSelector("light")]: {
     backgroundColor: "#e0e0e0",
-    backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS}))`,
   },
   "&.is-dragging iframe": {
     pointerEvents: "none",
@@ -582,8 +580,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       ref={containerRef}
       style={{
         maxHeight: availableHeight,
-        // Dynamic horizontal grid lines matching rowHeight
-        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight - 1}px, rgba(128,128,128,0.15) ${rowHeight - 1}px, rgba(128,128,128,0.15) ${rowHeight}px)`,
+        // Square grid lines: cell size = containerWidth / 12 (matching column width)
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${Math.floor(containerWidth / GRID_COLS) - 1}px, rgba(128,128,128,0.12) ${Math.floor(containerWidth / GRID_COLS) - 1}px, rgba(128,128,128,0.12) ${Math.floor(containerWidth / GRID_COLS)}px)`,
       }}
     >
       <GridLayout
