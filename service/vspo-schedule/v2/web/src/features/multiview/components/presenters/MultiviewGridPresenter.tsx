@@ -588,7 +588,9 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       style={{
         maxHeight: availableHeight,
         // Grid lines at cell intervals (12 divisions) matching react-grid-layout snap points
+        // Offset vertical lines by 1px so the first line isn't flush with the container top edge
         backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight}px)`,
+        backgroundPosition: "0 1px",
         backgroundAttachment: "local",
       }}
     >
