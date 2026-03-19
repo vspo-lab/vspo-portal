@@ -2,7 +2,7 @@ import { Platform } from "@/features/shared/domain/video";
 import { z } from "zod";
 
 // URL validation schema
-export const urlSchema = z.object({
+const urlSchema = z.object({
   url: z.string().url("無効なURLです"),
   platform: z.enum(["youtube", "twitch", "twitcasting", "niconico", "unknown"]),
   videoId: z.string(),
@@ -267,32 +267,3 @@ export const isValidUrl = (url: string): boolean => {
   }
 };
 
-export const isSupportedPlatform = (url: string): boolean => {
-  const platform = detectPlatform(url);
-  return platform !== "unknown";
-};
-
-// URL examples for help text
-export const URL_EXAMPLES = {
-  youtube: [
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://youtu.be/dQw4w9WgXcQ",
-    "https://www.youtube.com/live/dQw4w9WgXcQ",
-    "https://www.youtube.com/@channel/live",
-  ],
-  twitch: [
-    "https://www.twitch.tv/username",
-    "https://www.twitch.tv/videos/123456789",
-    "https://www.twitch.tv/username/clip/ClipName",
-  ],
-};
-
-// Error messages
-export const ERROR_MESSAGES = {
-  INVALID_URL: "無効なURLです。正しいURLを入力してください。",
-  UNSUPPORTED_PLATFORM:
-    "サポートされていないプラットフォームです。YouTube、TwitchのURLを入力してください。",
-  EXTRACT_FAILED: "動画IDの抽出に失敗しました。URLを確認してください。",
-  NETWORK_ERROR: "ネットワークエラーが発生しました。接続を確認してください。",
-  METADATA_FAILED: "動画情報の取得に失敗しました。",
-} as const;

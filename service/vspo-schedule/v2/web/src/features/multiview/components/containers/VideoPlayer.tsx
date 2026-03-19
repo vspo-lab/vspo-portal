@@ -23,14 +23,13 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
   ({ stream, onRemove, index }, ref) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [hasError, setHasError] = useState<boolean>(false);
-    const [isMuted, setIsMuted] = useState<boolean>(index !== 0); // Only first video is unmuted by default
+    const [isMuted, setIsMuted] = useState<boolean>(index !== 0);
     const [volume, setVolume] = useState<number>(index === 0 ? 0.7 : 0.3);
     const [isPlayerReady, setIsPlayerReady] = useState<boolean>(false);
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const { registerPlayer, unregisterPlayer } = usePlaybackContext();
 
-    // Fullscreen control
     const toggleFullscreen = useCallback(() => {
       if (iframeRef.current) {
         if (!document.fullscreenElement) {
@@ -41,7 +40,6 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
       }
     }, []);
 
-    // YouTube Player API control
     const postMessageToPlayer = useCallback(
       (command: string, args?: unknown) => {
         if (!isPlayerReady && command !== "pauseVideo") {
@@ -55,16 +53,12 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
             args: args || [],
           };
 
-          // YouTube iframe API
           if (stream.platform === "youtube") {
             iframeRef.current.contentWindow.postMessage(
               JSON.stringify(message),
-              "*", // YouTube accepts any origin
+              "*",
             );
-          }
-          // Twitch iframe API - Try different message formats
-          else if (stream.platform === "twitch") {
-            // Try Twitch Player API format
+          } else if (stream.platform === "twitch") {
             const twitchMessage = {
               namespace: "twitch-everywhere",
               eventName: "",
@@ -96,32 +90,9 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
       [stream.platform, isPlayerReady, stream.id],
     );
 
-    // Create player interface
-    useImperativeHandle(
-      ref,
-      () => ({
-        play: () => postMessageToPlayer("playVideo"),
-        pause: () => postMessageToPlayer("pauseVideo"),
-        setVolume: (newVolume: number) => {
-          setVolume(newVolume);
-          postMessageToPlayer("setVolume", [newVolume * 100]);
-        },
-        mute: () => {
-          setIsMuted(true);
-          postMessageToPlayer("mute");
-        },
-        unmute: () => {
-          setIsMuted(false);
-          postMessageToPlayer("unmute");
-        },
-        getState: () => ({ isMuted, volume }),
-        toggleFullscreen,
-      }),
-      [postMessageToPlayer, toggleFullscreen, isMuted, volume],
-    );
-
-    // Create player ref
-    const playerRef = useRef<VideoPlayerRef>({
+    // Single player interface — shared between imperative handle and context registration
+    const playerInterfaceRef = useRef<VideoPlayerRef>(null!);
+    playerInterfaceRef.current = {
       play: () => postMessageToPlayer("playVideo"),
       pause: () => postMessageToPlayer("pauseVideo"),
       setVolume: (newVolume: number) => {
@@ -138,37 +109,35 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
       },
       getState: () => ({ isMuted, volume }),
       toggleFullscreen,
-    });
+      syncToLive: () => postMessageToPlayer("seekTo", [9999999, true]),
+    };
 
-    // Update player ref when functions change
+    useImperativeHandle(ref, () => playerInterfaceRef.current, [
+      postMessageToPlayer,
+      toggleFullscreen,
+      isMuted,
+      volume,
+    ]);
+
+    // Register player once on mount, unregister on unmount
+    // Use a stable wrapper that reads from the ref so registration doesn't re-fire
     useEffect(() => {
-      playerRef.current = {
-        play: () => postMessageToPlayer("playVideo"),
-        pause: () => postMessageToPlayer("pauseVideo"),
-        setVolume: (newVolume: number) => {
-          setVolume(newVolume);
-          postMessageToPlayer("setVolume", [newVolume * 100]);
-        },
-        mute: () => {
-          setIsMuted(true);
-          postMessageToPlayer("mute");
-        },
-        unmute: () => {
-          setIsMuted(false);
-          postMessageToPlayer("unmute");
-        },
-        getState: () => ({ isMuted, volume }),
-        toggleFullscreen,
+      const stablePlayer: VideoPlayerRef = {
+        play: () => playerInterfaceRef.current.play(),
+        pause: () => playerInterfaceRef.current.pause(),
+        setVolume: (v) => playerInterfaceRef.current.setVolume(v),
+        mute: () => playerInterfaceRef.current.mute(),
+        unmute: () => playerInterfaceRef.current.unmute(),
+        getState: () => playerInterfaceRef.current.getState(),
+        toggleFullscreen: () =>
+          playerInterfaceRef.current.toggleFullscreen(),
+        syncToLive: () => playerInterfaceRef.current.syncToLive(),
       };
-    }, [postMessageToPlayer, toggleFullscreen, isMuted, volume]);
-
-    // Register player with context - re-register when playerRef changes
-    useEffect(() => {
-      registerPlayer(stream.id, playerRef.current);
+      registerPlayer(stream.id, stablePlayer);
       return () => {
         unregisterPlayer(stream.id);
       };
-    }, [stream.id, registerPlayer, unregisterPlayer, playerRef.current]);
+    }, [stream.id, registerPlayer, unregisterPlayer]);
 
     useEffect(() => {
       setIsLoading(true);
@@ -178,24 +147,19 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
     const handlePlayerReady = useCallback(() => {
       setIsLoading(false);
 
-      // Initialize player state after iframe loads
-      // Wait a bit for iframe to be fully ready
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setIsPlayerReady(true);
 
         if (iframeRef.current) {
-          // Set initial volume
           postMessageToPlayer("setVolume", [volume * 100]);
-
-          // Set initial mute state
           if (isMuted) {
             postMessageToPlayer("mute");
           }
-
-          // Don't autoplay - require user interaction
           postMessageToPlayer("pauseVideo");
         }
       }, 1500);
+
+      return () => clearTimeout(timeoutId);
     }, [postMessageToPlayer, volume, isMuted]);
 
     const handlePlayerError = useCallback(() => {
@@ -207,7 +171,6 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
       onRemove();
     }, [onRemove]);
 
-    // Handle iframe ref
     const handleIframeRef = useCallback((element: HTMLIFrameElement | null) => {
       if (element) {
         iframeRef.current = element;
@@ -232,4 +195,4 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
 
 VideoPlayerComponent.displayName = "VideoPlayer";
 
-export const VideoPlayer = VideoPlayerComponent;
+export const VideoPlayer = React.memo(VideoPlayerComponent);

@@ -20,18 +20,20 @@ const PlayerContainer = styled(Box)(({ theme }) => ({
   minHeight: "200px",
   maxWidth: "100%",
   backgroundColor: "white",
-  borderRadius: theme.shape.borderRadius,
+  [theme.getColorSchemeSelector("dark")]: {
+    backgroundColor: theme.vars.palette.customColors.gray,
+  },
+  borderRadius: 0,
   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
-  transition: "transform 0.2s ease, opacity 0.2s ease",
-  border: "2px solid transparent",
-  boxShadow: theme.shadows[1],
+  border: "none",
+  boxShadow: "none",
+  "&:hover .player-header": {
+    opacity: 1,
+  },
   [theme.breakpoints.down("md")]: {
     minHeight: "150px",
-  },
-  [theme.getColorSchemeSelector("dark")]: {
-    backgroundColor: theme.vars.palette.customColors.darkGray,
   },
 }));
 
@@ -41,14 +43,14 @@ const PlayerHeader = styled(Box)(({ theme }) => ({
   left: 0,
   right: 0,
   zIndex: 10,
-  backgroundColor: "rgba(0,0,0,0.6)",
-  padding: theme.spacing(0, 1),
-  height: 32,
-  minHeight: 32,
+  backgroundColor: "rgba(0,0,0,0.7)",
+  padding: theme.spacing(0.5, 1),
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   cursor: "grab",
+  opacity: 0,
+  transition: "opacity 0.2s ease",
   "&:active": {
     cursor: "grabbing",
   },
@@ -134,7 +136,7 @@ export type VideoPlayerPresenterProps = {
   muted?: boolean;
 };
 
-export const VideoPlayerPresenter = forwardRef<
+export const VideoPlayerPresenter = React.memo(forwardRef<
   HTMLIFrameElement,
   VideoPlayerPresenterProps
 >(
@@ -216,11 +218,6 @@ export const VideoPlayerPresenter = forwardRef<
       }
     };
 
-    const truncateTitle = (title: string, maxLength: number = 40) => {
-      return title.length > maxLength
-        ? `${title.substring(0, maxLength)}...`
-        : title;
-    };
 
     return (
       <PlayerContainer>
@@ -239,6 +236,19 @@ export const VideoPlayerPresenter = forwardRef<
                 fontWeight: 600,
                 display: "block",
                 fontSize: "0.75rem",
+                lineHeight: 1.3,
+              }}
+            >
+              {stream.title}
+            </Typography>
+            <Typography
+              variant="caption"
+              noWrap
+              sx={{
+                display: "block",
+                fontSize: "0.65rem",
+                opacity: 0.8,
+                lineHeight: 1.2,
               }}
             >
               {stream.channelTitle}
@@ -298,6 +308,6 @@ export const VideoPlayerPresenter = forwardRef<
       </PlayerContainer>
     );
   },
-);
+));
 
 VideoPlayerPresenter.displayName = "VideoPlayerPresenter";

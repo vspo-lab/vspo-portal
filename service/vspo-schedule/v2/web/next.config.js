@@ -43,6 +43,7 @@ const nextConfig = {
     },
   },
   experimental: {
+    reactCompiler: true,
     scrollRestoration: true,
   },
   serverExternalPackages: emotionPackages,

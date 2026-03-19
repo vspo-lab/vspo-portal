@@ -1,146 +1,79 @@
 # Multiview
 
-## Overview
+Watch up to 12 livestreams simultaneously. Supports YouTube and Twitch.
 
-Multi-stream viewer allowing users to watch up to 9 livestreams simultaneously with customizable grid layouts. Supports YouTube and Twitch with per-stream and global playback controls, state persistence via LocalStorage, and URL-based sharing.
-
-## Architecture
+## Structure
 
 ```
 features/multiview/
-├── api/multiviewService.ts       # Fetches live + upcoming streams
-├── context/PlaybackContext.tsx    # Cross-video player coordination
+├── api/multiviewService.ts       # Fetch streams (parallel, deduplicated)
+├── context/PlaybackContext.tsx    # Cross-player coordination
 ├── hooks/
-│   ├── usePlaybackControls.ts    # Global + per-stream controls
-│   ├── useMultiviewLayout.ts     # Responsive grid generation
+│   ├── usePlaybackControls.ts    # Play/volume state management
+│   ├── useMultiviewLayout.ts     # Layout definitions (8 types)
 │   └── useConfigurationLoader.ts # URL config loading
 ├── utils/
-│   ├── stateManager.ts           # LocalStorage + URL state
-│   ├── urlParser.ts              # Platform URL detection + embed generation
-│   ├── platformUtils.ts          # Platform-specific capabilities
-│   └── configLoader.ts           # External config loading
-├── types/multiview.ts            # Zod schemas for layouts, panels, audio
+│   ├── stateManager.ts           # localStorage + URL sharing + custom presets
+│   ├── gridSwap.ts               # Drag swap + VPSC overlap resolution (webcola)
+│   ├── urlParser.ts              # Platform URL parsing
+│   ├── platformUtils.ts          # Per-platform config
+│   ├── configLoader.ts           # External config loading
+│   └── theme.ts                  # Shared theme utilities
 ├── components/
-│   ├── containers/               # MultiviewGrid, LayoutSelector, StreamSelector, VideoPlayer
-│   └── presenters/               # UI rendering for each container
-└── pages/MultiviewPage/
-    ├── container.tsx
-    ├── presenter.tsx
-    └── serverSideProps.ts
+│   ├── containers/               # MultiviewGrid, VideoPlayer, ChatCell, LayoutSelector, StreamSelector
+│   └── presenters/               # UI for each container
+└── pages/MultiviewPage/          # container, presenter, serverSideProps
 ```
 
-## Layout Types
+## Layouts
 
-The runtime layout system is defined in `useMultiviewLayout.ts`:
+| Type | Description | Shortcut |
+|------|-------------|----------|
+| `auto` | Auto-select by stream count | Alt+A |
+| `1x1` `2x1` `1x2` `2x2` | Basic grids | Alt+1–4 |
+| `3x3` | 9-cell grid | Alt+9 |
+| `4x3` | 12-cell grid | Alt+0 |
+| `picture-in-picture` | Main + overlay | Alt+P |
 
-| Layout | Streams | Description |
-|--------|---------|-------------|
-| `auto` | Any | Auto-selects based on stream count (default) |
-| `1x1` | 1 | Single stream |
-| `2x1` | 2 | Side by side |
-| `1x2` | 2 | Stacked |
-| `2x2` | 4 | 2x2 equal grid |
-| `3x3` | 9 | 3x3 equal grid |
-| `picture-in-picture` | 2+ | Main stream with small overlay |
+## Grid
 
-Auto-layout selects based on stream count: 1 -> `1x1`, 2 -> `2x1`, 3-4 -> `2x2`, 5+ -> `3x3`. Mobile restricts to `auto`, `1x1`, `1x2`.
+- `react-grid-layout` (12 columns, ROW_UNIT=1px)
+- Drag swap (triggers at 50% overlap, RAF-throttled)
+- Post-resize overlap resolution via **webcola VPSC** (minimizes sum of squared displacements)
+- Auto-fills viewport height with proportional rescaling
+- Grid guidelines (CSS background-image)
 
-> Note: `types/multiview.ts` defines a separate Zod schema with extended layout names (`grid-2x2`, `side-by-side`, `theater-mode`, `custom`) for preset configurations and validation. The runtime hook uses the simpler names above.
+## Chat
 
-## State Management
+YouTube/Twitch chat iframes as grid cells. Keyed as `chat-{streamId}`.
 
-### Priority Order
+## Playback Controls
 
-```
-URL State > LocalStorage > Defaults
-```
+- Global: play/pause all, mute all, volume, sync to live
+- Per-stream: play/pause, mute, volume
+- "Listen to this only" (mute all but one)
 
-### LocalStorage Persistence
+## State
 
-`stateManager.ts` saves/loads `MultiviewState`:
+- **Priority**: URL > localStorage > defaults
+- **URL sharing**: pipe-delimited + base64url compression (`?s=` param)
+- **Custom presets**: up to 10 named layouts saved to localStorage
 
-```typescript
-{
-  selectedStreams: Array<{ id, platform, channelId, title, channelTitle, link }>,
-  layout: LayoutType,
-  gridLayout?: GridLayoutItem[],
-  version: 1,
-}
-```
+## Immersive Mode
 
-Functions: `saveStateToLocalStorage()`, `loadStateFromLocalStorage()`, `clearStateFromLocalStorage()`.
+Hides header/footer/nav for distraction-free viewing. Exit via Escape. Uses `data-immersive` attribute + MutationObserver for grid recalculation.
 
-### URL Sharing
+## Performance
 
-`generateShareableUrl()` creates a compact base64-encoded URL parameter:
+- React.memo (VideoPlayer, Presenter) + MemoizedPlayer wrapper
+- RAF-throttled resize and drag handlers
+- `will-change: transform` + iframe `pointer-events: none` during drag
+- React Compiler enabled
 
-```typescript
-// Compact format (minimal data for sharing)
-{
-  s: Array<{ i, p, c? }>,  // streams: id, platform, channelId
-  l: string,                // layout type
-  g?: Array<{ x, y, w, h }>, // grid positions
-  v: number,                // version
-}
-```
+## References
 
-`parseCompactStateFromUrl()` decodes it back. `expandCompactState()` restores full stream objects by matching IDs against available streams.
-
-## PlaybackContext
-
-React Context for coordinating multiple video players.
-
-### VideoPlayerRef Interface
-
-Each registered player exposes:
-
-```typescript
-play(), pause(), setVolume(volume), mute(), unmute(),
-getState(): { isMuted, volume }, toggleFullscreen()
-```
-
-### Global Controls
-
-```typescript
-playAll(), pauseAll(), muteAll(), unmuteAll(), setAllVolume(volume)
-```
-
-Players are stored in a `useRef<Map>` to avoid re-renders on registration.
-
-## usePlaybackControls Hook
-
-Manages per-stream and global playback state.
-
-- Initial state: first stream unmuted at 70% volume, others muted
-- Global volume applies to all unmuted streams
-- Volume clamped to 0-100
-- Returns `streamStates`, `globalVolume`, `isGlobalMuted`, and toggle/set functions
-
-## useMultiviewLayout Hook
-
-Generates CSS Grid layout based on stream count and screen size.
-
-Returns `gridTemplateColumns`, `gridTemplateRows` strings for direct CSS Grid usage, plus `availableLayouts` and `changeLayout()`.
-
-## Platform Support
-
-| Platform | Embed | Chat | Autoplay | Parent Domain Required |
-|----------|-------|------|----------|----------------------|
-| YouTube | Yes | Yes | Yes | Yes |
-| Twitch | Yes | Channels only | Yes | Yes |
-| TwitCasting | Yes | No | No | No |
-| Niconico | Yes | No | No | No |
-
-`urlParser.ts` handles URL detection and embed URL generation for all platforms. `platformUtils.ts` provides per-platform capability configuration.
-
-## Data Flow
-
-```
-serverSideProps: fetchLivestreams(live) + fetchLivestreams(upcoming)
-  → Container: manages selectedStreams, layout, gridLayout
-    → useMultiviewLayout: generates CSS Grid
-    → usePlaybackControls: manages play/pause/volume state
-    → PlaybackProvider: coordinates player refs
-      → VideoPlayerPresenter(s): render iframe embeds
-      → PlaybackControlsPresenter: global control buttons
-```
+- [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) — Grid layout library
+- [webcola](https://github.com/tgdwyer/WebCola) — VPSC constraint solver
+- [Fast Node Overlap Removal (VPSC paper)](https://people.eng.unimelb.edu.au/pstuckey/papers/gd2005b.pdf) — Dwyer, Marriott, Stuckey, 2005
+- [YouTube IFrame Player API](https://developers.google.com/youtube/iframe_api_reference) — postMessage-based control
+- [Twitch Embed](https://dev.twitch.tv/docs/embed/) — iframe embed spec

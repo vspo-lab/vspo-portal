@@ -1,59 +1,56 @@
 import { Livestream } from "@/features/shared/domain";
 import { useMediaQuery, useTheme } from "@mui/material";
-import React, { useCallback } from "react";
-import GridLayout from "react-grid-layout";
+import React from "react";
 import { LayoutType, useMultiviewLayout } from "../../hooks/useMultiviewLayout";
 import { MultiviewGridPresenter } from "../presenters";
+
+const EMPTY_SET = new Set<string>();
 
 export type MultiviewGridProps = {
   selectedStreams: Livestream[];
   selectedLayout?: LayoutType;
   onRemoveStream: (streamId: string) => void;
-  onStreamReorder?: (activeId: string, overId: string) => void;
-  onLayoutChange?: (layout: GridLayout.Layout[]) => void;
-  savedGridLayout?: Array<{ x: number; y: number; w: number; h: number }>;
+  onGridPositionsChange?: (
+    positions: Array<{ i: string; x: number; y: number; w: number; h: number }>,
+  ) => void;
+  chatStreamIds?: ReadonlySet<string>;
+  onRemoveChat?: (streamId: string) => void;
+  externalGridPositions?: ReadonlyArray<{
+    i: string;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  }>;
 };
 
 export const MultiviewGrid: React.FC<MultiviewGridProps> = ({
   selectedStreams,
   selectedLayout,
   onRemoveStream,
-  onStreamReorder,
-  onLayoutChange,
-  savedGridLayout,
+  onGridPositionsChange,
+  chatStreamIds = EMPTY_SET,
+  onRemoveChat = () => {},
+  externalGridPositions,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  // Use the layout hook for layout configuration
   const { layout } = useMultiviewLayout({
     streamCount: selectedStreams.length,
     isMobile,
     initialLayout: selectedLayout,
   });
 
-  const handleRemoveStream = useCallback(
-    (streamId: string) => {
-      onRemoveStream(streamId);
-    },
-    [onRemoveStream],
-  );
-
-  const handleStreamReorder = useCallback(
-    (activeId: string, overId: string) => {
-      onStreamReorder?.(activeId, overId);
-    },
-    [onStreamReorder],
-  );
-
   return (
     <MultiviewGridPresenter
       selectedStreams={selectedStreams}
+      chatStreamIds={chatStreamIds}
       layout={layout}
-      onRemoveStream={handleRemoveStream}
-      onStreamReorder={handleStreamReorder}
-      onLayoutChange={onLayoutChange}
-      savedGridLayout={savedGridLayout}
+      onRemoveStream={onRemoveStream}
+      onRemoveChat={onRemoveChat}
+      onGridPositionsChange={onGridPositionsChange}
+      externalGridPositions={externalGridPositions}
     />
   );
 };

@@ -6,48 +6,60 @@ import {
   styled,
   useMediaQuery,
   useTheme,
-  type Theme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { VideoPlayer } from "../containers";
+import { computeSwapDuringDrag, resolveOverlaps } from "../../utils/gridSwap";
+import { scaledBorderRadius } from "../../utils/theme";
+import { ChatCell, VideoPlayer } from "../containers";
 
-const scaledBorderRadius = (theme: Theme, scale: number) =>
-  typeof theme.shape.borderRadius === "number"
-    ? theme.shape.borderRadius * scale
-    : `calc(${theme.shape.borderRadius} * ${scale})`;
+/** Prefix used for chat cell grid item keys to distinguish from video cells. */
+const CHAT_KEY_PREFIX = "chat-";
 
-const GridContainer = styled(Paper)<{ isFullscreen?: boolean }>(
-  ({ theme, isFullscreen }) => ({
-    minHeight: isFullscreen ? "100vh" : "600px",
-    padding: theme.spacing(isFullscreen ? 0 : 1),
-    backgroundColor: "white",
-    borderRadius: isFullscreen ? 0 : scaledBorderRadius(theme, 2),
-    boxShadow: isFullscreen ? "none" : theme.shadows[4],
-    border: isFullscreen ? "none" : `1px solid ${theme.palette.divider}`,
-    position: isFullscreen ? "fixed" : "relative",
-    top: isFullscreen ? 0 : "auto",
-    left: isFullscreen ? 0 : "auto",
-    right: isFullscreen ? 0 : "auto",
-    bottom: isFullscreen ? 0 : "auto",
-    width: isFullscreen ? "100vw" : "100%",
-    height: isFullscreen ? "100vh" : "auto",
-    zIndex: isFullscreen ? 9999 : "auto",
-    [theme.breakpoints.down("md")]: {
-      minHeight: isFullscreen ? "100vh" : "600px",
-      padding: theme.spacing(isFullscreen ? 0 : 0.5),
-    },
-    [theme.getColorSchemeSelector("dark")]: {
-      backgroundColor: theme.vars.palette.customColors.gray,
-    },
-  }),
-);
+// Grid cell size for 12 columns — used for background grid lines
+const GRID_COLS = 12;
 
-// VideoGrid is no longer used with react-grid-layout
+const GridContainer = styled(Paper)(({ theme }) => ({
+  minHeight: "auto",
+  padding: 0,
+  backgroundColor: "#1a1a1a",
+  [theme.getColorSchemeSelector("light")]: {
+    backgroundColor: "#e0e0e0",
+  },
+  borderRadius: 0,
+  boxShadow: "none",
+  border: "none",
+  position: "relative",
+  width: "100%",
+  height: "auto",
+  overflowY: "auto",
+  overflowX: "hidden",
+  // Grid guidelines (Holodex-style)
+  backgroundImage: [
+    // Vertical lines: 12 columns
+    `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS}))`,
+    // Horizontal lines: every 100px
+    "repeating-linear-gradient(0deg, transparent, transparent 99px, rgba(255,255,255,0.06) 99px, rgba(255,255,255,0.06) 100px)",
+  ].join(", "),
+  backgroundSize: "100% 100%, 100% 100px",
+  [theme.getColorSchemeSelector("light")]: {
+    backgroundColor: "#e0e0e0",
+    backgroundImage: [
+      `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS}))`,
+      "repeating-linear-gradient(0deg, transparent, transparent 99px, rgba(0,0,0,0.08) 99px, rgba(0,0,0,0.08) 100px)",
+    ].join(", "),
+  },
+  "&.is-dragging iframe": {
+    pointerEvents: "none",
+  },
+  "& .react-grid-item": {
+    willChange: "transform",
+  },
+}));
 
 const PipContainer = styled(Box)<{
   pipPosition: "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -105,264 +117,449 @@ const EmptyState = styled(Box)(({ theme }) => ({
   height: "400px",
   color: theme.palette.text.secondary,
   backgroundColor: "white",
+  [theme.getColorSchemeSelector("dark")]: {
+    backgroundColor: theme.vars.palette.customColors.gray,
+    color: "rgba(255, 255, 255, 0.7)",
+  },
   borderRadius: theme.shape.borderRadius,
   margin: theme.spacing(1),
   [theme.breakpoints.down("md")]: {
     height: "300px",
   },
-  [theme.getColorSchemeSelector("dark")]: {
-    backgroundColor: theme.vars.palette.customColors.darkGray,
-    color: "white",
-  },
 }));
 
 export type MultiviewGridPresenterProps = {
   selectedStreams: Livestream[];
+  /** Set of stream IDs that have a chat cell open in the grid. */
+  chatStreamIds: ReadonlySet<string>;
   layout: MultiviewLayout;
   onRemoveStream: (streamId: string) => void;
-  onStreamReorder?: (activeId: string, overId: string) => void;
-  onLayoutChange?: (layout: GridLayout.Layout[]) => void;
-  savedGridLayout?: Array<{ x: number; y: number; w: number; h: number }>;
+  /** Remove a chat cell for the given stream ID. */
+  onRemoveChat: (streamId: string) => void;
+  /** Called whenever the internal grid layout changes, exposing current positions for saving */
+  onGridPositionsChange?: (
+    positions: Array<{ i: string; x: number; y: number; w: number; h: number }>,
+  ) => void;
+  /** When provided, the grid applies these positions externally (e.g. from a saved custom layout). */
+  externalGridPositions?: ReadonlyArray<{
+    i: string;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  }>;
+};
+
+/** Stable wrapper: prevents onRemove closure from changing on every parent render */
+const MemoizedPlayer = React.memo(
+  ({
+    stream,
+    index,
+    onRemoveStream,
+  }: {
+    stream: Livestream;
+    index: number;
+    onRemoveStream: (id: string) => void;
+  }) => {
+    const handleRemove = React.useCallback(
+      () => onRemoveStream(stream.id),
+      [onRemoveStream, stream.id],
+    );
+    return <VideoPlayer stream={stream} index={index} onRemove={handleRemove} />;
+  },
+);
+
+/** Stable wrapper for chat cells */
+const MemoizedChat = React.memo(
+  ({
+    stream,
+    index,
+    onRemoveChat,
+  }: {
+    stream: Livestream;
+    index: number;
+    onRemoveChat: (id: string) => void;
+  }) => {
+    const handleRemove = React.useCallback(
+      () => onRemoveChat(stream.id),
+      [onRemoveChat, stream.id],
+    );
+    return <ChatCell stream={stream} index={index} onRemove={handleRemove} />;
+  },
+);
+
+// 1px row unit — eliminates rounding gaps so the grid fills the viewport exactly
+const ROW_UNIT = 1;
+
+/**
+ * Generate a fresh grid layout for the given item IDs based on layout config.
+ * Items can be video cells (stream ID) or chat cells (`chat-{streamId}`).
+ * Used when a layout button is pressed or on initial render.
+ */
+const buildGridLayout = (
+  itemIds: string[],
+  cols: number,
+  itemH: number,
+  totalHeight: number,
+  isMobile: boolean,
+): GridLayout.Layout[] => {
+  const count = itemIds.length;
+  const rows = isMobile ? count : Math.ceil(count / cols);
+  // Last row gets extra pixels to fill remaining space (rounding compensation)
+  const lastRowH = totalHeight - itemH * (rows - 1);
+
+  return itemIds.map((id, index) => {
+    if (isMobile) {
+      const isLastRow = index === count - 1;
+      return {
+        i: id,
+        x: 0,
+        y: index * itemH,
+        w: 12,
+        h: isLastRow ? lastRowH : itemH,
+        minW: 12,
+        minH: 100,
+        static: true,
+      };
+    }
+
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    const isLastRow = row === rows - 1;
+
+    return {
+      i: id,
+      x: col * (12 / cols),
+      y: row * itemH,
+      w: 12 / cols,
+      h: isLastRow ? lastRowH : itemH,
+      minW: 2,
+      minH: 100,
+    };
+  });
 };
 
 export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   selectedStreams,
+  chatStreamIds,
   layout,
   onRemoveStream,
-  onStreamReorder,
-  onLayoutChange,
-  savedGridLayout,
+  onRemoveChat,
+  onGridPositionsChange,
+  externalGridPositions,
 }) => {
   const { t } = useTranslation("multiview");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(800);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [availableHeight, setAvailableHeight] = useState(600);
+  // Drag swap state
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const lastSwappedRef = useRef<string | null>(null);
+  const isDraggingRef = useRef(false);
+  const isResizingRef = useRef(false);
 
-  // Handle fullscreen change events
+  // Internal layout state — only reset when layout button is pressed
+  const [internalLayout, setInternalLayout] = useState<GridLayout.Layout[]>([]);
+  // Track layout type to detect layout button presses
+  const prevLayoutTypeRef = useRef(layout.type);
+
+  // Update container width and available height on resize / layout change (RAF-throttled)
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
+    let rafId = 0;
 
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
-    document.addEventListener("msfullscreenchange", handleFullscreenChange);
-
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      document.removeEventListener(
-        "webkitfullscreenchange",
-        handleFullscreenChange,
-      );
-      document.removeEventListener(
-        "mozfullscreenchange",
-        handleFullscreenChange,
-      );
-      document.removeEventListener(
-        "msfullscreenchange",
-        handleFullscreenChange,
-      );
-    };
-  }, []);
-
-  // Update container width on resize
-  useEffect(() => {
-    const updateWidth = () => {
+    const updateDimensions = () => {
       if (containerRef.current) {
-        // Account for padding when calculating width
         const computedStyle = window.getComputedStyle(containerRef.current);
         const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
         const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
-        const actualWidth = isFullscreen
-          ? window.innerWidth
-          : containerRef.current.offsetWidth - paddingLeft - paddingRight;
+        const actualWidth =
+          containerRef.current.offsetWidth - paddingLeft - paddingRight;
         setContainerWidth(actualWidth);
+
+        const rect = containerRef.current.getBoundingClientRect();
+        // Fill from grid top to viewport bottom — no extra margin
+        setAvailableHeight(Math.max(300, window.innerHeight - rect.top));
       }
     };
 
-    // Update immediately and after a small delay to ensure proper calculation
-    updateWidth();
-    const timeoutId = setTimeout(updateWidth, 100);
-
-    window.addEventListener("resize", updateWidth);
-    return () => {
-      window.removeEventListener("resize", updateWidth);
-      clearTimeout(timeoutId);
+    const handleResize = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateDimensions);
     };
-  }, [isFullscreen]);
 
-  const handleRemoveStream = (streamId: string) => {
-    onRemoveStream(streamId);
-  };
+    updateDimensions();
+    const timeoutId = setTimeout(updateDimensions, 100);
+    // Re-measure after a longer delay for layout shifts (e.g. immersive mode)
+    const timeoutId2 = setTimeout(updateDimensions, 500);
 
-  // Generate layout items for react-grid-layout
-  const generateLayoutItems = useCallback(() => {
+    window.addEventListener("resize", handleResize);
+
+    // Watch for immersive mode toggle (data-immersive attribute on <html>)
+    const observer = new MutationObserver(handleResize);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-immersive"],
+    });
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(rafId);
+      clearTimeout(timeoutId);
+      clearTimeout(timeoutId2);
+      observer.disconnect();
+    };
+  }, []);
+
+  // Calculate the optimal h (in ROW_UNIT multiples) to fill available viewport height
+  const computedItemH = useMemo(() => {
     const cols = isMobile ? 1 : layout.cols || 2;
     const rows = layout.rows || Math.ceil(selectedStreams.length / cols);
 
-    // Check if we have saved grid layout
-    if (savedGridLayout && savedGridLayout.length === selectedStreams.length) {
-      return savedGridLayout.map((item, index) => ({
-        i: `stream-${index}`,
-        x: item.x,
-        y: item.y,
-        w: item.w,
-        h: item.h,
+    if (isMobile) return Math.round(180 / ROW_UNIT);
+
+    // Fill the available viewport height
+    const cellHeight = availableHeight / rows;
+    return Math.max(100, Math.floor(cellHeight / ROW_UNIT));
+  }, [availableHeight, layout.cols, layout.rows, selectedStreams.length, isMobile]);
+
+  // Build a combined list of all grid item IDs: video cells + chat cells
+  const allItemIds = useMemo(() => {
+    const videoIds = selectedStreams.map((s) => s.id);
+    const chatIds = selectedStreams
+      .filter((s) => chatStreamIds.has(s.id))
+      .map((s) => `${CHAT_KEY_PREFIX}${s.id}`);
+    return [...videoIds, ...chatIds];
+  }, [selectedStreams, chatStreamIds]);
+
+  // Build a lookup map from grid item key -> stream
+  const streamByItemKey = useMemo(() => {
+    const map = new Map<string, Livestream>();
+    for (const stream of selectedStreams) {
+      map.set(stream.id, stream);
+      if (chatStreamIds.has(stream.id)) {
+        map.set(`${CHAT_KEY_PREFIX}${stream.id}`, stream);
+      }
+    }
+    return map;
+  }, [selectedStreams, chatStreamIds]);
+
+  // Stable key for detecting item list changes (primitive string — safe for deps)
+  const streamIdKey = useMemo(
+    () => allItemIds.join(","),
+    [allItemIds],
+  );
+
+  // Track previous values to detect changes
+  const prevItemHRef = useRef(computedItemH);
+  const prevAvailableHeightRef = useRef(availableHeight);
+
+  // Rebuild or scale layout based on what changed
+  useEffect(() => {
+    const cols = isMobile ? 1 : layout.cols || 2;
+    const layoutTypeChanged = prevLayoutTypeRef.current !== layout.type;
+    const prevH = prevItemHRef.current;
+    const prevAH = prevAvailableHeightRef.current;
+    prevLayoutTypeRef.current = layout.type;
+    prevItemHRef.current = computedItemH;
+    prevAvailableHeightRef.current = availableHeight;
+
+    // Full rebuild: layout button pressed or initial render
+    if (layoutTypeChanged || internalLayout.length === 0) {
+      setInternalLayout(
+        buildGridLayout(allItemIds, cols, computedItemH, availableHeight, isMobile),
+      );
+      return;
+    }
+
+    // Height changed (e.g. immersive toggle, window resize) — scale existing positions proportionally
+    if (prevH !== computedItemH && prevAH > 0 && internalLayout.length > 0) {
+      const scale = availableHeight / prevAH;
+      setInternalLayout((prev) =>
+        prev.map((item) => ({
+          ...item,
+          y: Math.round(item.y * scale),
+          h: Math.round(item.h * scale),
+        })),
+      );
+      return;
+    }
+
+    // Incremental update: keep existing positions, add/remove items (video + chat cells)
+    const currentIds = new Set(internalLayout.map((item) => item.i));
+    const newItemIds = new Set(allItemIds);
+
+    const kept = internalLayout.filter((item) => newItemIds.has(item.i));
+    const addedIds = allItemIds.filter((id) => !currentIds.has(id));
+
+    if (addedIds.length === 0 && kept.length === internalLayout.length) {
+      return;
+    }
+
+    const newItems = addedIds.map((id, i) => {
+      const totalIndex = kept.length + i;
+      const col = totalIndex % cols;
+      const row = Math.floor(totalIndex / cols);
+      return {
+        i: id,
+        x: col * (12 / cols),
+        y: row * computedItemH,
+        w: 12 / cols,
+        h: computedItemH,
         minW: isMobile ? 12 : 2,
-        minH: 1,
+        minH: 100,
         static: isMobile,
-      }));
-    }
+      };
+    });
 
-    // For equal grid layout
-    if (layout.type !== "picture-in-picture") {
-      return selectedStreams.map((_, index) => {
-        if (isMobile) {
-          // Stack vertically on mobile
-          return {
-            i: `stream-${index}`,
-            x: 0,
-            y: index,
-            w: 12,
-            h: 1,
-            minW: 12,
-            minH: 1,
-            static: true, // Prevent dragging on mobile
-          };
-        }
+    setInternalLayout([...kept, ...newItems]);
+  }, [streamIdKey, layout.type, layout.cols, computedItemH, isMobile, allItemIds, availableHeight]);
 
-        const col = index % cols;
-        const row = Math.floor(index / cols);
-
-        return {
-          i: `stream-${index}`,
-          x: col * (12 / cols),
-          y: row,
-          w: 12 / cols,
-          h: 1,
+  // Apply externally provided grid positions (e.g. from a saved custom layout)
+  const prevExternalRef = useRef(externalGridPositions);
+  useEffect(() => {
+    if (
+      externalGridPositions &&
+      externalGridPositions !== prevExternalRef.current &&
+      externalGridPositions.length > 0
+    ) {
+      setInternalLayout(
+        externalGridPositions.map((pos) => ({
+          ...pos,
           minW: 2,
-          minH: 1,
-        };
-      });
+          minH: 100,
+        })),
+      );
     }
+    prevExternalRef.current = externalGridPositions;
+  }, [externalGridPositions]);
 
-    // For picture-in-picture layout
-    if (layout.type === "picture-in-picture") {
-      return selectedStreams.map((_, index) => {
-        if (index === 0) {
-          // Main video
-          return {
-            i: `stream-${index}`,
-            x: 0,
-            y: 0,
-            w: 12,
-            h: rows,
-            minW: 8,
-            minH: 2,
-          };
-        } else {
-          // PiP videos
-          return {
-            i: `stream-${index}`,
-            x: 9,
-            y: (index - 1) * 0.5,
-            w: 3,
-            h: 0.5,
-            minW: 2,
-            minH: 0.5,
-          };
+  // Notify parent of grid position changes for custom layout saving
+  useEffect(() => {
+    if (onGridPositionsChange && internalLayout.length > 0) {
+      onGridPositionsChange(
+        internalLayout.map((item) => ({
+          i: item.i,
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+        })),
+      );
+    }
+  }, [internalLayout, onGridPositionsChange]);
+
+  const dragRafRef = useRef(0);
+
+  const handleDragStart = (
+    _layout: GridLayout.Layout[],
+    oldItem: GridLayout.Layout,
+  ) => {
+    isDraggingRef.current = true;
+    dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
+    lastSwappedRef.current = null;
+    // Add CSS class to disable iframe pointer events during drag
+    containerRef.current?.classList.add("is-dragging");
+  };
+
+  const handleDrag = (
+    _currentLayout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
+  ) => {
+    if (!dragOriginRef.current) return;
+
+    // Throttle swap detection to one per animation frame
+    cancelAnimationFrame(dragRafRef.current);
+    dragRafRef.current = requestAnimationFrame(() => {
+      if (!dragOriginRef.current) return;
+
+      const virtualLayout = internalLayout.map((item) =>
+        item.i === newItem.i ? { ...item, x: newItem.x, y: newItem.y } : item,
+      );
+
+      const { layout: swappedLayout, swappedId } = computeSwapDuringDrag(
+        virtualLayout,
+        newItem.i,
+        dragOriginRef.current,
+        lastSwappedRef.current,
+      );
+
+      if (swappedId && swappedId !== lastSwappedRef.current) {
+        const swappedItem = internalLayout.find((item) => item.i === swappedId);
+        if (swappedItem) {
+          dragOriginRef.current = { x: swappedItem.x, y: swappedItem.y };
         }
-      });
-    }
-
-    // For custom layout (allow free drag and resize)
-    return selectedStreams.map((_, index) => ({
-      i: `stream-${index}`,
-      x: (index % 3) * 4,
-      y: Math.floor(index / 3),
-      w: 4,
-      h: 1,
-      minW: 2,
-      minH: 1,
-    }));
-  }, [layout, selectedStreams, isMobile, savedGridLayout]);
-
-  const layoutItems = generateLayoutItems();
-
-  const handleLayoutChange = (newLayout: GridLayout.Layout[]) => {
-    // Always notify parent about layout changes
-    if (onLayoutChange) {
-      onLayoutChange(newLayout);
-    }
-
-    if (!onStreamReorder) return;
-
-    // Create a map of current positions
-    const currentPositions = new Map<string, number>();
-    layoutItems.forEach((item, index) => {
-      currentPositions.set(item.i, index);
-    });
-
-    // Create a map of new positions based on grid coordinates
-    const newPositions = new Map<string, { x: number; y: number }>();
-    newLayout.forEach((item) => {
-      newPositions.set(item.i, { x: item.x, y: item.y });
-    });
-
-    // Sort items by their new positions (y first, then x)
-    const sortedIds = Array.from(newPositions.entries())
-      .sort((a, b) => {
-        if (a[1].y !== b[1].y) return a[1].y - b[1].y;
-        return a[1].x - b[1].x;
-      })
-      .map(([id]) => id);
-
-    // Build the new order of streams
-    const newStreamOrder: Livestream[] = [];
-    sortedIds.forEach((id) => {
-      const currentIndex = currentPositions.get(id);
-      if (currentIndex !== undefined && selectedStreams[currentIndex]) {
-        newStreamOrder.push(selectedStreams[currentIndex]);
+        lastSwappedRef.current = swappedId;
+        setInternalLayout(
+          swappedLayout.map((item) =>
+            item.i === newItem.i
+              ? { ...item, x: dragOriginRef.current!.x, y: dragOriginRef.current!.y }
+              : item,
+          ),
+        );
       }
     });
+  };
 
-    // Check if order changed
-    const orderChanged = newStreamOrder.some(
-      (stream, index) => stream.id !== selectedStreams[index].id,
+  const handleDragStop = (
+    _layout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
+  ) => {
+    cancelAnimationFrame(dragRafRef.current);
+    containerRef.current?.classList.remove("is-dragging");
+
+    const origin = dragOriginRef.current;
+    dragOriginRef.current = null;
+    lastSwappedRef.current = null;
+
+    if (!origin) {
+      isDraggingRef.current = false;
+      return;
+    }
+
+    setInternalLayout((prev) =>
+      prev.map((item) =>
+        item.i === newItem.i
+          ? { ...item, x: origin.x, y: origin.y }
+          : item,
+      ),
     );
 
-    if (orderChanged) {
-      // Find which two items were swapped
-      for (let i = 0; i < newStreamOrder.length; i++) {
-        if (newStreamOrder[i].id !== selectedStreams[i].id) {
-          // Find where this stream was originally
-          const originalIndex = selectedStreams.findIndex(
-            (s) => s.id === newStreamOrder[i].id,
-          );
-          if (originalIndex !== -1 && originalIndex !== i) {
-            // Swap the two streams
-            onStreamReorder(
-              selectedStreams[i].id,
-              selectedStreams[originalIndex].id,
-            );
-            break;
-          }
-        }
-      }
-    }
+    requestAnimationFrame(() => {
+      isDraggingRef.current = false;
+    });
+  };
+
+  const handleResizeStart = () => {
+    isResizingRef.current = true;
+  };
+
+  const handleResizeStop = (
+    newLayout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
+  ) => {
+    const resolved = resolveOverlaps(newLayout, newItem.i);
+    setInternalLayout(resolved);
+    // Delay clearing so onLayoutChange after resize is ignored
+    requestAnimationFrame(() => {
+      isResizingRef.current = false;
+    });
+  };
+
+  const handleGridLayoutChange = (_newLayout: GridLayout.Layout[]) => {
+    // Layout is fully managed by our custom logic (buildGridLayout, handleDragStop, handleResizeStop).
+    // Ignoring react-grid-layout's onLayoutChange prevents it from overwriting our layout
+    // with its internal calculations (which can produce broken w=1/h=1 items).
   };
 
   // No streams selected
   if (selectedStreams.length === 0) {
     return (
-      <GridContainer
-        elevation={1}
-        ref={containerRef}
-        isFullscreen={isFullscreen}
-      >
+      <GridContainer elevation={1} ref={containerRef}>
         <EmptyState>
           <Typography variant="h5" gutterBottom>
             {t("grid.empty.title", "配信を選択してください")}
@@ -384,24 +581,20 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     const pipStream = selectedStreams[1];
 
     return (
-      <GridContainer
-        elevation={1}
-        ref={containerRef}
-        isFullscreen={isFullscreen}
-      >
+      <GridContainer elevation={1} ref={containerRef}>
         <MainVideoContainer>
           <VideoPlayer
             key={mainStream.id}
             stream={mainStream}
             index={0}
-            onRemove={() => handleRemoveStream(mainStream.id)}
+            onRemove={() => onRemoveStream(mainStream.id)}
           />
           <PipContainer pipPosition={layout.pipPosition || "bottom-right"}>
             <VideoPlayer
               key={pipStream.id}
               stream={pipStream}
               index={1}
-              onRemove={() => handleRemoveStream(pipStream.id)}
+              onRemove={() => onRemoveStream(pipStream.id)}
             />
           </PipContainer>
         </MainVideoContainer>
@@ -411,48 +604,63 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
 
   // Regular grid layout with react-grid-layout
   return (
-    <GridContainer elevation={1} ref={containerRef} isFullscreen={isFullscreen}>
+    <GridContainer
+      elevation={1}
+      ref={containerRef}
+      style={{ maxHeight: availableHeight }}
+    >
       <GridLayout
         className="layout"
-        layout={layoutItems}
+        layout={internalLayout}
         cols={12}
-        rowHeight={
-          isFullscreen
-            ? Math.floor((window.innerHeight - 20) / (layout.rows || 2))
-            : isMobile
-              ? 180
-              : Math.floor(
-                  ((containerWidth - 20) / (layout.cols || 2)) * 0.5625,
-                ) // 16:9 aspect ratio
-        }
+        rowHeight={ROW_UNIT}
         width={containerWidth}
         isDraggable={!isMobile}
         isResizable={!isMobile}
-        onLayoutChange={handleLayoutChange}
+        onLayoutChange={handleGridLayoutChange}
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onDragStop={handleDragStop}
+        onResizeStart={handleResizeStart}
+        onResizeStop={handleResizeStop}
         draggableHandle=".drag-handle"
         draggableCancel=".no-drag"
         compactType={null}
-        preventCollision={false}
-        margin={isFullscreen ? [0, 0] : [4, 4]}
+        allowOverlap={true}
+        margin={[0, 0]}
         containerPadding={[0, 0]}
-        style={{ minHeight: isFullscreen ? "100vh" : "auto", width: "100%" }}
+        style={{ minHeight: availableHeight, width: "100%" }}
       >
-        {selectedStreams.map((stream, index) => (
-          <div
-            key={`stream-${index}`}
-            style={{
-              display: "flex",
-              height: "100%",
-              width: "100%",
-            }}
-          >
-            <VideoPlayer
-              stream={stream}
-              index={index}
-              onRemove={() => handleRemoveStream(stream.id)}
-            />
-          </div>
-        ))}
+        {allItemIds.map((itemId, index) => {
+          const isChat = itemId.startsWith(CHAT_KEY_PREFIX);
+          const stream = streamByItemKey.get(itemId);
+          if (!stream) return null;
+
+          return (
+            <div
+              key={itemId}
+              style={{
+                display: "flex",
+                height: "100%",
+                width: "100%",
+              }}
+            >
+              {isChat ? (
+                <MemoizedChat
+                  stream={stream}
+                  index={index}
+                  onRemoveChat={onRemoveChat}
+                />
+              ) : (
+                <MemoizedPlayer
+                  stream={stream}
+                  index={index}
+                  onRemoveStream={onRemoveStream}
+                />
+              )}
+            </div>
+          );
+        })}
       </GridLayout>
     </GridContainer>
   );

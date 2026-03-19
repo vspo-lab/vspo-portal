@@ -25,12 +25,12 @@ import React from "react";
 
 const SelectorContainer = styled(Paper)(({ theme }) => ({
   backgroundColor: "white",
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[1],
-  overflow: "hidden",
   [theme.getColorSchemeSelector("dark")]: {
     backgroundColor: theme.vars.palette.customColors.gray,
   },
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[1],
+  overflow: "hidden",
 }));
 
 const SearchContainer = styled(Box)(({ theme }) => ({
@@ -92,7 +92,7 @@ export const StreamSelectorPresenter: React.FC<
     return selectedStreams.some((s) => s.id === streamId);
   };
 
-  const canSelectMore = selectedStreams.length < 9;
+  const canSelectMore = selectedStreams.length < 12;
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     onStatusFilterChange(newValue as "all" | "live" | "upcoming");
