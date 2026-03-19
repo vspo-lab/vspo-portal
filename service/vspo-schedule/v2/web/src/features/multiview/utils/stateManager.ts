@@ -85,6 +85,14 @@ const customLayoutPresetsSchema = z.array(z.object({
       h: z.number().finite().positive(),
     })),
   }),
+  streams: z.array(z.object({
+    id: z.string(),
+    platform: z.string(),
+    channelId: z.string().optional(),
+    title: z.string(),
+    channelTitle: z.string(),
+    link: z.string(),
+  })).optional(),
 }));
 
 const compactStreamSchema = z.object({
@@ -123,6 +131,15 @@ export interface CustomLayoutPreset {
       h: number;
     }>;
   };
+  /** Saved streams for full restoration. Optional for backward compatibility. */
+  streams?: Array<{
+    id: string;
+    platform: string;
+    channelId?: string;
+    title: string;
+    channelTitle: string;
+    link: string;
+  }>;
 }
 
 /**
@@ -134,12 +151,13 @@ export interface CustomLayoutPreset {
 export const saveCustomLayout = (
   name: string,
   layout: CustomLayoutPreset["layout"],
+  streams?: CustomLayoutPreset["streams"],
 ): void => {
   try {
     const existing = loadCustomLayouts();
     // Remove duplicate by name (immutable filter)
     const filtered = existing.filter((preset) => preset.name !== name);
-    const updated = [...filtered, { name, layout }];
+    const updated = [...filtered, { name, layout, streams }];
     // Keep only the most recent MAX_CUSTOM_LAYOUTS
     const trimmed =
       updated.length > MAX_CUSTOM_LAYOUTS

@@ -119,6 +119,8 @@ export type MultiviewPagePresenterProps = {
   onRemoveStream: (streamId: string) => void;
   onLayoutChange: (layout: LayoutType) => void;
   onManualStreamAdd: (stream: Livestream) => void;
+  /** Replace all selected streams at once (used by preset restoration). */
+  onRestoreStreams: (streams: Livestream[]) => void;
   /** Toggle the chat cell for a given stream ID (add if absent, remove if present). */
   onToggleChat: (streamId: string) => void;
   /** Remove a chat cell for the given stream ID. */
@@ -136,6 +138,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
   onRemoveStream,
   onLayoutChange,
   onManualStreamAdd,
+  onRestoreStreams,
   onToggleChat,
   onRemoveChat,
 }) => {
@@ -210,10 +213,21 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
     const trimmedName = layoutName.trim();
     if (!trimmedName || gridPositionsRef.current.length === 0) return;
 
-    saveCustomLayout(trimmedName, {
-      type: selectedLayout,
-      gridPositions: gridPositionsRef.current,
-    });
+    saveCustomLayout(
+      trimmedName,
+      {
+        type: selectedLayout,
+        gridPositions: gridPositionsRef.current,
+      },
+      selectedStreams.map((s) => ({
+        id: s.id,
+        platform: s.platform,
+        channelId: s.channelId,
+        title: s.title,
+        channelTitle: s.channelTitle,
+        link: s.link,
+      })),
+    );
     setCustomLayouts(loadCustomLayouts());
     setSaveDialogOpen(false);
     setLayoutName("");
@@ -236,13 +250,39 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
     [t],
   );
 
-  // Apply a saved custom layout
+  // Apply a saved custom layout (restores streams + layout + grid positions)
   const handleApplyCustomLayout = React.useCallback(
     (preset: CustomLayoutPreset) => {
+      // Restore streams if saved in the preset
+      if (preset.streams && preset.streams.length > 0) {
+        const restoredStreams: Livestream[] = preset.streams.map((saved) => {
+          // Prefer the live version from server data if available
+          const existing = livestreams.find((s) => s.id === saved.id);
+          if (existing) return existing;
+
+          // Reconstruct minimal Livestream for streams not currently live
+          return {
+            ...saved,
+            type: "livestream" as const,
+            status: "live" as const,
+            description: "",
+            thumbnailUrl: "",
+            viewCount: 0,
+            scheduledStartTime: new Date().toISOString(),
+            scheduledEndTime: null,
+            channelThumbnailUrl: "",
+            videoPlayerLink: "",
+            chatPlayerLink: "",
+            tags: [],
+          } as Livestream;
+        });
+        onRestoreStreams(restoredStreams);
+      }
+
       onLayoutChange(preset.layout.type);
       setExternalGridPositions(preset.layout.gridPositions);
     },
-    [onLayoutChange],
+    [onLayoutChange, onRestoreStreams, livestreams],
   );
 
   // Toggle immersive mode: hide header, footer, bottom nav for maximum viewing area

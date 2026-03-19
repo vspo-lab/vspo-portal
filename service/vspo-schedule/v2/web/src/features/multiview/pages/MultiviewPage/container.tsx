@@ -219,6 +219,12 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
     });
   }, []);
 
+  /** Replace all selected streams at once (used by preset restoration). */
+  const handleRestoreStreams = useCallback((streams: Livestream[]) => {
+    setSelectedStreams(streams);
+    setChatStreamIds(new Set<string>());
+  }, []);
+
   // When a stream is removed, also remove its chat cell
   const handleRemoveStreamWithChat = useCallback(
     (streamId: string) => {
@@ -243,6 +249,7 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
           onRemoveStream={handleRemoveStreamWithChat}
           onLayoutChange={handleLayoutChange}
           onManualStreamAdd={handleManualStreamAdd}
+          onRestoreStreams={handleRestoreStreams}
           onToggleChat={handleToggleChat}
           onRemoveChat={handleRemoveChat}
         />
