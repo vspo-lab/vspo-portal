@@ -21,7 +21,7 @@ import { ChatCell, VideoPlayer } from "../containers";
 const CHAT_KEY_PREFIX = "chat-";
 
 // Grid cell size for 12 columns — used for background grid lines
-const GRID_COLS = 12;
+const GRID_COLS = 24;
 
 const GridContainer = styled(Paper)(({ theme }) => ({
   minHeight: "auto",
@@ -196,8 +196,8 @@ const buildGridLayout = (
   return itemIds.map((id, index) => {
     if (isMobile) {
       return {
-        i: id, x: 0, y: index, w: 12, h: 1,
-        minW: 12, minH: 1, static: true,
+        i: id, x: 0, y: index, w: GRID_COLS, h: 1,
+        minW: GRID_COLS, minH: 1, static: true,
       };
     }
 
@@ -206,9 +206,9 @@ const buildGridLayout = (
 
     return {
       i: id,
-      x: col * (12 / cols),
+      x: col * (GRID_COLS / cols),
       y: row * cellsPerRow,
-      w: 12 / cols,
+      w: GRID_COLS / cols,
       h: cellsPerRow,
       minW: 2,
       minH: 2,
@@ -382,11 +382,11 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       const row = Math.floor(totalIndex / cols);
       return {
         i: id,
-        x: col * (12 / cols),
+        x: col * (GRID_COLS / cols),
         y: row * cellsPerRow,
-        w: 12 / cols,
+        w: GRID_COLS / cols,
         h: cellsPerRow,
-        minW: isMobile ? 12 : 2,
+        minW: isMobile ? GRID_COLS : 2,
         minH: isMobile ? 1 : 2,
         static: isMobile,
       };
@@ -597,7 +597,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       <GridLayout
         className="layout"
         layout={internalLayout}
-        cols={12}
+        cols={GRID_COLS}
         rowHeight={rowHeight}
         width={containerWidth}
         isDraggable={!isMobile}
