@@ -34,7 +34,8 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   boxShadow: "none",
   border: "none",
   position: "sticky",
-  top: 0,
+  // Align below the fixed AppBar — use toolbar mixin height
+  top: (theme.mixins.toolbar.minHeight as number) ?? 56,
   zIndex: 1,
   width: "100%",
   height: "auto",
