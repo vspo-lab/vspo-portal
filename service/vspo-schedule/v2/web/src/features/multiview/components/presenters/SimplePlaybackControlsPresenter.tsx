@@ -215,8 +215,6 @@ export const SimplePlaybackControlsPresenter: React.FC<
               <StreamInfo>
                 <StreamTitle>{stream.title}</StreamTitle>
                 <ChannelName>
-                  {stream.platform === "youtube" && "🎬 "}
-                  {stream.platform === "twitch" && "🎮 "}
                   {stream.channelTitle}
                 </ChannelName>
               </StreamInfo>
