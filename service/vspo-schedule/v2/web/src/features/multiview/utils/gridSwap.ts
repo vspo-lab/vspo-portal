@@ -1,5 +1,55 @@
 import GridLayout from "react-grid-layout";
-import { Rectangle, removeOverlaps } from "webcola";
+import {
+  Constraint,
+  Rectangle,
+  Variable,
+  Solver,
+  generateXConstraints,
+  generateYConstraints,
+  removeOverlaps,
+} from "webcola";
+
+/** Weight for fixed items — high enough to pin position in VPSC. */
+const FIXED_WEIGHT = 10000;
+
+/** Weight for the boundary anchor — must exceed FIXED_WEIGHT. */
+const BOUNDARY_WEIGHT = FIXED_WEIGHT * 10;
+
+/**
+ * Solve one axis with weighted VPSC and boundary constraints (position >= 0).
+ *
+ * Uses webcola's Variable weight to pin the fixed item in place and
+ * Constraint objects to enforce non-negative positions (grid boundary).
+ */
+const solveAxis = (
+  rects: Rectangle[],
+  fixedIndex: number,
+  axis: "x" | "y",
+): void => {
+  const center = axis === "x" ? (r: Rectangle) => r.cx() : (r: Rectangle) => r.cy();
+  const halfSize = axis === "x"
+    ? (r: Rectangle) => (r.X - r.x) / 2
+    : (r: Rectangle) => (r.Y - r.y) / 2;
+  const setCenter = axis === "x"
+    ? (r: Rectangle, v: number) => r.setXCentre(v)
+    : (r: Rectangle, v: number) => r.setYCentre(v);
+  const genConstraints = axis === "x" ? generateXConstraints : generateYConstraints;
+
+  const vars = rects.map(
+    (r, i) => new Variable(center(r), i === fixedIndex ? FIXED_WEIGHT : 1),
+  );
+
+  const constraints = genConstraints(rects, vars);
+
+  // Boundary: center >= halfSize  ⟹  left/top edge >= 0
+  const boundary = new Variable(0, BOUNDARY_WEIGHT);
+  for (let i = 0; i < rects.length; i++) {
+    constraints.push(new Constraint(boundary, vars[i], halfSize(rects[i])));
+  }
+
+  new Solver([...vars, boundary], constraints).solve();
+  vars.forEach((v, i) => setCenter(rects[i], v.position()));
+};
 
 /**
  * webcola の VPSC アルゴリズムでレイアウトの重なりを解消する。
@@ -8,7 +58,8 @@ import { Rectangle, removeOverlaps } from "webcola";
  * https://people.eng.unimelb.edu.au/pstuckey/papers/gd2005b.pdf
  *
  * 移動距離の二乗和を最小化する二次計画法で、全アイテムの最適配置を計算する。
- * fixedId を指定すると、そのアイテムの位置を固定して他を動かす。
+ * fixedId を指定すると、そのアイテムに高い重みを付与し他を優先的に動かす。
+ * 全アイテムに x >= 0, y >= 0 の境界制約を適用する。
  *
  * @param layout - 現在のレイアウト
  * @param fixedId - 固定するアイテムのID（省略可）
@@ -20,34 +71,21 @@ export const resolveOverlaps = (
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
-  // GridLayout → webcola Rectangle (left, right, top, bottom)
   const rects = layout.map(
     (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
   );
 
-  // Save fixed item position before VPSC modifies it in-place
   const fixedIndex = fixedId
     ? layout.findIndex((item) => item.i === fixedId)
     : -1;
-  const savedX = fixedIndex >= 0 ? rects[fixedIndex].x : 0;
-  const savedY = fixedIndex >= 0 ? rects[fixedIndex].y : 0;
 
-  removeOverlaps(rects);
-
-  // Restore fixed item to its original position so only other items move
   if (fixedIndex >= 0) {
-    const r = rects[fixedIndex];
-    const w = r.X - r.x;
-    const h = r.Y - r.y;
-    r.x = savedX;
-    r.X = savedX + w;
-    r.y = savedY;
-    r.Y = savedY + h;
+    solveAxis(rects, fixedIndex, "x");
+    solveAxis(rects, fixedIndex, "y");
+  } else {
+    removeOverlaps(rects);
   }
 
-  // webcola Rectangle → GridLayout.Layout
-  // Only update x/y (position). Keep original w/h (size).
-  // Clamp to grid bounds: x >= 0, y >= 0
   return layout.map((item, i) => ({
     ...item,
     x: Math.max(0, Math.round(rects[i].x)),
