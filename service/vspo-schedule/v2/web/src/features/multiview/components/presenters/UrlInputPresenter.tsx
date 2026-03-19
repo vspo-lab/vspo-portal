@@ -117,7 +117,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
         />
 
         <Button
-          variant="contained"
+          variant="outlined"
           onClick={onSubmit}
           disabled={!url.trim() || isLoading || isMaxStreamsReached}
           startIcon={isLoading ? <CircularProgress size={16} /> : <AddIcon />}
