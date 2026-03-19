@@ -563,8 +563,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
           ? { ...item, x: newItem.x, y: newItem.y }
           : item,
       );
-      const colWidth = containerWidth / GRID_COLS;
-      return resolveOverlaps(dropped, colWidth, rowHeight);
+      return resolveOverlaps(dropped);
     });
 
     requestAnimationFrame(() => {
@@ -581,8 +580,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     _oldItem: GridLayout.Layout,
     _newItem: GridLayout.Layout,
   ) => {
-    const colWidth = containerWidth / GRID_COLS;
-    const resolved = resolveOverlaps(newLayout, colWidth, rowHeight);
+    const resolved = resolveOverlaps(newLayout);
     setInternalLayout(resolved);
     // Delay clearing so onLayoutChange after resize is ignored
     requestAnimationFrame(() => {

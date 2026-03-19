@@ -1,121 +1,80 @@
 import GridLayout from "react-grid-layout";
-import {
-  Rectangle,
-  Variable,
-  Solver,
-  generateXConstraints,
-  generateYConstraints,
-} from "webcola";
 
 /**
- * 参考論文: "Fast Node Overlap Removal" (Dwyer, Marriott, Stuckey, 2005)
+ * 整数グリッド座標上で全アイテムの重なりを解消する。
  *
- * ピクセル座標空間でVPSCを実行し、結果をグリッド座標に変換することで
- * 丸め誤差を最小化する。
- */
-
-/** Check if any pair of rectangles overlaps (using webcola's overlap methods). */
-const rectsOverlap = (rects: Rectangle[]): boolean =>
-  rects.some((a, i) =>
-    rects.some((b, j) => {
-      if (i >= j) return false;
-      return a.overlapX(b) > 0 && a.overlapY(b) > 0;
-    }),
-  );
-
-/**
- * Iterative VPSC on pixel-space rectangles.
- * Solves X→Y, checks for remaining overlaps, repeats until convergence.
- */
-const iterativeRemoveOverlaps = (rects: Rectangle[], maxIterations = 5): void => {
-  for (let iter = 0; iter < maxIterations; iter++) {
-    const xVars = rects.map((r) => new Variable(r.cx()));
-    const xCs = generateXConstraints(rects, xVars);
-    new Solver(xVars, xCs).solve();
-    xVars.forEach((v, i) => rects[i].setXCentre(v.position()));
-
-    const yVars = rects.map((r) => new Variable(r.cy()));
-    const yCs = generateYConstraints(rects, yVars);
-    new Solver(yVars, yCs).solve();
-    yVars.forEach((v, i) => rects[i].setYCentre(v.position()));
-
-    if (!rectsOverlap(rects)) break;
-  }
-};
-
-/**
- * Resolve all overlaps in a layout using VPSC in pixel coordinate space.
+ * VPSCのfloat→int変換による丸め誤差を排除するため、
+ * グリッド座標（整数）のまま直接計算する。
  *
- * Strategy:
- * 1. Convert grid units → pixel coordinates (colWidth, rowHeight)
- * 2. Run iterative VPSC in continuous pixel space (no rounding needed)
- * 3. Convert pixel coordinates → grid units with floor/ceil to prevent sub-pixel overlaps
- * 4. Verify no overlaps remain; if they do, nudge items apart by 1 grid unit
+ * アルゴリズム:
+ * 1. 全ペアの重なりをチェック
+ * 2. 重なりがあれば、重なりが小さい軸方向に最小距離だけ押し出す
+ * 3. 重なりがなくなるまで繰り返す（最大20パス）
  *
- * @param layout - Current grid layout (grid units)
- * @param colWidth - Width of one grid column in pixels
- * @param rowHeight - Height of one grid row in pixels
+ * @param layout - 現在のレイアウト（整数グリッド座標）
+ * @returns 重なりのないレイアウト
  */
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
-  colWidth = 1,
-  rowHeight = 1,
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
-  // Step 1: Grid units → pixel coordinates
-  const pixelRects = layout.map(
-    (item) =>
-      new Rectangle(
-        item.x * colWidth,
-        (item.x + item.w) * colWidth,
-        item.y * rowHeight,
-        (item.y + item.h) * rowHeight,
-      ),
-  );
+  // Work on mutable copies
+  const items = layout.map((item) => ({ ...item }));
 
-  // Step 2: VPSC in pixel space (continuous — no integer rounding issues)
-  iterativeRemoveOverlaps(pixelRects);
+  for (let pass = 0; pass < 20; pass++) {
+    let hasOverlap = false;
 
-  // Step 3: Pixel coordinates → grid units
-  const result = layout.map((item, i) => ({
-    ...item,
-    x: Math.max(0, Math.round(pixelRects[i].x / colWidth)),
-    y: Math.max(0, Math.round(pixelRects[i].y / rowHeight)),
-  }));
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const a = items[i];
+        const b = items[j];
 
-  // Step 4: Verify — nudge any remaining overlaps by 1 grid unit
-  for (let pass = 0; pass < 5; pass++) {
-    let fixed = false;
-    for (let i = 0; i < result.length; i++) {
-      for (let j = i + 1; j < result.length; j++) {
-        const a = result[i];
-        const b = result[j];
-        const xOv = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-        const yOv = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-        if (xOv <= 0 || yOv <= 0) continue;
+        // Calculate overlap on each axis
+        const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
 
-        // Nudge the item that is further right/down by the overlap amount
-        if (xOv <= yOv) {
-          if (b.x >= a.x) {
-            result[j] = { ...result[j], x: a.x + a.w };
+        // No overlap if either axis has no intersection
+        if (overlapX <= 0 || overlapY <= 0) continue;
+
+        hasOverlap = true;
+
+        // Push apart on the axis with smaller overlap (minimum movement)
+        if (overlapX <= overlapY) {
+          // Push horizontally
+          const aCenterX = a.x + a.w / 2;
+          const bCenterX = b.x + b.w / 2;
+          if (aCenterX <= bCenterX) {
+            // b is to the right → push b right
+            items[j] = { ...items[j], x: a.x + a.w };
           } else {
-            result[i] = { ...result[i], x: b.x + b.w };
+            // a is to the right → push a right
+            items[i] = { ...items[i], x: b.x + b.w };
           }
         } else {
-          if (b.y >= a.y) {
-            result[j] = { ...result[j], y: a.y + a.h };
+          // Push vertically
+          const aCenterY = a.y + a.h / 2;
+          const bCenterY = b.y + b.h / 2;
+          if (aCenterY <= bCenterY) {
+            // b is below → push b down
+            items[j] = { ...items[j], y: a.y + a.h };
           } else {
-            result[i] = { ...result[i], y: b.y + b.h };
+            // a is below → push a down
+            items[i] = { ...items[i], y: b.y + b.h };
           }
         }
-        fixed = true;
       }
     }
-    if (!fixed) break;
+
+    if (!hasOverlap) break;
   }
 
-  return result;
+  // Ensure all positions are non-negative
+  return items.map((item) => ({
+    ...item,
+    x: Math.max(0, item.x),
+    y: Math.max(0, item.y),
+  }));
 };
 
 /**
