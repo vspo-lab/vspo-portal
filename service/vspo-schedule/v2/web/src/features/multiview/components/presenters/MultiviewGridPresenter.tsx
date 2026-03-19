@@ -587,9 +587,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       ref={containerRef}
       style={{
         maxHeight: availableHeight,
-        // Vertical grid lines only (column guides) — horizontal lines omitted
-        // to avoid misalignment with the site header overlay
-        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS}))`,
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight}px)`,
         backgroundAttachment: "local",
       }}
     >
