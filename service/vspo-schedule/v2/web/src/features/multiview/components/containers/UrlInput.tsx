@@ -4,6 +4,37 @@ import React, { useState, useCallback } from "react";
 import { generateEmbedUrl } from "../../utils/platformUtils";
 import { UrlInputPresenter } from "../presenters";
 
+/**
+ * Fetch video metadata via oEmbed API (no API key required).
+ *
+ * @precondition url must be a valid YouTube or Twitch URL
+ * @postcondition Returns { title, authorName } or null on failure
+ */
+const fetchOEmbedMetadata = async (
+  url: string,
+  platform: "youtube" | "twitch",
+): Promise<{ title: string; authorName: string } | null> => {
+  const oembedEndpoints: Record<string, string> = {
+    youtube: `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`,
+    twitch: `https://api.twitch.tv/v5/oembed?url=${encodeURIComponent(url)}&format=json`,
+  };
+
+  const endpoint = oembedEndpoints[platform];
+  if (!endpoint) return null;
+
+  try {
+    const response = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return null;
+    const data: Record<string, unknown> = await response.json();
+    return {
+      title: typeof data.title === "string" ? data.title : "",
+      authorName: typeof data.author_name === "string" ? data.author_name : "",
+    };
+  } catch {
+    return null;
+  }
+};
+
 export interface UrlInputProps {
   selectedStreams: Livestream[];
   maxStreams: number;
@@ -41,13 +72,14 @@ export const UrlInput: React.FC<UrlInputProps> = ({
           }
 
           if (videoId) {
+            const meta = await fetchOEmbedMetadata(url, "youtube");
             return {
               id: videoId,
               type: "livestream" as const,
-              channelId: "", // Would be fetched from YouTube API
-              channelTitle: "YouTube Stream",
-              title: "Stream from URL",
-              description: "Stream added from URL",
+              channelId: "",
+              channelTitle: meta?.authorName || "YouTube",
+              title: meta?.title || videoId,
+              description: "",
               platform: "youtube" as const,
               status: "live" as const,
               link: url,
@@ -68,13 +100,14 @@ export const UrlInput: React.FC<UrlInputProps> = ({
           const channelName = pathParts[1];
 
           if (channelName) {
+            const meta = await fetchOEmbedMetadata(url, "twitch");
             return {
               id: channelName,
               type: "livestream" as const,
               channelId: channelName,
-              channelTitle: channelName,
-              title: "Twitch Stream",
-              description: "Twitch stream added from URL",
+              channelTitle: meta?.authorName || channelName,
+              title: meta?.title || channelName,
+              description: "",
               platform: "twitch" as const,
               status: "live" as const,
               link: url,
@@ -99,8 +132,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               type: "livestream" as const,
               channelId: userName,
               channelTitle: userName,
-              title: "Twitcasting Stream",
-              description: "Twitcasting stream added from URL",
+              title: `${userName} (Twitcasting)`,
+              description: "",
               platform: "twitcasting" as const,
               status: "live" as const,
               link: url,
