@@ -3,13 +3,13 @@ import GridLayout from "react-grid-layout";
 /**
  * 整数グリッド座標上で全アイテムの重なりを解消する。
  *
- * VPSCのfloat→int変換による丸め誤差を排除するため、
- * グリッド座標（整数）のまま直接計算する。
- *
  * アルゴリズム:
- * 1. 全ペアの重なりをチェック
- * 2. 重なりがあれば、重なりが小さい軸方向に最小距離だけ押し出す
- * 3. 重なりがなくなるまで繰り返す（最大20パス）
+ * 1. 最も重なり面積が大きいペアを1つ見つける
+ * 2. 重なりが小さい軸方向に最小距離だけ押し出す
+ * 3. **全ペアの探索を最初からやり直す**（押し出しで新たな重なりが生まれるため）
+ * 4. 重なりがなくなるまで繰り返す（最大 n*(n-1)/2 * 10 回）
+ *
+ * 1回の押し出しで必ず1ペアの重なりが解消されるため、有限回で収束する。
  *
  * @param layout - 現在のレイアウト（整数グリッド座標）
  * @returns 重なりのないレイアウト
@@ -19,57 +19,59 @@ export const resolveOverlaps = (
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
-  // Work on mutable copies
   const items = layout.map((item) => ({ ...item }));
+  const maxIterations = items.length * items.length * 10;
 
-  for (let pass = 0; pass < 20; pass++) {
-    let hasOverlap = false;
+  for (let iter = 0; iter < maxIterations; iter++) {
+    // Find the overlapping pair with the largest overlap area
+    let worstI = -1;
+    let worstJ = -1;
+    let worstArea = 0;
 
     for (let i = 0; i < items.length; i++) {
       for (let j = i + 1; j < items.length; j++) {
         const a = items[i];
         const b = items[j];
-
-        // Calculate overlap on each axis
-        const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-        const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-
-        // No overlap if either axis has no intersection
-        if (overlapX <= 0 || overlapY <= 0) continue;
-
-        hasOverlap = true;
-
-        // Push apart on the axis with smaller overlap (minimum movement)
-        if (overlapX <= overlapY) {
-          // Push horizontally
-          const aCenterX = a.x + a.w / 2;
-          const bCenterX = b.x + b.w / 2;
-          if (aCenterX <= bCenterX) {
-            // b is to the right → push b right
-            items[j] = { ...items[j], x: a.x + a.w };
-          } else {
-            // a is to the right → push a right
-            items[i] = { ...items[i], x: b.x + b.w };
-          }
-        } else {
-          // Push vertically
-          const aCenterY = a.y + a.h / 2;
-          const bCenterY = b.y + b.h / 2;
-          if (aCenterY <= bCenterY) {
-            // b is below → push b down
-            items[j] = { ...items[j], y: a.y + a.h };
-          } else {
-            // a is below → push a down
-            items[i] = { ...items[i], y: b.y + b.h };
-          }
+        const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (ox <= 0 || oy <= 0) continue;
+        const area = ox * oy;
+        if (area > worstArea) {
+          worstArea = area;
+          worstI = i;
+          worstJ = j;
         }
       }
     }
 
-    if (!hasOverlap) break;
+    // No overlaps found — done
+    if (worstI < 0) break;
+
+    const a = items[worstI];
+    const b = items[worstJ];
+    const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+    const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+
+    // Push apart on the axis with smaller overlap (minimum movement)
+    if (overlapX <= overlapY) {
+      const aCx = a.x + a.w / 2;
+      const bCx = b.x + b.w / 2;
+      if (aCx <= bCx) {
+        items[worstJ] = { ...b, x: a.x + a.w };
+      } else {
+        items[worstI] = { ...a, x: b.x + b.w };
+      }
+    } else {
+      const aCy = a.y + a.h / 2;
+      const bCy = b.y + b.h / 2;
+      if (aCy <= bCy) {
+        items[worstJ] = { ...b, y: a.y + a.h };
+      } else {
+        items[worstI] = { ...a, y: b.y + b.h };
+      }
+    }
   }
 
-  // Ensure all positions are non-negative
   return items.map((item) => ({
     ...item,
     x: Math.max(0, item.x),
