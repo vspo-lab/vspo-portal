@@ -144,11 +144,8 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
       if (isAlreadySelected) {
         const newStreams = prev.filter((s) => s.id !== stream.id);
         return newStreams;
-      } else if (prev.length < 12) {
-        const newStreams = [...prev, stream];
-        return newStreams;
       }
-      return prev;
+      return [...prev, stream];
     });
   };
 
@@ -173,13 +170,7 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
         return prev;
       }
 
-      // Check if we can add more streams (max 12 for 4x3 layout)
-      if (prev.length >= 12) {
-        return prev;
-      }
-
-      const newStreams = [...prev, stream];
-      return newStreams;
+      return [...prev, stream];
     });
   };
 

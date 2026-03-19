@@ -92,7 +92,7 @@ export const StreamSelectorPresenter: React.FC<
     return selectedStreams.some((s) => s.id === streamId);
   };
 
-  const canSelectMore = selectedStreams.length < 12;
+  const canSelectMore = true; // No limit on stream count
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     onStatusFilterChange(newValue as "all" | "live" | "upcoming");

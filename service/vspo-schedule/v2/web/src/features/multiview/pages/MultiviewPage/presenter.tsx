@@ -352,7 +352,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
           >
             {t(
               "multiview:description",
-              "複数の配信を同時に視聴できます。最大12個まで選択可能です。",
+              "複数の配信を同時に視聴できます。",
             )}
           </Typography>
         </Box>
@@ -628,7 +628,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                   <Collapse in={!urlInputCollapsed}>
                     <UrlInput
                       selectedStreams={selectedStreams}
-                      maxStreams={12}
+                      maxStreams={Infinity}
                       onStreamAdd={onManualStreamAdd}
                     />
                   </Collapse>
