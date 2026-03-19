@@ -212,7 +212,11 @@ export const StreamSelectorPresenter: React.FC<
                         sx={{
                           color: hasChatOpen
                             ? theme.palette.primary.main
-                            : theme.palette.text.secondary,
+                            : theme.palette.text.primary,
+                          opacity: hasChatOpen ? 1 : 0.6,
+                          "&:hover": {
+                            opacity: 1,
+                          },
                         }}
                       >
                         {hasChatOpen ? <ChatIcon /> : <ChatBubbleOutlineIcon />}

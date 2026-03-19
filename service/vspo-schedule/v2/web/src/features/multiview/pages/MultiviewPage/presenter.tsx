@@ -1,8 +1,6 @@
 import { Loading } from "@/features/shared/components/Elements";
 import { Livestream } from "@/features/shared/domain";
 import AddLinkIcon from "@mui/icons-material/AddLink";
-import ChatIcon from "@mui/icons-material/Chat";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -751,84 +749,6 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                     )}
                   </Collapse>
                 </Box>
-
-                {/* Chat Toggle - per selected stream */}
-                {selectedStreams.length > 0 && (
-                  <Box>
-                    <SectionTitle variant="h6">
-                      <ChatIcon
-                        sx={{
-                          mr: 1,
-                          verticalAlign: "middle",
-                          fontSize: "1.2rem",
-                        }}
-                      />
-                      {t("multiview:chat.sectionTitle", "チャット")}
-                    </SectionTitle>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 1,
-                      }}
-                    >
-                      {selectedStreams
-                        .filter(
-                          (stream) =>
-                            stream.platform === "youtube" ||
-                            stream.platform === "twitch",
-                        )
-                        .map((stream) => {
-                          const hasChatOpen = chatStreamIds.has(stream.id);
-                          return (
-                            <Chip
-                              key={`chat-toggle-${stream.id}`}
-                              icon={
-                                hasChatOpen ? (
-                                  <ChatIcon />
-                                ) : (
-                                  <ChatBubbleOutlineIcon />
-                                )
-                              }
-                              label={stream.channelTitle}
-                              onClick={() => onToggleChat(stream.id)}
-                              aria-label={
-                                hasChatOpen
-                                  ? t("multiview:chat.close.ariaLabel", "{{channel}}のチャットを閉じる", { channel: stream.channelTitle })
-                                  : t("multiview:chat.open.ariaLabel", "{{channel}}のチャットを開く", { channel: stream.channelTitle })
-                              }
-                              aria-pressed={hasChatOpen}
-                              color={hasChatOpen ? "primary" : "default"}
-                              variant={hasChatOpen ? "filled" : "outlined"}
-                              sx={{
-                                justifyContent: "flex-start",
-                                maxWidth: "100%",
-                                "& .MuiChip-label": {
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                },
-                              }}
-                            />
-                          );
-                        })}
-                      {selectedStreams.filter(
-                        (s) =>
-                          s.platform === "youtube" || s.platform === "twitch",
-                      ).length === 0 && (
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                        >
-                          {t(
-                            "multiview:chat.noSupported",
-                            "チャット対応の配信がありません",
-                          )}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                )}
 
                 {/* Playback Controls */}
                 {selectedStreams.length > 0 && (
