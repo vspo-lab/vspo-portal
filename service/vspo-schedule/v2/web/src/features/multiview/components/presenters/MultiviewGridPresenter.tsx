@@ -544,14 +544,15 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     dragOriginRef.current = null;
     lastSwappedRef.current = null;
 
-    // Place the dragged item at its drop position, then resolve all overlaps
+    // Place the dragged item at its drop position, then resolve ALL overlaps
+    // across all items (no fixed item) to handle varying player sizes
     setInternalLayout((prev) => {
       const dropped = prev.map((item) =>
         item.i === newItem.i
           ? { ...item, x: newItem.x, y: newItem.y }
           : item,
       );
-      return resolveOverlaps(dropped, newItem.i);
+      return resolveOverlaps(dropped);
     });
 
     requestAnimationFrame(() => {
@@ -568,7 +569,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     _oldItem: GridLayout.Layout,
     newItem: GridLayout.Layout,
   ) => {
-    const resolved = resolveOverlaps(newLayout, newItem.i);
+    // Resolve all overlaps across all items (no fixed item)
+    const resolved = resolveOverlaps(newLayout);
     setInternalLayout(resolved);
     // Delay clearing so onLayoutChange after resize is ignored
     requestAnimationFrame(() => {
