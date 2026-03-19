@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type LayoutType =
   | "1x1"
-  | "2x2"
-  | "3x3"
   | "2x1"
   | "1x2"
+  | "2x2"
+  | "3x3"
+  | "4x3"
   | "picture-in-picture"
   | "auto";
 
@@ -49,6 +50,8 @@ const getLayoutConfig = (
       return { rows: 2, cols: 2, aspectRatio: "16 / 9" };
     case "3x3":
       return { rows: 3, cols: 3, aspectRatio: "16 / 9" };
+    case "4x3":
+      return { rows: 3, cols: 4, aspectRatio: "16 / 9" };
     case "picture-in-picture":
       return {
         rows: 1,
@@ -63,7 +66,8 @@ const getLayoutConfig = (
       if (streamCount <= 1) return { rows: 1, cols: 1, aspectRatio: "16 / 9" };
       if (streamCount === 2) return { rows: 1, cols: 2, aspectRatio: "16 / 9" };
       if (streamCount <= 4) return { rows: 2, cols: 2, aspectRatio: "16 / 9" };
-      return { rows: 3, cols: 3, aspectRatio: "16 / 9" };
+      if (streamCount <= 9) return { rows: 3, cols: 3, aspectRatio: "16 / 9" };
+      return { rows: 3, cols: 4, aspectRatio: "16 / 9" };
   }
 };
 
@@ -75,16 +79,14 @@ const isLayoutSupported = (
 
   switch (layoutType) {
     case "1x1":
-      return streamCount >= 1;
     case "2x1":
     case "1x2":
-      return streamCount >= 1; // Can show fewer streams than slots
     case "2x2":
-      return streamCount >= 1;
     case "3x3":
+    case "4x3":
       return streamCount >= 1;
     case "picture-in-picture":
-      return streamCount >= 2; // Need at least 2 streams for PiP
+      return streamCount >= 2;
     case "auto":
       return streamCount >= 1;
     default:
@@ -103,14 +105,14 @@ const getAvailableLayouts = (
     "1x2",
     "2x2",
     "3x3",
+    "4x3",
     "picture-in-picture",
   ];
 
   if (isMobile) {
-    // On mobile, limit to simpler layouts
     return allLayouts.filter(
       (layout) =>
-        ["auto", "1x1", "1x2"].includes(layout) &&
+        ["auto", "1x1", "1x2", "2x2"].includes(layout) &&
         isLayoutSupported(layout, streamCount),
     );
   }
@@ -149,13 +151,17 @@ export const useMultiviewLayout = ({
 
   const layout = useMemo((): MultiviewLayout => {
     if (isMobile && effectiveLayoutType !== "auto") {
-      // Mobile: force single column for non-auto layouts
-      return {
-        type: effectiveLayoutType,
-        rows: streamCount,
-        cols: 1,
-        aspectRatio: "16 / 9",
-      };
+      // Mobile: allow 2-column layouts, force single column for others
+      const config = getLayoutConfig(effectiveLayoutType, streamCount);
+      if (config.cols > 2) {
+        return {
+          type: effectiveLayoutType,
+          rows: Math.ceil(streamCount / 2),
+          cols: 2,
+          aspectRatio: "16 / 9",
+        };
+      }
+      return { type: effectiveLayoutType, ...config };
     }
 
     const config = getLayoutConfig(effectiveLayoutType, streamCount);

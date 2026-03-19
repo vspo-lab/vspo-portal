@@ -22,6 +22,7 @@ export interface UsePlaybackControlsReturn {
   onToggleStreamPlay: (streamId: string) => void;
   onSetStreamVolume: (streamId: string, volume: number) => void;
   onToggleStreamMute: (streamId: string) => void;
+  onMuteAllButOne: (streamId: string) => void;
 }
 
 export const usePlaybackControls = ({
@@ -134,6 +135,17 @@ export const usePlaybackControls = ({
     }));
   }, []);
 
+  /** Mute all streams except the specified one, which is unmuted. */
+  const onMuteAllButOne = useCallback((streamId: string) => {
+    setStreamStates((prev) => {
+      const newStates: Record<string, StreamPlaybackState> = {};
+      for (const id of Object.keys(prev)) {
+        newStates[id] = { ...prev[id], isMuted: id !== streamId };
+      }
+      return newStates;
+    });
+  }, []);
+
   return {
     streamStates,
     globalVolume,
@@ -144,5 +156,6 @@ export const usePlaybackControls = ({
     onToggleStreamPlay,
     onSetStreamVolume,
     onToggleStreamMute,
+    onMuteAllButOne,
   };
 };

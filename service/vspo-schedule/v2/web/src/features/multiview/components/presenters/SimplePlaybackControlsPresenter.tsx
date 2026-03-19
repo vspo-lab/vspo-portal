@@ -3,6 +3,7 @@ import {
   Box,
   IconButton,
   Slider,
+  Tooltip,
   Typography,
   alpha,
   styled,
@@ -14,18 +15,19 @@ import { StreamPlaybackState } from "../../hooks/usePlaybackControls";
 
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import HeadphonesIcon from "@mui/icons-material/Headphones";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import SyncIcon from "@mui/icons-material/Sync";
 
 const ControlsContainer = styled(Box)(({ theme }) => ({
   backgroundColor: "white",
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  border: `1px solid ${theme.palette.grey[300]}`,
   [theme.getColorSchemeSelector("dark")]: {
     backgroundColor: theme.vars.palette.customColors.gray,
-    border: `1px solid ${theme.palette.grey[700]}`,
   },
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(2),
+  border: `1px solid ${theme.palette.divider}`,
 }));
 
 const GlobalControls = styled(Box)(({ theme }) => ({
@@ -50,6 +52,7 @@ const StreamControl = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
   padding: theme.spacing(1),
   borderRadius: theme.shape.borderRadius,
+  flexWrap: "wrap",
   "&:hover": {
     backgroundColor: alpha(theme.palette.action.hover, 0.1),
   },
@@ -61,17 +64,23 @@ const StreamInfo = styled(Box)(({ theme }) => ({
   marginRight: theme.spacing(1),
 }));
 
-const StreamTitle = styled(Typography)(() => ({
+const StreamTitle = styled(Typography)(({ theme }) => ({
   fontSize: "0.875rem",
   fontWeight: 500,
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
+  [theme.getColorSchemeSelector("dark")]: {
+    color: "white",
+  },
 }));
 
 const ChannelName = styled(Typography)(({ theme }) => ({
   fontSize: "0.75rem",
   color: theme.palette.text.secondary,
+  [theme.getColorSchemeSelector("dark")]: {
+    color: "rgba(255, 255, 255, 0.7)",
+  },
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
@@ -92,6 +101,8 @@ export type SimplePlaybackControlsPresenterProps = {
   onToggleStreamPlay: (streamId: string) => void;
   onSetStreamVolume: (streamId: string, volume: number) => void;
   onToggleStreamMute: (streamId: string) => void;
+  onMuteAllButOne: (streamId: string) => void;
+  onSyncToLive: () => void;
 };
 
 export const SimplePlaybackControlsPresenter: React.FC<
@@ -107,6 +118,8 @@ export const SimplePlaybackControlsPresenter: React.FC<
   onToggleStreamPlay,
   onSetStreamVolume,
   onToggleStreamMute,
+  onMuteAllButOne,
+  onSyncToLive,
 }) => {
   const { t } = useTranslation("multiview");
   const theme = useTheme();
@@ -143,6 +156,16 @@ export const SimplePlaybackControlsPresenter: React.FC<
         >
           {allPlaying ? <PauseIcon /> : <PlayArrowIcon />}
         </IconButton>
+
+        <Tooltip title={t("controls.syncToLive", "ライブに同期")} arrow>
+          <IconButton
+            onClick={onSyncToLive}
+            size="medium"
+            aria-label={t("controls.syncToLive", "ライブに同期")}
+          >
+            <SyncIcon />
+          </IconButton>
+        </Tooltip>
 
         <VolumeControl>
           <IconButton size="small" onClick={onToggleGlobalMute} aria-label={isGlobalMuted ? t("controls.unmute", "ミュート解除") : t("controls.mute", "ミュート")}>
@@ -192,8 +215,6 @@ export const SimplePlaybackControlsPresenter: React.FC<
               <StreamInfo>
                 <StreamTitle>{stream.title}</StreamTitle>
                 <ChannelName>
-                  {stream.platform === "youtube" && "🎬 "}
-                  {stream.platform === "twitch" && "🎮 "}
                   {stream.channelTitle}
                 </ChannelName>
               </StreamInfo>
@@ -238,9 +259,31 @@ export const SimplePlaybackControlsPresenter: React.FC<
                 )}
               </IconButton>
 
+              <Tooltip title={t("controls.listenOnlyThis", "この配信だけ聴く")} arrow>
+                <IconButton
+                  size="small"
+                  onClick={() => onMuteAllButOne(stream.id)}
+                  disabled={stream.platform === "twitch"}
+                  aria-label={t("controls.listenOnlyThis", "この配信だけ聴く")}
+                  sx={{
+                    color: !state.isMuted &&
+                      streams.every((s) =>
+                        s.id === stream.id
+                          ? !(streamStates[s.id]?.isMuted ?? true)
+                          : (streamStates[s.id]?.isMuted ?? false)
+                      )
+                      ? theme.palette.primary.main
+                      : undefined,
+                  }}
+                >
+                  <HeadphonesIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
               <Box
                 sx={{
-                  width: 100,
+                  width: { xs: 80, sm: 100 },
+                  minWidth: 60,
                   display: "flex",
                   alignItems: "center",
                   gap: 1,

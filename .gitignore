@@ -77,3 +77,7 @@ dist
 
 # claude hooks state
 .claude/.post_edit_check_pending
+
+# plan documents (generated, not tracked)
+docs/superpowers/plans/
+docs/plan/

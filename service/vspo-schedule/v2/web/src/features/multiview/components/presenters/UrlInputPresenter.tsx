@@ -20,11 +20,11 @@ import React from "react";
 const UrlInputContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: "white",
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[1],
   [theme.getColorSchemeSelector("dark")]: {
     backgroundColor: theme.vars.palette.customColors.gray,
   },
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[1],
 }));
 
 const InputSection = styled(Box)(({ theme }) => ({
@@ -68,7 +68,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
 }) => {
   const { t } = useTranslation("multiview");
 
-  const handleKeyPress = (event: React.KeyboardEvent) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && !isLoading) {
       onSubmit();
     }
@@ -91,7 +91,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
           placeholder={t("urlInput.placeholder", "配信URLを入力してください")}
           value={url}
           onChange={(e) => onUrlChange(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           disabled={isLoading || isMaxStreamsReached}
           error={!!error}
           size="small"
@@ -117,7 +117,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
         />
 
         <Button
-          variant="contained"
+          variant="outlined"
           onClick={onSubmit}
           disabled={!url.trim() || isLoading || isMaxStreamsReached}
           startIcon={isLoading ? <CircularProgress size={16} /> : <AddIcon />}

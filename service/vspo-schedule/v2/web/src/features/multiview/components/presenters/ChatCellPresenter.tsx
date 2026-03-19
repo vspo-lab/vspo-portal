@@ -1,4 +1,5 @@
 import { Livestream } from "@/features/shared/domain";
+import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -10,10 +11,11 @@ import {
   styled,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { forwardRef, useMemo } from "react";
-import { generateEmbedUrl } from "../../utils/platformUtils";
+import React, { useState } from "react";
+import { convertChatPlayerLink } from "@/features/shared/utils";
+import { useColorScheme } from "@mui/material/styles";
 
-const PlayerContainer = styled(Box)(({ theme }) => ({
+const ChatContainer = styled(Box)(({ theme }) => ({
   position: "relative",
   width: "100%",
   height: "100%",
@@ -29,7 +31,7 @@ const PlayerContainer = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   border: "none",
   boxShadow: "none",
-  "&:hover .player-header, &:focus-within .player-header": {
+  "&:hover .chat-header": {
     opacity: 1,
   },
   [theme.breakpoints.down("md")]: {
@@ -37,7 +39,7 @@ const PlayerContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const PlayerHeader = styled(Box)(({ theme }) => ({
+const ChatHeader = styled(Box)(({ theme }) => ({
   position: "absolute",
   top: 0,
   left: 0,
@@ -54,9 +56,6 @@ const PlayerHeader = styled(Box)(({ theme }) => ({
   "&:active": {
     cursor: "grabbing",
   },
-  "@media (prefers-reduced-motion: reduce)": {
-    transition: "none",
-  },
 }));
 
 const DragHandle = styled(IconButton)(({ theme }) => ({
@@ -66,9 +65,7 @@ const DragHandle = styled(IconButton)(({ theme }) => ({
     cursor: "grabbing",
   },
   marginRight: theme.spacing(0.5),
-  padding: theme.spacing(0.5),
-  minWidth: 44,
-  minHeight: 44,
+  padding: theme.spacing(0.25),
 }));
 
 const HeaderActions = styled(Box)({
@@ -96,11 +93,9 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
         : "rgba(0, 0, 0, 0.7)",
   },
   marginLeft: theme.spacing(1),
-  minWidth: 44,
-  minHeight: 44,
 }));
 
-const VideoFrame = styled("iframe")({
+const ChatFrame = styled("iframe")({
   width: "100%",
   height: "100%",
   border: "none",
@@ -132,106 +127,60 @@ const ErrorContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-export type VideoPlayerPresenterProps = {
+const NoChatContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  height: "100%",
+  color: theme.palette.text.primary,
+  padding: theme.spacing(2),
+  textAlign: "center",
+  [theme.getColorSchemeSelector("dark")]: {
+    color: "white",
+  },
+}));
+
+export type ChatCellPresenterProps = {
   stream: Livestream;
-  isLoading: boolean;
-  hasError: boolean;
   onRemove: () => void;
-  onPlayerReady: () => void;
-  onPlayerError: () => void;
-  autoplay?: boolean;
-  muted?: boolean;
 };
 
-export const VideoPlayerPresenter = React.memo(forwardRef<
-  HTMLIFrameElement,
-  VideoPlayerPresenterProps
->(
-  (
-    {
-      stream,
-      isLoading,
-      hasError,
-      onRemove,
-      onPlayerReady,
-      onPlayerError,
-      muted = true,
-    },
-    ref,
-  ) => {
+/**
+ * Presenter component that renders a live chat iframe for a stream.
+ * Supports YouTube live chat and Twitch chat embeds with dark mode.
+ */
+export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
+  ({ stream, onRemove }) => {
     const { t } = useTranslation("multiview");
+    const { colorScheme } = useColorScheme();
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
 
-    const embedUrl = useMemo((): string => {
-      try {
-        const parentDomain =
-          typeof window !== "undefined"
-            ? window.location.hostname
-            : "localhost";
+    const isDarkMode = colorScheme === "dark";
 
-        if (stream.platform === "youtube") {
-          const videoId =
-            stream.videoPlayerLink?.match(/embed\/([^?]+)/)?.[1] ||
-            stream.link?.match(/watch\?v=([^&]+)/)?.[1] ||
-            stream.id;
-          return generateEmbedUrl("youtube", videoId, {
-            autoplay: false,
-            muted,
-            parentDomain,
-          });
-        }
+    const chatEmbedUrl = convertChatPlayerLink(
+      stream.chatPlayerLink,
+      stream.platform,
+      isDarkMode,
+    );
 
-        if (stream.platform === "twitch") {
-          let channelName = "";
-          if (stream.videoPlayerLink) {
-            const match = stream.videoPlayerLink.match(/channel=([^&]+)/);
-            if (match) channelName = match[1];
-          }
-          if (!channelName && stream.link) {
-            const match = stream.link.match(/twitch\.tv\/([^/?]+)/);
-            if (match) channelName = match[1];
-          }
-          if (!channelName) {
-            channelName = stream.channelId || stream.id;
-          }
-          return generateEmbedUrl("twitch", channelName, {
-            autoplay: false,
-            muted,
-            parentDomain,
-          });
-        }
+    const handleLoad = () => {
+      setIsLoading(false);
+    };
 
-        if (stream.platform === "twitcasting") {
-          const userId = stream.channelId || stream.id;
-          return generateEmbedUrl("twitcasting", userId, {
-            autoplay: false,
-            muted,
-          });
-        }
-
-        if (stream.platform !== "unknown") {
-          const videoId = stream.channelId || stream.id;
-          return generateEmbedUrl(stream.platform, videoId, {
-            autoplay: false,
-            muted,
-            parentDomain,
-          });
-        }
-
-        return "";
-      } catch (error) {
-        console.error("Error generating embed URL:", error);
-        return "";
-      }
-    }, [stream.id, stream.platform, stream.videoPlayerLink, stream.link, stream.channelId, muted]);
-
+    const handleError = () => {
+      setIsLoading(false);
+      setHasError(true);
+    };
 
     return (
-      <PlayerContainer>
-        <PlayerHeader
-          className="player-header drag-handle"
+      <ChatContainer>
+        <ChatHeader
+          className="chat-header drag-handle"
           aria-label={t(
-            "player.dragHandle.ariaLabel",
-            `${stream.channelTitle}の配信をドラッグして移動`,
+            "chat.dragHandle.ariaLabel",
+            `${stream.channelTitle}のチャットをドラッグして移動`,
           )}
         >
           <StreamInfo>
@@ -240,12 +189,15 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
               noWrap
               sx={{
                 fontWeight: 600,
-                display: "block",
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
                 fontSize: "0.75rem",
                 lineHeight: 1.3,
               }}
             >
-              {stream.title}
+              <ChatIcon sx={{ fontSize: "0.85rem" }} />
+              {t("chat.header.title", "チャット")}
             </Typography>
             <Typography
               variant="caption"
@@ -264,8 +216,8 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
             <DragHandle
               size="small"
               className="drag-handle"
-              aria-label={t("player.dragHandle.tooltip", "配信を移動")}
-              title={t("player.dragHandle.tooltip", "配信を移動")}
+              aria-label={t("chat.dragHandle.tooltip", "チャットを移動")}
+              title={t("chat.dragHandle.tooltip", "チャットを移動")}
             >
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
@@ -273,49 +225,60 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
               className="no-drag"
               size="small"
               onClick={onRemove}
-              aria-label={t("player.close.ariaLabel", "配信を閉じる")}
+              aria-label={t("chat.close.ariaLabel", "チャットを閉じる")}
             >
               <CloseIcon fontSize="small" />
             </CloseButton>
           </HeaderActions>
-        </PlayerHeader>
+        </ChatHeader>
 
-        {hasError || !embedUrl ? (
+        {hasError ? (
           <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
-              {t("player.error.title", "読み込みエラー")}
+              {t("chat.error.title", "チャットの読み込みに失敗しました")}
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              {t("player.error.description", "配信の読み込みに失敗しました")}
+              {t(
+                "chat.error.description",
+                "しばらくしてからもう一度お試しください",
+              )}
             </Typography>
           </ErrorContainer>
-        ) : (
+        ) : chatEmbedUrl ? (
           <>
             {isLoading && (
-              <LoadingContainer role="status" aria-label={t("player.loading", "配信を読み込み中")}>
+              <LoadingContainer role="status" aria-label={t("chat.loading", "チャットを読み込み中")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}
-            <VideoFrame
-              ref={ref}
-              src={embedUrl}
-              title={`${stream.channelTitle} - ${stream.title}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
-              loading="lazy"
-              allowFullScreen
-              onLoad={onPlayerReady}
-              onError={onPlayerError}
+            <ChatFrame
+              src={chatEmbedUrl}
+              title={`${stream.channelTitle} - ${t("chat.header.title", "チャット")}`}
+              onLoad={handleLoad}
+              onError={handleError}
               style={{
                 visibility: isLoading ? "hidden" : "visible",
               }}
             />
           </>
+        ) : (
+          <NoChatContainer role="status">
+            <ChatIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              {t("chat.noChat.title", "チャットが利用できません")}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              {t(
+                "chat.noChat.description",
+                "この配信ではチャットの埋め込みがサポートされていません",
+              )}
+            </Typography>
+          </NoChatContainer>
         )}
-      </PlayerContainer>
+      </ChatContainer>
     );
   },
-));
+);
 
-VideoPlayerPresenter.displayName = "VideoPlayerPresenter";
+ChatCellPresenter.displayName = "ChatCellPresenter";

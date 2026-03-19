@@ -1,4 +1,6 @@
 import { Livestream } from "@/features/shared/domain";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import ChatIcon from "@mui/icons-material/Chat";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SearchIcon from "@mui/icons-material/Search";
@@ -6,6 +8,7 @@ import {
   Avatar,
   Box,
   Chip,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -15,8 +18,10 @@ import {
   Tab,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
   styled,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
@@ -25,12 +30,12 @@ import React from "react";
 
 const SelectorContainer = styled(Paper)(({ theme }) => ({
   backgroundColor: "white",
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[1],
-  overflow: "hidden",
   [theme.getColorSchemeSelector("dark")]: {
     backgroundColor: theme.vars.palette.customColors.gray,
   },
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[1],
+  overflow: "hidden",
 }));
 
 const SearchContainer = styled(Box)(({ theme }) => ({
@@ -69,9 +74,11 @@ export type StreamSelectorPresenterProps = {
   selectedStreams: Livestream[];
   searchQuery: string;
   statusFilter: "all" | "live" | "upcoming";
+  chatStreamIds: ReadonlySet<string>;
   onStreamClick: (stream: Livestream) => void;
   onSearchChange: (query: string) => void;
   onStatusFilterChange: (status: "all" | "live" | "upcoming") => void;
+  onToggleChat: (streamId: string) => void;
 };
 
 export const StreamSelectorPresenter: React.FC<
@@ -81,9 +88,11 @@ export const StreamSelectorPresenter: React.FC<
   selectedStreams,
   searchQuery,
   statusFilter,
+  chatStreamIds,
   onStreamClick,
   onSearchChange,
   onStatusFilterChange,
+  onToggleChat,
 }) => {
   const { t } = useTranslation("multiview");
   const theme = useTheme();
@@ -92,7 +101,9 @@ export const StreamSelectorPresenter: React.FC<
     return selectedStreams.some((s) => s.id === streamId);
   };
 
-  const canSelectMore = selectedStreams.length < 9;
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const maxStreams = isMobile ? 4 : 12;
+  const canSelectMore = selectedStreams.length < maxStreams;
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     onStatusFilterChange(newValue as "all" | "live" | "upcoming");
@@ -112,6 +123,7 @@ export const StreamSelectorPresenter: React.FC<
           placeholder={t("selector.search.placeholder", "配信を検索...")}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
+          aria-label={t("selector.search.ariaLabel", "配信を検索")}
           InputProps={{
             startAdornment: (
               <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
@@ -167,8 +179,53 @@ export const StreamSelectorPresenter: React.FC<
             const isSelected = isStreamSelected(stream.id);
             const isDisabled = !canSelectMore && !isSelected;
 
+            const supportsChatEmbed =
+              stream.platform === "youtube" || stream.platform === "twitch";
+            const hasChatOpen = chatStreamIds.has(stream.id);
+
             return (
-              <ListItem key={stream.id} disablePadding>
+              <ListItem
+                key={stream.id}
+                disablePadding
+                secondaryAction={
+                  isSelected && supportsChatEmbed ? (
+                    <Tooltip
+                      title={
+                        hasChatOpen
+                          ? t("selector.chat.close", "チャットを閉じる")
+                          : t("selector.chat.open", "チャットを追加")
+                      }
+                    >
+                      <IconButton
+                        edge="end"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleChat(stream.id);
+                        }}
+                        aria-label={
+                          hasChatOpen
+                            ? t("selector.chat.close", "チャットを閉じる")
+                            : t("selector.chat.open", "チャットを追加")
+                        }
+                        aria-pressed={hasChatOpen}
+                        sx={{
+                          color: hasChatOpen
+                            ? theme.palette.primary.main
+                            : theme.palette.common.white,
+                          [theme.getColorSchemeSelector("light")]: {
+                            color: hasChatOpen
+                              ? theme.palette.primary.main
+                              : theme.palette.text.secondary,
+                          },
+                        }}
+                      >
+                        {hasChatOpen ? <ChatIcon /> : <ChatBubbleOutlineIcon />}
+                      </IconButton>
+                    </Tooltip>
+                  ) : undefined
+                }
+              >
                 <ListItemButton
                   onClick={() => onStreamClick(stream)}
                   disabled={isDisabled}

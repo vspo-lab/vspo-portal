@@ -59,4 +59,3 @@ export const useConfigurationLoader = (
 };
 
 export const useUrlConfigurationLoader = useConfigurationLoader;
-export const useManualConfigurationLoader = useConfigurationLoader;
