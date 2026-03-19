@@ -8,7 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -100,11 +100,6 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   "& .react-resizable-handle-w": {
     width: 8, height: "100%", left: 0, top: 0, cursor: "w-resize",
     "&::after": { width: 3, height: 40, left: 2, top: "calc(50% - 20px)" },
-  },
-  // Long-press drag mode — highlight border
-  "&.drag-ready .react-grid-item": {
-    outline: "2px dashed rgba(128,128,128,0.5)",
-    cursor: "grab",
   },
 }));
 
@@ -290,34 +285,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const [availableHeight, setAvailableHeight] = useState(600);
-  // Long-press drag: hold for 500ms to enable dragging anywhere on the item
-  const [dragReady, setDragReady] = useState(false);
-  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const clearLongPress = useCallback(() => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-  }, []);
-
-  const handlePointerDown = useCallback(() => {
-    clearLongPress();
-    longPressTimerRef.current = setTimeout(() => {
-      setDragReady(true);
-      containerRef.current?.classList.add("drag-ready");
-    }, 500);
-  }, [clearLongPress]);
-
-  const handlePointerUp = useCallback(() => {
-    clearLongPress();
-    setDragReady(false);
-    containerRef.current?.classList.remove("drag-ready");
-  }, [clearLongPress]);
-
-  useEffect(() => {
-    return () => clearLongPress();
-  }, [clearLongPress]);
-
   // Drag swap state
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
   const lastSwappedRef = useRef<string | null>(null);
@@ -666,9 +633,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     <GridContainer
       elevation={1}
       ref={containerRef}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
       style={{
         maxHeight: availableHeight,
         // Visual guide lines: 12 column divisions + row divisions matching layout
@@ -682,7 +646,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         cols={GRID_COLS}
         rowHeight={rowHeight}
         width={containerWidth}
-        isDraggable={!isMobile && dragReady}
+        isDraggable={!isMobile}
         isResizable={!isMobile}
         resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
         onLayoutChange={handleGridLayoutChange}
@@ -691,6 +655,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         onDragStop={handleDragStop}
         onResizeStart={handleResizeStart}
         onResizeStop={handleResizeStop}
+        draggableHandle=".drag-handle"
         draggableCancel=".no-drag"
         compactType={null}
         allowOverlap={true}
