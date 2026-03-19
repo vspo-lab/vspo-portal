@@ -181,22 +181,14 @@ const MemoizedChat = React.memo(
 const buildGridLayout = (
   itemIds: string[],
   cols: number,
+  cellsPerRow: number,
   isMobile: boolean,
 ): GridLayout.Layout[] => {
-  const count = itemIds.length;
-  const rows = isMobile ? count : Math.ceil(count / cols);
-
   return itemIds.map((id, index) => {
     if (isMobile) {
       return {
-        i: id,
-        x: 0,
-        y: index,
-        w: 12,
-        h: 1,
-        minW: 12,
-        minH: 1,
-        static: true,
+        i: id, x: 0, y: index, w: 12, h: 1,
+        minW: 12, minH: 1, static: true,
       };
     }
 
@@ -206,11 +198,11 @@ const buildGridLayout = (
     return {
       i: id,
       x: col * (12 / cols),
-      y: row,
+      y: row * cellsPerRow,
       w: 12 / cols,
-      h: 1,
+      h: cellsPerRow,
       minW: 2,
-      minH: 1,
+      minH: 2,
     };
   });
 };
@@ -288,15 +280,19 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     };
   }, []);
 
-  // Calculate rowHeight in pixels — each grid row unit = one visual row
+  // Square grid cell size — matches column width for square guidelines
   const rowHeight = useMemo(() => {
-    const cols = isMobile ? 1 : layout.cols || 2;
-    const rows = layout.rows || Math.ceil(selectedStreams.length / cols);
-
     if (isMobile) return 180;
+    return Math.max(20, Math.floor(containerWidth / GRID_COLS));
+  }, [containerWidth, isMobile]);
 
-    return Math.max(50, Math.floor(availableHeight / rows));
-  }, [availableHeight, layout.cols, layout.rows, selectedStreams.length, isMobile]);
+  // How many grid-h-units fill one visual row (to fill viewport height)
+  const cellsPerRow = useMemo(() => {
+    if (isMobile) return 1;
+    const cols = layout.cols || 2;
+    const rows = layout.rows || Math.ceil(selectedStreams.length / cols);
+    return Math.max(1, Math.round(availableHeight / rows / rowHeight));
+  }, [availableHeight, layout.cols, layout.rows, selectedStreams.length, rowHeight, isMobile]);
 
   // Build a combined list of all grid item IDs: video cells + chat cells
   const allItemIds = useMemo(() => {
@@ -342,15 +338,19 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     // Full rebuild: layout button pressed or initial render
     if (layoutTypeChanged || internalLayout.length === 0) {
       setInternalLayout(
-        buildGridLayout(allItemIds, cols, isMobile),
+        buildGridLayout(allItemIds, cols, cellsPerRow, isMobile),
       );
       return;
     }
 
-    // Height changed (e.g. immersive toggle, window resize) — no layout change needed
-    // because rowHeight (pixels per row unit) changes dynamically, positions stay the same
+    // rowHeight change (container width change) — positions in grid units stay the same,
+    // visual size adjusts automatically since rowHeight is in pixels
     if (prevH !== rowHeight) {
-      return; // rowHeight change handles visual scaling automatically
+      // cellsPerRow may also have changed — rebuild to fill viewport
+      setInternalLayout(
+        buildGridLayout(allItemIds, cols, cellsPerRow, isMobile),
+      );
+      return;
     }
 
     // Incremental update: keep existing positions, add/remove items (video + chat cells)
@@ -371,17 +371,17 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       return {
         i: id,
         x: col * (12 / cols),
-        y: row,
+        y: row * cellsPerRow,
         w: 12 / cols,
-        h: 1,
+        h: cellsPerRow,
         minW: isMobile ? 12 : 2,
-        minH: 1,
+        minH: isMobile ? 1 : 2,
         static: isMobile,
       };
     });
 
     setInternalLayout([...kept, ...newItems]);
-  }, [streamIdKey, layout.type, layout.cols, rowHeight, isMobile, allItemIds, availableHeight]);
+  }, [streamIdKey, layout.type, layout.cols, rowHeight, cellsPerRow, isMobile, allItemIds, availableHeight]);
 
   // Apply externally provided grid positions (e.g. from a saved custom layout)
   const prevExternalRef = useRef(externalGridPositions);
@@ -395,7 +395,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         externalGridPositions.map((pos) => ({
           ...pos,
           minW: 2,
-          minH: 100,
+          minH: 2,
         })),
       );
     }
@@ -487,13 +487,14 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       return;
     }
 
-    setInternalLayout((prev) =>
-      prev.map((item) =>
+    setInternalLayout((prev) => {
+      const snapped = prev.map((item) =>
         item.i === newItem.i
           ? { ...item, x: origin.x, y: origin.y }
           : item,
-      ),
-    );
+      );
+      return resolveOverlaps(snapped, newItem.i);
+    });
 
     requestAnimationFrame(() => {
       isDraggingRef.current = false;
