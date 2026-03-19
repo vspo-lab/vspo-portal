@@ -129,41 +129,33 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
   // Derived: processing while config is actively loading
   const isProcessing = configLoader.state.isLoading;
 
-  const handleStreamSelection = (stream: Livestream) => {
+  const handleStreamSelection = useCallback((stream: Livestream) => {
     setSelectedStreams((prev) => {
       const isAlreadySelected = prev.some((s) => s.id === stream.id);
       if (isAlreadySelected) {
-        const newStreams = prev.filter((s) => s.id !== stream.id);
-        return newStreams;
+        return prev.filter((s) => s.id !== stream.id);
       }
       return [...prev, stream];
     });
-  };
+  }, []);
 
-  const handleRemoveStream = (streamId: string) => {
-    setSelectedStreams((prev) => {
-      const newStreams = prev.filter((s) => s.id !== streamId);
-      return newStreams;
-    });
-  };
+  const handleRemoveStream = useCallback((streamId: string) => {
+    setSelectedStreams((prev) => prev.filter((s) => s.id !== streamId));
+  }, []);
 
-  const handleLayoutChange = (layout: LayoutType) => {
+  const handleLayoutChange = useCallback((layout: LayoutType) => {
     setSelectedLayout(layout);
-  };
+  }, []);
 
-  const handleManualStreamAdd = (stream: Livestream) => {
+  const handleManualStreamAdd = useCallback((stream: Livestream) => {
     setSelectedStreams((prev) => {
-      // Check if stream is already added
       const isAlreadySelected = prev.some(
         (s) => s.id === stream.id || s.link === stream.link,
       );
-      if (isAlreadySelected) {
-        return prev;
-      }
-
+      if (isAlreadySelected) return prev;
       return [...prev, stream];
     });
-  };
+  }, []);
 
   // Chat cell state — tracks which stream IDs have a chat cell open
   const [chatStreamIds, setChatStreamIds] = useState<ReadonlySet<string>>(

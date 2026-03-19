@@ -20,6 +20,13 @@ import { ChatCell, VideoPlayer } from "../containers";
 /** Prefix used for chat cell grid item keys to distinguish from video cells. */
 const CHAT_KEY_PREFIX = "chat-";
 
+/** Static style for grid item wrappers — hoisted to avoid per-render allocation. */
+const GRID_ITEM_STYLE: React.CSSProperties = {
+  display: "flex",
+  height: "100%",
+  width: "100%",
+};
+
 // Grid cell size for 12 columns — used for background grid lines
 const GRID_COLS = 120;
 
@@ -677,11 +684,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
           return (
             <div
               key={itemId}
-              style={{
-                display: "flex",
-                height: "100%",
-                width: "100%",
-              }}
+              style={GRID_ITEM_STYLE}
             >
               {isChat ? (
                 <MemoizedChat

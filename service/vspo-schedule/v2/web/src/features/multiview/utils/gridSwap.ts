@@ -59,7 +59,6 @@ const iterativeRemoveOverlaps = (rects: Rectangle[], maxIterations = 5): void =>
 
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
-  _fixedId?: string,
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
