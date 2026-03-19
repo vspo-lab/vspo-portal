@@ -487,13 +487,14 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       return;
     }
 
+    // Place the dragged item at its drop position, then resolve all overlaps
     setInternalLayout((prev) => {
-      const snapped = prev.map((item) =>
+      const dropped = prev.map((item) =>
         item.i === newItem.i
-          ? { ...item, x: origin.x, y: origin.y }
+          ? { ...item, x: newItem.x, y: newItem.y }
           : item,
       );
-      return resolveOverlaps(snapped, newItem.i);
+      return resolveOverlaps(dropped, newItem.i);
     });
 
     requestAnimationFrame(() => {
