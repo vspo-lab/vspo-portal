@@ -179,53 +179,44 @@ const MemoizedChat = React.memo(
   },
 );
 
-// 1px row unit — eliminates rounding gaps so the grid fills the viewport exactly
-const ROW_UNIT = 1;
-
 /**
- * Generate a fresh grid layout for the given item IDs based on layout config.
- * Items can be video cells (stream ID) or chat cells (`chat-{streamId}`).
- * Used when a layout button is pressed or on initial render.
+ * Generate a fresh grid layout for the given item IDs.
+ * All positions are in grid units: x/w in columns (0-12), y/h in rows.
+ * rowHeight is set dynamically so 1 grid row unit = 1 visual row.
  */
 const buildGridLayout = (
   itemIds: string[],
   cols: number,
-  itemH: number,
-  totalHeight: number,
   isMobile: boolean,
 ): GridLayout.Layout[] => {
   const count = itemIds.length;
   const rows = isMobile ? count : Math.ceil(count / cols);
-  // Last row gets extra pixels to fill remaining space (rounding compensation)
-  const lastRowH = totalHeight - itemH * (rows - 1);
 
   return itemIds.map((id, index) => {
     if (isMobile) {
-      const isLastRow = index === count - 1;
       return {
         i: id,
         x: 0,
-        y: index * itemH,
+        y: index,
         w: 12,
-        h: isLastRow ? lastRowH : itemH,
+        h: 1,
         minW: 12,
-        minH: 100,
+        minH: 1,
         static: true,
       };
     }
 
     const col = index % cols;
     const row = Math.floor(index / cols);
-    const isLastRow = row === rows - 1;
 
     return {
       i: id,
       x: col * (12 / cols),
-      y: row * itemH,
+      y: row,
       w: 12 / cols,
-      h: isLastRow ? lastRowH : itemH,
+      h: 1,
       minW: 2,
-      minH: 100,
+      minH: 1,
     };
   });
 };
@@ -303,16 +294,14 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     };
   }, []);
 
-  // Calculate the optimal h (in ROW_UNIT multiples) to fill available viewport height
-  const computedItemH = useMemo(() => {
+  // Calculate rowHeight in pixels — each grid row unit = one visual row
+  const rowHeight = useMemo(() => {
     const cols = isMobile ? 1 : layout.cols || 2;
     const rows = layout.rows || Math.ceil(selectedStreams.length / cols);
 
-    if (isMobile) return Math.round(180 / ROW_UNIT);
+    if (isMobile) return 180;
 
-    // Fill the available viewport height
-    const cellHeight = availableHeight / rows;
-    return Math.max(100, Math.floor(cellHeight / ROW_UNIT));
+    return Math.max(50, Math.floor(availableHeight / rows));
   }, [availableHeight, layout.cols, layout.rows, selectedStreams.length, isMobile]);
 
   // Build a combined list of all grid item IDs: video cells + chat cells
@@ -343,7 +332,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   );
 
   // Track previous values to detect changes
-  const prevItemHRef = useRef(computedItemH);
+  const prevItemHRef = useRef(rowHeight);
   const prevAvailableHeightRef = useRef(availableHeight);
 
   // Rebuild or scale layout based on what changed
@@ -353,28 +342,21 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     const prevH = prevItemHRef.current;
     const prevAH = prevAvailableHeightRef.current;
     prevLayoutTypeRef.current = layout.type;
-    prevItemHRef.current = computedItemH;
+    prevItemHRef.current = rowHeight;
     prevAvailableHeightRef.current = availableHeight;
 
     // Full rebuild: layout button pressed or initial render
     if (layoutTypeChanged || internalLayout.length === 0) {
       setInternalLayout(
-        buildGridLayout(allItemIds, cols, computedItemH, availableHeight, isMobile),
+        buildGridLayout(allItemIds, cols, isMobile),
       );
       return;
     }
 
-    // Height changed (e.g. immersive toggle, window resize) — scale existing positions proportionally
-    if (prevH !== computedItemH && prevAH > 0 && internalLayout.length > 0) {
-      const scale = availableHeight / prevAH;
-      setInternalLayout((prev) =>
-        prev.map((item) => ({
-          ...item,
-          y: Math.round(item.y * scale),
-          h: Math.round(item.h * scale),
-        })),
-      );
-      return;
+    // Height changed (e.g. immersive toggle, window resize) — no layout change needed
+    // because rowHeight (pixels per row unit) changes dynamically, positions stay the same
+    if (prevH !== rowHeight) {
+      return; // rowHeight change handles visual scaling automatically
     }
 
     // Incremental update: keep existing positions, add/remove items (video + chat cells)
@@ -395,17 +377,17 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       return {
         i: id,
         x: col * (12 / cols),
-        y: row * computedItemH,
+        y: row,
         w: 12 / cols,
-        h: computedItemH,
+        h: 1,
         minW: isMobile ? 12 : 2,
-        minH: 100,
+        minH: 1,
         static: isMobile,
       };
     });
 
     setInternalLayout([...kept, ...newItems]);
-  }, [streamIdKey, layout.type, layout.cols, computedItemH, isMobile, allItemIds, availableHeight]);
+  }, [streamIdKey, layout.type, layout.cols, rowHeight, isMobile, allItemIds, availableHeight]);
 
   // Apply externally provided grid positions (e.g. from a saved custom layout)
   const prevExternalRef = useRef(externalGridPositions);
@@ -600,15 +582,15 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       ref={containerRef}
       style={{
         maxHeight: availableHeight,
-        // Dynamic horizontal grid lines matching computedItemH
-        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${computedItemH - 1}px, rgba(128,128,128,0.15) ${computedItemH - 1}px, rgba(128,128,128,0.15) ${computedItemH}px)`,
+        // Dynamic horizontal grid lines matching rowHeight
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight - 1}px, rgba(128,128,128,0.15) ${rowHeight - 1}px, rgba(128,128,128,0.15) ${rowHeight}px)`,
       }}
     >
       <GridLayout
         className="layout"
         layout={internalLayout}
         cols={12}
-        rowHeight={ROW_UNIT}
+        rowHeight={rowHeight}
         width={containerWidth}
         isDraggable={!isMobile}
         isResizable={!isMobile}
