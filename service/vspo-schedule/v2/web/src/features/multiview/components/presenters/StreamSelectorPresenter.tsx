@@ -21,6 +21,7 @@ import {
   Tooltip,
   Typography,
   styled,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
@@ -100,7 +101,7 @@ export const StreamSelectorPresenter: React.FC<
     return selectedStreams.some((s) => s.id === streamId);
   };
 
-  const isMobile = theme.breakpoints.values.md > (typeof window !== "undefined" ? window.innerWidth : 1024);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const maxStreams = isMobile ? 4 : 12;
   const canSelectMore = selectedStreams.length < maxStreams;
 

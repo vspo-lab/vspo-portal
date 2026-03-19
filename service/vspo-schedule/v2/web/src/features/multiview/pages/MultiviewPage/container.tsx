@@ -231,22 +231,22 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
   // Use the presenter component wrapped with PlaybackProvider and ErrorBoundary
   return (
     <MultiviewErrorBoundary>
-    <PlaybackProvider>
-      <Presenter
-        livestreams={props.livestreams}
-        selectedStreams={selectedStreams}
-        chatStreamIds={chatStreamIds}
-        selectedLayout={selectedLayout}
-        isProcessing={isProcessing || configLoader.state.isLoading}
-        shareableUrl={shareableUrl}
-        onStreamSelection={handleStreamSelection}
-        onRemoveStream={handleRemoveStreamWithChat}
-        onLayoutChange={handleLayoutChange}
-        onManualStreamAdd={handleManualStreamAdd}
-        onToggleChat={handleToggleChat}
-        onRemoveChat={handleRemoveChat}
-      />
-    </PlaybackProvider>
+      <PlaybackProvider>
+        <Presenter
+          livestreams={props.livestreams}
+          selectedStreams={selectedStreams}
+          chatStreamIds={chatStreamIds}
+          selectedLayout={selectedLayout}
+          isProcessing={isProcessing || configLoader.state.isLoading}
+          shareableUrl={shareableUrl}
+          onStreamSelection={handleStreamSelection}
+          onRemoveStream={handleRemoveStreamWithChat}
+          onLayoutChange={handleLayoutChange}
+          onManualStreamAdd={handleManualStreamAdd}
+          onToggleChat={handleToggleChat}
+          onRemoveChat={handleRemoveChat}
+        />
+      </PlaybackProvider>
     </MultiviewErrorBoundary>
   );
 };

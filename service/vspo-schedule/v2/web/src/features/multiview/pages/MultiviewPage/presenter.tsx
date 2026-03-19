@@ -267,8 +267,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
 
       if (e.key === "Escape") {
         if (immersiveMode) {
-          setImmersiveMode(false);
-          document.documentElement.dataset.immersive = "false";
+          toggleImmersiveMode();
         }
         return;
       }

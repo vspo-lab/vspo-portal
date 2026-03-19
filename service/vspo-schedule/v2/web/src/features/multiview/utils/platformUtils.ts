@@ -52,7 +52,10 @@ export const generateEmbedUrl = (
 
     case "twitcasting": {
       // 公式ドキュメント: https://twitcasting.tv/twitcastinglive/communityshow/6557098
-      return `https://twitcasting.tv/${videoId}/embeddedplayer/live?auto_play=${autoplay ? "true" : "false"}&default_mute=${muted ? "true" : "false"}`;
+      const params = new URLSearchParams();
+      params.set("auto_play", autoplay ? "true" : "false");
+      params.set("default_mute", muted ? "true" : "false");
+      return `https://twitcasting.tv/${encodeURIComponent(videoId)}/embeddedplayer/live?${params.toString()}`;
     }
 
     default:

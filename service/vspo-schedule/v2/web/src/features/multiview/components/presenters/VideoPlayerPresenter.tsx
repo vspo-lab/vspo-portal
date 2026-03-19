@@ -10,7 +10,7 @@ import {
   styled,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useMemo } from "react";
 import { generateEmbedUrl } from "../../utils/platformUtils";
 
 const PlayerContainer = styled(Box)(({ theme }) => ({
@@ -161,7 +161,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
   ) => {
     const { t } = useTranslation("multiview");
 
-    const getEmbedUrl = (stream: Livestream): string => {
+    const embedUrl = useMemo((): string => {
       try {
         const parentDomain =
           typeof window !== "undefined"
@@ -208,7 +208,6 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           });
         }
 
-        // For other known platforms, delegate to platformUtils
         if (stream.platform !== "unknown") {
           const videoId = stream.channelId || stream.id;
           return generateEmbedUrl(stream.platform, videoId, {
@@ -218,13 +217,12 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           });
         }
 
-        // Unknown platform: return empty string (no arbitrary URL embedding)
         return "";
       } catch (error) {
         console.error("Error generating embed URL:", error);
         return "";
       }
-    };
+    }, [stream.id, stream.platform, stream.videoPlayerLink, stream.link, stream.channelId, muted]);
 
 
     return (
@@ -282,7 +280,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           </HeaderActions>
         </PlayerHeader>
 
-        {hasError || !getEmbedUrl(stream) ? (
+        {hasError || !embedUrl ? (
           <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
@@ -301,7 +299,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
             )}
             <VideoFrame
               ref={ref}
-              src={getEmbedUrl(stream)}
+              src={embedUrl}
               title={`${stream.channelTitle} - ${stream.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
