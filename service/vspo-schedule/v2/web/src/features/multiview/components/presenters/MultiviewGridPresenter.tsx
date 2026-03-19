@@ -248,6 +248,28 @@ const MemoizedChat = React.memo(
  * All positions are in grid units: x/w in columns (0-12), y/h in rows.
  * rowHeight is set dynamically so 1 grid row unit = 1 visual row.
  */
+/**
+ * Merge positions from RGL's layout with sizes from our internal layout.
+ * RGL sometimes resets w/h to 1 — this preserves our intended sizes.
+ */
+const mergeLayoutSizes = (
+  rglLayout: GridLayout.Layout[],
+  internal: GridLayout.Layout[],
+): GridLayout.Layout[] => {
+  const internalMap = new Map(internal.map((item) => [item.i, item]));
+  return rglLayout.map((rglItem) => {
+    const ours = internalMap.get(rglItem.i);
+    if (!ours) return rglItem;
+    return {
+      ...ours,
+      x: rglItem.x,
+      y: rglItem.y,
+      w: rglItem.w > 1 ? rglItem.w : ours.w,
+      h: rglItem.h > 1 ? rglItem.h : ours.h,
+    };
+  });
+};
+
 const buildGridLayout = (
   itemIds: string[],
   cols: number,
@@ -497,30 +519,17 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     containerRef.current?.classList.add("is-dragging");
   };
 
-  // No swap during drag — all overlap resolution happens on drop
   const handleDrag = () => {};
 
   const handleDragStop = (
-    _rglLayout: GridLayout.Layout[],
+    rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
+    _newItem: GridLayout.Layout,
   ) => {
     containerRef.current?.classList.remove("is-dragging");
-
-    // Place the dragged item at its drop position, then resolve ALL overlaps.
-    // No startTransition — synchronous update ensures state is never stale.
-    setInternalLayout((prev) => {
-      const dropped = prev.map((item) =>
-        item.i === newItem.i
-          ? { ...item, x: newItem.x, y: newItem.y }
-          : item,
-      );
-      return resolveOverlaps(dropped);
-    });
-
-    requestAnimationFrame(() => {
-      isDraggingRef.current = false;
-    });
+    // Use RGL's layout as the single source of truth, then resolve overlaps synchronously
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
+    isDraggingRef.current = false;
   };
 
   const handleResizeStart = () => {
@@ -528,22 +537,19 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   };
 
   const handleResizeStop = (
-    newLayout: GridLayout.Layout[],
+    rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
     _newItem: GridLayout.Layout,
   ) => {
-    const resolved = resolveOverlaps(newLayout);
-    setInternalLayout(resolved);
-    // Delay clearing so onLayoutChange after resize is ignored
-    requestAnimationFrame(() => {
-      isResizingRef.current = false;
-    });
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
+    isResizingRef.current = false;
   };
 
-  const handleGridLayoutChange = (_newLayout: GridLayout.Layout[]) => {
-    // Layout is fully managed by our custom logic (buildGridLayout, handleDragStop, handleResizeStop).
-    // Ignoring react-grid-layout's onLayoutChange prevents it from overwriting our layout
-    // with its internal calculations (which can produce broken w=1/h=1 items).
+  const handleGridLayoutChange = (newLayout: GridLayout.Layout[]) => {
+    // Sync with RGL during normal operations (not during drag/resize to avoid intermediate states)
+    if (!isDraggingRef.current && !isResizingRef.current) {
+      setInternalLayout(mergeLayoutSizes(newLayout, internalLayout));
+    }
   };
 
   // No streams selected
