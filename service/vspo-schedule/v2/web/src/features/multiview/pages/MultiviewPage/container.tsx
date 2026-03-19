@@ -33,7 +33,7 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
 ) => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [selectedStreams, setSelectedStreams] = useState<Livestream[]>([]);
-  const [selectedLayout, setSelectedLayout] = useState<LayoutType>("3x3");
+  const [selectedLayout, setSelectedLayout] = useState<LayoutType>("auto");
   const [shareableUrl, setShareableUrl] = useState<string>("");
 
   // Configuration loader for handling shared URLs
