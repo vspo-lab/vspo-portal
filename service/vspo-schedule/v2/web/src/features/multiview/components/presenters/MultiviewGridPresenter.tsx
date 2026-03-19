@@ -21,7 +21,7 @@ import { ChatCell, VideoPlayer } from "../containers";
 const CHAT_KEY_PREFIX = "chat-";
 
 // Grid cell size for 12 columns — used for background grid lines
-const GRID_COLS = 24;
+const GRID_COLS = 48;
 
 const GridContainer = styled(Paper)(({ theme }) => ({
   minHeight: "auto",
@@ -590,7 +590,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       ref={containerRef}
       style={{
         maxHeight: availableHeight,
-        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight}px)`,
+        // Visual guide lines at 12 divisions (coarser) while snap granularity is GRID_COLS (48)
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / 12 - 1px), rgba(128,128,128,0.12) calc(100% / 12 - 1px), rgba(128,128,128,0.12) calc(100% / 12)), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight * 4 - 1}px, rgba(128,128,128,0.12) ${rowHeight * 4 - 1}px, rgba(128,128,128,0.12) ${rowHeight * 4}px)`,
         backgroundAttachment: "local",
       }}
     >
