@@ -639,6 +639,39 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                       maxStreams={Infinity}
                       onStreamAdd={onManualStreamAdd}
                     />
+                    {/* List of manually added streams (not from the stream selector) */}
+                    {(() => {
+                      const knownIds = new Set(livestreams.map((s) => s.id));
+                      const manualStreams = selectedStreams.filter((s) => !knownIds.has(s.id));
+                      if (manualStreams.length === 0) return null;
+                      return (
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>
+                            {t("multiview:urlInput.addedStreams", "URLから追加済み")}
+                          </Typography>
+                          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                            {manualStreams.map((stream) => (
+                              <Chip
+                                key={stream.id}
+                                label={`${stream.title} — ${stream.channelTitle}`}
+                                size="small"
+                                variant="outlined"
+                                onDelete={() => onRemoveStream(stream.id)}
+                                sx={{
+                                  justifyContent: "flex-start",
+                                  maxWidth: "100%",
+                                  "& .MuiChip-label": {
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  },
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </Box>
+                      );
+                    })()}
                   </Collapse>
                 </Box>
 
