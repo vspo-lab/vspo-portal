@@ -8,12 +8,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useRef, useEffect, useMemo, startTransition } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { computeSwapDuringDrag, resolveOverlaps } from "../../utils/gridSwap";
+import { resolveOverlaps } from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
 import { ChatCell, VideoPlayer } from "../containers";
 
@@ -292,11 +292,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const [availableHeight, setAvailableHeight] = useState(600);
-  // Drag swap state
-  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
-  const lastSwappedRef = useRef<string | null>(null);
+  // Drag state
   const isDraggingRef = useRef(false);
-  const dragRafRef = useRef(0);
   const isResizingRef = useRef(false);
 
 
@@ -495,78 +492,30 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  const handleDragStart = (
-    _layout: GridLayout.Layout[],
-    oldItem: GridLayout.Layout,
-  ) => {
+  const handleDragStart = () => {
     isDraggingRef.current = true;
-    dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
-    lastSwappedRef.current = null;
     containerRef.current?.classList.add("is-dragging");
   };
 
-  const handleDrag = (
-    _currentLayout: GridLayout.Layout[],
-    _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
-  ) => {
-    if (!dragOriginRef.current) return;
-
-    cancelAnimationFrame(dragRafRef.current);
-    dragRafRef.current = requestAnimationFrame(() => {
-      if (!dragOriginRef.current) return;
-
-      const virtualLayout = internalLayout.map((item) =>
-        item.i === newItem.i ? { ...item, x: newItem.x, y: newItem.y } : item,
-      );
-
-      const { layout: swappedLayout, swappedId } = computeSwapDuringDrag(
-        virtualLayout,
-        newItem.i,
-        dragOriginRef.current,
-        lastSwappedRef.current,
-      );
-
-      if (swappedId && swappedId !== lastSwappedRef.current) {
-        const swappedItem = internalLayout.find((item) => item.i === swappedId);
-        if (swappedItem) {
-          dragOriginRef.current = { x: swappedItem.x, y: swappedItem.y };
-        }
-        lastSwappedRef.current = swappedId;
-        // Low-priority update — don't block drag visual feedback
-        startTransition(() => {
-          setInternalLayout(
-            swappedLayout.map((item) =>
-              item.i === newItem.i
-                ? { ...item, x: dragOriginRef.current!.x, y: dragOriginRef.current!.y }
-                : item,
-            ),
-          );
-        });
-      }
-    });
-  };
+  // No swap during drag — all overlap resolution happens on drop
+  const handleDrag = () => {};
 
   const handleDragStop = (
     _rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
     newItem: GridLayout.Layout,
   ) => {
-    cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
-    dragOriginRef.current = null;
-    lastSwappedRef.current = null;
 
-    // Merge the dragged item's final position into our internal layout
-    // (which includes swap state), then resolve ALL overlaps.
-    // Don't use rglLayout — it doesn't reflect our swap operations.
+    // Place the dragged item at its drop position, then resolve ALL overlaps.
+    // No startTransition — synchronous update ensures state is never stale.
     setInternalLayout((prev) => {
-      const merged = prev.map((item) =>
+      const dropped = prev.map((item) =>
         item.i === newItem.i
           ? { ...item, x: newItem.x, y: newItem.y }
           : item,
       );
-      return resolveOverlaps(merged);
+      return resolveOverlaps(dropped);
     });
 
     requestAnimationFrame(() => {
