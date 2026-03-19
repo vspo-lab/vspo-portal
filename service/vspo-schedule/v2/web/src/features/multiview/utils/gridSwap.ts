@@ -86,11 +86,43 @@ export const resolveOverlaps = (
     removeOverlaps(rects);
   }
 
-  return layout.map((item, i) => ({
+  // Round positions ensuring no overlap: use ceil for the position so items
+  // never round inward (which could re-create overlaps).
+  const result = layout.map((item, i) => ({
     ...item,
-    x: Math.max(0, Math.round(rects[i].x)),
-    y: Math.max(0, Math.round(rects[i].y)),
+    x: Math.max(0, Math.ceil(rects[i].x)),
+    y: Math.max(0, Math.ceil(rects[i].y)),
   }));
+
+  // Verify: if any overlap remains after rounding, run a second pass
+  const hasOverlap = result.some((a, i) =>
+    result.some((b, j) => {
+      if (i >= j) return false;
+      const xOverlap = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      const yOverlap = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      return xOverlap > 0 && yOverlap > 0;
+    }),
+  );
+
+  if (hasOverlap) {
+    // Second pass with the rounded layout
+    const rects2 = result.map(
+      (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
+    );
+    if (fixedIndex >= 0) {
+      solveAxis(rects2, fixedIndex, "x");
+      solveAxis(rects2, fixedIndex, "y");
+    } else {
+      removeOverlaps(rects2);
+    }
+    return result.map((item, i) => ({
+      ...item,
+      x: Math.max(0, Math.ceil(rects2[i].x)),
+      y: Math.max(0, Math.ceil(rects2[i].y)),
+    }));
+  }
+
+  return result;
 };
 
 /**
