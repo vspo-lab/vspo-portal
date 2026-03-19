@@ -280,10 +280,11 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     };
   }, []);
 
-  // Square grid cell size — matches column width for square guidelines
+  // Square grid cell size — must equal colWidth (containerWidth / 12) for square cells.
+  // Use the exact float value; react-grid-layout rounds pixel positions internally.
   const rowHeight = useMemo(() => {
     if (isMobile) return 180;
-    return Math.max(20, Math.floor(containerWidth / GRID_COLS));
+    return Math.max(20, containerWidth / GRID_COLS);
   }, [containerWidth, isMobile]);
 
   // How many grid-h-units fill one visual row (to fill viewport height)
@@ -578,8 +579,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       ref={containerRef}
       style={{
         maxHeight: availableHeight,
-        // Square grid lines: cell size = containerWidth / 12 (matching column width)
-        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${Math.floor(containerWidth / GRID_COLS) - 1}px, rgba(128,128,128,0.12) ${Math.floor(containerWidth / GRID_COLS) - 1}px, rgba(128,128,128,0.12) ${Math.floor(containerWidth / GRID_COLS)}px)`,
+        // Square grid lines: both axes use containerWidth/12 so cells are square
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${containerWidth / GRID_COLS - 1}px, rgba(128,128,128,0.12) ${containerWidth / GRID_COLS - 1}px, rgba(128,128,128,0.12) ${containerWidth / GRID_COLS}px)`,
       }}
     >
       <GridLayout
