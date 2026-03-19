@@ -8,13 +8,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, startTransition } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-// gridSwap utilities kept for potential future use but not needed
-// with preventCollision={true} on GridLayout
+import { computeSwapDuringDrag, resolveOverlaps } from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
 import { ChatCell, VideoPlayer } from "../containers";
 
@@ -293,8 +292,11 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const [availableHeight, setAvailableHeight] = useState(600);
-  // Drag state
+  // Drag swap state
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const lastSwappedRef = useRef<string | null>(null);
   const isDraggingRef = useRef(false);
+  const dragRafRef = useRef(0);
   const isResizingRef = useRef(false);
 
   // Internal layout state — only reset when layout button is pressed
@@ -490,23 +492,78 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  const handleDragStart = () => {
+  const handleDragStart = (
+    _layout: GridLayout.Layout[],
+    oldItem: GridLayout.Layout,
+  ) => {
     isDraggingRef.current = true;
+    dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
+    lastSwappedRef.current = null;
     containerRef.current?.classList.add("is-dragging");
   };
 
-  // Library handles collision prevention during drag — no custom swap needed
-  const handleDrag = () => {};
+  const handleDrag = (
+    _currentLayout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
+  ) => {
+    if (!dragOriginRef.current) return;
+
+    cancelAnimationFrame(dragRafRef.current);
+    dragRafRef.current = requestAnimationFrame(() => {
+      if (!dragOriginRef.current) return;
+
+      const virtualLayout = internalLayout.map((item) =>
+        item.i === newItem.i ? { ...item, x: newItem.x, y: newItem.y } : item,
+      );
+
+      const { layout: swappedLayout, swappedId } = computeSwapDuringDrag(
+        virtualLayout,
+        newItem.i,
+        dragOriginRef.current,
+        lastSwappedRef.current,
+      );
+
+      if (swappedId && swappedId !== lastSwappedRef.current) {
+        const swappedItem = internalLayout.find((item) => item.i === swappedId);
+        if (swappedItem) {
+          dragOriginRef.current = { x: swappedItem.x, y: swappedItem.y };
+        }
+        lastSwappedRef.current = swappedId;
+        // Low-priority update — don't block drag visual feedback
+        startTransition(() => {
+          setInternalLayout(
+            swappedLayout.map((item) =>
+              item.i === newItem.i
+                ? { ...item, x: dragOriginRef.current!.x, y: dragOriginRef.current!.y }
+                : item,
+            ),
+          );
+        });
+      }
+    });
+  };
 
   const handleDragStop = (
-    newLayout: GridLayout.Layout[],
+    _layout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    _newItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
   ) => {
+    cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
+    dragOriginRef.current = null;
+    lastSwappedRef.current = null;
 
-    // Library handles collision prevention — just accept the new layout
-    setInternalLayout(newLayout);
+    // Place the dragged item at its drop position, then resolve ALL overlaps
+    // across all items (no fixed item) to handle varying player sizes
+    setInternalLayout((prev) => {
+      const dropped = prev.map((item) =>
+        item.i === newItem.i
+          ? { ...item, x: newItem.x, y: newItem.y }
+          : item,
+      );
+      return resolveOverlaps(dropped);
+    });
 
     requestAnimationFrame(() => {
       isDraggingRef.current = false;
@@ -522,8 +579,9 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     _oldItem: GridLayout.Layout,
     newItem: GridLayout.Layout,
   ) => {
-    // Library handles collision prevention — just accept the new layout
-    setInternalLayout(newLayout);
+    // Resolve all overlaps across all items (no fixed item)
+    const resolved = resolveOverlaps(newLayout);
+    setInternalLayout(resolved);
     // Delay clearing so onLayoutChange after resize is ignored
     requestAnimationFrame(() => {
       isResizingRef.current = false;
@@ -612,8 +670,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         draggableHandle=".drag-handle"
         draggableCancel=".no-drag"
         compactType={null}
-        preventCollision={true}
-        allowOverlap={false}
+        allowOverlap={true}
         isBounded={true}
         margin={[0, 0]}
         containerPadding={[0, 0]}
