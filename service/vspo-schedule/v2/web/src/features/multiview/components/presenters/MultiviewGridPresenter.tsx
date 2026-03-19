@@ -456,7 +456,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       };
     });
 
-    setInternalLayout([...kept, ...newItems]);
+    setInternalLayout(resolveOverlaps([...kept, ...newItems]));
   }, [streamIdKey, layout.type, layout.cols, rowHeight, cellsPerRow, isMobile, allItemIds, availableHeight]);
 
   // Apply externally provided grid positions (e.g. from a saved custom layout)
@@ -468,11 +468,13 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       externalGridPositions.length > 0
     ) {
       setInternalLayout(
-        externalGridPositions.map((pos) => ({
-          ...pos,
-          minW: 2,
-          minH: 2,
-        })),
+        resolveOverlaps(
+          externalGridPositions.map((pos) => ({
+            ...pos,
+            minW: 2,
+            minH: 2,
+          })),
+        ),
       );
     }
     prevExternalRef.current = externalGridPositions;
@@ -546,19 +548,26 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   };
 
   const handleDragStop = (
-    rglLayout: GridLayout.Layout[],
+    _rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    _newItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
   ) => {
     cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
     dragOriginRef.current = null;
     lastSwappedRef.current = null;
 
-    // Use react-grid-layout's current layout (all items with their actual positions)
-    // and resolve ALL overlaps from scratch — don't rely on React state which may
-    // be stale due to startTransition
-    setInternalLayout(resolveOverlaps(rglLayout));
+    // Merge the dragged item's final position into our internal layout
+    // (which includes swap state), then resolve ALL overlaps.
+    // Don't use rglLayout — it doesn't reflect our swap operations.
+    setInternalLayout((prev) => {
+      const merged = prev.map((item) =>
+        item.i === newItem.i
+          ? { ...item, x: newItem.x, y: newItem.y }
+          : item,
+      );
+      return resolveOverlaps(merged);
+    });
 
     requestAnimationFrame(() => {
       isDraggingRef.current = false;
