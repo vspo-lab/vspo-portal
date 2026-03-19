@@ -65,6 +65,60 @@ const solveAxis = (
  * @param fixedId - 固定するアイテムのID（省略可）
  * @returns 重なりが解消されたレイアウト
  */
+/**
+ * Greedy pass: push overlapping items apart on the axis with smaller overlap.
+ * fixedIndex item is never moved; all others are pushed away from it.
+ */
+const greedyFixOverlaps = (
+  items: GridLayout.Layout[],
+  fixedIndex: number,
+  maxPasses = 10,
+): GridLayout.Layout[] => {
+  const result = items.map((item) => ({ ...item }));
+
+  for (let pass = 0; pass < maxPasses; pass++) {
+    let moved = false;
+    for (let i = 0; i < result.length; i++) {
+      for (let j = i + 1; j < result.length; j++) {
+        const a = result[i];
+        const b = result[j];
+        const xOverlap = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const yOverlap = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (xOverlap <= 0 || yOverlap <= 0) continue;
+
+        // Push the non-fixed item; if neither is fixed, push the later one
+        const pushIdx = i === fixedIndex ? j : j === fixedIndex ? i : j;
+        const otherIdx = pushIdx === i ? j : i;
+
+        // Push on the axis with smaller overlap (less disruption)
+        if (xOverlap <= yOverlap) {
+          // Push horizontally
+          const pushRight = result[pushIdx].x >= result[otherIdx].x;
+          result[pushIdx] = {
+            ...result[pushIdx],
+            x: Math.max(0, pushRight
+              ? result[otherIdx].x + result[otherIdx].w
+              : result[otherIdx].x - result[pushIdx].w),
+          };
+        } else {
+          // Push vertically
+          const pushDown = result[pushIdx].y >= result[otherIdx].y;
+          result[pushIdx] = {
+            ...result[pushIdx],
+            y: Math.max(0, pushDown
+              ? result[otherIdx].y + result[otherIdx].h
+              : result[otherIdx].y - result[pushIdx].h),
+          };
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+
+  return result;
+};
+
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
   fixedId?: string,
@@ -80,7 +134,6 @@ export const resolveOverlaps = (
     : -1;
 
   if (fixedIndex >= 0) {
-    // Iterate X→Y→X→Y to let both axes converge
     for (let pass = 0; pass < 3; pass++) {
       solveAxis(rects, fixedIndex, "x");
       solveAxis(rects, fixedIndex, "y");
@@ -89,45 +142,15 @@ export const resolveOverlaps = (
     removeOverlaps(rects);
   }
 
-  // Round positions ensuring no overlap: use ceil for the position so items
-  // never round inward (which could re-create overlaps).
-  const result = layout.map((item, i) => ({
+  // Round to integer grid positions
+  const rounded = layout.map((item, i) => ({
     ...item,
-    x: Math.max(0, Math.ceil(rects[i].x)),
-    y: Math.max(0, Math.ceil(rects[i].y)),
+    x: Math.max(0, Math.round(rects[i].x)),
+    y: Math.max(0, Math.round(rects[i].y)),
   }));
 
-  // Verify: if any overlap remains after rounding, run a second pass
-  const hasOverlap = result.some((a, i) =>
-    result.some((b, j) => {
-      if (i >= j) return false;
-      const xOverlap = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-      const yOverlap = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-      return xOverlap > 0 && yOverlap > 0;
-    }),
-  );
-
-  if (hasOverlap) {
-    // Second pass with the rounded layout
-    const rects2 = result.map(
-      (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
-    );
-    if (fixedIndex >= 0) {
-      for (let pass = 0; pass < 3; pass++) {
-        solveAxis(rects2, fixedIndex, "x");
-        solveAxis(rects2, fixedIndex, "y");
-      }
-    } else {
-      removeOverlaps(rects2);
-    }
-    return result.map((item, i) => ({
-      ...item,
-      x: Math.max(0, Math.ceil(rects2[i].x)),
-      y: Math.max(0, Math.ceil(rects2[i].y)),
-    }));
-  }
-
-  return result;
+  // Greedy pass to fix any overlaps introduced by rounding
+  return greedyFixOverlaps(rounded, fixedIndex);
 };
 
 /**
