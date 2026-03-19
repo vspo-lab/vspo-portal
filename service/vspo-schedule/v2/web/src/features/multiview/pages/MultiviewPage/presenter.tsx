@@ -85,7 +85,7 @@ const ControlsPanel = styled(Paper)<{ collapsed?: boolean }>(
     right: collapsed ? "-500px" : theme.spacing(1), // Move off-screen when collapsed
     top: "50%",
     transform: "translateY(-50%)",
-    width: "450px",
+    width: "550px",
     maxHeight: "80vh",
     overflowY: "auto",
     overflowX: "hidden",
@@ -293,7 +293,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
             pb: 2,
             pr:
               isLargeScreen && !controlsPanelCollapsed
-                ? "470px"
+                ? "570px"
                 : { xs: 0.5, sm: 1, md: 2 }, // Space for fixed controls on large screens
             transition: "padding-right 0.3s ease", // Smooth transition when panel opens/closes
             backgroundColor: "transparent",

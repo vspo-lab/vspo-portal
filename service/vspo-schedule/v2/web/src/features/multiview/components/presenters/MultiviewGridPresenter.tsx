@@ -37,7 +37,6 @@ const GridContainer = styled(Paper)<{ isFullscreen?: boolean }>(
     width: isFullscreen ? "100vw" : "100%",
     height: isFullscreen ? "100vh" : "auto",
     zIndex: isFullscreen ? 9999 : "auto",
-    overflow: "hidden",
     [theme.breakpoints.down("md")]: {
       minHeight: isFullscreen ? "100vh" : "600px",
       padding: theme.spacing(isFullscreen ? 0 : 0.5),
@@ -445,7 +444,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
               display: "flex",
               height: "100%",
               width: "100%",
-              overflow: "hidden",
             }}
           >
             <VideoPlayer
