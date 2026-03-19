@@ -33,11 +33,14 @@ export const resolveOverlaps = (
 
   removeOverlaps(rects);
 
-  // webcola Rectangle → GridLayout.Layout (x, y を更新、w, h は保持)
+  // webcola Rectangle → GridLayout.Layout
+  // IMPORTANT: Only update x/y (position). Keep original w/h (size).
+  // webcola may change rectangle dimensions, but we only want position adjustment.
   return layout.map((item, i) => ({
     ...item,
     x: Math.round(rects[i].x),
     y: Math.round(rects[i].y),
+    // w and h are intentionally NOT updated from rects — preserve original sizes
   }));
 };
 

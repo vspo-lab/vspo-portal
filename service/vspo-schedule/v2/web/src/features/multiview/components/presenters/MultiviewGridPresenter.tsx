@@ -38,20 +38,11 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   height: "auto",
   overflowY: "auto",
   overflowX: "hidden",
-  // Grid guidelines (Holodex-style)
-  backgroundImage: [
-    // Vertical lines: 12 columns
-    `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS}))`,
-    // Horizontal lines: every 100px
-    "repeating-linear-gradient(0deg, transparent, transparent 99px, rgba(255,255,255,0.06) 99px, rgba(255,255,255,0.06) 100px)",
-  ].join(", "),
-  backgroundSize: "100% 100%, 100% 100px",
+  // Vertical grid guidelines (12 columns) — horizontal lines are set dynamically via inline style
+  backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS} - 1px), rgba(255,255,255,0.06) calc(100% / ${GRID_COLS}))`,
   [theme.getColorSchemeSelector("light")]: {
     backgroundColor: "#e0e0e0",
-    backgroundImage: [
-      `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS}))`,
-      "repeating-linear-gradient(0deg, transparent, transparent 99px, rgba(0,0,0,0.08) 99px, rgba(0,0,0,0.08) 100px)",
-    ].join(", "),
+    backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS} - 1px), rgba(0,0,0,0.08) calc(100% / ${GRID_COLS}))`,
   },
   "&.is-dragging iframe": {
     pointerEvents: "none",
@@ -607,7 +598,11 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     <GridContainer
       elevation={1}
       ref={containerRef}
-      style={{ maxHeight: availableHeight }}
+      style={{
+        maxHeight: availableHeight,
+        // Dynamic horizontal grid lines matching computedItemH
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.15) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${computedItemH - 1}px, rgba(128,128,128,0.15) ${computedItemH - 1}px, rgba(128,128,128,0.15) ${computedItemH}px)`,
+      }}
     >
       <GridLayout
         className="layout"
@@ -627,6 +622,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         draggableCancel=".no-drag"
         compactType={null}
         allowOverlap={true}
+        isBounded={true}
         margin={[0, 0]}
         containerPadding={[0, 0]}
         style={{ minHeight: availableHeight, width: "100%" }}
