@@ -110,14 +110,19 @@ export const resolveOverlaps = (
     ? layout.findIndex((item) => item.i === fixedId)
     : -1;
 
-  // First pass: VPSC on original float coordinates, then round
+  // First pass: weighted VPSC (fixed item pinned) then round
   let result = runVpsc(layout, fixedIndex);
 
-  // If rounding introduced overlaps, re-run VPSC on the integer coordinates.
-  // Integer input → integer-compatible output → minimal rounding drift.
-  // Up to 3 additional passes to guarantee convergence.
-  for (let retry = 0; retry < 3 && hasAnyOverlap(result); retry++) {
-    result = runVpsc(result, fixedIndex);
+  // Second pass: if overlaps remain, use removeOverlaps (both axes at once)
+  // as the final guarantee. This is webcola's standard algorithm without
+  // per-item weighting but resolves both axes simultaneously.
+  if (hasAnyOverlap(result)) {
+    result = runVpsc(result, -1); // -1 = use removeOverlaps
+  }
+
+  // Third pass: one more retry on integer coords if still overlapping
+  if (hasAnyOverlap(result)) {
+    result = runVpsc(result, -1);
   }
 
   return result;
