@@ -5,3 +5,4 @@ export * from "./VideoPlayer";
 export * from "./LayoutSelector";
 export * from "./UrlInput";
 export * from "./SimplePlaybackControls";
+export * from "./MultiviewErrorBoundary";

@@ -47,16 +47,15 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
         }
 
         if (iframeRef.current && iframeRef.current.contentWindow) {
-          const message = {
-            event: "command",
-            func: command,
-            args: args || [],
-          };
-
           if (stream.platform === "youtube") {
+            const message = {
+              event: "command",
+              func: command,
+              args: args || [],
+            };
             iframeRef.current.contentWindow.postMessage(
               JSON.stringify(message),
-              "*",
+              "https://www.youtube.com",
             );
           } else if (stream.platform === "twitch") {
             const twitchMessage = {
@@ -82,7 +81,10 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
             }
 
             if (twitchMessage.eventName) {
-              iframeRef.current.contentWindow.postMessage(twitchMessage, "*");
+              iframeRef.current.contentWindow.postMessage(
+                twitchMessage,
+                "https://player.twitch.tv",
+              );
             }
           }
         }
@@ -143,6 +145,19 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
       setIsLoading(true);
       setHasError(false);
     }, [stream.id]);
+
+    // Pause player when tab becomes hidden to save resources
+    useEffect(() => {
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          postMessageToPlayer("pauseVideo");
+        }
+      };
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }, [postMessageToPlayer]);
 
     const readyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

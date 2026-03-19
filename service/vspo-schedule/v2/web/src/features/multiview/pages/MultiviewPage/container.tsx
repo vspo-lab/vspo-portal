@@ -3,12 +3,12 @@ import { Livestream } from "@/features/shared/domain";
 import { NextPageWithLayout } from "@/pages/_app";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 
+import { MultiviewErrorBoundary } from "../../components/containers";
 import { PlaybackProvider } from "../../context/PlaybackContext";
 import { useUrlConfigurationLoader } from "../../hooks/useConfigurationLoader";
 import { LayoutType } from "../../hooks/useMultiviewLayout";
 import { LoadedConfig } from "../../utils/configLoader";
 import {
-  clearUrlState,
   expandCompactState,
   generateShareableUrl,
   hasUrlState,
@@ -75,8 +75,7 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
             setSelectedStreams(expanded.streams);
             setSelectedLayout(expanded.layout);
 
-            // Clear URL state after loading
-            clearUrlState();
+            // Keep URL state for bookmarkability
             return;
           }
         }
@@ -115,12 +114,30 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
     loadInitialState();
   }, [props.livestreams]);
 
-  // Save state when it changes
+  // Save state when it changes (debounced to avoid blocking main thread)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (selectedStreams.length > 0) {
-      saveStateToLocalStorage(selectedStreams, selectedLayout);
-      setShareableUrl(generateShareableUrl(selectedStreams, selectedLayout));
+      // Generate shareable URL and keep address bar in sync
+      const newUrl = generateShareableUrl(selectedStreams, selectedLayout);
+      setShareableUrl(newUrl);
+
+      // Update browser URL without triggering navigation
+      try {
+        window.history.replaceState({}, "", newUrl);
+      } catch {
+        // Silently ignore if URL update fails (e.g., SSR)
+      }
+
+      // Debounce localStorage write (synchronous / blocking)
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => {
+        saveStateToLocalStorage(selectedStreams, selectedLayout);
+      }, 500);
     }
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
   }, [selectedStreams, selectedLayout]);
 
   useEffect(() => {
@@ -211,8 +228,9 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
     [handleRemoveChat],
   );
 
-  // Use the presenter component wrapped with PlaybackProvider
+  // Use the presenter component wrapped with PlaybackProvider and ErrorBoundary
   return (
+    <MultiviewErrorBoundary>
     <PlaybackProvider>
       <Presenter
         livestreams={props.livestreams}
@@ -229,6 +247,7 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
         onRemoveChat={handleRemoveChat}
       />
     </PlaybackProvider>
+    </MultiviewErrorBoundary>
   );
 };
 

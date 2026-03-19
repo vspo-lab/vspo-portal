@@ -1,6 +1,7 @@
 import { Livestream } from "@/features/shared/domain";
 import { useTranslation } from "next-i18next";
 import React, { useState, useCallback } from "react";
+import { generateEmbedUrl } from "../../utils/platformUtils";
 import { UrlInputPresenter } from "../presenters";
 
 export interface UrlInputProps {
@@ -78,6 +79,32 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               status: "live" as const,
               link: url,
               videoPlayerLink: `https://player.twitch.tv/?channel=${channelName}&parent=${window.location.hostname}&autoplay=true&muted=true`,
+              thumbnailUrl: "",
+              channelThumbnailUrl: "",
+              viewCount: 0,
+              tags: [],
+              scheduledStartTime: new Date().toISOString(),
+              scheduledEndTime: null,
+            };
+          }
+        }
+
+        // Twitcasting URL parsing (e.g. https://twitcasting.tv/username)
+        if (urlObj.hostname.includes("twitcasting.tv")) {
+          const userName = urlObj.pathname.split("/")[1];
+
+          if (userName) {
+            return {
+              id: userName,
+              type: "livestream" as const,
+              channelId: userName,
+              channelTitle: userName,
+              title: "Twitcasting Stream",
+              description: "Twitcasting stream added from URL",
+              platform: "twitcasting" as const,
+              status: "live" as const,
+              link: url,
+              videoPlayerLink: generateEmbedUrl("twitcasting", userName),
               thumbnailUrl: "",
               channelThumbnailUrl: "",
               viewCount: 0,

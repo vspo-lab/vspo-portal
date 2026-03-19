@@ -29,7 +29,7 @@ const PlayerContainer = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   border: "none",
   boxShadow: "none",
-  "&:hover .player-header": {
+  "&:hover .player-header, &:focus-within .player-header": {
     opacity: 1,
   },
   [theme.breakpoints.down("md")]: {
@@ -54,6 +54,9 @@ const PlayerHeader = styled(Box)(({ theme }) => ({
   "&:active": {
     cursor: "grabbing",
   },
+  "@media (prefers-reduced-motion: reduce)": {
+    transition: "none",
+  },
 }));
 
 const DragHandle = styled(IconButton)(({ theme }) => ({
@@ -63,7 +66,9 @@ const DragHandle = styled(IconButton)(({ theme }) => ({
     cursor: "grabbing",
   },
   marginRight: theme.spacing(0.5),
-  padding: theme.spacing(0.25),
+  padding: theme.spacing(0.5),
+  minWidth: 44,
+  minHeight: 44,
 }));
 
 const HeaderActions = styled(Box)({
@@ -91,6 +96,8 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
         : "rgba(0, 0, 0, 0.7)",
   },
   marginLeft: theme.spacing(1),
+  minWidth: 44,
+  minHeight: 44,
 }));
 
 const VideoFrame = styled("iframe")({
@@ -156,65 +163,66 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
 
     const getEmbedUrl = (stream: Livestream): string => {
       try {
-        // Generate embed URL with API control enabled
+        const parentDomain =
+          typeof window !== "undefined"
+            ? window.location.hostname
+            : "localhost";
+
         if (stream.platform === "youtube") {
           const videoId =
             stream.videoPlayerLink?.match(/embed\/([^?]+)/)?.[1] ||
             stream.link?.match(/watch\?v=([^&]+)/)?.[1] ||
             stream.id;
-          // Enable YouTube iframe API with proper parameters
-          const originParam = typeof window !== "undefined" ? `&origin=${window.location.origin}` : "";
-          return `https://www.youtube.com/embed/${videoId}?enablejsapi=1${originParam}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
-        } else if (stream.platform === "twitch") {
-          // Extract channel name from different sources
-          let channelName = "";
-
-          // Try to extract from videoPlayerLink first
-          if (stream.videoPlayerLink) {
-            const match = stream.videoPlayerLink.match(/channel=([^&]+)/);
-            if (match) {
-              channelName = match[1];
-            }
-          }
-
-          // If not found, try link property
-          if (!channelName && stream.link) {
-            const match = stream.link.match(/twitch\.tv\/([^/?]+)/);
-            if (match) {
-              channelName = match[1];
-            }
-          }
-
-          // Fallback to channelId or id
-          if (!channelName) {
-            channelName = stream.channelId || stream.id;
-          }
-
-          // Debug info removed for production
-
-          // Enable Twitch iframe API with proper parent domain
-          const parentDomain = window.location.hostname;
-          return `https://player.twitch.tv/?channel=${channelName}&parent=${parentDomain}&autoplay=false&muted=${muted}&controls=true`;
-        }
-
-        // Fallback to generating embed URL using platform utilities
-        if (stream.platform !== "unknown") {
-          const videoId = stream.channelId || stream.id;
-          return generateEmbedUrl(stream.platform, videoId, {
-            autoplay: false, // Never autoplay
+          return generateEmbedUrl("youtube", videoId, {
+            autoplay: false,
             muted,
-            parentDomain:
-              typeof window !== "undefined"
-                ? window.location.hostname
-                : "localhost",
+            parentDomain,
           });
         }
 
-        // Final fallback to the link property
-        return stream.link || "";
+        if (stream.platform === "twitch") {
+          let channelName = "";
+          if (stream.videoPlayerLink) {
+            const match = stream.videoPlayerLink.match(/channel=([^&]+)/);
+            if (match) channelName = match[1];
+          }
+          if (!channelName && stream.link) {
+            const match = stream.link.match(/twitch\.tv\/([^/?]+)/);
+            if (match) channelName = match[1];
+          }
+          if (!channelName) {
+            channelName = stream.channelId || stream.id;
+          }
+          return generateEmbedUrl("twitch", channelName, {
+            autoplay: false,
+            muted,
+            parentDomain,
+          });
+        }
+
+        if (stream.platform === "twitcasting") {
+          const userId = stream.channelId || stream.id;
+          return generateEmbedUrl("twitcasting", userId, {
+            autoplay: false,
+            muted,
+          });
+        }
+
+        // For other known platforms, delegate to platformUtils
+        if (stream.platform !== "unknown") {
+          const videoId = stream.channelId || stream.id;
+          return generateEmbedUrl(stream.platform, videoId, {
+            autoplay: false,
+            muted,
+            parentDomain,
+          });
+        }
+
+        // Unknown platform: return empty string (no arbitrary URL embedding)
+        return "";
       } catch (error) {
         console.error("Error generating embed URL:", error);
-        return stream.link || "";
+        return "";
       }
     };
 
@@ -274,7 +282,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           </HeaderActions>
         </PlayerHeader>
 
-        {hasError ? (
+        {hasError || !getEmbedUrl(stream) ? (
           <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
@@ -296,6 +304,8 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
               src={getEmbedUrl(stream)}
               title={`${stream.channelTitle} - ${stream.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
+              loading="lazy"
               allowFullScreen
               onLoad={onPlayerReady}
               onError={onPlayerError}

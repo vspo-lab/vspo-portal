@@ -3,7 +3,7 @@ import { Platform } from "@/features/shared/domain/video";
 /**
  * Generate embed URL for a given platform and video ID.
  *
- * @precondition platform must be "youtube" or "twitch"; videoId must be non-empty
+ * @precondition platform must be "youtube", "twitch", or "twitcasting"; videoId must be non-empty
  * @postcondition Returns a valid embed URL string (empty string for unsupported platforms)
  */
 export const generateEmbedUrl = (
@@ -48,6 +48,11 @@ export const generateEmbedUrl = (
       if (muted) params.set("muted", "true");
 
       return `https://player.twitch.tv/?${params.toString()}`;
+    }
+
+    case "twitcasting": {
+      // 公式ドキュメント: https://twitcasting.tv/twitcastinglive/communityshow/6557098
+      return `https://twitcasting.tv/${videoId}/embeddedplayer/live?auto_play=${autoplay ? "true" : "false"}&default_mute=${muted ? "true" : "false"}`;
     }
 
     default:

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { Livestream } from "@/features/shared/domain";
 import { LayoutType } from "../hooks/useMultiviewLayout";
 
@@ -44,6 +45,65 @@ interface CompactMultiviewState {
   }>;
   v: number; // version
 }
+
+// Validation schemas for deserialized data
+const VALID_PLATFORMS = ["youtube", "twitch", "twitcasting", "niconico", "unknown"] as const;
+const VALID_LAYOUTS: LayoutType[] = ["1x1", "2x1", "1x2", "2x2", "3x3", "4x3", "picture-in-picture", "auto"];
+
+const multiviewStateSchema = z.object({
+  selectedStreams: z.array(z.object({
+    id: z.string(),
+    platform: z.string(),
+    channelId: z.string().optional(),
+    title: z.string(),
+    channelTitle: z.string(),
+    link: z.string(),
+  })),
+  layout: z.string().refine((val): val is LayoutType => VALID_LAYOUTS.includes(val as LayoutType)),
+  gridLayout: z.array(z.object({
+    i: z.string(),
+    x: z.number().finite(),
+    y: z.number().finite(),
+    w: z.number().finite().positive(),
+    h: z.number().finite().positive(),
+    minW: z.number().optional(),
+    minH: z.number().optional(),
+    static: z.boolean().optional(),
+  })).optional(),
+  version: z.number(),
+});
+
+const customLayoutPresetsSchema = z.array(z.object({
+  name: z.string(),
+  layout: z.object({
+    type: z.string().refine((val): val is LayoutType => VALID_LAYOUTS.includes(val as LayoutType)),
+    gridPositions: z.array(z.object({
+      i: z.string(),
+      x: z.number().finite(),
+      y: z.number().finite(),
+      w: z.number().finite().positive(),
+      h: z.number().finite().positive(),
+    })),
+  }),
+}));
+
+const compactStreamSchema = z.object({
+  i: z.string().min(1),
+  p: z.string().min(1),
+  c: z.string().optional(),
+});
+
+const compactStateSchema = z.object({
+  s: z.array(compactStreamSchema).min(1),
+  l: z.string().min(1),
+  v: z.number(),
+  g: z.array(z.object({
+    x: z.number().finite(),
+    y: z.number().finite(),
+    w: z.number().finite().positive(),
+    h: z.number().finite().positive(),
+  })).optional(),
+});
 
 const CURRENT_VERSION = 2;
 const STORAGE_KEY = "vspo-multiview-state";
@@ -100,9 +160,13 @@ export const loadCustomLayouts = (): ReadonlyArray<CustomLayoutPreset> => {
   try {
     const saved = localStorage.getItem(CUSTOM_LAYOUTS_KEY);
     if (!saved) return [];
-    const parsed = JSON.parse(saved) as CustomLayoutPreset[];
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
+    const parsed = JSON.parse(saved);
+    const result = customLayoutPresetsSchema.safeParse(parsed);
+    if (!result.success) {
+      console.error("Invalid custom layouts in localStorage:", result.error.message);
+      return [];
+    }
+    return result.data as ReadonlyArray<CustomLayoutPreset>;
   } catch (error) {
     console.error("Failed to load custom layouts:", error);
     return [];
@@ -222,7 +286,9 @@ const decodeCompactUrl = (encoded: string): CompactMultiviewState | null => {
       });
     }
 
-    return result;
+    const validated = compactStateSchema.safeParse(result);
+    if (!validated.success) return null;
+    return validated.data as CompactMultiviewState;
   } catch {
     return null;
   }
@@ -265,7 +331,13 @@ export const loadStateFromLocalStorage = (): MultiviewState | null => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return null;
 
-    const state = JSON.parse(saved) as MultiviewState;
+    const parsed = JSON.parse(saved);
+    const result = multiviewStateSchema.safeParse(parsed);
+    if (!result.success) {
+      console.error("Invalid multiview state in localStorage:", result.error.message);
+      return null;
+    }
+    const state = result.data as MultiviewState;
 
     if (state.version !== CURRENT_VERSION) {
       return null;
@@ -389,7 +461,7 @@ export const expandCompactState = (
           type: "livestream" as const,
           title: compactStream.i,
           description: "",
-          platform: compactStream.p as Livestream["platform"],
+          platform: (VALID_PLATFORMS.includes(compactStream.p as typeof VALID_PLATFORMS[number]) ? compactStream.p : "unknown") as Livestream["platform"],
           thumbnailUrl: "",
           viewCount: 0,
           status: "live" as const,
@@ -410,7 +482,7 @@ export const expandCompactState = (
 
     return {
       streams,
-      layout: compactState.l as LayoutType,
+      layout: (VALID_LAYOUTS.includes(compactState.l as LayoutType) ? compactState.l : "auto") as LayoutType,
       gridLayout: compactState.g,
     };
   } catch (error) {

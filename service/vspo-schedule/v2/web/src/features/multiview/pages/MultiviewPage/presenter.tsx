@@ -85,6 +85,9 @@ const ControlsPanel = styled(Paper)<{ collapsed?: boolean }>(
     transition: theme.transitions.create(["right", "opacity"], {
       duration: theme.transitions.duration.short,
     }),
+    "@media (prefers-reduced-motion: reduce)": {
+      transition: "none",
+    },
     opacity: collapsed ? 0 : 1,
     [theme.breakpoints.down("lg")]: {
       position: "relative",
@@ -144,7 +147,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
   // Controls panel collapsed by default on large screens (dashboard style)
   const [controlsPanelCollapsed, setControlsPanelCollapsed] =
-    React.useState(true);
+    React.useState(false);
   const [layoutSectionCollapsed, setLayoutSectionCollapsed] =
     React.useState(false);
   const [urlInputCollapsed, setUrlInputCollapsed] = React.useState(false);
@@ -173,6 +176,15 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
       }>
     | undefined
   >(undefined);
+
+  // Auto-collapse panel when streams are added on large screens
+  const hasAutoCollapsedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (isLargeScreen && selectedStreams.length > 0 && !hasAutoCollapsedRef.current) {
+      hasAutoCollapsedRef.current = true;
+      setControlsPanelCollapsed(true);
+    }
+  }, [selectedStreams.length, isLargeScreen]);
 
   // Load custom layouts on mount
   React.useEffect(() => {
@@ -244,19 +256,50 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
     });
   }, []);
 
-  // Escape key exits immersive mode
+  // Keyboard shortcuts
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in input fields
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+        return;
+      }
+
       if (e.key === "Escape") {
-        setImmersiveMode(false);
-        document.documentElement.dataset.immersive = "false";
+        if (immersiveMode) {
+          setImmersiveMode(false);
+          document.documentElement.dataset.immersive = "false";
+        }
+        return;
+      }
+
+      // F key for true fullscreen toggle
+      if (e.key === "f" || e.key === "F") {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+        return;
+      }
+
+      // I key for immersive mode toggle
+      if (e.key === "i" || e.key === "I") {
+        toggleImmersiveMode();
+        return;
+      }
+
+      // T key for controls panel toggle (large screens only)
+      if ((e.key === "t" || e.key === "T") && isLargeScreen) {
+        setControlsPanelCollapsed((prev) => !prev);
+        return;
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [immersiveMode, toggleImmersiveMode, isLargeScreen]);
 
   // Clean up immersive mode on unmount only
   React.useEffect(() => {
@@ -300,7 +343,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
     <Box
       sx={{
         width: "100%",
-        minHeight: "100vh",
+        minHeight: "100dvh",
         backgroundColor: theme.palette.background.default,
         color: theme.palette.text.primary,
         [theme.getColorSchemeSelector("dark")]: {
@@ -347,8 +390,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         <Box
           sx={{
             position: "fixed",
-            bottom: theme.spacing(3),
-            right: theme.spacing(3),
+            bottom: `calc(${theme.spacing(3)} + env(safe-area-inset-bottom, 0px))`,
+            right: `calc(${theme.spacing(3)} + env(safe-area-inset-right, 0px))`,
             zIndex: 1200, // Higher than controls panel
             display: "flex",
             gap: theme.spacing(2),
@@ -397,6 +440,10 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                     transform: "scale(1.1)",
                   },
                   transition: "all 0.2s ease",
+                  "@media (prefers-reduced-motion: reduce)": {
+                    transition: "none",
+                    "&:hover": { transform: "none" },
+                  },
                 }}
               >
                 {controlsPanelCollapsed ? (
@@ -438,6 +485,10 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                     transform: "scale(1.1)",
                   },
                   transition: "all 0.2s ease",
+                  "@media (prefers-reduced-motion: reduce)": {
+                    transition: "none",
+                    "&:hover": { transform: "none" },
+                  },
                 }}
               >
                 <OpenInFullIcon sx={{ fontSize: 28 }} />
@@ -451,14 +502,15 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
           <Box
             sx={{
               position: "fixed",
-              bottom: theme.spacing(3),
-              right: theme.spacing(3),
+              bottom: `calc(${theme.spacing(3)} + env(safe-area-inset-bottom, 0px))`,
+              right: `calc(${theme.spacing(3)} + env(safe-area-inset-right, 0px))`,
               zIndex: 1200,
               opacity: 0,
               transition: "opacity 0.3s ease",
               "&:hover": { opacity: 1 },
-              // Show briefly on touch devices
-              "@media (hover: none)": { opacity: 0.5 },
+              "&:focus-within": { opacity: 1 },
+              // Always visible on touch devices (no hover)
+              "@media (hover: none)": { opacity: 0.8 },
             }}
           >
             <Tooltip
@@ -483,6 +535,10 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                     transform: "scale(1.1)",
                   },
                   transition: "all 0.2s ease",
+                  "@media (prefers-reduced-motion: reduce)": {
+                    transition: "none",
+                    "&:hover": { transform: "none" },
+                  },
                 }}
               >
                 <CloseFullscreenIcon sx={{ fontSize: 28 }} />
@@ -525,6 +581,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                         setStreamSelectorCollapsed(!streamSelectorCollapsed)
                       }
                       aria-label={streamSelectorCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
+                      aria-expanded={!streamSelectorCollapsed}
                       sx={{ ml: 1 }}
                     >
                       {streamSelectorCollapsed ? (
@@ -539,6 +596,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                       streams={livestreams}
                       selectedStreams={selectedStreams}
                       onStreamSelect={onStreamSelection}
+                      chatStreamIds={chatStreamIds}
+                      onToggleChat={onToggleChat}
                     />
                   </Collapse>
                 </Box>
@@ -567,6 +626,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                       size="small"
                       onClick={() => setUrlInputCollapsed(!urlInputCollapsed)}
                       aria-label={urlInputCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
+                      aria-expanded={!urlInputCollapsed}
                       sx={{ ml: 1 }}
                     >
                       {urlInputCollapsed ? (
@@ -611,6 +671,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                         setLayoutSectionCollapsed(!layoutSectionCollapsed)
                       }
                       aria-label={layoutSectionCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
+                      aria-expanded={!layoutSectionCollapsed}
                       sx={{ ml: 1 }}
                     >
                       {layoutSectionCollapsed ? (
@@ -841,6 +902,25 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Visually-hidden live region for screen reader announcements */}
+      <Box
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        sx={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {selectedStreams.length > 0
+          ? t("multiview:status.streamCount", "{{count}}件の配信を表示中", { count: selectedStreams.length })
+          : t("multiview:status.noStreams", "配信が選択されていません")}
+      </Box>
 
       {/* Snackbar for feedback */}
       <Snackbar
