@@ -33,7 +33,9 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   borderRadius: 0,
   boxShadow: "none",
   border: "none",
-  position: "relative",
+  position: "sticky",
+  top: 0,
+  zIndex: 1,
   width: "100%",
   height: "auto",
   overflowY: "auto",
@@ -228,7 +230,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const [availableHeight, setAvailableHeight] = useState(600);
-  const [gridTopOffset, setGridTopOffset] = useState(0);
   // Drag swap state
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
   const lastSwappedRef = useRef<string | null>(null);
@@ -258,7 +259,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         // Use visualViewport for accurate height on mobile (handles address bar)
         const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
         setAvailableHeight(Math.max(300, viewportHeight - rect.top));
-        setGridTopOffset(rect.top);
       }
     };
 
@@ -590,7 +590,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       style={{
         maxHeight: availableHeight,
         backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight - 1}px, rgba(128,128,128,0.12) ${rowHeight}px)`,
-        backgroundPositionY: rowHeight > 0 ? `${-(gridTopOffset % rowHeight)}px` : 0,
         backgroundAttachment: "local",
       }}
     >
