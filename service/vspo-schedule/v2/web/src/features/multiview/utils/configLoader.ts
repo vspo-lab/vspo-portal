@@ -1,7 +1,7 @@
 import { Livestream } from "@/features/shared/domain";
 import { parseUrl } from "./urlParser";
 
-export interface MultiviewConfig {
+interface MultiviewConfig {
   version: string;
   layout: string;
   videos: Array<{

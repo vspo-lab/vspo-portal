@@ -52,6 +52,7 @@ const StreamControl = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
   padding: theme.spacing(1),
   borderRadius: theme.shape.borderRadius,
+  flexWrap: "wrap",
   "&:hover": {
     backgroundColor: alpha(theme.palette.action.hover, 0.1),
   },
@@ -283,7 +284,8 @@ export const SimplePlaybackControlsPresenter: React.FC<
 
               <Box
                 sx={{
-                  width: 100,
+                  width: { xs: 80, sm: 100 },
+                  minWidth: 60,
                   display: "flex",
                   alignItems: "center",
                   gap: 1,

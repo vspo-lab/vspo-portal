@@ -454,8 +454,9 @@ export const LayoutSelectorPresenter: React.FC<
                     top: 4,
                     right: 4,
                     backgroundColor: "white",
-                    ".dark &": {
-                      backgroundColor: "#353535",
+                    [theme.getColorSchemeSelector("dark")]: {
+                      backgroundColor:
+                        theme.vars.palette.customColors.gray,
                     },
                   }}
                 />

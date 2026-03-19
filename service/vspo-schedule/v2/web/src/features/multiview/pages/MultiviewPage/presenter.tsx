@@ -781,6 +781,12 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                               }
                               label={stream.channelTitle}
                               onClick={() => onToggleChat(stream.id)}
+                              aria-label={
+                                hasChatOpen
+                                  ? t("multiview:chat.close.ariaLabel", "{{channel}}のチャットを閉じる", { channel: stream.channelTitle })
+                                  : t("multiview:chat.open.ariaLabel", "{{channel}}のチャットを開く", { channel: stream.channelTitle })
+                              }
+                              aria-pressed={hasChatOpen}
                               color={hasChatOpen ? "primary" : "default"}
                               variant={hasChatOpen ? "filled" : "outlined"}
                               sx={{

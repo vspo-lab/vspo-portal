@@ -2,6 +2,7 @@ import { Livestream } from "@/features/shared/domain";
 import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import {
   Box,
   CircularProgress,
@@ -112,6 +113,20 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
+const ErrorContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  height: "100%",
+  color: theme.palette.text.primary,
+  padding: theme.spacing(2),
+  textAlign: "center",
+  [theme.getColorSchemeSelector("dark")]: {
+    color: "white",
+  },
+}));
+
 const NoChatContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -140,6 +155,7 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
     const { t } = useTranslation("multiview");
     const { colorScheme } = useColorScheme();
     const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
 
     const isDarkMode = colorScheme === "dark";
 
@@ -151,6 +167,11 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
 
     const handleLoad = () => {
       setIsLoading(false);
+    };
+
+    const handleError = () => {
+      setIsLoading(false);
+      setHasError(true);
     };
 
     return (
@@ -211,10 +232,23 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
           </HeaderActions>
         </ChatHeader>
 
-        {chatEmbedUrl ? (
+        {hasError ? (
+          <ErrorContainer role="alert">
+            <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              {t("chat.error.title", "チャットの読み込みに失敗しました")}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              {t(
+                "chat.error.description",
+                "しばらくしてからもう一度お試しください",
+              )}
+            </Typography>
+          </ErrorContainer>
+        ) : chatEmbedUrl ? (
           <>
             {isLoading && (
-              <LoadingContainer>
+              <LoadingContainer role="status" aria-label={t("chat.loading", "チャットを読み込み中")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}
@@ -222,13 +256,14 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
               src={chatEmbedUrl}
               title={`${stream.channelTitle} - ${t("chat.header.title", "チャット")}`}
               onLoad={handleLoad}
+              onError={handleError}
               style={{
                 visibility: isLoading ? "hidden" : "visible",
               }}
             />
           </>
         ) : (
-          <NoChatContainer>
+          <NoChatContainer role="status">
             <ChatIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
               {t("chat.noChat.title", "チャットが利用できません")}

@@ -26,9 +26,9 @@ const GRID_COLS = 12;
 const GridContainer = styled(Paper)(({ theme }) => ({
   minHeight: "auto",
   padding: 0,
-  backgroundColor: "#1a1a1a",
-  [theme.getColorSchemeSelector("light")]: {
-    backgroundColor: "#e0e0e0",
+  backgroundColor: "#e0e0e0",
+  [theme.getColorSchemeSelector("dark")]: {
+    backgroundColor: "#1a1a1a",
   },
   borderRadius: 0,
   boxShadow: "none",
@@ -38,10 +38,6 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   height: "auto",
   overflowY: "auto",
   overflowX: "hidden",
-  // Grid guidelines are set dynamically via inline style (square cells matching containerWidth / 12)
-  [theme.getColorSchemeSelector("light")]: {
-    backgroundColor: "#e0e0e0",
-  },
   "&.is-dragging iframe": {
     pointerEvents: "none",
   },
@@ -554,18 +550,18 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     return (
       <GridContainer elevation={1} ref={containerRef}>
         <MainVideoContainer>
-          <VideoPlayer
+          <MemoizedPlayer
             key={mainStream.id}
             stream={mainStream}
             index={0}
-            onRemove={() => onRemoveStream(mainStream.id)}
+            onRemoveStream={onRemoveStream}
           />
           <PipContainer pipPosition={layout.pipPosition || "bottom-right"}>
-            <VideoPlayer
+            <MemoizedPlayer
               key={pipStream.id}
               stream={pipStream}
               index={1}
-              onRemove={() => onRemoveStream(pipStream.id)}
+              onRemoveStream={onRemoveStream}
             />
           </PipContainer>
         </MainVideoContainer>

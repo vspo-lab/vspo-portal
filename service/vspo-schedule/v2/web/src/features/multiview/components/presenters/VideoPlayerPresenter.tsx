@@ -275,7 +275,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
         </PlayerHeader>
 
         {hasError ? (
-          <ErrorContainer>
+          <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
               {t("player.error.title", "読み込みエラー")}
@@ -287,7 +287,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
         ) : (
           <>
             {isLoading && (
-              <LoadingContainer>
+              <LoadingContainer role="status" aria-label={t("player.loading", "配信を読み込み中")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}

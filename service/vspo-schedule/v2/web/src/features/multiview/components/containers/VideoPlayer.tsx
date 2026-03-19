@@ -87,7 +87,7 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
           }
         }
       },
-      [stream.platform, isPlayerReady, stream.id],
+      [stream.platform, isPlayerReady],
     );
 
     // Single player interface — shared between imperative handle and context registration
@@ -144,10 +144,18 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
       setHasError(false);
     }, [stream.id]);
 
+    const readyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
     const handlePlayerReady = useCallback(() => {
       setIsLoading(false);
 
-      const timeoutId = setTimeout(() => {
+      // Clear any pending timeout from a previous ready call
+      if (readyTimeoutRef.current !== null) {
+        clearTimeout(readyTimeoutRef.current);
+      }
+
+      readyTimeoutRef.current = setTimeout(() => {
+        readyTimeoutRef.current = null;
         setIsPlayerReady(true);
 
         if (iframeRef.current) {
@@ -158,9 +166,16 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
           postMessageToPlayer("pauseVideo");
         }
       }, 1500);
-
-      return () => clearTimeout(timeoutId);
     }, [postMessageToPlayer, volume, isMuted]);
+
+    // Clean up the ready timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (readyTimeoutRef.current !== null) {
+          clearTimeout(readyTimeoutRef.current);
+        }
+      };
+    }, []);
 
     const handlePlayerError = useCallback(() => {
       setIsLoading(false);
@@ -172,9 +187,7 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
     }, [onRemove]);
 
     const handleIframeRef = useCallback((element: HTMLIFrameElement | null) => {
-      if (element) {
-        iframeRef.current = element;
-      }
+      iframeRef.current = element;
     }, []);
 
     return (
