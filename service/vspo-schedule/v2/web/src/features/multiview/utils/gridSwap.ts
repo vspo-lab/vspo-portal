@@ -25,13 +25,25 @@ export const resolveOverlaps = (
     (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
   );
 
-  // fixedId がある場合、そのアイテムに非常に大きな重みを設定
-  // webcola は各 Rectangle の desired position を保持しようとするので、
-  // fixed アイテムは元位置に留まり、他のアイテムが移動する
-  // → removeOverlaps は内部で desired position = 現在位置 を使うため、
-  //   固定アイテムを先に解決することで自然に固定される
+  // Save fixed item position before VPSC modifies it in-place
+  const fixedIndex = fixedId
+    ? layout.findIndex((item) => item.i === fixedId)
+    : -1;
+  const savedX = fixedIndex >= 0 ? rects[fixedIndex].x : 0;
+  const savedY = fixedIndex >= 0 ? rects[fixedIndex].y : 0;
 
   removeOverlaps(rects);
+
+  // Restore fixed item to its original position so only other items move
+  if (fixedIndex >= 0) {
+    const r = rects[fixedIndex];
+    const w = r.X - r.x;
+    const h = r.Y - r.y;
+    r.x = savedX;
+    r.X = savedX + w;
+    r.y = savedY;
+    r.Y = savedY + h;
+  }
 
   // webcola Rectangle → GridLayout.Layout
   // Only update x/y (position). Keep original w/h (size).
