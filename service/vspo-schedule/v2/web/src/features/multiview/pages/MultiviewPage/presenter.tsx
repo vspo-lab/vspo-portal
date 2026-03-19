@@ -8,7 +8,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import GridViewIcon from "@mui/icons-material/GridView";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import SaveIcon from "@mui/icons-material/Save";
@@ -310,54 +309,6 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         },
       }}
     >
-      {/* Compact Header Bar - hidden in immersive mode */}
-      {!immersiveMode && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            px: { xs: 1, sm: 1.5, md: 2 },
-            py: 1,
-            backgroundColor: "transparent",
-          }}
-        >
-          <GridViewIcon
-            sx={{
-              mr: 1,
-              color: theme.palette.primary.main,
-              fontSize: "1.2rem",
-            }}
-          />
-          <Typography
-            variant="h6"
-            fontWeight={700}
-            fontSize={isMobile ? "1rem" : "1.2rem"}
-            sx={{
-              [theme.getColorSchemeSelector("dark")]: {
-                color: "white",
-              },
-            }}
-          >
-            {t("multiview:title", "マルチビュー")}
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              ml: 2,
-              [theme.getColorSchemeSelector("dark")]: {
-                color: "rgba(255, 255, 255, 0.7)",
-              },
-            }}
-          >
-            {t(
-              "multiview:description",
-              "複数の配信を同時に視聴できます。",
-            )}
-          </Typography>
-        </Box>
-      )}
-
       {/* Main content with full width viewer */}
       <Box
         sx={{

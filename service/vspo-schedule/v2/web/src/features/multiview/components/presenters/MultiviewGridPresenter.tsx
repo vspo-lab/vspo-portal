@@ -579,6 +579,9 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       ref={containerRef}
       style={{
         maxHeight: availableHeight,
+        // Square grid lines: both axes use containerWidth/12 so cells are square
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS} - 1px), rgba(128,128,128,0.12) calc(100% / ${GRID_COLS})), repeating-linear-gradient(0deg, transparent, transparent ${containerWidth / GRID_COLS - 1}px, rgba(128,128,128,0.12) ${containerWidth / GRID_COLS - 1}px, rgba(128,128,128,0.12) ${containerWidth / GRID_COLS}px)`,
+        backgroundAttachment: "local",
       }}
     >
       <GridLayout
