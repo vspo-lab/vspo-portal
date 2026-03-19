@@ -14,6 +14,7 @@ import {
   hasUrlState,
   loadStateFromLocalStorage,
   parseCompactStateFromUrl,
+  resolveStream,
   saveStateToLocalStorage,
 } from "../../utils/stateManager";
 import { Presenter } from "./presenter";
@@ -84,26 +85,9 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
       // Then check localStorage
       const localState = loadStateFromLocalStorage();
       if (localState) {
-        const restoredStreams = localState.selectedStreams.map((saved) => {
-          const existing = props.livestreams.find((s) => s.id === saved.id);
-          if (existing) return existing;
-
-          // Create minimal Livestream object for external streams
-          return {
-            ...saved,
-            type: "livestream" as const,
-            status: "live" as const,
-            description: "",
-            thumbnailUrl: "",
-            viewCount: 0,
-            scheduledStartTime: new Date().toISOString(),
-            scheduledEndTime: null,
-            channelThumbnailUrl: "",
-            videoPlayerLink: "",
-            chatPlayerLink: "",
-            tags: [],
-          } as Livestream;
-        });
+        const restoredStreams = localState.selectedStreams.map((saved) =>
+          resolveStream(saved, props.livestreams),
+        );
 
         setSelectedStreams(restoredStreams);
         setSelectedLayout(localState.layout);

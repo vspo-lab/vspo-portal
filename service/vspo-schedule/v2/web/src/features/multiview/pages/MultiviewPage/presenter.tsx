@@ -45,7 +45,9 @@ import {
   CustomLayoutPreset,
   deleteCustomLayout,
   loadCustomLayouts,
+  resolveStream,
   saveCustomLayout,
+  toStreamSnapshot,
 } from "../../utils/stateManager";
 import { scaledBorderRadius } from "../../utils/theme";
 
@@ -219,14 +221,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         type: selectedLayout,
         gridPositions: gridPositionsRef.current,
       },
-      selectedStreams.map((s) => ({
-        id: s.id,
-        platform: s.platform,
-        channelId: s.channelId,
-        title: s.title,
-        channelTitle: s.channelTitle,
-        link: s.link,
-      })),
+      selectedStreams.map(toStreamSnapshot),
     );
     setCustomLayouts(loadCustomLayouts());
     setSaveDialogOpen(false);
@@ -253,30 +248,10 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
   // Apply a saved custom layout (restores streams + layout + grid positions)
   const handleApplyCustomLayout = React.useCallback(
     (preset: CustomLayoutPreset) => {
-      // Restore streams if saved in the preset
       if (preset.streams && preset.streams.length > 0) {
-        const restoredStreams: Livestream[] = preset.streams.map((saved) => {
-          // Prefer the live version from server data if available
-          const existing = livestreams.find((s) => s.id === saved.id);
-          if (existing) return existing;
-
-          // Reconstruct minimal Livestream for streams not currently live
-          return {
-            ...saved,
-            type: "livestream" as const,
-            status: "live" as const,
-            description: "",
-            thumbnailUrl: "",
-            viewCount: 0,
-            scheduledStartTime: new Date().toISOString(),
-            scheduledEndTime: null,
-            channelThumbnailUrl: "",
-            videoPlayerLink: "",
-            chatPlayerLink: "",
-            tags: [],
-          } as Livestream;
-        });
-        onRestoreStreams(restoredStreams);
+        onRestoreStreams(
+          preset.streams.map((saved) => resolveStream(saved, livestreams)),
+        );
       }
 
       onLayoutChange(preset.layout.type);

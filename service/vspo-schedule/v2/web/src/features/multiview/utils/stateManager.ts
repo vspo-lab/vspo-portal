@@ -118,6 +118,55 @@ const STORAGE_KEY = "vspo-multiview-state";
 const CUSTOM_LAYOUTS_KEY = "vspo-multiview-custom-layouts";
 const MAX_CUSTOM_LAYOUTS = 10;
 
+/** Snapshot of stream fields needed for persistence (localStorage, URL, presets). */
+export type StreamSnapshot = {
+  id: string;
+  platform: string;
+  channelId?: string;
+  title: string;
+  channelTitle: string;
+  link: string;
+};
+
+/** Extract persistable fields from a Livestream. */
+export const toStreamSnapshot = (stream: Livestream): StreamSnapshot => ({
+  id: stream.id,
+  platform: stream.platform,
+  channelId: stream.channelId,
+  title: stream.title,
+  channelTitle: stream.channelTitle,
+  link: stream.link,
+});
+
+/**
+ * Create a minimal Livestream from a snapshot, preferring live server data.
+ *
+ * @precondition snapshot must have at least id and platform
+ * @postcondition Returns a valid Livestream object
+ */
+export const resolveStream = (
+  snapshot: StreamSnapshot,
+  availableStreams: ReadonlyArray<Livestream>,
+): Livestream => {
+  const existing = availableStreams.find((s) => s.id === snapshot.id);
+  if (existing) return existing;
+
+  return {
+    ...snapshot,
+    type: "livestream" as const,
+    status: "live" as const,
+    description: "",
+    thumbnailUrl: "",
+    viewCount: 0,
+    scheduledStartTime: new Date().toISOString(),
+    scheduledEndTime: null,
+    channelThumbnailUrl: "",
+    videoPlayerLink: "",
+    chatPlayerLink: "",
+    tags: [],
+  } as Livestream;
+};
+
 // Custom layout preset
 export interface CustomLayoutPreset {
   name: string;
@@ -461,10 +510,8 @@ export const expandCompactState = (
     const streams: Livestream[] = [];
 
     for (const compactStream of compactState.s) {
-      // First try to find by ID
+      // Try by ID, then by channelId+platform
       let stream = availableStreams.find((s) => s.id === compactStream.i);
-
-      // If not found and has channelId, try to find by channelId and platform
       if (!stream && compactStream.c) {
         stream = availableStreams.find(
           (s) =>
@@ -472,30 +519,20 @@ export const expandCompactState = (
         );
       }
 
-      // If still not found, create a minimal stream object
-      if (!stream) {
-        stream = {
-          id: compactStream.i,
-          type: "livestream" as const,
-          title: compactStream.i,
-          description: "",
-          platform: (VALID_PLATFORMS.includes(compactStream.p as typeof VALID_PLATFORMS[number]) ? compactStream.p : "unknown") as Livestream["platform"],
-          thumbnailUrl: "",
-          viewCount: 0,
-          status: "live" as const,
-          scheduledStartTime: new Date().toISOString(),
-          scheduledEndTime: null,
-          channelId: compactStream.c || compactStream.i,
-          channelTitle: compactStream.c || compactStream.i,
-          channelThumbnailUrl: "",
-          link: "",
-          videoPlayerLink: "",
-          chatPlayerLink: "",
-          tags: [],
-        };
-      }
-
-      streams.push(stream);
+      streams.push(
+        stream ??
+          resolveStream(
+            {
+              id: compactStream.i,
+              platform: (VALID_PLATFORMS.includes(compactStream.p as typeof VALID_PLATFORMS[number]) ? compactStream.p : "unknown"),
+              channelId: compactStream.c || compactStream.i,
+              title: compactStream.i,
+              channelTitle: compactStream.c || compactStream.i,
+              link: "",
+            },
+            [],
+          ),
+      );
     }
 
     return {
