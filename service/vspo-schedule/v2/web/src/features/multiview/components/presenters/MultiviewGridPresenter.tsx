@@ -545,12 +545,10 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     isResizingRef.current = false;
   };
 
-  const handleGridLayoutChange = (newLayout: GridLayout.Layout[]) => {
-    // Sync with RGL during normal operations (not during drag/resize to avoid intermediate states)
-    if (!isDraggingRef.current && !isResizingRef.current) {
-      setInternalLayout(mergeLayoutSizes(newLayout, internalLayout));
-    }
-  };
+  // RGL's onLayoutChange is not used as the source of truth — our internalLayout
+  // is managed via buildGridLayout, handleDragStop, and handleResizeStop.
+  // Accepting it would overwrite our layout with RGL's defaults (w=1,h=1).
+  const handleGridLayoutChange = () => {};
 
   // No streams selected
   if (selectedStreams.length === 0) {
