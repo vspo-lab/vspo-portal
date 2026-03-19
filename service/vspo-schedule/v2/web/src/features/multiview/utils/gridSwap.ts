@@ -65,58 +65,39 @@ const solveAxis = (
  * @param fixedId - 固定するアイテムのID（省略可）
  * @returns 重なりが解消されたレイアウト
  */
-/**
- * Greedy pass: push overlapping items apart on the axis with smaller overlap.
- * fixedIndex item is never moved; all others are pushed away from it.
- */
-const greedyFixOverlaps = (
+/** Check if any pair of items overlaps. */
+const hasAnyOverlap = (items: GridLayout.Layout[]): boolean =>
+  items.some((a, i) =>
+    items.some((b, j) => {
+      if (i >= j) return false;
+      return (
+        Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) > 0 &&
+        Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) > 0
+      );
+    }),
+  );
+
+/** Run VPSC on a layout and return integer-rounded positions. */
+const runVpsc = (
   items: GridLayout.Layout[],
   fixedIndex: number,
-  maxPasses = 10,
 ): GridLayout.Layout[] => {
-  const result = items.map((item) => ({ ...item }));
+  const rects = items.map(
+    (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
+  );
 
-  for (let pass = 0; pass < maxPasses; pass++) {
-    let moved = false;
-    for (let i = 0; i < result.length; i++) {
-      for (let j = i + 1; j < result.length; j++) {
-        const a = result[i];
-        const b = result[j];
-        const xOverlap = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-        const yOverlap = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-        if (xOverlap <= 0 || yOverlap <= 0) continue;
-
-        // Push the non-fixed item; if neither is fixed, push the later one
-        const pushIdx = i === fixedIndex ? j : j === fixedIndex ? i : j;
-        const otherIdx = pushIdx === i ? j : i;
-
-        // Push on the axis with smaller overlap (less disruption)
-        if (xOverlap <= yOverlap) {
-          // Push horizontally
-          const pushRight = result[pushIdx].x >= result[otherIdx].x;
-          result[pushIdx] = {
-            ...result[pushIdx],
-            x: Math.max(0, pushRight
-              ? result[otherIdx].x + result[otherIdx].w
-              : result[otherIdx].x - result[pushIdx].w),
-          };
-        } else {
-          // Push vertically
-          const pushDown = result[pushIdx].y >= result[otherIdx].y;
-          result[pushIdx] = {
-            ...result[pushIdx],
-            y: Math.max(0, pushDown
-              ? result[otherIdx].y + result[otherIdx].h
-              : result[otherIdx].y - result[pushIdx].h),
-          };
-        }
-        moved = true;
-      }
-    }
-    if (!moved) break;
+  if (fixedIndex >= 0) {
+    solveAxis(rects, fixedIndex, "x");
+    solveAxis(rects, fixedIndex, "y");
+  } else {
+    removeOverlaps(rects);
   }
 
-  return result;
+  return items.map((item, i) => ({
+    ...item,
+    x: Math.max(0, Math.round(rects[i].x)),
+    y: Math.max(0, Math.round(rects[i].y)),
+  }));
 };
 
 export const resolveOverlaps = (
@@ -125,32 +106,21 @@ export const resolveOverlaps = (
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
-  const rects = layout.map(
-    (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
-  );
-
   const fixedIndex = fixedId
     ? layout.findIndex((item) => item.i === fixedId)
     : -1;
 
-  if (fixedIndex >= 0) {
-    for (let pass = 0; pass < 3; pass++) {
-      solveAxis(rects, fixedIndex, "x");
-      solveAxis(rects, fixedIndex, "y");
-    }
-  } else {
-    removeOverlaps(rects);
+  // First pass: VPSC on original float coordinates, then round
+  let result = runVpsc(layout, fixedIndex);
+
+  // If rounding introduced overlaps, re-run VPSC on the integer coordinates.
+  // Integer input → integer-compatible output → minimal rounding drift.
+  // Up to 3 additional passes to guarantee convergence.
+  for (let retry = 0; retry < 3 && hasAnyOverlap(result); retry++) {
+    result = runVpsc(result, fixedIndex);
   }
 
-  // Round to integer grid positions
-  const rounded = layout.map((item, i) => ({
-    ...item,
-    x: Math.max(0, Math.round(rects[i].x)),
-    y: Math.max(0, Math.round(rects[i].y)),
-  }));
-
-  // Greedy pass to fix any overlaps introduced by rounding
-  return greedyFixOverlaps(rounded, fixedIndex);
+  return result;
 };
 
 /**
