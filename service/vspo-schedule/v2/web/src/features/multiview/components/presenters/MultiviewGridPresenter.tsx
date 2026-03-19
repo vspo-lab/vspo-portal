@@ -235,6 +235,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
   const lastSwappedRef = useRef<string | null>(null);
   const isDraggingRef = useRef(false);
+  const dragRafRef = useRef(0);
   const isResizingRef = useRef(false);
 
   // Internal layout state — only reset when layout button is pressed
@@ -430,8 +431,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  const dragRafRef = useRef(0);
-
   const handleDragStart = (
     _layout: GridLayout.Layout[],
     oldItem: GridLayout.Layout,
@@ -439,7 +438,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     isDraggingRef.current = true;
     dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
     lastSwappedRef.current = null;
-    // Add CSS class to disable iframe pointer events during drag
     containerRef.current?.classList.add("is-dragging");
   };
 
@@ -450,7 +448,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   ) => {
     if (!dragOriginRef.current) return;
 
-    // Throttle swap detection to one per animation frame
     cancelAnimationFrame(dragRafRef.current);
     dragRafRef.current = requestAnimationFrame(() => {
       if (!dragOriginRef.current) return;
@@ -490,15 +487,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   ) => {
     cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
-
-    const origin = dragOriginRef.current;
     dragOriginRef.current = null;
     lastSwappedRef.current = null;
-
-    if (!origin) {
-      isDraggingRef.current = false;
-      return;
-    }
 
     // Place the dragged item at its drop position, then resolve all overlaps
     setInternalLayout((prev) => {
