@@ -425,8 +425,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
             <Tooltip
               title={
                 controlsPanelCollapsed
-                  ? t("multiview:controlPanel.show", "レイアウト設定を表示")
-                  : t("multiview:controlPanel.hide", "レイアウト設定を隠す")
+                  ? t("multiview:controlPanel.show", "配信とレイアウトを表示")
+                  : t("multiview:controlPanel.hide", "配信とレイアウトを隠す")
               }
               placement="left"
             >
@@ -436,8 +436,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                 }
                 aria-label={
                   controlsPanelCollapsed
-                    ? t("multiview:controlPanel.show", "レイアウト設定を表示")
-                    : t("multiview:controlPanel.hide", "レイアウト設定を隠す")
+                    ? t("multiview:controlPanel.show", "配信とレイアウトを表示")
+                    : t("multiview:controlPanel.hide", "配信とレイアウトを隠す")
                 }
                 aria-pressed={!controlsPanelCollapsed}
                 size="large"
@@ -708,7 +708,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           fontSize: "1.2rem",
                         }}
                       />
-                      {t("multiview:layout.title", "レイアウト設定")}
+                      {t("multiview:layout.title", "配信とレイアウト")}
                     </SectionTitle>
                     <IconButton
                       size="small"
