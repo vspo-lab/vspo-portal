@@ -741,7 +741,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                         </Button>
                       </Box>
                     )}
-                    {/* Saved custom layouts */}
+                    {/* Saved custom layouts — always visible for restoration */}
                     {customLayouts.length > 0 && (
                       <Box sx={{ mt: 2 }}>
                         <Typography
@@ -754,6 +754,11 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                             "保存済みレイアウト",
                           )}
                         </Typography>
+                        {selectedStreams.length === 0 && (
+                          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block", fontStyle: "italic" }}>
+                            {t("multiview:customLayout.noStreamsHint", "配信を追加するとレイアウトが適用されます")}
+                          </Typography>
+                        )}
                         <Box
                           sx={{
                             display: "flex",
