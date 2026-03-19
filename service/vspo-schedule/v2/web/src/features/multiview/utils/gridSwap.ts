@@ -9,17 +9,12 @@ import {
 
 /**
  * 参考論文: "Fast Node Overlap Removal" (Dwyer, Marriott, Stuckey, 2005)
- * https://people.eng.unimelb.edu.au/pstuckey/papers/gd2005b.pdf
  *
- * 移動距離の二乗和を最小化する二次計画法で、全アイテムの最適配置を計算する。
- * fixedId を指定すると、そのアイテムに高い重みを付与し他を優先的に動かす。
- * 全アイテムに x >= 0, y >= 0 の境界制約を適用する。
- *
- * @param layout - 現在のレイアウト
- * @param fixedId - 固定するアイテムのID（省略可）
- * @returns 重なりが解消されたレイアウト
+ * ピクセル座標空間でVPSCを実行し、結果をグリッド座標に変換することで
+ * 丸め誤差を最小化する。
  */
-/** Check if any pair of rectangles overlaps. */
+
+/** Check if any pair of rectangles overlaps (using webcola's overlap methods). */
 const rectsOverlap = (rects: Rectangle[]): boolean =>
   rects.some((a, i) =>
     rects.some((b, j) => {
@@ -29,83 +24,105 @@ const rectsOverlap = (rects: Rectangle[]): boolean =>
   );
 
 /**
- * Iterative VPSC: solve X→Y, check for remaining overlaps, repeat.
- *
- * webcola's removeOverlaps solves X then Y independently (per the paper
- * "Fast Node Overlap Removal", Dwyer+2005). Y-axis resolution can
- * re-introduce X-axis overlaps. We iterate X→Y until convergence.
- *
- * Uses webcola's generateXConstraints/generateYConstraints + Solver
- * directly for full control over iteration.
+ * Iterative VPSC on pixel-space rectangles.
+ * Solves X→Y, checks for remaining overlaps, repeats until convergence.
  */
 const iterativeRemoveOverlaps = (rects: Rectangle[], maxIterations = 5): void => {
   for (let iter = 0; iter < maxIterations; iter++) {
-    // X axis
     const xVars = rects.map((r) => new Variable(r.cx()));
     const xCs = generateXConstraints(rects, xVars);
     new Solver(xVars, xCs).solve();
     xVars.forEach((v, i) => rects[i].setXCentre(v.position()));
 
-    // Y axis
     const yVars = rects.map((r) => new Variable(r.cy()));
     const yCs = generateYConstraints(rects, yVars);
     new Solver(yVars, yCs).solve();
     yVars.forEach((v, i) => rects[i].setYCentre(v.position()));
 
-    // Check convergence — no overlaps remain
     if (!rectsOverlap(rects)) break;
   }
 };
 
+/**
+ * Resolve all overlaps in a layout using VPSC in pixel coordinate space.
+ *
+ * Strategy:
+ * 1. Convert grid units → pixel coordinates (colWidth, rowHeight)
+ * 2. Run iterative VPSC in continuous pixel space (no rounding needed)
+ * 3. Convert pixel coordinates → grid units with floor/ceil to prevent sub-pixel overlaps
+ * 4. Verify no overlaps remain; if they do, nudge items apart by 1 grid unit
+ *
+ * @param layout - Current grid layout (grid units)
+ * @param colWidth - Width of one grid column in pixels
+ * @param rowHeight - Height of one grid row in pixels
+ */
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
+  colWidth = 1,
+  rowHeight = 1,
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
-  // Build rectangles from layout items (x, x+w, y, y+h)
-  const rects = layout.map(
-    (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
+  // Step 1: Grid units → pixel coordinates
+  const pixelRects = layout.map(
+    (item) =>
+      new Rectangle(
+        item.x * colWidth,
+        (item.x + item.w) * colWidth,
+        item.y * rowHeight,
+        (item.y + item.h) * rowHeight,
+      ),
   );
 
-  // Iterative VPSC: X→Y repeated until no overlaps remain
-  iterativeRemoveOverlaps(rects);
+  // Step 2: VPSC in pixel space (continuous — no integer rounding issues)
+  iterativeRemoveOverlaps(pixelRects);
 
-  // Round to integer grid positions
+  // Step 3: Pixel coordinates → grid units
   const result = layout.map((item, i) => ({
     ...item,
-    x: Math.max(0, Math.round(rects[i].x)),
-    y: Math.max(0, Math.round(rects[i].y)),
+    x: Math.max(0, Math.round(pixelRects[i].x / colWidth)),
+    y: Math.max(0, Math.round(pixelRects[i].y / rowHeight)),
   }));
 
-  // If rounding re-introduced overlaps, run again on integer coords
-  const intRects = result.map(
-    (item) => new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
-  );
-  if (rectsOverlap(intRects)) {
-    iterativeRemoveOverlaps(intRects);
-    return result.map((item, i) => ({
-      ...item,
-      x: Math.max(0, Math.round(intRects[i].x)),
-      y: Math.max(0, Math.round(intRects[i].y)),
-    }));
+  // Step 4: Verify — nudge any remaining overlaps by 1 grid unit
+  for (let pass = 0; pass < 5; pass++) {
+    let fixed = false;
+    for (let i = 0; i < result.length; i++) {
+      for (let j = i + 1; j < result.length; j++) {
+        const a = result[i];
+        const b = result[j];
+        const xOv = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const yOv = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (xOv <= 0 || yOv <= 0) continue;
+
+        // Nudge the item that is further right/down by the overlap amount
+        if (xOv <= yOv) {
+          if (b.x >= a.x) {
+            result[j] = { ...result[j], x: a.x + a.w };
+          } else {
+            result[i] = { ...result[i], x: b.x + b.w };
+          }
+        } else {
+          if (b.y >= a.y) {
+            result[j] = { ...result[j], y: a.y + a.h };
+          } else {
+            result[i] = { ...result[i], y: b.y + b.h };
+          }
+        }
+        fixed = true;
+      }
+    }
+    if (!fixed) break;
   }
 
   return result;
 };
 
 /**
- * ドラッグ中のスワップを webcola ベースで計算する。
+ * ドラッグ中のスワップを計算する。
  *
- * ドラッグ中のアイテムの現在位置を反映した仮想レイアウトを作り、
- * webcola で重なりを解消する。ドラッグ中のアイテムは react-grid-layout が
- * 視覚的に制御するため、レイアウト上はドラッグ元の位置に残す。
- *
- * @param currentLayout - 内部管理レイアウト
- * @param draggedId - ドラッグ中のアイテムID
- * @param dragPosition - ドラッグ中のアイテムの現在位置 (グリッド座標)
- * @param dragOrigin - ドラッグ開始時の元位置
- * @param lastSwappedId - 前回スワップしたアイテムID（チャタリング防止）
- * @returns { layout, swappedId }
+ * ドラッグ中のアイテムと最も重なるアイテムを検出し、位置を交換する。
+ * 二次衝突はresolveOverlapsで解消。
  */
 export const computeSwapDuringDrag = (
   currentLayout: GridLayout.Layout[],
@@ -116,7 +133,6 @@ export const computeSwapDuringDrag = (
   const draggedItem = currentLayout.find((item) => item.i === draggedId);
   if (!draggedItem) return { layout: currentLayout, swappedId: null };
 
-  // ドラッグ中のアイテムと最も重なるアイテムを探す
   let bestTarget: GridLayout.Layout | null = null;
   let bestOverlap = 0;
 
@@ -138,7 +154,7 @@ export const computeSwapDuringDrag = (
     return { layout: currentLayout, swappedId: lastSwappedId };
   }
 
-  // スワップ: ターゲットをドラッグ元の位置に移動
+  // Swap: move target to drag origin
   const swappedLayout = currentLayout.map((item) => {
     if (item.i === bestTarget!.i) {
       return { ...item, x: dragOrigin.x, y: dragOrigin.y };
@@ -146,11 +162,10 @@ export const computeSwapDuringDrag = (
     return item;
   });
 
-  // webcola で二次衝突を解消（ドラッグ中のアイテムは除外して計算）
+  // Resolve secondary collisions (exclude dragged item)
   const withoutDragged = swappedLayout.filter((item) => item.i !== draggedId);
   if (withoutDragged.length > 1) {
     const resolved = resolveOverlaps(withoutDragged);
-    // 解決結果をマージ
     const resolvedMap = new Map(resolved.map((item) => [item.i, item]));
     return {
       layout: swappedLayout.map((item) =>

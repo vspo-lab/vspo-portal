@@ -299,6 +299,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const dragRafRef = useRef(0);
   const isResizingRef = useRef(false);
 
+
   // Internal layout state — only reset when layout button is pressed
   const [internalLayout, setInternalLayout] = useState<GridLayout.Layout[]>([]);
   // Track layout type to detect layout button presses
@@ -562,7 +563,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
           ? { ...item, x: newItem.x, y: newItem.y }
           : item,
       );
-      return resolveOverlaps(dropped);
+      const colWidth = containerWidth / GRID_COLS;
+      return resolveOverlaps(dropped, colWidth, rowHeight);
     });
 
     requestAnimationFrame(() => {
@@ -577,10 +579,10 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const handleResizeStop = (
     newLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
+    _newItem: GridLayout.Layout,
   ) => {
-    // Resolve all overlaps across all items (no fixed item)
-    const resolved = resolveOverlaps(newLayout);
+    const colWidth = containerWidth / GRID_COLS;
+    const resolved = resolveOverlaps(newLayout, colWidth, rowHeight);
     setInternalLayout(resolved);
     // Delay clearing so onLayoutChange after resize is ignored
     requestAnimationFrame(() => {
