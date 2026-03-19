@@ -21,7 +21,7 @@ import { ChatCell, VideoPlayer } from "../containers";
 const CHAT_KEY_PREFIX = "chat-";
 
 // Grid cell size for 12 columns — used for background grid lines
-const GRID_COLS = 48;
+const GRID_COLS = 120;
 
 const GridContainer = styled(Paper)(({ theme }) => ({
   minHeight: "auto",
@@ -291,19 +291,20 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     };
   }, []);
 
-  // Square grid cell size — must equal colWidth (containerWidth / 12) for square cells.
-  // Use the exact float value; react-grid-layout rounds pixel positions internally.
+  // Row height for fine vertical resize control.
+  // Use a small fixed value (10px) so vertical snapping is precise.
   const rowHeight = useMemo(() => {
     if (isMobile) return 180;
-    return Math.max(20, containerWidth / GRID_COLS);
-  }, [containerWidth, isMobile]);
+    return 10;
+  }, [isMobile]);
 
-  // How many grid-h-units fill one visual row (to fill viewport height)
+  // How many grid-h-units fill one visual row (to fill viewport height exactly)
   const cellsPerRow = useMemo(() => {
     if (isMobile) return 1;
     const cols = layout.cols || 2;
     const rows = layout.rows || Math.ceil(selectedStreams.length / cols);
-    return Math.max(1, Math.round(availableHeight / rows / rowHeight));
+    // Use floor to avoid overflow, then distribute remaining pixels
+    return Math.max(1, Math.floor(availableHeight / rows / rowHeight));
   }, [availableHeight, layout.cols, layout.rows, selectedStreams.length, rowHeight, isMobile]);
 
   // Build a combined list of all grid item IDs: video cells + chat cells
@@ -590,8 +591,8 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       ref={containerRef}
       style={{
         maxHeight: availableHeight,
-        // Visual guide lines at 12 divisions (coarser) while snap granularity is GRID_COLS (48)
-        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / 12 - 1px), rgba(128,128,128,0.12) calc(100% / 12 - 1px), rgba(128,128,128,0.12) calc(100% / 12)), repeating-linear-gradient(0deg, transparent, transparent ${rowHeight * 4 - 1}px, rgba(128,128,128,0.12) ${rowHeight * 4 - 1}px, rgba(128,128,128,0.12) ${rowHeight * 4}px)`,
+        // Visual guide lines: 12 column divisions + row divisions matching layout
+        backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent calc(100% / 12 - 1px), rgba(128,128,128,0.12) calc(100% / 12 - 1px), rgba(128,128,128,0.12) calc(100% / 12)), repeating-linear-gradient(0deg, transparent, transparent ${cellsPerRow * rowHeight - 1}px, rgba(128,128,128,0.12) ${cellsPerRow * rowHeight - 1}px, rgba(128,128,128,0.12) ${cellsPerRow * rowHeight}px)`,
         backgroundAttachment: "local",
       }}
     >
