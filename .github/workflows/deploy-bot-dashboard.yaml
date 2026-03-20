@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: ${{ github.ref == 'refs/heads/main' && 'bot-dashboard-production' || 'bot-dashboard-development' }}
+    env:
+      WRANGLER_CONFIG: ${{ github.ref == 'refs/heads/main' && 'wrangler.prd.jsonc' || 'wrangler.jsonc' }}
     steps:
       - uses: actions/checkout@v6
       - name: Set up Node.js
@@ -28,23 +30,31 @@ jobs:
         run: pnpm install
       - name: Turbo Build
         run: pnpm turbo build --filter=bot-dashboard...
+      - name: Upload secrets
+        working-directory: service/bot-dashboard
+        run: |
+          node -e "
+            const secrets = {
+              DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+              DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+              DISCORD_REDIRECT_URI: process.env.DISCORD_REDIRECT_URI,
+              DISCORD_BOT_CLIENT_ID: process.env.DISCORD_BOT_CLIENT_ID,
+            };
+            process.stdout.write(JSON.stringify(secrets));
+          " | pnpm exec wrangler secret bulk --config "$WRANGLER_CONFIG"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+          DISCORD_REDIRECT_URI: ${{ secrets.DISCORD_REDIRECT_URI }}
+          DISCORD_BOT_CLIENT_ID: ${{ secrets.DISCORD_BOT_CLIENT_ID }}
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
-          wranglerVersion: "4.73.0"
+          wranglerVersion: "4.76.0"
           workingDirectory: service/bot-dashboard
-          command: deploy --env ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
-          environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
-          secrets: |
-            DISCORD_CLIENT_ID
-            DISCORD_CLIENT_SECRET
-            DISCORD_REDIRECT_URI
-            DISCORD_BOT_CLIENT_ID
-        env:
-          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
-          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
-          DISCORD_REDIRECT_URI: ${{ secrets.DISCORD_REDIRECT_URI }}
-          DISCORD_BOT_CLIENT_ID: ${{ secrets.DISCORD_BOT_CLIENT_ID }}
+          command: deploy --config ${{ env.WRANGLER_CONFIG }}

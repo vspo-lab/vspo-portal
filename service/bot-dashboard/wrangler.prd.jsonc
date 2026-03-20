@@ -1,23 +1,21 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dev-bot-dashboard",
+  "name": "prd-bot-dashboard",
   "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
   },
   "workers_dev": false,
-  "routes": [
-    { "pattern": "dev-discord.vspo-schedule.com", "custom_domain": true }
-  ],
+  "routes": [{ "pattern": "discord.vspo-schedule.com", "custom_domain": true }],
   "services": [
     {
       "binding": "APP_WORKER",
-      "service": "dev-vspo-portal-app",
+      "service": "prd-vspo-portal-app",
       "entrypoint": "ApplicationService"
     }
   ],
-  /** Secrets should be set via `wrangler secret put` */
+  /** Secrets should be set via `wrangler secret put --config wrangler.prd.jsonc` */
   "vars": {
     "DISCORD_CLIENT_ID": "",
     "DISCORD_BOT_CLIENT_ID": ""
