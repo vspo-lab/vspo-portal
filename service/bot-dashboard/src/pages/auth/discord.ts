@@ -8,7 +8,7 @@ export const GET: APIRoute = async (context) => {
     DISCORD_REDIRECT_URI: env.DISCORD_REDIRECT_URI,
   });
 
-  context.session.set("oauth_state", state);
+  context.session?.set("oauth_state", state);
 
   return new Response(null, {
     status: 302,

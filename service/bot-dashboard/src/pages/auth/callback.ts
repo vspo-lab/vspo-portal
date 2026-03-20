@@ -4,7 +4,7 @@ import { LoginUsecase } from "~/features/auth/usecase/login";
 
 export const GET: APIRoute = async (context) => {
   const state = context.url.searchParams.get("state");
-  const sessionState = await context.session.get("oauth_state");
+  const sessionState = await context.session?.get("oauth_state");
   if (!state || state !== sessionState) {
     return context.redirect("/?error=invalid_state");
   }
@@ -25,15 +25,15 @@ export const GET: APIRoute = async (context) => {
   }
 
   const { user, accessToken, refreshToken, expiresAt } = result.val;
-  context.session.set("user", {
+  context.session?.set("user", {
     id: user.id,
     username: user.username,
     displayName: user.displayName,
     avatar: user.avatar,
   });
-  context.session.set("accessToken", accessToken);
-  context.session.set("refreshToken", refreshToken);
-  context.session.set("expiresAt", expiresAt);
+  context.session?.set("accessToken", accessToken);
+  context.session?.set("refreshToken", refreshToken);
+  context.session?.set("expiresAt", expiresAt);
 
   return context.redirect("/dashboard");
 };

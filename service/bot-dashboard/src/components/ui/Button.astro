@@ -16,6 +16,8 @@ interface Props extends HTMLAttributes<"button"> {
   size?: ButtonSize;
   as?: "button" | "a";
   href?: string;
+  target?: string;
+  rel?: string;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
