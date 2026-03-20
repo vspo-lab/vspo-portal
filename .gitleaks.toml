@@ -1,0 +1,13 @@
+title = "gitleaks config for vspo-portal"
+
+[allowlist]
+  description = "Allowlisted files and patterns"
+  paths = [
+    '''\.test\.ts$''',
+    '''\.spec\.ts$''',
+    '''pnpm-lock\.yaml$''',
+    '''packages/api/src/gen(erated)?/''',
+    '''\.env\.example$''',
+    '''\.env\.sample$''',
+    '''\.env\.local\.example$''',
+  ]
