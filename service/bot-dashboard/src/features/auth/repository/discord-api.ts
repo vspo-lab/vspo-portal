@@ -179,8 +179,8 @@ const DiscordApiRepository = {
 } as const;
 
 export {
-  DiscordApiRepository,
-  type DiscordTokenResponse,
-  type DiscordApiUser,
   type DiscordApiGuild,
+  DiscordApiRepository,
+  type DiscordApiUser,
+  type DiscordTokenResponse,
 };

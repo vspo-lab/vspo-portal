@@ -29,5 +29,6 @@
   "ignoreDependencies": [
     "@textlint/textlint-plugin-markdown",
     "textlint-rule-preset-ja-technical-writing"
-  ]
+  ],
+  "ignoreWorkspaces": ["service/bot-dashboard"]
 }
