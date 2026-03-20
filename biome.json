@@ -1,12 +1,7 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
-  "vcs": {
-    "enabled": false,
-    "clientKind": "git",
-    "useIgnoreFile": false
-  },
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "extends": ["./biome.base.json"],
   "files": {
-    "ignoreUnknown": false,
     "includes": [
       "**/*.ts",
       "**/*.tsx",
@@ -32,39 +27,11 @@
       "!**/service/vspo-schedule/v2/web/**/*.d.ts",
       "!**/.pnpm-store/**/*",
       "!**/*.css",
-      "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*",
-      "!**/.react-router/**/*"
+      "!**/tsconfig.json",
+      "!**/meta/**/*",
+      "!**/coverage/**/*",
+      "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*"
     ]
-  },
-  "formatter": {
-    "enabled": true,
-    "formatWithErrors": true,
-    "indentStyle": "space",
-    "indentWidth": 2
-  },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "style": {
-        "noParameterAssign": "error",
-        "useAsConstAssertion": "error",
-        "useDefaultParameterLast": "error",
-        "useEnumInitializers": "error",
-        "useSelfClosingElements": "error",
-        "useSingleVarDeclarator": "error",
-        "noUnusedTemplateLiteral": "error",
-        "useNumberNamespace": "error",
-        "noInferrableTypes": "error",
-        "noUselessElse": "error"
-      }
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double"
-    }
   },
   "overrides": []
 }

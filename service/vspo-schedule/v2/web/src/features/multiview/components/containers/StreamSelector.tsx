@@ -6,12 +6,16 @@ export type StreamSelectorProps = {
   streams: Livestream[];
   selectedStreams: Livestream[];
   onStreamSelect: (stream: Livestream) => void;
+  chatStreamIds: ReadonlySet<string>;
+  onToggleChat: (streamId: string) => void;
 };
 
 export const StreamSelector: React.FC<StreamSelectorProps> = ({
   streams,
   selectedStreams,
   onStreamSelect,
+  chatStreamIds,
+  onToggleChat,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "live" | "upcoming">(
@@ -49,9 +53,11 @@ export const StreamSelector: React.FC<StreamSelectorProps> = ({
       selectedStreams={selectedStreams}
       searchQuery={searchQuery}
       statusFilter={statusFilter}
+      chatStreamIds={chatStreamIds}
       onStreamClick={handleStreamClick}
       onSearchChange={setSearchQuery}
       onStatusFilterChange={setStatusFilter}
+      onToggleChat={onToggleChat}
     />
   );
 };

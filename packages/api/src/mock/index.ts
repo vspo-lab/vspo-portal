@@ -10,7 +10,7 @@ import { youtubeClips } from "./data/youtubeClips";
 import { youtubeShorts } from "./data/youtubeShorts";
 
 // Using type assertion since we don't have wrangler file for CF bindings
-export const ENV = process.env.ENV || "development";
+const ENV = process.env.ENV || "development";
 
 interface MockData {
   streams: apiGen.ListStreams200;

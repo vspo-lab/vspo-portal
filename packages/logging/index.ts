@@ -178,9 +178,9 @@ class AppLogger implements CustomLogger {
 }
 
 export {
+  AppLogger,
   type CustomLogger,
   type LogContext,
-  AppLogger,
   LogLevel,
   type LogLevelString,
 };

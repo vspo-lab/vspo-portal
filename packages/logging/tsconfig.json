@@ -1,17 +1,3 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "CommonJS",
-    "outDir": "./dist",
-    "noEmit": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "exactOptionalPropertyTypes": true,
-    "skipLibCheck": true
-  }
+  "extends": "../../tsconfig.base.json"
 }

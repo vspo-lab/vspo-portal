@@ -20,6 +20,6 @@ export type Event = z.infer<typeof eventSchema>;
 /**
  * Type definition for events grouped by date
  */
-export type EventsByDate = {
+type EventsByDate = {
   [date: string]: Event[];
 };

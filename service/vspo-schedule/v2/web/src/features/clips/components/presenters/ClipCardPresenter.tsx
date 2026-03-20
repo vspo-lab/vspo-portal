@@ -3,7 +3,8 @@ import { useTranslation } from "next-i18next";
 import type React from "react";
 import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
 import type { Clip } from "../../../shared/domain/clip";
-export type ClipCardPresenterProps = {
+
+type ClipCardPresenterProps = {
   clip: Clip;
 };
 

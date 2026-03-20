@@ -25,19 +25,17 @@ interface CloudflareContextEnv {
 
 export class CloudflareAssetsBackend implements BackendModule {
   type = "backend" as const;
-  private services?: Services;
   private options: BackendOptions = {
     loadPath: "/locales/{{lng}}/{{ns}}.json",
   };
 
   static type = "backend";
 
-  constructor(services?: Services, options: Partial<BackendOptions> = {}) {
-    this.init(services, options);
+  constructor(_services?: Services, options: Partial<BackendOptions> = {}) {
+    this.init(_services, options);
   }
 
-  init(services?: Services, options: Partial<BackendOptions> = {}): void {
-    this.services = services;
+  init(_services?: Services, options: Partial<BackendOptions> = {}): void {
     this.options = {
       ...this.options,
       ...options,

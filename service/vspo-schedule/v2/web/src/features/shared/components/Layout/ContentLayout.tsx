@@ -2,6 +2,7 @@ import {
   type Breakpoint,
   Container,
   type ContainerTypeMap,
+  GlobalStyles,
 } from "@mui/material";
 import type { OverridableComponent } from "@mui/material/OverridableComponent";
 import { styled } from "@mui/material/styles";
@@ -13,6 +14,26 @@ import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { CustomBottomNavigation } from "./Navigation";
 
+/**
+ * Global CSS to hide layout chrome (header, footer, bottom nav) when immersive mode is active.
+ * Toggled via `document.documentElement.dataset.immersive = "true"` from page components.
+ */
+const immersiveStyles = (
+  <GlobalStyles
+    styles={{
+      'html[data-immersive="true"] [data-layout-header]': {
+        display: "none !important",
+      },
+      'html[data-immersive="true"] [data-layout-footer]': {
+        display: "none !important",
+      },
+      'html[data-immersive="true"] [data-layout-bottom-nav]': {
+        display: "none !important",
+      },
+    }}
+  />
+);
+
 type ContentLayoutProps = {
   children: React.ReactNode;
   title: string;
@@ -22,7 +43,7 @@ type ContentLayoutProps = {
   canonicalPath?: string;
   footerMessage?: string;
   headTitle?: string;
-  maxPageWidth?: Breakpoint;
+  maxPageWidth?: Breakpoint | false;
   padTop?: boolean;
 };
 
@@ -75,13 +96,16 @@ export const ContentLayout = ({
 
   return (
     <>
+      {immersiveStyles}
       <CustomHead
         title={headTitle || title}
         description={description}
         path={path}
         canonicalPath={canonicalPath}
       />
-      <Header title={title} />
+      <div data-layout-header>
+        <Header title={title} />
+      </div>
       <AlertSnackbar open={alertOpen} onClose={handleAlertClose} />
       <StyledContainer
         component="main"
@@ -91,11 +115,15 @@ export const ContentLayout = ({
       >
         {children}
       </StyledContainer>
-      <Footer
-        lastUpdateTimestamp={lastUpdateTimestamp}
-        description={footerMessage}
-      />
-      <CustomBottomNavigation />
+      <div data-layout-footer>
+        <Footer
+          lastUpdateTimestamp={lastUpdateTimestamp}
+          description={footerMessage}
+        />
+      </div>
+      <div data-layout-bottom-nav>
+        <CustomBottomNavigation />
+      </div>
     </>
   );
 };

@@ -1,7 +1,6 @@
 import type { ServerResponse } from "node:http";
-import type { ParsedUrlQuery } from "node:querystring";
-import { convertToUTCDate, getCurrentUTCDate } from "@vspo-lab/dayjs";
-import { isMatch, type Locale } from "date-fns";
+import { convertToUTCDate } from "@vspo-lab/dayjs";
+import type { Locale } from "date-fns";
 import { enUS, ja, ko, zhCN, zhTW } from "date-fns/locale";
 import { formatInTimeZone } from "date-fns-tz";
 import { createInstance as createI18nInstance } from "i18next";
@@ -33,35 +32,6 @@ export const groupBy = <T>(
   return groupedItems;
 };
 
-/**
- * Get a range of one week ago and one week later, without considering the time.
- * @returns - An object with `oneWeekAgo` and `oneWeekLater` properties representing the dates.
- */
-export const getOneWeekRange = () => {
-  const now = getCurrentUTCDate();
-  now.setHours(0, 0, 0, 0); // Set time to 00:00:00
-
-  const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
-
-  const oneWeekAgo = convertToUTCDate(now.getTime() - oneWeekInMilliseconds);
-  const oneWeekLater = convertToUTCDate(now.getTime() + oneWeekInMilliseconds);
-
-  return {
-    oneWeekAgo,
-    oneWeekLater,
-  };
-};
-
-/**
- * Determines whether a date string matches a specific date format.
- * @param dateString - The date string to test.
- * @param dateFormat - The date format pattern to test the string against.
- * @returns True if the date string conforms to the date format, else false.
- */
-export const matchesDateFormat = (dateString: string, dateFormat: string) => {
-  return isMatch(dateString, dateFormat);
-};
-
 export const getSiteNewsTagColor = (tag: string) => {
   switch (tag) {
     case "feat":
@@ -71,45 +41,6 @@ export const getSiteNewsTagColor = (tag: string) => {
     default:
       return "default";
   }
-};
-
-export const isValidYearMonth = (yearMonth: string) => {
-  const regEx = /^\d{4}-\d{2}$/;
-  if (!yearMonth.match(regEx)) return false; // Invalid format
-  const d = convertToUTCDate(yearMonth);
-  const dNum = d.getTime();
-  if (!dNum && dNum !== 0) return false; // NaN value, Invalid date
-  return d.toISOString().slice(0, 7) === yearMonth;
-};
-
-export const dateStringOffSet = (dateString: string) => {
-  const date = convertToUTCDate(dateString);
-  const offset = date.getTimezoneOffset();
-  return offset;
-};
-
-/**
- * Generates a path for each of the given paths in each of the given locales.
- * Use for generating paths for each locale in `getStaticPaths`.
- * @param paths - The paths to generated for each locale.
- * @param locales - The locales in which this page should be generated.
- * @returns The given paths in each of the given locales.
- */
-export const generateStaticPathsForLocales = <
-  Params extends ParsedUrlQuery = ParsedUrlQuery,
->(
-  paths: { params: Params }[],
-  locales: string[] | undefined,
-) => {
-  if (locales === undefined || locales.length === 0) {
-    return paths;
-  }
-  return paths.flatMap((path) => {
-    return locales.map((locale) => ({
-      ...path,
-      locale,
-    }));
-  });
 };
 
 /**

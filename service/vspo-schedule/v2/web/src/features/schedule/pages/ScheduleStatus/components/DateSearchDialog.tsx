@@ -27,7 +27,7 @@ export type DateSearchFormData = {
   platform: string;
 };
 
-export type DateSearchDialogProps = {
+type DateSearchDialogProps = {
   open: boolean;
   onClose: () => void;
   dateInputValue: string;

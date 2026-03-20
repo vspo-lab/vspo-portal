@@ -9,7 +9,7 @@ import {
 } from "../domain/clip";
 import type { Platform } from "../domain/video";
 
-export type FetchClipsParams = {
+type FetchClipsParams = {
   page: number;
   limit: number;
   // locale?: string;
@@ -22,7 +22,7 @@ export type FetchClipsParams = {
   sessionId?: string;
 };
 
-export type ClipFetchResult = Result<
+type ClipFetchResult = Result<
   {
     clips: Clip[];
     pagination: Pagination;

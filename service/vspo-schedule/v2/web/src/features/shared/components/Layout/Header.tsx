@@ -35,13 +35,15 @@ const StyledSubtitle = styled(Typography)({
 const SocialIconNextLink: React.FC<{
   url: string;
   icon: React.ReactNode;
-}> = ({ url, icon }) => {
+  label: string;
+}> = ({ url, icon, label }) => {
   const clickTargetSize = "24px";
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      aria-label={label}
       style={{
         width: clickTargetSize,
         height: clickTargetSize,
@@ -100,6 +102,8 @@ export const Header: React.FC<Props> = ({ title }) => {
                 alt="Page Icon"
                 width={40}
                 height={40}
+                sizes="40px"
+                priority
               />
               <Box>
                 <StyledTypography variant="h6">{t("spodule")}</StyledTypography>
@@ -117,10 +121,12 @@ export const Header: React.FC<Props> = ({ title }) => {
               <SocialIconNextLink
                 url="https://github.com/sugar-cat7/vspo-portal"
                 icon={<FontAwesomeIcon icon={faGithub} />}
+                label="GitHub"
               />
               <SocialIconNextLink
                 url="https://twitter.com/vspodule"
                 icon={<FontAwesomeIcon icon={faXTwitter} />}
+                label="X (Twitter)"
               />
             </Box>
           </div>

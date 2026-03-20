@@ -1,19 +1,20 @@
 import { ContentLayout } from "@/features/shared/components/Layout";
 import { Livestream } from "@/features/shared/domain";
 import { NextPageWithLayout } from "@/pages/_app";
-import React, { useEffect, useState, useCallback } from "react";
-import GridLayout from "react-grid-layout";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+
+import { MultiviewErrorBoundary } from "../../components/containers";
 import { PlaybackProvider } from "../../context/PlaybackContext";
 import { useUrlConfigurationLoader } from "../../hooks/useConfigurationLoader";
 import { LayoutType } from "../../hooks/useMultiviewLayout";
 import { LoadedConfig } from "../../utils/configLoader";
 import {
-  clearUrlState,
   expandCompactState,
   generateShareableUrl,
   hasUrlState,
   loadStateFromLocalStorage,
   parseCompactStateFromUrl,
+  resolveStream,
   saveStateToLocalStorage,
 } from "../../utils/stateManager";
 import { Presenter } from "./presenter";
@@ -31,13 +32,9 @@ export type MultiviewPageProps = {
 export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
   props,
 ) => {
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [selectedStreams, setSelectedStreams] = useState<Livestream[]>([]);
   const [selectedLayout, setSelectedLayout] = useState<LayoutType>("auto");
   const [shareableUrl, setShareableUrl] = useState<string>("");
-  const [gridLayout, setGridLayout] = useState<
-    Array<{ x: number; y: number; w: number; h: number }> | undefined
-  >();
 
   // Configuration loader for handling shared URLs
   const configLoader = useUrlConfigurationLoader({
@@ -62,8 +59,15 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
     onError: useCallback(() => {}, []),
   });
 
-  // Load state on mount
+  // Track whether the page was opened with a ?s= query parameter
+  const openedWithUrlStateRef = useRef(false);
+
+  // Load state on mount only (skip if already loaded)
+  const hasLoadedRef = useRef(false);
   useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+
     const loadInitialState = async () => {
       // First check URL state
       if (hasUrlState()) {
@@ -71,192 +75,152 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
         if (compactState) {
           const expanded = expandCompactState(compactState, props.livestreams);
           if (expanded) {
+            openedWithUrlStateRef.current = true;
             setSelectedStreams(expanded.streams);
             setSelectedLayout(expanded.layout);
-
-            // Set grid layout if available
-            if (compactState.g) {
-              setGridLayout(compactState.g);
-            }
-
-            // Clear URL state after loading
-            clearUrlState();
             return;
           }
         }
       }
 
-      // Then check localStorage
+      // Then check localStorage (don't write back to URL)
       const localState = loadStateFromLocalStorage();
       if (localState) {
-        const restoredStreams = localState.selectedStreams.map((saved) => {
-          const existing = props.livestreams.find((s) => s.id === saved.id);
-          if (existing) return existing;
-
-          // Create minimal Livestream object for external streams
-          return {
-            ...saved,
-            type: "livestream" as const,
-            status: "live" as const,
-            description: "",
-            thumbnailUrl: "",
-            viewCount: 0,
-            scheduledStartTime: new Date().toISOString(),
-            scheduledEndTime: null,
-            channelThumbnailUrl: "",
-            videoPlayerLink: "",
-            chatPlayerLink: "",
-            tags: [],
-          } as Livestream;
-        });
+        const restoredStreams = localState.selectedStreams.map((saved) =>
+          resolveStream(saved, props.livestreams),
+        );
 
         setSelectedStreams(restoredStreams);
         setSelectedLayout(localState.layout);
-
-        // Restore grid layout if available
-        if (localState.gridLayout) {
-          setGridLayout(
-            localState.gridLayout.map((item) => ({
-              x: item.x,
-              y: item.y,
-              w: item.w,
-              h: item.h,
-            })),
-          );
-        }
       }
     };
 
     loadInitialState();
   }, [props.livestreams]);
 
-  // Save state when it changes
+  // Save state when it changes (debounced to avoid blocking main thread)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (selectedStreams.length > 0) {
-      // Convert grid layout to GridLayoutItem format if needed
-      const gridLayoutItems = gridLayout
-        ? gridLayout.map((item, index) => ({
-            i: `stream-${index}`,
-            x: item.x,
-            y: item.y,
-            w: item.w,
-            h: item.h,
-          }))
-        : undefined;
+      // Always generate shareable URL for the share button
+      const newUrl = generateShareableUrl(selectedStreams, selectedLayout);
+      setShareableUrl(newUrl);
 
-      saveStateToLocalStorage(selectedStreams, selectedLayout, gridLayoutItems);
-      setShareableUrl(
-        generateShareableUrl(selectedStreams, selectedLayout, gridLayoutItems),
-      );
+      // Only sync URL bar if the page was opened with ?s= parameter
+      if (openedWithUrlStateRef.current) {
+        try {
+          window.history.replaceState({}, "", newUrl);
+        } catch {
+          // Silently ignore if URL update fails
+        }
+      }
+
+      // Debounce localStorage write (synchronous / blocking)
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => {
+        saveStateToLocalStorage(selectedStreams, selectedLayout);
+      }, 500);
     }
-  }, [selectedStreams, selectedLayout, gridLayout]);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [selectedStreams, selectedLayout]);
 
-  useEffect(() => {
-    // Check if we have a loaded configuration, otherwise use default behavior
-    if (configLoader.isReady && configLoader.state.loadedConfig) {
-      setIsProcessing(false);
-    } else if (!configLoader.state.isLoading && !configLoader.needsUserAction) {
-      // No configuration loading in progress and no user action needed
-      setIsProcessing(false);
-    }
-  }, [
-    configLoader.isReady,
-    configLoader.state.isLoading,
-    configLoader.needsUserAction,
-    configLoader.state.loadedConfig,
-  ]);
+  // Derived: processing while config is actively loading
+  const isProcessing = configLoader.state.isLoading;
 
-  const handleStreamSelection = (stream: Livestream) => {
+  const handleStreamSelection = useCallback((stream: Livestream) => {
     setSelectedStreams((prev) => {
       const isAlreadySelected = prev.some((s) => s.id === stream.id);
       if (isAlreadySelected) {
-        const newStreams = prev.filter((s) => s.id !== stream.id);
-        return newStreams;
-      } else if (prev.length < 9) {
-        // Allow up to 9 streams for 3x3 layout
-        const newStreams = [...prev, stream];
-        return newStreams;
+        return prev.filter((s) => s.id !== stream.id);
       }
-      return prev;
+      return [...prev, stream];
     });
-  };
+  }, []);
 
-  const handleRemoveStream = (streamId: string) => {
-    setSelectedStreams((prev) => {
-      const newStreams = prev.filter((s) => s.id !== streamId);
-      return newStreams;
-    });
-  };
+  const handleRemoveStream = useCallback((streamId: string) => {
+    setSelectedStreams((prev) => prev.filter((s) => s.id !== streamId));
+  }, []);
 
-  const handleLayoutChange = (layout: LayoutType) => {
+  const handleLayoutChange = useCallback((layout: LayoutType) => {
     setSelectedLayout(layout);
-  };
+  }, []);
 
-  const handleStreamReorder = (activeId: string, overId: string) => {
+  const handleManualStreamAdd = useCallback((stream: Livestream) => {
     setSelectedStreams((prev) => {
-      const activeIndex = prev.findIndex((s) => s.id === activeId);
-      const overIndex = prev.findIndex((s) => s.id === overId);
-
-      if (activeIndex === -1 || overIndex === -1) return prev;
-
-      const newStreams = [...prev];
-      [newStreams[activeIndex], newStreams[overIndex]] = [
-        newStreams[overIndex],
-        newStreams[activeIndex],
-      ];
-      return newStreams;
-    });
-  };
-
-  const handleGridLayoutChange = (newLayout: GridLayout.Layout[]) => {
-    // Extract only the position and size properties we need
-    const simplifiedLayout = newLayout.map((item) => ({
-      x: item.x,
-      y: item.y,
-      w: item.w,
-      h: item.h,
-    }));
-    setGridLayout(simplifiedLayout);
-  };
-
-  const handleManualStreamAdd = (stream: Livestream) => {
-    setSelectedStreams((prev) => {
-      // Check if stream is already added
       const isAlreadySelected = prev.some(
         (s) => s.id === stream.id || s.link === stream.link,
       );
-      if (isAlreadySelected) {
-        return prev;
-      }
-
-      // Check if we can add more streams (max 9 for 3x3 layout)
-      if (prev.length >= 9) {
-        return prev;
-      }
-
-      const newStreams = [...prev, stream];
-      return newStreams;
+      if (isAlreadySelected) return prev;
+      return [...prev, stream];
     });
-  };
+  }, []);
 
-  // Use the presenter component wrapped with PlaybackProvider
+  // Chat cell state — tracks which stream IDs have a chat cell open
+  const [chatStreamIds, setChatStreamIds] = useState<ReadonlySet<string>>(
+    new Set<string>(),
+  );
+
+  /** Toggle a chat cell for the given stream ID. */
+  const handleToggleChat = useCallback((streamId: string) => {
+    setChatStreamIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(streamId)) {
+        next.delete(streamId);
+      } else {
+        next.add(streamId);
+      }
+      return next;
+    });
+  }, []);
+
+  /** Remove a chat cell for the given stream ID. */
+  const handleRemoveChat = useCallback((streamId: string) => {
+    setChatStreamIds((prev) => {
+      if (!prev.has(streamId)) return prev;
+      const next = new Set(prev);
+      next.delete(streamId);
+      return next;
+    });
+  }, []);
+
+  /** Replace all selected streams at once (used by preset restoration). */
+  const handleRestoreStreams = useCallback((streams: Livestream[]) => {
+    setSelectedStreams(streams);
+    setChatStreamIds(new Set<string>());
+  }, []);
+
+  // When a stream is removed, also remove its chat cell
+  const handleRemoveStreamWithChat = useCallback(
+    (streamId: string) => {
+      setSelectedStreams((prev) => prev.filter((s) => s.id !== streamId));
+      handleRemoveChat(streamId);
+    },
+    [handleRemoveChat],
+  );
+
+  // Use the presenter component wrapped with PlaybackProvider and ErrorBoundary
   return (
-    <PlaybackProvider>
-      <Presenter
-        livestreams={props.livestreams}
-        selectedStreams={selectedStreams}
-        selectedLayout={selectedLayout}
-        isProcessing={isProcessing || configLoader.state.isLoading}
-        shareableUrl={shareableUrl}
-        onStreamSelection={handleStreamSelection}
-        onRemoveStream={handleRemoveStream}
-        onLayoutChange={handleLayoutChange}
-        onStreamReorder={handleStreamReorder}
-        onManualStreamAdd={handleManualStreamAdd}
-        onGridLayoutChange={handleGridLayoutChange}
-        savedGridLayout={gridLayout}
-      />
-    </PlaybackProvider>
+    <MultiviewErrorBoundary>
+      <PlaybackProvider>
+        <Presenter
+          livestreams={props.livestreams}
+          selectedStreams={selectedStreams}
+          chatStreamIds={chatStreamIds}
+          selectedLayout={selectedLayout}
+          isProcessing={isProcessing}
+          shareableUrl={shareableUrl}
+          onStreamSelection={handleStreamSelection}
+          onRemoveStream={handleRemoveStreamWithChat}
+          onLayoutChange={handleLayoutChange}
+          onManualStreamAdd={handleManualStreamAdd}
+          onRestoreStreams={handleRestoreStreams}
+          onToggleChat={handleToggleChat}
+          onRemoveChat={handleRemoveChat}
+        />
+      </PlaybackProvider>
+    </MultiviewErrorBoundary>
   );
 };
 
@@ -269,6 +233,7 @@ MultiviewPage.getLayout = (page, pageProps) => {
       lastUpdateTimestamp={pageProps.lastUpdateTimestamp}
       path="/multiview"
       padTop={false}
+      maxPageWidth={false}
     >
       {page}
     </ContentLayout>

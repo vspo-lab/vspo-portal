@@ -79,13 +79,13 @@ const formatToLocalizedDate = (
 };
 
 export {
+  addDaysAndConvertToUTC,
   convertToUTC,
   convertToUTCDate,
+  convertToUTCTimestamp,
+  formatToLocalizedDate,
   getCurrentUTCDate,
   getCurrentUTCString,
-  formatToLocalizedDate,
-  convertToUTCTimestamp,
-  addDaysAndConvertToUTC,
   getEndOfDayUTC,
   getPreviousDay,
 };

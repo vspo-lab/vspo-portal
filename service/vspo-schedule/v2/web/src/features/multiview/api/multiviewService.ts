@@ -32,63 +32,60 @@ export const fetchMultiviewService = async ({
   try {
     const sessionId = req ? getSessionId(req) : undefined;
 
-    // Fetch live streams using existing API
-    const livestreamResult = await fetchLivestreams({
-      limit,
-      lang: locale,
-      status: "live",
-      order: "desc",
-      timezone,
-      sessionId,
-      memberType,
-      platform,
-    });
+    // Fetch live, upcoming, and translations in parallel
+    const [livestreamResult, upcomingResult, translations] = await Promise.all([
+      fetchLivestreams({
+        limit,
+        lang: locale,
+        status: "live",
+        order: "desc",
+        timezone,
+        sessionId,
+        memberType,
+        platform,
+      }),
+      includeUpcoming
+        ? fetchLivestreams({
+            limit: 10,
+            lang: locale,
+            status: "upcoming",
+            order: "desc",
+            timezone,
+            sessionId,
+            memberType,
+            platform,
+          })
+        : null,
+      serverSideTranslations(locale, ["common", "multiview"]),
+    ]);
 
     if (livestreamResult.err) {
       throw livestreamResult.err;
     }
 
-    const upcomingLivestreamsResult = await fetchLivestreams({
-      limit: includeUpcoming ? 10 : 0,
-      lang: locale,
-      status: "upcoming",
-      order: "desc",
-      timezone,
-      sessionId,
-      memberType,
-      platform,
+    // Degrade gracefully: show live streams even if upcoming fetch fails
+    // Deduplicate by id to prevent duplicate key errors in React
+    const allStreams = [
+      ...livestreamResult.val.livestreams,
+      ...(upcomingResult?.val?.livestreams ?? []),
+    ];
+    const seen = new Set<string>();
+    const livestreams = allStreams.filter((s) => {
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return true;
     });
 
-    if (upcomingLivestreamsResult.err) {
-      throw upcomingLivestreamsResult.err;
-    }
-
-    const { livestreams: liveLivestreams } = livestreamResult.val;
-    const { livestreams: upcomingLivestreams } = upcomingLivestreamsResult.val;
-
-    const livestreams = [...liveLivestreams, ...upcomingLivestreams];
-
-    // Sort by status (live first) and then by scheduled start time
-    const sortedLivestreams = livestreams.sort((a, b) => {
-      // Live streams first
+    // Sort: live first (most recent), then upcoming (soonest first)
+    const sortedLivestreams = [...livestreams].sort((a, b) => {
       if (a.status === "live" && b.status !== "live") return -1;
       if (b.status === "live" && a.status !== "live") return 1;
 
-      // Then sort by scheduled start time (most recent first for live, upcoming first for scheduled)
       const aTime = new Date(a.scheduledStartTime || 0).getTime();
       const bTime = new Date(b.scheduledStartTime || 0).getTime();
 
-      if (a.status === "live" && b.status === "live") {
-        return bTime - aTime; // Most recent live streams first
-      }
-
-      return aTime - bTime;
+      return a.status === "live" ? bTime - aTime : aTime - bTime;
     });
-
-    const translations = await serverSideTranslations(locale, [
-      "common",
-      "multiview",
-    ]);
 
     return {
       livestreams: sortedLivestreams,
