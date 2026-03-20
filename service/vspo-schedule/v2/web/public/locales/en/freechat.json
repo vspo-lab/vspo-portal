@@ -1,10 +1,4 @@
 {
   "title": "$t(common:vspo) Freechats",
-  "description": "View all $t(common:vspo) members' freechat streams.",
-  "active": "{{count}} Active",
-  "sections": {
-    "active": "Active",
-    "upcoming": "Upcoming",
-    "archive": "Archive"
-  }
+  "description": "View all $t(common:vspo) members' freechat streams."
 }

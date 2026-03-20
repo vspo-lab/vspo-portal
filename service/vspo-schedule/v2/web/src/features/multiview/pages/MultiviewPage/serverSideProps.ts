@@ -20,10 +20,10 @@ export const getServerSideProps = async (
 
   const { t } = getInitializedI18nInstance(translations, "multiview");
 
-  const title = t("meta.title", "VSPO! Multiview");
+  const title = t("meta.title", "ぶいすぽっ!マルチビュー");
   const description = t(
     "meta.description",
-    "A multiviewer for watching multiple VSPO! member streams simultaneously.",
+    "複数のぶいすぽっ!メンバーの配信を同時に視聴できるマルチビューワーです。",
   );
 
   const lastUpdateTimestamp = getCurrentUTCDate().getTime();

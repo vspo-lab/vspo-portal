@@ -1,16 +1,18 @@
 import {
   Box,
-  Card,
-  CardActionArea,
-  CardContent,
   Chip,
-  Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Toolbar,
-  Typography,
 } from "@mui/material";
 import Link from "next/link";
 import type { TFunction } from "next-i18next";
-import { type FC, useMemo, useState } from "react";
+import type * as React from "react";
 import { Breadcrumb } from "@/features/shared/components/Elements";
 import type { SiteNewsMarkdownItem } from "@/lib/markdown";
 import { formatDate, getSiteNewsTagColor } from "@/lib/utils";
@@ -22,117 +24,91 @@ type SiteNewsPagePresenterProps = {
   t: TFunction;
 };
 
-export const SiteNewsPagePresenter: FC<SiteNewsPagePresenterProps> = ({
+export const SiteNewsPagePresenter: React.FC<SiteNewsPagePresenterProps> = ({
   siteNewsItems,
   locale,
   t,
 }) => {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    for (const item of siteNewsItems) {
-      for (const tag of item.tags) {
-        tagSet.add(tag);
-      }
-    }
-    return Array.from(tagSet);
-  }, [siteNewsItems]);
-
-  const filteredItems = selectedTag
-    ? siteNewsItems.filter((item) => item.tags.includes(selectedTag))
-    : siteNewsItems;
-
   return (
     <>
       <Toolbar disableGutters variant="dense" sx={{ alignItems: "end" }}>
         <Breadcrumb />
       </Toolbar>
 
-      <Box sx={{ mt: "10px" }}>
-        {/* Tag filter */}
-        <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", mb: 2 }}>
-          <Chip
-            label={t("tagLabels.all", "All")}
-            size="small"
-            variant={selectedTag === null ? "filled" : "outlined"}
-            color="primary"
-            onClick={() => setSelectedTag(null)}
-          />
-          {allTags.map((tag) => (
-            <Chip
-              key={tag}
-              label={t(`tagLabels.${tag}`)}
-              size="small"
-              variant={selectedTag === tag ? "filled" : "outlined"}
-              color={getSiteNewsTagColor(tag as SiteNewsTag)}
-              onClick={() => setSelectedTag(tag)}
-            />
-          ))}
-        </Box>
-
-        {/* Card grid */}
-        <Grid container spacing={2}>
-          {filteredItems.map((siteNewsItem) => (
-            <Grid key={siteNewsItem.id} size={{ xs: 12, md: 6 }}>
-              <Card
+      <TableContainer
+        component={Paper}
+        sx={{
+          marginTop: "10px",
+          boxShadow: "0px 3px 5px 2px rgba(0, 0, 0, 0.3)",
+          borderRadius: "20px",
+          overflowX: "auto",
+        }}
+      >
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell
                 sx={{
-                  borderRadius: "12px",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                  padding: "24px",
                 }}
               >
-                <CardActionArea
-                  component={Link}
-                  href={`/site-news/${siteNewsItem.id}`}
-                >
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "0.95rem",
-                        fontWeight: 600,
-                        mb: 0.5,
-                      }}
-                    >
+                {t("tableHeaders.summary")}
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                  padding: "24px 4px",
+                }}
+              >
+                {t("tableHeaders.updateDate")}
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                  padding: "24px",
+                }}
+              >
+                {t("tableHeaders.tags")}
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {siteNewsItems.map((siteNewsItem) => (
+              <TableRow key={siteNewsItem.id}>
+                <TableCell sx={{ fontSize: "16px", padding: "24px" }}>
+                  <Link href={`/site-news/${siteNewsItem.id}`} passHref>
+                    <Box sx={{ textDecoration: "none", color: "inherit" }}>
                       {siteNewsItem.title}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "text.secondary",
-                        display: "block",
-                        mb: 1,
-                      }}
-                    >
-                      {formatDate(siteNewsItem.updated, "PPP", {
-                        localeCode: locale,
-                      })}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 0.5,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {siteNewsItem.tags.map((tag) => (
-                        <Chip
-                          key={tag}
-                          label={t(`tagLabels.${tag}`)}
-                          size="small"
-                          variant="outlined"
-                          color={getSiteNewsTagColor(tag as SiteNewsTag)}
-                          sx={{ fontSize: "0.7rem" }}
-                        />
-                      ))}
                     </Box>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
+                  </Link>
+                </TableCell>
+                <TableCell
+                  sx={{ fontSize: "16px", padding: "24px 4px", minWidth: 120 }}
+                >
+                  {formatDate(siteNewsItem.updated, "PPP", {
+                    localeCode: locale,
+                  })}
+                </TableCell>
+                <TableCell sx={{ fontSize: "16px", padding: "24px" }}>
+                  {siteNewsItem.tags.map((tag) => (
+                    <Chip
+                      key={tag}
+                      label={t(`tagLabels.${tag}`)}
+                      variant="outlined"
+                      color={getSiteNewsTagColor(tag as SiteNewsTag)}
+                      sx={{ m: 0.5 }}
+                    />
+                  ))}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </>
   );
 };

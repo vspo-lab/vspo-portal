@@ -1,5 +1,32 @@
-import type { Clip, Pagination } from "../../shared/domain/clip";
+import { getCurrentUTCDate } from "@vspo-lab/dayjs";
+import type { Clip, ClipFilter, Pagination } from "../../shared/domain/clip";
 import { paginationSchema } from "../../shared/domain/clip";
+
+/**
+ * Calculate the start date for a timeframe filter
+ */
+const getTimeframeStartDate = (
+  timeframe: ClipFilter["timeframe"],
+): Date | null => {
+  if (timeframe === "all") return null;
+
+  const now = getCurrentUTCDate();
+  const startDate = getCurrentUTCDate();
+
+  switch (timeframe) {
+    case "1day":
+      startDate.setDate(now.getDate() - 1);
+      return startDate;
+    case "1week":
+      startDate.setDate(now.getDate() - 7);
+      return startDate;
+    case "1month":
+      startDate.setMonth(now.getMonth() - 1);
+      return startDate;
+    default:
+      return null;
+  }
+};
 
 /**
  * Paginate clips

@@ -36,6 +36,5 @@
     "all": "전체",
     "allWithDate": "전체 ({{date}})"
   },
-  "noLivestreams": "예정된 방송이 없습니다. 전날 일정을 확인해주세요.",
-  "nowLive": "방송 중"
+  "noLivestreams": "예정된 방송이 없습니다. 전날 일정을 확인해주세요."
 }

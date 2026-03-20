@@ -7,8 +7,6 @@ import {
   Grid,
   Paper,
   styled,
-  Tab,
-  Tabs,
   Typography,
   useMediaQuery,
   useTheme,
@@ -145,30 +143,28 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
     return [
       {
         label: isMobile
-          ? t("common:all", "All")
-          : t("searchDialog.timeframes.all", "All"),
+          ? t("common:all", "全て")
+          : t("searchDialog.timeframes.all", "すべて"),
         value: "all",
         showIcon: false,
       },
       {
-        label: isMobile ? "24h" : t("searchDialog.timeframes.1day", "24 hours"),
+        label: isMobile ? "24h" : t("searchDialog.timeframes.1day", "24時間"),
         value: "day",
         showIcon: true,
       },
       {
-        label: isMobile ? "1w" : t("searchDialog.timeframes.1week", "1 week"),
+        label: isMobile ? "1週" : t("searchDialog.timeframes.1week", "1週間"),
         value: "week",
         showIcon: true,
       },
       {
-        label: isMobile
-          ? "1mo"
-          : t("searchDialog.timeframes.1month", "1 month"),
+        label: isMobile ? "1月" : t("searchDialog.timeframes.1month", "1ヶ月"),
         value: "month",
         showIcon: true,
       },
       {
-        label: isMobile ? "1y" : t("searchDialog.timeframes.year", "1 year"),
+        label: isMobile ? "1年" : t("searchDialog.timeframes.year", "1年"),
         value: "year",
         showIcon: true,
       },
@@ -241,23 +237,6 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Platform Tabs */}
-      <Tabs value={0} variant="scrollable" scrollButtons="auto" sx={{ mb: 2 }}>
-        <Tab label={t("platformTabs.all", "All")} />
-        <Tab
-          label={t("platformTabs.youtube", "YouTube")}
-          onClick={() => router.push("/clips/youtube")}
-        />
-        <Tab
-          label={t("platformTabs.shorts", "Shorts")}
-          onClick={() => router.push("/clips/youtube/shorts")}
-        />
-        <Tab
-          label={t("platformTabs.twitch", "Twitch")}
-          onClick={() => router.push("/clips/twitch")}
-        />
-      </Tabs>
-
       {/* Date Filter */}
       <FilterContainer elevation={1}>
         <FilterTitle>
@@ -269,7 +248,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
             fontWeight={600}
             fontSize={isMobile ? "1.1rem" : "1.25rem"}
           >
-            {t("searchDialog.timeframe", "Filter by period")}
+            {t("searchDialog.timeframe", "期間でフィルタ")}
           </Typography>
         </FilterTitle>
 
@@ -303,7 +282,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
       {/* YouTube Clips Section */}
       <Box sx={{ mb: 4 }}>
         <ResponsiveSectionTitle variant="h5">
-          {t("home.sections.popularYoutubeClips", "Popular Clips")}
+          {t("home.sections.popularYoutubeClips", "人気の切り抜き")}
         </ResponsiveSectionTitle>
         <ClipSection
           title=""
@@ -317,7 +296,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
       {/* YouTube Shorts Section */}
       <Box sx={{ mb: 4 }}>
         <ResponsiveSectionTitle variant="h5">
-          {t("home.sections.popularShortsClips", "Popular Shorts")}
+          {t("home.sections.popularShortsClips", "人気のショート動画")}
         </ResponsiveSectionTitle>
         <ClipSection
           title=""
@@ -331,7 +310,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
       {/* Twitch Clips Section */}
       <Box sx={{ mb: 4 }}>
         <ResponsiveSectionTitle variant="h5">
-          {t("home.sections.popularTwitchClips", "Popular Twitch Clips")}
+          {t("home.sections.popularTwitchClips", "人気のTwitchクリップ")}
         </ResponsiveSectionTitle>
         <ClipSection
           title=""

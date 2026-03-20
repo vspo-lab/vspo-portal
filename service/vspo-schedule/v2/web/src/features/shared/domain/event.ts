@@ -8,7 +8,7 @@ export const eventSchema = z.object({
   type: z.string(),
   title: z.string(),
   startedDate: z.string(),
-  contentSummary: z.record(z.string(), z.unknown()).default({}),
+  contentSummary: z.any(), // Type this properly based on the actual structure
   isNotLink: z.boolean().optional(),
 });
 
@@ -16,3 +16,10 @@ export const eventSchema = z.object({
  * Type definition for an event
  */
 export type Event = z.infer<typeof eventSchema>;
+
+/**
+ * Type definition for events grouped by date
+ */
+type EventsByDate = {
+  [date: string]: Event[];
+};

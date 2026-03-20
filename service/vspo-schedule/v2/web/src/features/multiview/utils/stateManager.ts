@@ -1,23 +1,9 @@
 import { z } from "zod";
-import { getCurrentUTCString } from "@vspo-lab/dayjs";
-import { type Platform, Livestream, platformSchema } from "@/features/shared/domain";
+import { Livestream } from "@/features/shared/domain";
 import { LayoutType } from "../hooks/useMultiviewLayout";
 
-/**
- * Synchronous variant of `wrap` for localStorage / JSON.parse operations.
- * Returns { val } on success, { err } on failure.
- */
-const wrapSync = <T>(fn: () => T, label: string): { val: T; err?: never } | { val?: never; err: Error } => {
-  try {
-    return { val: fn() };
-  } catch (e) {
-    console.error(`${label}:`, e);
-    return { err: e instanceof Error ? e : new Error(String(e)) };
-  }
-};
-
 // Grid layout item for react-grid-layout
-export type GridLayoutItem = {
+export interface GridLayoutItem {
   i: string;
   x: number;
   y: number;
@@ -26,9 +12,9 @@ export type GridLayoutItem = {
   minW?: number;
   minH?: number;
   static?: boolean;
-};
+}
 
-export type MultiviewState = {
+export interface MultiviewState {
   selectedStreams: Array<{
     id: string;
     platform: string;
@@ -40,10 +26,10 @@ export type MultiviewState = {
   layout: LayoutType;
   gridLayout?: GridLayoutItem[];
   version: number;
-};
+}
 
 // Compact state for URL (only essential data)
-type CompactMultiviewState = {
+interface CompactMultiviewState {
   s: Array<{
     i: string; // id
     p: string; // platform
@@ -58,18 +44,11 @@ type CompactMultiviewState = {
     h: number;
   }>;
   v: number; // version
-};
+}
 
-// Validation helpers using shared schemas
+// Validation schemas for deserialized data
+const VALID_PLATFORMS = ["youtube", "twitch", "twitcasting", "niconico", "unknown"] as const;
 const VALID_LAYOUTS: LayoutType[] = ["1x1", "2x1", "1x2", "2x2", "3x3", "4x3", "picture-in-picture", "auto"];
-
-/** Type guard: checks if a string is a valid platform using shared platformSchema. */
-const isValidPlatform = (value: string): value is Platform =>
-  platformSchema.safeParse(value).success;
-
-/** Type guard: checks if a string is a valid LayoutType. */
-const isValidLayout = (value: string): value is LayoutType =>
-  (VALID_LAYOUTS as ReadonlyArray<string>).includes(value);
 
 const multiviewStateSchema = z.object({
   selectedStreams: z.array(z.object({
@@ -80,7 +59,7 @@ const multiviewStateSchema = z.object({
     channelTitle: z.string(),
     link: z.string(),
   })),
-  layout: z.string().refine((val): val is LayoutType => isValidLayout(val)),
+  layout: z.string().refine((val): val is LayoutType => VALID_LAYOUTS.includes(val as LayoutType)),
   gridLayout: z.array(z.object({
     i: z.string(),
     x: z.number().finite(),
@@ -97,7 +76,7 @@ const multiviewStateSchema = z.object({
 const customLayoutPresetsSchema = z.array(z.object({
   name: z.string(),
   layout: z.object({
-    type: z.string().refine((val): val is LayoutType => isValidLayout(val)),
+    type: z.string().refine((val): val is LayoutType => VALID_LAYOUTS.includes(val as LayoutType)),
     gridPositions: z.array(z.object({
       i: z.string(),
       x: z.number().finite(),
@@ -172,8 +151,6 @@ export const resolveStream = (
   const existing = availableStreams.find((s) => s.id === snapshot.id);
   if (existing) return existing;
 
-  // type-safe: snapshot.platform is string but Livestream requires Platform;
-  // the VALID_PLATFORMS guard in expandCompactState ensures only valid platforms reach here
   return {
     ...snapshot,
     type: "livestream" as const,
@@ -181,7 +158,7 @@ export const resolveStream = (
     description: "",
     thumbnailUrl: "",
     viewCount: 0,
-    scheduledStartTime: getCurrentUTCString(),
+    scheduledStartTime: new Date().toISOString(),
     scheduledEndTime: null,
     channelThumbnailUrl: "",
     videoPlayerLink: "",
@@ -191,7 +168,7 @@ export const resolveStream = (
 };
 
 // Custom layout preset
-export type CustomLayoutPreset = {
+export interface CustomLayoutPreset {
   name: string;
   layout: {
     type: LayoutType;
@@ -212,7 +189,7 @@ export type CustomLayoutPreset = {
     channelTitle: string;
     link: string;
   }>;
-};
+}
 
 /**
  * Save a custom layout preset to localStorage.
@@ -225,7 +202,7 @@ export const saveCustomLayout = (
   layout: CustomLayoutPreset["layout"],
   streams?: CustomLayoutPreset["streams"],
 ): void => {
-  wrapSync(() => {
+  try {
     const existing = loadCustomLayouts();
     // Remove duplicate by name (immutable filter)
     const filtered = existing.filter((preset) => preset.name !== name);
@@ -236,7 +213,9 @@ export const saveCustomLayout = (
         ? updated.slice(updated.length - MAX_CUSTOM_LAYOUTS)
         : updated;
     localStorage.setItem(CUSTOM_LAYOUTS_KEY, JSON.stringify(trimmed));
-  }, "Failed to save custom layout");
+  } catch (error) {
+    console.error("Failed to save custom layout:", error);
+  }
 };
 
 /**
@@ -245,19 +224,20 @@ export const saveCustomLayout = (
  * @postcondition Returns an array of presets (empty array if none or on error)
  */
 export const loadCustomLayouts = (): ReadonlyArray<CustomLayoutPreset> => {
-  const result = wrapSync(() => {
+  try {
     const saved = localStorage.getItem(CUSTOM_LAYOUTS_KEY);
     if (!saved) return [];
     const parsed = JSON.parse(saved);
-    const validated = customLayoutPresetsSchema.safeParse(parsed);
-    if (!validated.success) {
-      console.error("Invalid custom layouts in localStorage:", validated.error.message);
+    const result = customLayoutPresetsSchema.safeParse(parsed);
+    if (!result.success) {
+      console.error("Invalid custom layouts in localStorage:", result.error.message);
       return [];
     }
-    // type-safe: Zod schema structurally matches CustomLayoutPreset; readonly widening is safe
-    return validated.data as ReadonlyArray<CustomLayoutPreset>;
-  }, "Failed to load custom layouts");
-  return result.val ?? [];
+    return result.data as ReadonlyArray<CustomLayoutPreset>;
+  } catch (error) {
+    console.error("Failed to load custom layouts:", error);
+    return [];
+  }
 };
 
 /**
@@ -267,11 +247,13 @@ export const loadCustomLayouts = (): ReadonlyArray<CustomLayoutPreset> => {
  * @postcondition The preset with the given name is removed from localStorage
  */
 export const deleteCustomLayout = (name: string): void => {
-  wrapSync(() => {
+  try {
     const existing = loadCustomLayouts();
     const filtered = existing.filter((preset) => preset.name !== name);
     localStorage.setItem(CUSTOM_LAYOUTS_KEY, JSON.stringify(filtered));
-  }, "Failed to delete custom layout");
+  } catch (error) {
+    console.error("Failed to delete custom layout:", error);
+  }
 };
 
 // Platform abbreviations for compact URLs
@@ -339,7 +321,7 @@ const encodeCompactUrl = (compactState: CompactMultiviewState): string => {
  * Decode a base64url-encoded compact string back into CompactMultiviewState.
  */
 const decodeCompactUrl = (encoded: string): CompactMultiviewState | null => {
-  const decoded = wrapSync(() => {
+  try {
     const parts = fromBase64Url(encoded).split("|");
     if (parts.length < 3) return null;
 
@@ -357,7 +339,6 @@ const decodeCompactUrl = (encoded: string): CompactMultiviewState | null => {
       };
     });
 
-    // mutable: assigned to before return
     const result: CompactMultiviewState = {
       s: streams,
       l: layout,
@@ -374,10 +355,10 @@ const decodeCompactUrl = (encoded: string): CompactMultiviewState | null => {
 
     const validated = compactStateSchema.safeParse(result);
     if (!validated.success) return null;
-    // type-safe: compactStateSchema and CompactMultiviewState are structurally identical
     return validated.data as CompactMultiviewState;
-  }, "Failed to decode compact URL");
-  return decoded.val ?? null;
+  } catch {
+    return null;
+  }
 };
 
 /**
@@ -388,8 +369,8 @@ export const saveStateToLocalStorage = (
   layout: LayoutType,
   gridLayout?: GridLayoutItem[],
 ): void => {
-  wrapSync(() => {
-    const state = {
+  try {
+    const state: MultiviewState = {
       selectedStreams: selectedStreams.map((stream) => ({
         id: stream.id,
         platform: stream.platform,
@@ -401,17 +382,19 @@ export const saveStateToLocalStorage = (
       layout,
       gridLayout,
       version: CURRENT_VERSION,
-    } satisfies MultiviewState;
+    };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, "Failed to save multiview state");
+  } catch (error) {
+    console.error("Failed to save multiview state:", error);
+  }
 };
 
 /**
  * Load multiview state from localStorage
  */
 export const loadStateFromLocalStorage = (): MultiviewState | null => {
-  const loaded = wrapSync(() => {
+  try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return null;
 
@@ -421,7 +404,6 @@ export const loadStateFromLocalStorage = (): MultiviewState | null => {
       console.error("Invalid multiview state in localStorage:", result.error.message);
       return null;
     }
-    // type-safe: Zod refine() on layout narrows to LayoutType but is not reflected in z.infer
     const state = result.data as MultiviewState;
 
     if (state.version !== CURRENT_VERSION) {
@@ -429,8 +411,10 @@ export const loadStateFromLocalStorage = (): MultiviewState | null => {
     }
 
     return state;
-  }, "Failed to load multiview state");
-  return loaded.val ?? null;
+  } catch (error) {
+    console.error("Failed to load multiview state:", error);
+    return null;
+  }
 };
 
 /**
@@ -447,8 +431,7 @@ export const generateShareableUrl = (
   layout: LayoutType,
   gridLayout?: GridLayoutItem[],
 ): string => {
-  const result = wrapSync(() => {
-    // mutable: assigned to before return
+  try {
     const compactState: CompactMultiviewState = {
       s: selectedStreams.map((stream) => ({
         i: stream.id,
@@ -474,8 +457,10 @@ export const generateShareableUrl = (
     url.searchParams.set("s", encoded);
 
     return url.toString();
-  }, "Failed to generate shareable URL");
-  return result.val ?? window.location.href;
+  } catch (error) {
+    console.error("Failed to generate shareable URL:", error);
+    return window.location.href;
+  }
 };
 
 /**
@@ -484,12 +469,14 @@ export const generateShareableUrl = (
 export const parseCompactStateFromUrl = (
   url: string,
 ): CompactMultiviewState | null => {
-  const result = wrapSync(() => {
+  try {
     const encoded = new URL(url).searchParams.get("s");
     if (!encoded) return null;
     return decodeCompactUrl(encoded);
-  }, "Failed to parse state from URL");
-  return result.val ?? null;
+  } catch (error) {
+    console.error("Failed to parse state from URL:", error);
+    return null;
+  }
 };
 
 /**
@@ -519,7 +506,7 @@ export const expandCompactState = (
   layout: LayoutType;
   gridLayout?: Array<{ x: number; y: number; w: number; h: number }>;
 } | null => {
-  const result = wrapSync(() => {
+  try {
     const streams: Livestream[] = [];
 
     for (const compactStream of compactState.s) {
@@ -537,7 +524,7 @@ export const expandCompactState = (
           resolveStream(
             {
               id: compactStream.i,
-              platform: (isValidPlatform(compactStream.p) ? compactStream.p : "unknown"),
+              platform: (VALID_PLATFORMS.includes(compactStream.p as typeof VALID_PLATFORMS[number]) ? compactStream.p : "unknown"),
               channelId: compactStream.c || compactStream.i,
               title: compactStream.i,
               channelTitle: compactStream.c || compactStream.i,
@@ -550,9 +537,11 @@ export const expandCompactState = (
 
     return {
       streams,
-      layout: isValidLayout(compactState.l) ? compactState.l : "auto",
+      layout: (VALID_LAYOUTS.includes(compactState.l as LayoutType) ? compactState.l : "auto") as LayoutType,
       gridLayout: compactState.g,
     };
-  }, "Failed to expand compact state");
-  return result.val ?? null;
+  } catch (error) {
+    console.error("Failed to expand compact state:", error);
+    return null;
+  }
 };

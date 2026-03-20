@@ -21,9 +21,7 @@
       "list": "Streams",
       "clip": "Clips",
       "twitch-clip": "Twitch Clips",
-      "freechat": "Freechat",
-      "multiview": "Multiview",
-      "more": "More"
+      "multiview": "Multiview"
     }
   },
   "drawer": {

@@ -1,10 +1,4 @@
 {
   "title": "$t(common:vspo) 自由聊天",
-  "description": "可以查看$t(common:vspo)成員的自由聊天直播。",
-  "active": "活躍 {{count}} 個",
-  "sections": {
-    "active": "活躍",
-    "upcoming": "即將開始",
-    "archive": "封存"
-  }
+  "description": "可以查看$t(common:vspo)成員的自由聊天直播。"
 }

@@ -55,10 +55,10 @@ export class MultiviewErrorBoundary extends React.Component<Props, State> {
         >
           <ErrorOutlineIcon sx={{ fontSize: 48, opacity: 0.6 }} />
           <Typography variant="body1">
-            {this.props.fallbackMessage ?? "An unexpected error occurred"}
+            {this.props.fallbackMessage ?? "予期しないエラーが発生しました"}
           </Typography>
           <Button variant="outlined" onClick={this.handleReset}>
-            Retry
+            再試行
           </Button>
         </Box>
       );

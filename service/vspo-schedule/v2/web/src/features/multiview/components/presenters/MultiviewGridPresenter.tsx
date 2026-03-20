@@ -8,12 +8,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { resolveOverlaps, computeSwapDuringDrag } from "../../utils/gridSwap";
+import { resolveOverlaps } from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
 import { ChatCell, VideoPlayer } from "../containers";
 
@@ -42,7 +42,7 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   border: "none",
   position: "sticky",
   // Align below the fixed AppBar — use toolbar mixin height
-  top: (theme.mixins.toolbar.minHeight as number) ?? 56, // type-safe: MUI toolbar.minHeight is always number at runtime
+  top: (theme.mixins.toolbar.minHeight as number) ?? 56,
   zIndex: 1,
   width: "100%",
   height: "auto",
@@ -475,7 +475,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       };
     });
 
-    setInternalLayout(resolveOverlaps([...kept, ...newItems], GRID_COLS));
+    setInternalLayout(resolveOverlaps([...kept, ...newItems]));
   }, [streamIdKey, layout.type, layout.cols, rowHeight, cellsPerRow, isMobile, allItemIds, availableHeight]);
 
   // Apply externally provided grid positions (e.g. from a saved custom layout)
@@ -493,7 +493,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
             minW: 2,
             minH: 2,
           })),
-          GRID_COLS,
         ),
       );
     }
@@ -515,95 +514,34 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  // --- Drag handlers with real-time swap detection ---
-  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
-  const lastSwappedIdRef = useRef<string | null>(null);
-
-  const handleDragStart = (
-    _layout: GridLayout.Layout[],
-    oldItem: GridLayout.Layout,
-  ) => {
+  const handleDragStart = () => {
     isDraggingRef.current = true;
-    dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
-    lastSwappedIdRef.current = null;
     containerRef.current?.classList.add("is-dragging");
   };
 
-  const handleDrag = useCallback((
-    rglLayout: GridLayout.Layout[],
-    _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
-  ) => {
-    // Real-time swap detection during drag
-    const merged = mergeLayoutSizes(rglLayout, internalLayout);
-    // Ensure dragged item has current position from RGL
-    const withDragPos = merged.map(item =>
-      item.i === newItem.i ? { ...item, x: newItem.x, y: newItem.y } : item,
-    );
-    const { layout: swapped, swappedId } = computeSwapDuringDrag(
-      withDragPos,
-      newItem.i,
-      dragOriginRef.current ?? { x: newItem.x, y: newItem.y },
-      lastSwappedIdRef.current,
-    );
-    if (swappedId) {
-      lastSwappedIdRef.current = swappedId;
-      dragOriginRef.current = { x: newItem.x, y: newItem.y };
-      // Update non-dragged items only (dragged item position is controlled by RGL)
-      setInternalLayout(swapped);
-    }
-  }, [internalLayout]);
+  const handleDrag = () => {};
 
   const handleDragStop = (
     rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
+    _newItem: GridLayout.Layout,
   ) => {
     containerRef.current?.classList.remove("is-dragging");
-    // Ensure dragged item has final position from RGL
-    const merged = mergeLayoutSizes(rglLayout, internalLayout);
-    const withFinalPos = merged.map(item =>
-      item.i === newItem.i ? { ...item, x: newItem.x, y: newItem.y } : item,
-    );
-    setInternalLayout(resolveOverlaps(withFinalPos, GRID_COLS));
+    // Use RGL's layout as the single source of truth, then resolve overlaps synchronously
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
     isDraggingRef.current = false;
-    dragOriginRef.current = null;
-    lastSwappedIdRef.current = null;
   };
 
-  // --- Resize handlers with explicit newItem dimensions ---
   const handleResizeStart = () => {
     isResizingRef.current = true;
   };
 
-  const handleResize = useCallback((
-    rglLayout: GridLayout.Layout[],
-    _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
-  ) => {
-    // Update layout during resize to prevent stale state in controlled mode
-    const merged = mergeLayoutSizes(rglLayout, internalLayout);
-    const withNewSize = merged.map(item =>
-      item.i === newItem.i
-        ? { ...item, x: newItem.x, y: newItem.y, w: newItem.w, h: newItem.h }
-        : item,
-    );
-    setInternalLayout(withNewSize);
-  }, [internalLayout]);
-
   const handleResizeStop = (
     rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    newItem: GridLayout.Layout,
+    _newItem: GridLayout.Layout,
   ) => {
-    // Explicitly merge newItem dimensions (rglLayout may be stale in controlled mode)
-    const merged = mergeLayoutSizes(rglLayout, internalLayout);
-    const withNewSize = merged.map(item =>
-      item.i === newItem.i
-        ? { ...item, x: newItem.x, y: newItem.y, w: newItem.w, h: newItem.h }
-        : item,
-    );
-    setInternalLayout(resolveOverlaps(withNewSize, GRID_COLS));
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
     isResizingRef.current = false;
   };
 
@@ -618,12 +556,12 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       <GridContainer elevation={1} ref={containerRef}>
         <EmptyState>
           <Typography variant="h5" gutterBottom>
-            {t("grid.empty.title", "Please select streams")}
+            {t("grid.empty.title", "配信を選択してください")}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {t(
               "grid.empty.description",
-              "Select streams from the panel on the right, or add by entering a URL",
+              "右側のパネルから配信を選択するか、URLを入力して追加してください",
             )}
           </Typography>
         </EmptyState>
@@ -684,7 +622,6 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         onDrag={handleDrag}
         onDragStop={handleDragStop}
         onResizeStart={handleResizeStart}
-        onResize={handleResize}
         onResizeStop={handleResizeStop}
         draggableHandle=".drag-handle"
         draggableCancel=".no-drag"

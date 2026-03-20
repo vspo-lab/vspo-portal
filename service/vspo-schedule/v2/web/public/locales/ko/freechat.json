@@ -1,10 +1,4 @@
 {
   "title": "$t(common:vspo) 프리챗",
-  "description": "$t(common:vspo) 멤버들의 모든 프리챗 스트림을 확인하세요.",
-  "active": "활성 {{count}} 건",
-  "sections": {
-    "active": "활성",
-    "upcoming": "예정",
-    "archive": "아카이브"
-  }
+  "description": "$t(common:vspo) 멤버들의 모든 프리챗 스트림을 확인하세요."
 }

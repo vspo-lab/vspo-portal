@@ -36,6 +36,5 @@
     "all": "すべて",
     "allWithDate": "すべて ({{date}})"
   },
-  "noLivestreams": "配信予定がありません、前日の予定をご覧ください。",
-  "nowLive": "配信中"
+  "noLivestreams": "配信予定がありません、前日の予定をご覧ください。"
 }

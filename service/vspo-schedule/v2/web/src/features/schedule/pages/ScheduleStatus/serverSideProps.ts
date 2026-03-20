@@ -9,16 +9,7 @@ import {
   getInitializedI18nInstance,
   getSetCookieTimeZone,
 } from "@/lib/utils";
-import {
-  type FavoriteSearchCondition,
-  favoriteSearchConditionSchema,
-} from "../../types/favorite";
-
-const VALID_STATUSES = ["live", "upcoming", "archive", "all"] as const;
-type LiveStatus = (typeof VALID_STATUSES)[number];
-
-const isValidStatus = (s: string): s is LiveStatus =>
-  (VALID_STATUSES as readonly string[]).includes(s);
+import type { FavoriteSearchCondition } from "../../types/favorite";
 
 export type ScheduleStatusPageProps = {
   livestreams: Livestream[];
@@ -44,7 +35,7 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
     getSetCookieTimeZone(res) ??
     req.cookies[TIME_ZONE_COOKIE] ??
     DEFAULT_TIME_ZONE;
-  const liveStatus = typeof status === "string" ? status : "all";
+  const liveStatus = (status as string) || "all";
 
   // Extract additional parameters from query
   const {
@@ -58,14 +49,8 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
   let favoriteCondition: FavoriteSearchCondition | null = null;
   const favoriteCookie = req.cookies["favorite-search-condition"];
   if (favoriteCookie) {
-    // try-catch retained: wraps sync JSON.parse which cannot use async wrap()
     try {
-      const parsed = favoriteSearchConditionSchema.safeParse(
-        JSON.parse(favoriteCookie),
-      );
-      if (parsed.success) {
-        favoriteCondition = parsed.data;
-      }
+      favoriteCondition = JSON.parse(favoriteCookie) as FavoriteSearchCondition;
     } catch {
       // Invalid JSON, ignore
     }
@@ -104,8 +89,8 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
     startedDate,
     limit,
     locale: locale ?? "ja",
-    status: isValidStatus(liveStatus) ? liveStatus : "all",
-    order,
+    status: (status as "live" | "upcoming" | "archive" | "all") || "all",
+    order: order as "asc" | "desc",
     timeZone,
     memberType,
     platform,

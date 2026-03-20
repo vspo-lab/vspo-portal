@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback, useRef, useMemo } from "react";
 
-export type VideoPlayerRef = {
+export interface VideoPlayerRef {
   play: () => void;
   pause: () => void;
   setVolume: (volume: number) => void;
@@ -12,9 +12,9 @@ export type VideoPlayerRef = {
   };
   toggleFullscreen: () => void;
   syncToLive: () => void;
-};
+}
 
-type PlaybackContextType = {
+interface PlaybackContextType {
   registerPlayer: (streamId: string, player: VideoPlayerRef) => void;
   unregisterPlayer: (streamId: string) => void;
   getPlayer: (streamId: string) => VideoPlayerRef | undefined;
@@ -27,7 +27,7 @@ type PlaybackContextType = {
   setAllVolume: (volume: number) => void;
   muteAllButOne: (streamId: string) => void;
   syncAllToLive: () => void;
-};
+}
 
 const PlaybackContext = createContext<PlaybackContextType | null>(null);
 
@@ -109,21 +109,20 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  const contextValue = useMemo(
-    () =>
-      ({
-        registerPlayer,
-        unregisterPlayer,
-        getPlayer,
-        getAllPlayers,
-        playAll,
-        pauseAll,
-        muteAll,
-        unmuteAll,
-        setAllVolume,
-        muteAllButOne,
-        syncAllToLive,
-      }) satisfies PlaybackContextType,
+  const contextValue: PlaybackContextType = useMemo(
+    () => ({
+      registerPlayer,
+      unregisterPlayer,
+      getPlayer,
+      getAllPlayers,
+      playAll,
+      pauseAll,
+      muteAll,
+      unmuteAll,
+      setAllVolume,
+      muteAllButOne,
+      syncAllToLive,
+    }),
     [
       registerPlayer,
       unregisterPlayer,

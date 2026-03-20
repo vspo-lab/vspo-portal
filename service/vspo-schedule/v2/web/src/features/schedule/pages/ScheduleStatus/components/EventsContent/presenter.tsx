@@ -45,7 +45,7 @@ export const EventsContentPresenter: React.FC<PresenterProps> = ({
 }) => {
   const { t } = useTranslation("streams");
   if (events.length === 0) {
-    return null;
+    return <></>;
   }
 
   return (

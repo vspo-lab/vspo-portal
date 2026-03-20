@@ -1,10 +1,6 @@
-import { getCurrentUTCString } from "@vspo-lab/dayjs";
 import { useCallback } from "react";
 import { useCookie } from "@/hooks/cookie";
-import {
-  type FavoriteSearchCondition,
-  favoriteSearchConditionSchema,
-} from "../types/favorite";
+import type { FavoriteSearchCondition } from "../types/favorite";
 
 const FAVORITE_SEARCH_CONDITION_COOKIE = "favorite-search-condition";
 
@@ -16,12 +12,8 @@ export const useFavoriteSearchCondition = () => {
   const getFavorite = useCallback((): FavoriteSearchCondition | null => {
     if (!cookieValue) return null;
 
-    // try-catch retained: wraps sync JSON.parse which cannot use async wrap()
     try {
-      const parsed = favoriteSearchConditionSchema.safeParse(
-        JSON.parse(cookieValue),
-      );
-      return parsed.success ? parsed.data : null;
+      return JSON.parse(cookieValue) as FavoriteSearchCondition;
     } catch {
       return null;
     }
@@ -29,10 +21,10 @@ export const useFavoriteSearchCondition = () => {
 
   const saveFavorite = useCallback(
     (condition: Omit<FavoriteSearchCondition, "createdAt">) => {
-      const newCondition = {
+      const newCondition: FavoriteSearchCondition = {
         ...condition,
-        createdAt: getCurrentUTCString(),
-      } satisfies FavoriteSearchCondition;
+        createdAt: new Date().toISOString(),
+      };
 
       setCookieValue(JSON.stringify(newCondition));
       return newCondition;
@@ -44,11 +36,10 @@ export const useFavoriteSearchCondition = () => {
     setCookieValue(undefined);
   }, [setCookieValue]);
 
-  const favorite = getFavorite();
   return {
-    favorite,
+    favorite: getFavorite(),
     saveFavorite,
     deleteFavorite,
-    hasFavorite: !!favorite,
+    hasFavorite: !!getFavorite(),
   };
 };

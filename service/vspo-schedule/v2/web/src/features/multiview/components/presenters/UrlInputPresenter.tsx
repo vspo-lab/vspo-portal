@@ -45,7 +45,7 @@ const SupportedPlatforms = styled(Box)(({ theme }) => ({
   },
 }));
 
-export type UrlInputPresenterProps = {
+export interface UrlInputPresenterProps {
   url: string;
   isLoading: boolean;
   error: string | null;
@@ -54,7 +54,7 @@ export type UrlInputPresenterProps = {
   onUrlChange: (url: string) => void;
   onSubmit: () => void;
   onClear: () => void;
-};
+}
 
 export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
   url,
@@ -81,14 +81,14 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {t(
           "urlInput.description",
-          "Add streams directly from YouTube, Twitch, and other platform URLs",
+          "YouTube、Twitch、その他のプラットフォームのURLから直接配信を追加できます",
         )}
       </Typography>
 
       <InputSection>
         <TextField
           fullWidth
-          placeholder={t("urlInput.placeholder", "Enter a stream URL")}
+          placeholder={t("urlInput.placeholder", "配信URLを入力してください")}
           value={url}
           onChange={(e) => onUrlChange(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -125,8 +125,8 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
           sx={{ whiteSpace: "nowrap" }}
         >
           {isLoading
-            ? t("urlInput.adding", "Adding...")
-            : t("urlInput.add", "Add")}
+            ? t("urlInput.adding", "追加中...")
+            : t("urlInput.add", "追加")}
         </Button>
       </InputSection>
 
@@ -142,7 +142,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
         <Alert severity="warning" sx={{ mb: 1 }}>
           {t(
             "urlInput.maxStreamsReached",
-            "You can select up to {{count}} streams",
+            "最大{{count}}つまでの配信を選択できます",
             { count: maxStreams },
           )}
         </Alert>
@@ -154,7 +154,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
         color="text.secondary"
         sx={{ display: "block", mb: 1 }}
       >
-        {t("urlInput.streamCount", "{{current}}/{{max}} streams selected", {
+        {t("urlInput.streamCount", "{{current}}/{{max}} 配信選択中", {
           current: selectedStreams.length,
           max: maxStreams,
         })}
@@ -167,7 +167,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
           color="text.secondary"
           sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
         >
-          {t("urlInput.supportedPlatforms.title", "Supported platforms:")}
+          {t("urlInput.supportedPlatforms.title", "対応プラットフォーム:")}
         </Typography>
         <Typography variant="caption" color="text.secondary">
           {t("urlInput.supportedPlatforms.list", "YouTube")}

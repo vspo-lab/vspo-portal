@@ -29,7 +29,6 @@ export const fetchMultiviewService = async ({
   memberType = "vspo_all",
   platform,
 }: FetchMultiviewServiceParams): Promise<MultiviewServiceResponse> => {
-  // try-catch: SSR data fetcher — must never throw to avoid crashing getServerSideProps
   try {
     const sessionId = req ? getSessionId(req) : undefined;
 

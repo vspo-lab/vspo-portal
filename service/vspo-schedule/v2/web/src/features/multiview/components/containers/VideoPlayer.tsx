@@ -61,7 +61,7 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
             const twitchMessage = {
               namespace: "twitch-everywhere",
               eventName: "",
-              params: {} as Record<string, unknown>, // type-safe: empty object literal for Twitch message protocol
+              params: {} as Record<string, unknown>,
             };
 
             if (command === "playVideo") {
@@ -74,7 +74,7 @@ const VideoPlayerComponent = forwardRef<VideoPlayerRef, VideoPlayerProps>(
               twitchMessage.eventName = "unmute";
             } else if (command === "setVolume") {
               const volumeValue = Array.isArray(args)
-                ? (args[0] as number) / 100 // type-safe: setVolume always passes [number] array
+                ? (args[0] as number) / 100
                 : 0;
               twitchMessage.eventName = "volume";
               twitchMessage.params = { volume: volumeValue };

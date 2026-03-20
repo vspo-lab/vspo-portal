@@ -390,10 +390,10 @@ export const LayoutSelectorPresenter: React.FC<
           variant="h6"
           sx={{ fontSize: isMobile ? "1rem" : "1.25rem" }}
         >
-          {t("layout.title", "Layout")}
+          {t("layout.title", "レイアウト")}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {t("layout.streams-count", "{{count}} streams", {
+          {t("layout.streams-count", "{{count}}個の配信", {
             count: streamCount,
           })}
         </Typography>
@@ -415,7 +415,7 @@ export const LayoutSelectorPresenter: React.FC<
                     </Typography>
                     {!isMobile && shortcut && (
                       <Typography variant="caption" color="text.secondary">
-                        {t("layout.shortcut", "Shortcut")}: Alt+
+                        {t("layout.shortcut", "ショートカット")}: Alt+
                         {shortcut}
                       </Typography>
                     )}
@@ -472,7 +472,7 @@ export const LayoutSelectorPresenter: React.FC<
           color="text.secondary"
           sx={{ mt: 2, display: "block", textAlign: "center" }}
         >
-          {t("layout.keyboard-hint", "Press Alt + number key to quickly change layout")}
+          {t("layout.keyboard-hint", "Alt + 数字キーでレイアウトを素早く変更")}
         </Typography>
       )}
     </SelectorContainer>

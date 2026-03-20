@@ -162,7 +162,6 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
     const { t } = useTranslation("multiview");
 
     const embedUrl = useMemo((): string => {
-      // try-catch: runs during React render — must not throw to avoid unmounting the component tree
       try {
         const parentDomain =
           typeof window !== "undefined"
@@ -232,7 +231,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           className="player-header drag-handle"
           aria-label={t(
             "player.dragHandle.ariaLabel",
-            `Drag to move ${stream.channelTitle}'s stream`,
+            `${stream.channelTitle}の配信をドラッグして移動`,
           )}
         >
           <StreamInfo>
@@ -265,8 +264,8 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
             <DragHandle
               size="small"
               className="drag-handle"
-              aria-label={t("player.dragHandle.tooltip", "Move stream")}
-              title={t("player.dragHandle.tooltip", "Move stream")}
+              aria-label={t("player.dragHandle.tooltip", "配信を移動")}
+              title={t("player.dragHandle.tooltip", "配信を移動")}
             >
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
@@ -274,7 +273,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
               className="no-drag"
               size="small"
               onClick={onRemove}
-              aria-label={t("player.close.ariaLabel", "Close stream")}
+              aria-label={t("player.close.ariaLabel", "配信を閉じる")}
             >
               <CloseIcon fontSize="small" />
             </CloseButton>
@@ -285,16 +284,16 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
-              {t("player.error.title", "Loading error")}
+              {t("player.error.title", "読み込みエラー")}
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              {t("player.error.description", "Failed to load stream")}
+              {t("player.error.description", "配信の読み込みに失敗しました")}
             </Typography>
           </ErrorContainer>
         ) : (
           <>
             {isLoading && (
-              <LoadingContainer role="status" aria-label={t("player.loading", "Loading stream")}>
+              <LoadingContainer role="status" aria-label={t("player.loading", "配信を読み込み中")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}

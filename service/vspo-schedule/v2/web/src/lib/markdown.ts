@@ -187,7 +187,6 @@ async function fetchDirectoryFromAssets(
   }
 
   const manifestResult = await wrap(
-    // Assertion needed: Response.json() returns Promise<any>, internal manifest format is known
     manifestResponse.val.json() as Promise<ContentManifest>,
     (error) =>
       new AppError({
@@ -230,7 +229,6 @@ function readMarkdownFromFilesystem(
     `${slug}.md`,
   );
 
-  // try-catch retained: wraps sync fs.readFileSync which cannot use async wrap()
   try {
     const content = fs.readFileSync(fullPath, "utf8");
     return Ok(content);
@@ -273,10 +271,8 @@ function readDirectoryFromFilesystem(
     );
   }
 
-  // try-catch retained: wraps sync fs.readFileSync + JSON.parse which cannot use async wrap()
   try {
     const rawContent = fs.readFileSync(manifestPath, "utf8");
-    // Assertion needed: JSON.parse returns any, internal manifest format is known
     const manifest = JSON.parse(rawContent) as ContentManifest;
     const files = manifest.locales[actualLocale]?.[category] || [];
     return Ok(

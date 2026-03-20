@@ -1,8 +1,7 @@
-import { getCurrentUTCString } from "@vspo-lab/dayjs";
 import { Livestream } from "@/features/shared/domain";
 import { parseUrl } from "./urlParser";
 
-type MultiviewConfig = {
+interface MultiviewConfig {
   version: string;
   layout: string;
   videos: Array<{
@@ -10,9 +9,9 @@ type MultiviewConfig = {
     platform: string;
     url: string;
   }>;
-};
+}
 
-export type LoadedConfig = {
+export interface LoadedConfig {
   config: MultiviewConfig;
   videos: Livestream[];
   metadata: {
@@ -20,7 +19,7 @@ export type LoadedConfig = {
     loadedAt: string;
     source: "url-params" | "share-link" | "file-import" | "manual";
   };
-};
+}
 
 export async function loadConfigFromUrl(
   configUrl: string,
@@ -44,7 +43,7 @@ export async function loadConfigFromUrl(
       tags: [],
       channelThumbnailUrl: "",
       thumbnailUrl: "",
-      scheduledStartTime: getCurrentUTCString(),
+      scheduledStartTime: new Date().toISOString(),
       scheduledEndTime: null,
       viewerCount: 0,
     };
@@ -63,7 +62,7 @@ export async function loadConfigFromUrl(
     videos,
     metadata: {
       version: "1.0",
-      loadedAt: getCurrentUTCString(),
+      loadedAt: new Date().toISOString(),
       source: "url-params",
     },
   };

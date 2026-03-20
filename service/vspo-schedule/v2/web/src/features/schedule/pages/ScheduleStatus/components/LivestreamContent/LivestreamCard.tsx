@@ -8,18 +8,13 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { keyframes, styled } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
 import type React from "react";
 import { useMemo } from "react";
 import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
 import type { Livestream } from "@/features/shared/domain/livestream";
 import { formatDate } from "@/lib/utils";
-
-const pulseDot = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-`;
 
 // VideoCard Component
 const StyledCard = styled(Card)(() => ({
@@ -35,7 +30,7 @@ const ResponsiveTypography = styled(Typography)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   fontSize: "1.2rem",
-  fontWeight: 600,
+  fontWeight: 500,
   whiteSpace: "nowrap",
   [theme.breakpoints.down("sm")]: {
     fontSize: "0.9em",
@@ -85,9 +80,9 @@ const StyledAvatarGroup = styled(AvatarGroup)(({ theme }) => ({
 const TitleTypography = styled(Typography)(({ theme }) => ({
   fontSize: "0.9rem",
   fontWeight: 500,
-  lineHeight: 1.5,
-  height: "3.0em",
-  minHeight: "3.0em",
+  lineHeight: 1.2,
+  height: "2.4em",
+  minHeight: "2.4em",
   overflow: "hidden",
   textOverflow: "ellipsis",
   display: "-webkit-box",
@@ -102,7 +97,7 @@ const TitleTypography = styled(Typography)(({ theme }) => ({
 
 const CreatorTypography = styled(Typography)(({ theme }) => ({
   fontSize: "0.8rem",
-  lineHeight: 1.4,
+  lineHeight: 1.2,
   color: theme.vars.palette.text.secondary,
   padding: `0 ${theme.spacing(0.5)}`,
   marginBottom: theme.spacing(0.8),
@@ -145,18 +140,6 @@ type Member = {
   iconUrl: string;
 };
 
-/** Format remaining time until stream starts as "Xh Ym" or null if >24h or past */
-const getCountdown = (scheduledTime: string): string | null => {
-  const now = new Date();
-  const scheduled = new Date(scheduledTime);
-  const diffMs = scheduled.getTime() - now.getTime();
-  if (diffMs <= 0) return null;
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  if (hours > 24) return null;
-  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-};
-
 type LivestreamCardProps =
   | {
       livestream: Livestream;
@@ -192,10 +175,7 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
     livestreamStatus === "live" || livestreamStatus === "upcoming"
       ? {
           label: livestreamStatus === "live" ? "live" : "upcoming",
-          color:
-            livestreamStatus === "live"
-              ? theme.vars.palette.customColors.videoHighlight.live
-              : theme.vars.palette.customColors.videoHighlight.upcoming,
+          color: livestreamStatus === "live" ? "#ff0000" : "#2D4870",
           bold: true,
         }
       : undefined;
@@ -205,115 +185,8 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
       ? formatDate(scheduledStartTime, "HH:mm", { timeZone: props.timeZone })
       : "";
 
-  const thumbnailOverlay = (
-    <>
-      {livestreamStatus === "live" && (
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 8,
-            left: 8,
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            bgcolor: "rgba(229,57,53,0.9)",
-            backdropFilter: "blur(4px)",
-            borderRadius: "4px",
-            px: 1,
-            py: 0.25,
-          }}
-        >
-          <Box
-            sx={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              bgcolor: "white",
-              animation: `${pulseDot} 1.5s ease-in-out infinite`,
-              "@media (prefers-reduced-motion: reduce)": {
-                animation: "none",
-              },
-            }}
-          />
-          <Typography
-            sx={{
-              fontSize: "0.6875rem",
-              fontWeight: 700,
-              color: "white",
-              letterSpacing: "0.5px",
-              lineHeight: 1,
-            }}
-          >
-            LIVE
-          </Typography>
-        </Box>
-      )}
-      {livestreamStatus === "upcoming" &&
-        (() => {
-          const countdown = getCountdown(scheduledStartTime);
-          return countdown ? (
-            <Box
-              sx={{
-                position: "absolute",
-                bottom: 8,
-                left: 8,
-                bgcolor: "rgba(45,72,112,0.85)",
-                backdropFilter: "blur(4px)",
-                borderRadius: "4px",
-                px: 1,
-                py: 0.25,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: "0.6875rem",
-                  fontWeight: 600,
-                  color: "white",
-                  lineHeight: 1,
-                }}
-              >
-                {countdown}
-              </Typography>
-            </Box>
-          ) : null;
-        })()}
-      {livestreamStatus === "live" && livestream.viewCount > 0 && (
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 8,
-            right: 8,
-            bgcolor: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(4px)",
-            borderRadius: "4px",
-            px: 0.75,
-            py: 0.25,
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: "0.6875rem",
-              color: "white",
-              lineHeight: 1,
-            }}
-          >
-            {livestream.viewCount >= 1000
-              ? `${(livestream.viewCount / 1000).toFixed(1)}K`
-              : livestream.viewCount}
-          </Typography>
-        </Box>
-      )}
-    </>
-  );
-
   return (
-    <VideoCard
-      video={livestream}
-      highlight={highlight}
-      priority={priority}
-      thumbnailOverlay={thumbnailOverlay}
-      isArchive={livestreamStatus === "archive"}
-    >
+    <VideoCard video={livestream} highlight={highlight} priority={priority}>
       <StyledCard>
         <StyledCardContent>
           <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -355,22 +228,6 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
               {/* Time */}
               {formattedTime && (
                 <TimeContainer>
-                  {livestreamStatus === "live" && (
-                    <Box
-                      sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        bgcolor:
-                          theme.vars.palette.customColors.videoHighlight.live,
-                        mr: 0.5,
-                        animation: `${pulseDot} 1.5s ease-in-out infinite`,
-                        "@media (prefers-reduced-motion: reduce)": {
-                          animation: "none",
-                        },
-                      }}
-                    />
-                  )}
                   <StyledPlayIcon />
                   <ResponsiveTypography
                     variant="body2"

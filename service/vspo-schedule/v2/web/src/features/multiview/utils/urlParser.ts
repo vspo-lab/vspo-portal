@@ -1,10 +1,10 @@
-import { Platform, platformSchema } from "@/features/shared/domain/video";
+import { Platform } from "@/features/shared/domain/video";
 import { z } from "zod";
 
 // URL validation schema
 const urlSchema = z.object({
-  url: z.string().url("Invalid URL"),
-  platform: platformSchema,
+  url: z.string().url("無効なURLです"),
+  platform: z.enum(["youtube", "twitch", "twitcasting", "niconico", "unknown"]),
   videoId: z.string(),
   isValid: z.boolean(),
   type: z.enum(["live", "vod", "unknown"]),
@@ -147,7 +147,6 @@ const determineStreamType = (
  * @postcondition Returns a ParsedUrl with platform detection and video ID extraction
  */
 export const parseUrl = (url: string): ParsedUrl => {
-  // try-catch: URL constructor throws on invalid input — used as a validation guard
   try {
     new URL(url);
   } catch {

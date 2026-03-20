@@ -13,7 +13,7 @@ import { DrawerIcon, Link } from "../Elements";
 const bottomNavigationRoutes = [
   "list",
   "clip",
-  "freechat",
+  "multiview",
 ] satisfies NavigationRouteId[];
 
 const getActiveNavOption = (activePath: string) => {
@@ -34,13 +34,7 @@ const BottomNavigationOffset = () => (
   <div style={{ height: bottomNavigationHeight }} />
 );
 
-type CustomBottomNavigationProps = {
-  onDrawerToggle: () => void;
-};
-
-export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({
-  onDrawerToggle,
-}) => {
+export const CustomBottomNavigation: React.FC = () => {
   const [value, setValue] = useState("");
   const router = useRouter();
   const { t } = useTranslation("common");
@@ -69,13 +63,6 @@ export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({
               icon={<DrawerIcon id={id} />}
             />
           ))}
-          <BottomNavigationAction
-            key="more"
-            value="more"
-            label={t("bottomNav.pages.more")}
-            icon={<DrawerIcon id="more" />}
-            onClick={onDrawerToggle}
-          />
         </BottomNavigation>
       </Box>
     </>

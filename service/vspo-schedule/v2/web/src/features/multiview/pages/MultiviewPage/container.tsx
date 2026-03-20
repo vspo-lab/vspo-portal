@@ -1,4 +1,3 @@
-import { getCurrentUTCString } from "@vspo-lab/dayjs";
 import { ContentLayout } from "@/features/shared/components/Layout";
 import { Livestream } from "@/features/shared/domain";
 import { NextPageWithLayout } from "@/pages/_app";
@@ -49,14 +48,13 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
         ...video,
         type: "livestream" as const,
         status: "live" as const,
-        scheduledStartTime: getCurrentUTCString(),
+        scheduledStartTime: new Date().toISOString(),
         scheduledEndTime: null,
       }));
       setSelectedStreams(livestreams);
 
-      // Update layout — cast is safe because config.layout comes from user config
-      // and setSelectedLayout will fall back to "auto" for unknown values
-      setSelectedLayout(config.layout as LayoutType); // type-safe: validated by LayoutSelector
+      // Update layout
+      setSelectedLayout(config.layout as LayoutType);
     }, []),
     onError: useCallback(() => {}, []),
   });

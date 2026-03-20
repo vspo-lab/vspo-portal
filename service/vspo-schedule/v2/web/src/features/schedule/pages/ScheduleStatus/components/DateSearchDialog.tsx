@@ -61,7 +61,7 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
   onSubmit,
   onClear,
   onSaveFavorite,
-  onLoadFavorite: _onLoadFavorite,
+  onLoadFavorite,
   onDeleteFavorite,
 }) => {
   const { t } = useTranslation("schedule");
@@ -144,7 +144,7 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
           </FormControl>
         </FormGroup>
 
-        {/* Favorites management section */}
+        {/* お気に入り管理セクション */}
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" gutterBottom>
             {t("search.favorites.save", "Favorite Search Conditions")}

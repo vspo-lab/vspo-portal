@@ -125,30 +125,28 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
     return [
       {
         label: isMobile
-          ? t("common:all", "All")
-          : t("searchDialog.timeframes.all", "All"),
+          ? t("common:all", "全て")
+          : t("searchDialog.timeframes.all", "すべて"),
         value: "all",
         showIcon: false,
       },
       {
-        label: isMobile ? "24h" : t("searchDialog.timeframes.1day", "24 hours"),
+        label: isMobile ? "24h" : t("searchDialog.timeframes.1day", "24時間"),
         value: "day",
         showIcon: true,
       },
       {
-        label: isMobile ? "1w" : t("searchDialog.timeframes.1week", "1 week"),
+        label: isMobile ? "1週" : t("searchDialog.timeframes.1week", "1週間"),
         value: "week",
         showIcon: true,
       },
       {
-        label: isMobile
-          ? "1mo"
-          : t("searchDialog.timeframes.1month", "1 month"),
+        label: isMobile ? "1月" : t("searchDialog.timeframes.1month", "1ヶ月"),
         value: "month",
         showIcon: true,
       },
       {
-        label: isMobile ? "1y" : t("searchDialog.timeframes.year", "1 year"),
+        label: isMobile ? "1年" : t("searchDialog.timeframes.year", "1年"),
         value: "year",
         showIcon: true,
       },
@@ -182,7 +180,7 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
             fontWeight={600}
             fontSize={isMobile ? "1.1rem" : "1.25rem"}
           >
-            {t("searchDialog.timeframe", "Filter by period")}
+            {t("searchDialog.timeframe", "期間でフィルタ")}
           </Typography>
         </FilterTitle>
 

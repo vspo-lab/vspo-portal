@@ -55,10 +55,10 @@ export const getServerSideProps = async (
 
   const { t } = getInitializedI18nInstance(translations, "clips");
 
-  const title = t("home.meta.title", "VSPO! Clip Collection");
+  const title = t("home.meta.title", "ぶいすぽっ!クリップ集");
   const description = t(
     "home.meta.description",
-    "A collection of stream video clips from VSPO! members.",
+    "ぶいすぽっ!メンバーのストリーム動画クリップ集。",
   );
 
   const lastUpdateTimestamp = getCurrentUTCDate().getTime();

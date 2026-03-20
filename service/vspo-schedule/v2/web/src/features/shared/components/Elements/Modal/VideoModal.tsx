@@ -23,7 +23,7 @@ import React, { useEffect } from "react";
 import type { Clip } from "@/features/shared/domain/clip";
 import type { Freechat } from "@/features/shared/domain/freechat";
 import type { Livestream } from "@/features/shared/domain/livestream";
-import type { Video } from "@/features/shared/domain/video";
+import type { Platform, Video } from "@/features/shared/domain/video";
 import { convertVideoPlayerLink } from "@/features/shared/utils";
 import { useTimeZoneContext, useVideoModalContext } from "@/hooks";
 import { formatDate } from "@/lib/utils";
@@ -76,11 +76,11 @@ const ResponsiveIframe = styled("iframe")({
   border: "0",
 });
 
-type TabPanelProps = {
+interface TabPanelProps {
   value: number;
   index: number;
   children: React.ReactNode;
-};
+}
 
 const TabPanelScrollContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -138,12 +138,12 @@ const VideoPlayerComponent: React.FC<{ video: Video }> = ({ video }) => {
 const VideoPlayer = React.memo(VideoPlayerComponent);
 
 // Base presenter props for all video types
-type BaseInfoTabsPresenterProps = {
+interface BaseInfoTabsPresenterProps {
   video: Video;
   tabValue: number;
   onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
   urlRegex: RegExp;
-};
+}
 
 // Livestream specific presenter
 const LivestreamInfoTabsPresenter: React.FC<
@@ -246,7 +246,9 @@ const LivestreamInfoTabsPresenter: React.FC<
                 <Button
                   variant="outlined"
                   color="primary"
-                  startIcon={<PlatformIcon platform={video.platform} />}
+                  startIcon={
+                    <PlatformIcon platform={video.platform as Platform} />
+                  }
                   href={video.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -288,6 +290,7 @@ const LivestreamInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -296,6 +299,7 @@ const LivestreamInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -412,7 +416,9 @@ const FreechatInfoTabsPresenter: React.FC<
                 <Button
                   variant="outlined"
                   color="primary"
-                  startIcon={<PlatformIcon platform={video.platform} />}
+                  startIcon={
+                    <PlatformIcon platform={video.platform as Platform} />
+                  }
                   href={video.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -454,6 +460,7 @@ const FreechatInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -462,6 +469,7 @@ const FreechatInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -544,7 +552,9 @@ const ClipInfoTabsPresenter: React.FC<
                 <Button
                   variant="outlined"
                   color="primary"
-                  startIcon={<PlatformIcon platform={video.platform} />}
+                  startIcon={
+                    <PlatformIcon platform={video.platform as Platform} />
+                  }
                   href={video.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -586,6 +596,7 @@ const ClipInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -594,6 +605,7 @@ const ClipInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
+                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -616,7 +628,6 @@ const InfoTabsContainer: React.FC<{ video: Video }> = ({ video }) => {
   };
 
   // Render the appropriate presenter based on video type
-  // Assertions needed: Video.type is z.string() (not a discriminated union), so TS cannot narrow automatically
   if (video.type === "livestream") {
     return (
       <LivestreamInfoTabsPresenter
@@ -653,12 +664,12 @@ const InfoTabsContainer: React.FC<{ video: Video }> = ({ video }) => {
 };
 
 // Presenter component for the entire VideoModal
-type VideoModalPresenterProps = {
+interface VideoModalPresenterProps {
   isOpen: boolean;
   activeVideo: Video | undefined;
   onClose: () => void;
   onBack: () => void;
-};
+}
 
 const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
   isOpen,

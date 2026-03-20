@@ -1,5 +1,3 @@
-import { getCurrentUTCString } from "@vspo-lab/dayjs";
-import { AppError, wrap } from "@vspo-lab/error";
 import { Livestream } from "@/features/shared/domain";
 import { useTranslation } from "next-i18next";
 import React, { useState, useCallback } from "react";
@@ -24,25 +22,24 @@ const fetchOEmbedMetadata = async (
   const endpoint = oembedEndpoints[platform];
   if (!endpoint) return null;
 
-  const result = await wrap(
-    fetch(endpoint, { signal: AbortSignal.timeout(5000) }).then(async (response) => {
-      if (!response.ok) return null;
-      const data: Record<string, unknown> = await response.json();
-      return {
-        title: typeof data.title === "string" ? data.title : "",
-        authorName: typeof data.author_name === "string" ? data.author_name : "",
-      };
-    }),
-    (err) => new AppError({ message: `oEmbed fetch failed: ${err.message}`, code: "INTERNAL_SERVER_ERROR", cause: err }),
-  );
-  return result.val ?? null;
+  try {
+    const response = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return null;
+    const data: Record<string, unknown> = await response.json();
+    return {
+      title: typeof data.title === "string" ? data.title : "",
+      authorName: typeof data.author_name === "string" ? data.author_name : "",
+    };
+  } catch {
+    return null;
+  }
 };
 
-export type UrlInputProps = {
+export interface UrlInputProps {
   selectedStreams: Livestream[];
   maxStreams: number;
   onStreamAdd: (stream: Livestream) => void;
-};
+}
 
 export const UrlInput: React.FC<UrlInputProps> = ({
   selectedStreams,
@@ -56,7 +53,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
   const parseStreamFromUrl = useCallback(
     async (url: string): Promise<Livestream | null> => {
-      // try-catch: URL constructor and oEmbed fetches can throw; must not crash the React tree
+      // This is a simplified implementation
+      // In a real app, you'd parse different platform URLs and fetch metadata
       try {
         const urlObj = new URL(url);
 
@@ -90,7 +88,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               channelThumbnailUrl: "",
               viewCount: 0,
               tags: [],
-              scheduledStartTime: getCurrentUTCString(),
+              scheduledStartTime: new Date().toISOString(),
               scheduledEndTime: null,
             };
           }
@@ -118,7 +116,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               channelThumbnailUrl: "",
               viewCount: 0,
               tags: [],
-              scheduledStartTime: getCurrentUTCString(),
+              scheduledStartTime: new Date().toISOString(),
               scheduledEndTime: null,
             };
           }
@@ -144,7 +142,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               channelThumbnailUrl: "",
               viewCount: 0,
               tags: [],
-              scheduledStartTime: getCurrentUTCString(),
+              scheduledStartTime: new Date().toISOString(),
               scheduledEndTime: null,
             };
           }
@@ -161,7 +159,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
   const handleSubmit = useCallback(async () => {
     if (!url.trim()) {
-      setError(t("urlInput.error.emptyUrl", "Please enter a URL"));
+      setError(t("urlInput.error.emptyUrl", "URLを入力してください"));
       return;
     }
 
@@ -169,7 +167,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
       setError(
         t(
           "urlInput.error.maxStreams",
-          "You can select up to {{max}} streams",
+          "最大{{max}}つまでの配信を選択できます",
           { max: maxStreams },
         ),
       );
@@ -179,13 +177,12 @@ export const UrlInput: React.FC<UrlInputProps> = ({
     setIsLoading(true);
     setError(null);
 
-    // try-catch: React event handler — errors must be caught to show UI feedback instead of crashing
     try {
       const stream = await parseStreamFromUrl(url.trim());
 
       if (!stream) {
         setError(
-          t("urlInput.error.unsupportedUrl", "Unsupported URL"),
+          t("urlInput.error.unsupportedUrl", "サポートされていないURLです"),
         );
         setIsLoading(false);
         return;
@@ -198,7 +195,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
       if (isAlreadyAdded) {
         setError(
-          t("urlInput.error.alreadyAdded", "This stream has already been added"),
+          t("urlInput.error.alreadyAdded", "この配信は既に追加されています"),
         );
         setIsLoading(false);
         return;
@@ -208,7 +205,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
       setUrl("");
       setError(null);
     } catch (error) {
-      setError(t("urlInput.error.parseFailed", "Failed to parse URL"));
+      setError(t("urlInput.error.parseFailed", "URLの解析に失敗しました"));
       console.error("Error adding stream from URL:", error);
     } finally {
       setIsLoading(false);
