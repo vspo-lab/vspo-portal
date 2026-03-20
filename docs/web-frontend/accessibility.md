@@ -1,50 +1,18 @@
-# Accessibility Design Guidelines
+# Accessibility Implementation Guide
 
-This document defines the accessibility design guidelines for this application.
+This document provides implementation guidance for building accessible components. It targets **WCAG 2.2 Level AA** compliance.
+
+For the design-level checklist of what to verify, see [Accessibility Design Checklist](../design/accessibility.md).
+
+For the full specification, see [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/).
 
 ## Table of Contents
 
-1. [Compliance Standards](#compliance-standards)
-2. [React Aria](#react-aria)
-3. [Current State Analysis](#current-state-analysis)
-4. [Implementation Guidelines](#implementation-guidelines)
-5. [Component-Specific Requirements](#component-specific-requirements)
-6. [Testing Methods](#testing-methods)
-7. [Checklist](#checklist)
-
----
-
-## Compliance Standards
-
-### WCAG 2.2 Level AA
-
-This project targets compliance with **WCAG 2.2 Level AA**.
-
-#### Four Core Principles (POUR)
-
-| Principle | Description |
-|-----------|-------------|
-| **Perceivable** | Present information and UI components in ways that can be perceived |
-| **Operable** | Make UI components and navigation operable |
-| **Understandable** | Make information and UI operation understandable |
-| **Robust** | Make content interpretable by various user agents, including assistive technologies |
-
-#### WCAG 2.2 New Criteria (Level AA)
-
-| Criterion | Description | Impact on This Project |
-|-----------|-------------|----------------------|
-| 2.4.11 Focus Not Obscured | Focused elements must not be hidden by sticky elements | Header/navigation design |
-| 2.5.7 Dragging Movements | Provide alternative operations for drag | Future D&D feature implementation |
-| 2.5.8 Target Size | Touch targets must be at least 24x24px | All interactive elements |
-| 3.2.6 Consistent Help | Consistent placement of help features | Help/support features |
-| 3.3.7 Redundant Entry | Prevent re-entry of the same information | Form design |
-| 3.3.8 Accessible Authentication | Authentication with low cognitive load | Login/authentication flow |
-
-### Legal Background
-
-- **European Accessibility Act (EAA)**: Effective June 28, 2025; mandatory for services provided in the EU
-- **ADA Title II**: WCAG 2.1 AA required for US government-related sites
-- **Act on the Elimination of Discrimination against Persons with Disabilities (Japan)**: Obligation to provide reasonable accommodations
+1. [React Aria](#react-aria)
+2. [Current State Analysis](#current-state-analysis)
+3. [Implementation Guidelines](#implementation-guidelines)
+4. [Component-Specific Requirements](#component-specific-requirements)
+5. [Testing Methods](#testing-methods)
 
 ---
 
@@ -59,7 +27,7 @@ This project uses **React Aria** for accessibility support.
 - **Accessibility**: WCAG-compliant ARIA attributes, focus management, keyboard interaction
 - **Internationalization**: RTL, date/number formatting, translation support
 - **Adaptive interactions**: Mouse, touch, keyboard, screen reader support
-- **Style freedom**: Compatible with any styling solution such as TailwindCSS
+- **Style freedom**: Compatible with any styling solution (this project uses MUI + Emotion)
 
 ### Installation
 
@@ -322,30 +290,35 @@ function CustomButton({ children, ...props }) {
 }
 ```
 
-### Styling (TailwindCSS)
+### Styling (MUI + Emotion)
 
-React Aria components expose state via data attributes. They can be styled directly with Tailwind.
+React Aria components expose state via data attributes. In this project, style them using MUI's `sx` prop or Emotion `styled()`.
 
 ```tsx
-<Button className="
-  bg-primary text-white
-  hover:bg-primary/90
-  pressed:scale-95
-  focus-visible:ring-2
-  disabled:opacity-50
-">
-  Submit
-</Button>
+import { styled } from "@mui/material/styles";
+import { Button } from "react-aria-components";
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: theme.vars.palette.primary.main,
+  color: theme.vars.palette.primary.contrastText,
+  "&[data-hovered]": { opacity: 0.9 },
+  "&[data-pressed]": { transform: "scale(0.95)" },
+  "&[data-focus-visible]": {
+    outline: `2px solid ${theme.vars.palette.primary.main}`,
+    outlineOffset: 2,
+  },
+  "&[data-disabled]": { opacity: 0.5 },
+}));
 ```
 
-**Available state modifiers:**
-- `hover:` - On hover
-- `focus:` - On focus
-- `focus-visible:` - On keyboard focus
-- `pressed:` - On press
-- `selected:` - On selection
-- `disabled:` - When disabled
-- `invalid:` - On validation error
+**Available data attributes for styling:**
+- `[data-hovered]` - On hover
+- `[data-focused]` - On focus
+- `[data-focus-visible]` - On keyboard focus
+- `[data-pressed]` - On press
+- `[data-selected]` - On selection
+- `[data-disabled]` - When disabled
+- `[data-invalid]` - On validation error
 
 ### Migration Guide
 
@@ -447,66 +420,14 @@ Group related form elements.
 
 ### 3. Modal/Dialog
 
-Modals must meet the following requirements.
+Use React Aria's `<Modal>` + `<Dialog>` components (see [React Aria section](#modal--dialog) above), which handle focus trapping, ESC dismissal, and focus restoration automatically.
 
-```tsx
-import { useCallback, useEffect, useRef } from "react";
-
-type ModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-};
-
-export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<HTMLElement | null>(null);
-
-  // Focus trap
-  useEffect(() => {
-    if (isOpen) {
-      previousActiveElement.current = document.activeElement as HTMLElement;
-      modalRef.current?.focus();
-    } else {
-      previousActiveElement.current?.focus();
-    }
-  }, [isOpen]);
-
-  // Close with ESC key
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
-      onKeyDown={handleKeyDown}
-    >
-      <div
-        ref={modalRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-        tabIndex={-1}
-        className="mx-4 w-full max-w-lg rounded-lg bg-white p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modal-title">{title}</h2>
-        {children}
-      </div>
-    </div>
-  );
-}
-```
+If building a custom modal without React Aria, ensure:
+- `role="dialog"` and `aria-modal="true"` are set
+- Title is associated via `aria-labelledby`
+- Focus is trapped inside the dialog
+- `Escape` key closes the dialog
+- Focus returns to the trigger element on close
 
 ### 4. Focus Management
 
@@ -515,10 +436,8 @@ export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps
 ```css
 /* globals.css */
 :focus-visible {
-  outline: none;
-  ring: 2px;
-  ring-color: var(--color-ring);
-  ring-offset: 2px;
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
 }
 
 /* Prevent focus from being hidden behind sticky elements */
@@ -534,23 +453,33 @@ html {
 #### Skip Links
 
 ```tsx
-// app/layout.tsx
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// pages/_app.tsx (Pages Router)
+import type { AppProps } from "next/app";
+
+export default function App({ Component, pageProps }: AppProps) {
   return (
-    <html lang="ja">
-      <body>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-4"
-        >
-          Skip to main content
-        </a>
-        <Header />
-        <main id="main-content" tabIndex={-1}>
-          {children}
-        </main>
-      </body>
-    </html>
+    <>
+      <a
+        href="#main-content"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          zIndex: 50,
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.left = "0";
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.left = "-9999px";
+        }}
+      >
+        Skip to main content
+      </a>
+      <Header />
+      <main id="main-content" tabIndex={-1}>
+        <Component {...pageProps} />
+      </main>
+    </>
   );
 }
 ```
@@ -595,7 +524,7 @@ Use visual cues other than color alongside state changes.
 </div>
 
 // Bad: Color only
-<div className="text-red-500">Please check your input</div>
+<div className="text-error">Please check your input</div>
 ```
 
 ### 6. Target Size
@@ -862,63 +791,11 @@ describe("Accessibility", () => {
 
 ---
 
-## Checklist
-
-### Development Checklist
-
-#### HTML Structure
-- [ ] Appropriate heading levels (h1 → h2 → h3)
-- [ ] Landmark elements (header, nav, main, footer)
-- [ ] Lists use ul/ol
-- [ ] Tables have caption and th
-
-#### Forms
-- [ ] All inputs have associated labels
-- [ ] Required fields have `aria-required="true"`
-- [ ] Errors have `aria-invalid` and `aria-describedby`
-- [ ] Error messages have `role="alert"`
-- [ ] Appropriate `autocomplete` attributes
-
-#### Interactive Elements
-- [ ] Buttons use `<button>` elements
-- [ ] Links use `<a>` elements
-- [ ] Custom controls have appropriate `role`
-- [ ] Target size 44x44px or larger
-- [ ] `focus-visible` styles
-
-#### Modal/Dialog
-- [ ] `role="dialog"` and `aria-modal="true"`
-- [ ] Title associated with `aria-labelledby`
-- [ ] Focus trap implemented
-- [ ] Closes with ESC key
-- [ ] Focus returns to original element after closing
-
-#### Images/Media
-- [ ] Meaningful images have alternative text
-- [ ] Decorative images have `alt=""` and `aria-hidden`
-- [ ] Videos have subtitles/captions
-
-#### Color
-- [ ] Text contrast ratio 4.5:1 or higher
-- [ ] UI element contrast ratio 3:1 or higher
-- [ ] Information is not conveyed by color alone
-
-### Pre-Release Checklist
-
-- [ ] Run automated tests with axe-core
-- [ ] All features operable with keyboard only
-- [ ] Verify page reading with VoiceOver/NVDA
-- [ ] No layout breakage at 200% zoom
-- [ ] Verify animation behavior with reduced-motion setting
-
----
-
-## Reference Resources
+## References
 
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
 - [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
-- [React Aria](https://react-spectrum.adobe.com/react-aria/) - Adobe's accessible UI library
-- [React Aria Components](https://react-spectrum.adobe.com/react-aria/components.html) - Component list
-- [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
+- [React Aria](https://react-spectrum.adobe.com/react-aria/) / [Components](https://react-spectrum.adobe.com/react-aria/components.html)
 - [axe-core](https://github.com/dequelabs/axe-core)
 - [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)
+- [Design Checklist](../design/accessibility.md)

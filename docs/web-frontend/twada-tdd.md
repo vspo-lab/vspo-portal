@@ -40,7 +40,7 @@ This document defines the minimal rules for practicing t_wada-based TDD in this 
 3. Hono endpoints
 4. Critical frontend use cases
 
-Use the table-driven tests from `docs/web-frontend/unit-testing.md` as the base format.
+Use the table-driven tests from [docs/testing/unit-testing.md](../testing/unit-testing.md) as the base format.
 
 ## How to Progress Through One Story
 

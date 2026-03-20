@@ -62,7 +62,7 @@ Type-safe API client. Types are generated from the backend OpenAPI spec via Orva
 
 ```typescript
 const api = new VSPOApi({
-  baseUrl: string,                // API base URL
+  baseUrl?: string,               // API base URL (default: "http://localhost:3000")
   apiKey?: string,                // API key header
   cfAccessClientId?: string,      // Cloudflare Access credentials
   cfAccessClientSecret?: string,
@@ -70,6 +70,7 @@ const api = new VSPOApi({
   retry?: {
     attempts?: number,            // Default: 3
     backoff?: (retryCount: number) => number,
+                                  // Default: (n) => Math.round(Math.exp(n) * 50)
   },
 });
 ```

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Custom utility classes defined in `@layer utilities` of `globals.css`. These complement Tailwind CSS standard utilities and provide project-specific styles.
+Custom utility classes defined in `@layer utilities` of `globals.css`. These provide project-specific styles used alongside MUI and Emotion.
 
 ---
 
@@ -22,7 +22,7 @@ Adjusts text line-end balance for more beautiful typesetting.
 
 ### text-2xs / text-3xs
 
-Text sizes smaller than Tailwind defaults.
+Extra-small text size utilities.
 
 | Class | Size | Line Height | Usage |
 |-------|------|-------------|-------|
