@@ -1,5 +1,10 @@
 name: 'Setup PNPM'
-description: 'Setup Node.js and PNPM'
+description: 'Setup Node.js and PNPM with optional build step'
+inputs:
+  build:
+    description: 'Run pnpm build after install'
+    required: false
+    default: 'true'
 runs:
   using: 'composite'
   steps:
@@ -18,6 +23,7 @@ runs:
       shell: bash
       run: pnpm install
 
-    - name: package build
+    - name: Package build
+      if: inputs.build == 'true'
       shell: bash
       run: pnpm build
