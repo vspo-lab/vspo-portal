@@ -8,7 +8,7 @@
   /* === Semantic Colors (dark mode, matching MUI dark defaults + vspo-schedule) === */
   --color-background: #121212;
   --color-foreground: rgba(255, 255, 255, 0.87);
-  --color-card: #1e1e1e;
+  --color-card: #242424;
   --color-card-foreground: rgba(255, 255, 255, 0.87);
   --color-primary: #7266cf;
   --color-primary-foreground: #ffffff;
@@ -16,7 +16,7 @@
   --color-secondary-foreground: rgba(255, 255, 255, 0.87);
   --color-muted: #2d2d2d;
   --color-muted-foreground: rgba(255, 255, 255, 0.7);
-  --color-accent: #2d2d2d;
+  --color-accent: #363636;
   --color-accent-foreground: rgba(255, 255, 255, 0.87);
   --color-destructive: #e53935;
   --color-destructive-foreground: #ffffff;
@@ -32,7 +32,7 @@
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-action: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.12);
-  --shadow-focus: 0 0 0 3px rgba(114, 102, 207, 0.4);
+  --shadow-focus: 0 0 0 3px rgba(114, 102, 207, 0.6);
 
   /* === Typography (from vspo-schedule Theme.tsx) === */
   --font-sans: "Noto Sans JP", "Hiragino Kaku Gothic Pro", system-ui, sans-serif;

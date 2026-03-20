@@ -16,26 +16,63 @@ const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
 const currentPath = Astro.url.pathname;
 const avatarUrl = DiscordUser.avatarUrl(user);
+
+const isActive = (path: string) => currentPath === path || currentPath === `${path}/`;
+const navLinkClass = (path: string) =>
+  isActive(path)
+    ? "bg-vspo-purple/20 text-white font-medium"
+    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground";
 ---
 
 <Base title={title}>
   <div class="flex min-h-screen flex-col">
     <header
-      class="flex h-14 items-center justify-between bg-vspo-purple px-6 text-white"
+      class="sticky top-0 z-30 flex h-14 items-center justify-between bg-vspo-purple px-4 text-white sm:px-6"
     >
-      <a href="/dashboard" class="font-heading text-lg font-bold">{t(locale, "app.name")}</a>
+      <div class="flex items-center gap-3">
+        {/* Mobile menu via <details> — no JS needed */}
+        <details class="group relative lg:hidden">
+          <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[--radius-sm] hover:bg-white/20" aria-label={t(locale, "nav.menu")}>
+            <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </summary>
+          <nav
+            class="absolute left-0 top-full mt-1 w-64 rounded-[--radius] border border-border bg-card p-3 shadow-action"
+            aria-label={t(locale, "nav.sidebar")}
+          >
+            <div class="space-y-1">
+              <a
+                href="/dashboard"
+                class={`block rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
+              >
+                {t(locale, "dashboard.allServers")}
+              </a>
+              {guilds.map((guild) => (
+                <a
+                  href={`/dashboard/${guild.id}`}
+                  class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass(`/dashboard/${guild.id}`)}`}
+                >
+                  <AvatarFallback src={guild.iconUrl} name={guild.name} size="xs" />
+                  <span class="truncate">{guild.name}</span>
+                </a>
+              ))}
+            </div>
+          </nav>
+        </details>
+        <a href="/dashboard" class="font-heading text-lg font-bold">{t(locale, "app.name")}</a>
+      </div>
       <UserMenu
         displayName={user.displayName}
         avatarUrl={avatarUrl}
       />
     </header>
     <div class="flex flex-1">
-      <aside class="hidden w-64 border-r border-border p-4 lg:block">
-        <nav class="space-y-2" aria-label={t(locale, "nav.sidebar")}>
+      <aside class="hidden w-64 shrink-0 border-r border-border p-4 lg:block">
+        <nav class="space-y-1" aria-label={t(locale, "nav.sidebar")}>
           <a
             href="/dashboard"
-            class={`block rounded-md px-3 py-2 text-sm ${currentPath === "/dashboard" || currentPath === "/dashboard/" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50"}`}
-            {...(currentPath === "/dashboard" || currentPath === "/dashboard/" ? { "aria-current": "page" as const } : {})}
+            class={`block rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
+            {...(isActive("/dashboard") ? { "aria-current": "page" as const } : {})}
           >
             {t(locale, "dashboard.allServers")}
           </a>
@@ -43,8 +80,8 @@ const avatarUrl = DiscordUser.avatarUrl(user);
             guilds.map((guild) => (
               <a
                 href={`/dashboard/${guild.id}`}
-                class={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${currentPath === `/dashboard/${guild.id}` ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50"}`}
-                {...(currentPath === `/dashboard/${guild.id}` ? { "aria-current": "page" as const } : {})}
+                class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass(`/dashboard/${guild.id}`)}`}
+                {...(isActive(`/dashboard/${guild.id}`) ? { "aria-current": "page" as const } : {})}
               >
                 <AvatarFallback
                   src={guild.iconUrl}
@@ -57,7 +94,7 @@ const avatarUrl = DiscordUser.avatarUrl(user);
           }
         </nav>
       </aside>
-      <main class="flex-1 p-6">
+      <main class="flex-1 p-4 sm:p-6">
         <slot />
       </main>
     </div>

@@ -28,6 +28,7 @@ const ja = {
 
   // Guild
   "guild.serverTitle": "サーバー {guildId}",
+  "guild.active": "導入済み",
   "guild.manageSettings": "設定を管理",
   "guild.addBot": "Bot を追加",
 
@@ -56,6 +57,7 @@ const ja = {
 
   // Navigation
   "nav.sidebar": "サーバーナビゲーション",
+  "nav.menu": "メニュー",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
@@ -106,6 +108,7 @@ const en: Record<keyof typeof ja, string> = {
 
   // Guild
   "guild.serverTitle": "Server {guildId}",
+  "guild.active": "Active",
   "guild.manageSettings": "Manage Settings",
   "guild.addBot": "Add Bot",
 
@@ -133,7 +136,8 @@ const en: Record<keyof typeof ja, string> = {
   "channelConfig.save": "Save",
 
   // Navigation
-  "nav.sidebar": "Servers navigation",
+  "nav.sidebar": "Server Navigation",
+  "nav.menu": "Menu",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
