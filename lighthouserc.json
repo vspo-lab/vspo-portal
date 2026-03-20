@@ -3,10 +3,7 @@
     "collect": {
       "startServerCommand": "npx next start -p 3333",
       "startServerReadyPattern": "Ready in",
-      "url": [
-        "http://localhost:3333/",
-        "http://localhost:3333/schedule"
-      ],
+      "url": ["http://localhost:3333/", "http://localhost:3333/schedule"],
       "numberOfRuns": 1,
       "settings": {
         "chromeFlags": "--no-sandbox --headless --disable-gpu",

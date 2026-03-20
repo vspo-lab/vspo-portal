@@ -5,7 +5,7 @@ import { paginationSchema } from "../../shared/domain/clip";
 /**
  * Calculate the start date for a timeframe filter
  */
-const getTimeframeStartDate = (
+const _getTimeframeStartDate = (
   timeframe: ClipFilter["timeframe"],
 ): Date | null => {
   if (timeframe === "all") return null;
