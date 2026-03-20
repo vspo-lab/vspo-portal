@@ -182,6 +182,7 @@ export class VSPOApi {
     }
 
     // If we get here, all retries failed
+    // type-safe: err is always AppError assigned in the retry loop
     return Err(err as AppError);
   }
 

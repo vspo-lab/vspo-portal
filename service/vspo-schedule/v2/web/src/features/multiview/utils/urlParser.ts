@@ -1,10 +1,10 @@
-import { Platform } from "@/features/shared/domain/video";
+import { Platform, platformSchema } from "@/features/shared/domain/video";
 import { z } from "zod";
 
 // URL validation schema
 const urlSchema = z.object({
   url: z.string().url("無効なURLです"),
-  platform: z.enum(["youtube", "twitch", "twitcasting", "niconico", "unknown"]),
+  platform: platformSchema,
   videoId: z.string(),
   isValid: z.boolean(),
   type: z.enum(["live", "vod", "unknown"]),

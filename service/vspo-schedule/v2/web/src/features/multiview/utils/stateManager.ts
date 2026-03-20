@@ -43,7 +43,7 @@ export type MultiviewState = {
 };
 
 // Compact state for URL (only essential data)
-interface CompactMultiviewState {
+type CompactMultiviewState = {
   s: Array<{
     i: string; // id
     p: string; // platform
@@ -58,7 +58,7 @@ interface CompactMultiviewState {
     h: number;
   }>;
   v: number; // version
-}
+};
 
 // Validation helpers using shared schemas
 const VALID_LAYOUTS: LayoutType[] = ["1x1", "2x1", "1x2", "2x2", "3x3", "4x3", "picture-in-picture", "auto"];
@@ -357,6 +357,7 @@ const decodeCompactUrl = (encoded: string): CompactMultiviewState | null => {
       };
     });
 
+    // mutable: assigned to before return
     const result: CompactMultiviewState = {
       s: streams,
       l: layout,
@@ -388,7 +389,7 @@ export const saveStateToLocalStorage = (
   gridLayout?: GridLayoutItem[],
 ): void => {
   wrapSync(() => {
-    const state: MultiviewState = {
+    const state = {
       selectedStreams: selectedStreams.map((stream) => ({
         id: stream.id,
         platform: stream.platform,
@@ -400,7 +401,7 @@ export const saveStateToLocalStorage = (
       layout,
       gridLayout,
       version: CURRENT_VERSION,
-    };
+    } satisfies MultiviewState;
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, "Failed to save multiview state");
@@ -447,6 +448,7 @@ export const generateShareableUrl = (
   gridLayout?: GridLayoutItem[],
 ): string => {
   const result = wrapSync(() => {
+    // mutable: assigned to before return
     const compactState: CompactMultiviewState = {
       s: selectedStreams.map((stream) => ({
         i: stream.id,

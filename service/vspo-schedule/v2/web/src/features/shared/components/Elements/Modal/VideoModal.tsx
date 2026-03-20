@@ -76,11 +76,11 @@ const ResponsiveIframe = styled("iframe")({
   border: "0",
 });
 
-interface TabPanelProps {
+type TabPanelProps = {
   value: number;
   index: number;
   children: React.ReactNode;
-}
+};
 
 const TabPanelScrollContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -138,12 +138,12 @@ const VideoPlayerComponent: React.FC<{ video: Video }> = ({ video }) => {
 const VideoPlayer = React.memo(VideoPlayerComponent);
 
 // Base presenter props for all video types
-interface BaseInfoTabsPresenterProps {
+type BaseInfoTabsPresenterProps = {
   video: Video;
   tabValue: number;
   onTabChange: (event: React.SyntheticEvent, newValue: number) => void;
   urlRegex: RegExp;
-}
+};
 
 // Livestream specific presenter
 const LivestreamInfoTabsPresenter: React.FC<
@@ -653,12 +653,12 @@ const InfoTabsContainer: React.FC<{ video: Video }> = ({ video }) => {
 };
 
 // Presenter component for the entire VideoModal
-interface VideoModalPresenterProps {
+type VideoModalPresenterProps = {
   isOpen: boolean;
   activeVideo: Video | undefined;
   onClose: () => void;
   onBack: () => void;
-}
+};
 
 const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
   isOpen,

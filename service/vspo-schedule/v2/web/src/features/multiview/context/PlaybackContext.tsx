@@ -109,20 +109,21 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  const contextValue: PlaybackContextType = useMemo(
-    () => ({
-      registerPlayer,
-      unregisterPlayer,
-      getPlayer,
-      getAllPlayers,
-      playAll,
-      pauseAll,
-      muteAll,
-      unmuteAll,
-      setAllVolume,
-      muteAllButOne,
-      syncAllToLive,
-    }),
+  const contextValue = useMemo(
+    () =>
+      ({
+        registerPlayer,
+        unregisterPlayer,
+        getPlayer,
+        getAllPlayers,
+        playAll,
+        pauseAll,
+        muteAll,
+        unmuteAll,
+        setAllVolume,
+        muteAllButOne,
+        syncAllToLive,
+      }) satisfies PlaybackContextType,
     [
       registerPlayer,
       unregisterPlayer,

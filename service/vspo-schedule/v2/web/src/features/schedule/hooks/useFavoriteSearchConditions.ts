@@ -29,10 +29,10 @@ export const useFavoriteSearchCondition = () => {
 
   const saveFavorite = useCallback(
     (condition: Omit<FavoriteSearchCondition, "createdAt">) => {
-      const newCondition: FavoriteSearchCondition = {
+      const newCondition = {
         ...condition,
         createdAt: getCurrentUTCString(),
-      };
+      } satisfies FavoriteSearchCondition;
 
       setCookieValue(JSON.stringify(newCondition));
       return newCondition;
