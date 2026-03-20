@@ -83,7 +83,6 @@ dist
 
 # plan documents (generated, not tracked)
 docs/superpowers/plans/
-docs/plan/
 .claude/settings.local.json
 
 # Cloudflare generated types
