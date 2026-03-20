@@ -22,7 +22,9 @@
       "clip": "클립",
       "twitch-clip": "Twitch 클립",
       "event": "이벤트",
-      "multiview": "멀티뷰"
+      "freechat": "프리챗",
+      "multiview": "멀티뷰",
+      "more": "더보기"
     }
   },
   "drawer": {

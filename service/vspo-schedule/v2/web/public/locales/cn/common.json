@@ -22,7 +22,9 @@
       "clip": "剪辑",
       "twitch-clip": "Twitch 剪辑",
       "event": "活动",
-      "multiview": "多视图"
+      "freechat": "自由聊天",
+      "multiview": "多视图",
+      "more": "更多"
     }
   },
   "drawer": {
