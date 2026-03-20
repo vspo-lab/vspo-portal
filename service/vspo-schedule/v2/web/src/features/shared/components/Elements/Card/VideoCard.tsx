@@ -23,23 +23,23 @@ type Props = {
   isArchive?: boolean;
 };
 
-const StyledHighlightedVideoChip = styled(HighlightedVideoChip)(
-  ({ theme }) => ({
-    position: "absolute",
-    top: "-12px",
-    right: "6px",
-    zIndex: "3",
-    transformOrigin: "center right",
-    [theme.breakpoints.down("md")]: {
-      transform: "scale(0.875)",
-      right: "5px",
-    },
-    [theme.breakpoints.down("sm")]: {
-      transform: "scale(0.75)",
-      right: "4px",
-    },
-  }),
-);
+const StyledHighlightedVideoChip = styled(HighlightedVideoChip, {
+  shouldForwardProp: (prop) => prop !== "isLive",
+})(({ theme }) => ({
+  position: "absolute",
+  top: "-12px",
+  right: "6px",
+  zIndex: "3",
+  transformOrigin: "center right",
+  [theme.breakpoints.down("md")]: {
+    transform: "scale(0.875)",
+    right: "5px",
+  },
+  [theme.breakpoints.down("sm")]: {
+    transform: "scale(0.75)",
+    right: "4px",
+  },
+}));
 
 const PlatformIconWrapper = styled(Box)(({ theme }) => ({
   position: "absolute",
@@ -113,6 +113,7 @@ export const VideoCard: React.FC<Props> = ({
         <StyledHighlightedVideoChip
           highlightColor={highlight.color}
           bold={highlight.bold}
+          isLive={highlight.label === "live"}
         >
           {t(`liveStatus.${highlight.label}`)}
         </StyledHighlightedVideoChip>
