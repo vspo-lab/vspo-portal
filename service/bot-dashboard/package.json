@@ -1,0 +1,27 @@
+{
+  "name": "bot-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "cf:deploy": "wrangler deploy",
+    "cf:typegen": "wrangler types",
+    "typecheck": "astro check && tsc --noEmit"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.0",
+    "@astrojs/cloudflare": "^13.0.0",
+    "astro": "^6.0.0",
+    "@vspo-lab/error": "workspace:^",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@tailwindcss/vite": "^4.1.8",
+    "tailwindcss": "^4.1.8",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

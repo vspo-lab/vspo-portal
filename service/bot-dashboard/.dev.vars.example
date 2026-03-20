@@ -1,0 +1,9 @@
+# Discord OAuth2 credentials (create app at https://discord.com/developers/applications)
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+DISCORD_REDIRECT_URI=http://localhost:4321/auth/callback
+DISCORD_BOT_CLIENT_ID=
+
+# Set to "true" to skip Discord OAuth and inject a mock user session.
+# Dashboard pages will be accessible without real authentication.
+DEV_MOCK_AUTH=true
