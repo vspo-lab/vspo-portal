@@ -273,7 +273,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger shortcuts when typing in input fields
-      const target = e.target as HTMLElement;
+      const target = e.target as HTMLElement; // type-safe: KeyboardEvent.target is always an Element in the DOM
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
         return;
       }

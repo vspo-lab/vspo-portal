@@ -130,11 +130,13 @@ export const SimplePlaybackControlsPresenter: React.FC<
   );
 
   const handleGlobalVolumeChange = (_: Event, value: number | number[]) => {
+    // type-safe: MUI Slider with no marks/range always passes a single number
     onSetGlobalVolume(value as number);
   };
 
   const handleStreamVolumeChange =
     (streamId: string) => (_: Event, value: number | number[]) => {
+      // type-safe: MUI Slider with no marks/range always passes a single number
       onSetStreamVolume(streamId, value as number);
     };
 

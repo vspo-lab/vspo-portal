@@ -17,37 +17,45 @@ type Props = {
   };
   /** Set to true for above-the-fold images (LCP candidates) */
   priority?: boolean;
+  /** Content rendered as overlay on the thumbnail (e.g., LIVE badge, viewer count) */
+  thumbnailOverlay?: React.ReactNode;
+  /** Apply muted visual treatment for archived content */
+  isArchive?: boolean;
 };
 
-const StyledHighlightedVideoChip = styled(HighlightedVideoChip)(
-  ({ theme }) => ({
-    position: "absolute",
-    top: "-12px",
-    right: "6px",
-    zIndex: "3",
-    transformOrigin: "center right",
-    [theme.breakpoints.down("md")]: {
-      transform: "scale(0.875)",
-      right: "5px",
-    },
-    [theme.breakpoints.down("sm")]: {
-      transform: "scale(0.75)",
-      right: "4px",
-    },
-  }),
-);
+const StyledHighlightedVideoChip = styled(HighlightedVideoChip, {
+  shouldForwardProp: (prop) => prop !== "isLive",
+})(({ theme }) => ({
+  position: "absolute",
+  top: "-12px",
+  right: "6px",
+  zIndex: "3",
+  transformOrigin: "center right",
+  [theme.breakpoints.down("md")]: {
+    transform: "scale(0.875)",
+    right: "5px",
+  },
+  [theme.breakpoints.down("sm")]: {
+    transform: "scale(0.75)",
+    right: "4px",
+  },
+}));
 
 const PlatformIconWrapper = styled(Box)(({ theme }) => ({
   position: "absolute",
   top: "8px",
   left: "8px",
   zIndex: 2,
-  backgroundColor: "rgba(255, 255, 255, 0.6)",
-  borderRadius: "4px",
+  backgroundColor: "rgba(255, 255, 255, 0.7)",
+  borderRadius: "6px",
   padding: "4px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  [theme.getColorSchemeSelector("dark")]: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backdropFilter: "blur(4px)",
+  },
   [theme.breakpoints.down("sm")]: {
     top: "4px",
     left: "4px",
@@ -62,10 +70,24 @@ const StyledCard = styled(Card, {
   flexDirection: "column",
   height: "100%",
   width: "100%",
-  border: highlightColor ? `3px solid ${highlightColor}` : "none",
-  backgroundColor: "white",
-  [theme.getColorSchemeSelector("dark")]: {
-    backgroundColor: theme.vars.palette.customColors.gray,
+  border: "none",
+  borderRadius: "12px",
+  backgroundColor: theme.vars.palette.background.paper,
+  boxShadow: highlightColor
+    ? `0 0 0 2px ${highlightColor}, 0 1px 3px rgba(0,0,0,0.08)`
+    : "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)",
+  transition: "transform 150ms ease, box-shadow 150ms ease",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: highlightColor
+      ? `0 0 0 2px ${highlightColor}, 0 8px 16px rgba(0,0,0,0.12)`
+      : "0 8px 16px rgba(0,0,0,0.12)",
+  },
+  "@media (prefers-reduced-motion: reduce)": {
+    transition: "none",
+    "&:hover": {
+      transform: "none",
+    },
   },
 }));
 
@@ -79,6 +101,8 @@ export const VideoCard: React.FC<Props> = ({
   highlight,
   children,
   priority = false,
+  thumbnailOverlay,
+  isArchive,
 }) => {
   const { pushVideo } = useVideoModalContext();
   const { t } = useTranslation("common");
@@ -89,6 +113,7 @@ export const VideoCard: React.FC<Props> = ({
         <StyledHighlightedVideoChip
           highlightColor={highlight.color}
           bold={highlight.bold}
+          isLive={highlight.label === "live"}
         >
           {t(`liveStatus.${highlight.label}`)}
         </StyledHighlightedVideoChip>
@@ -101,7 +126,10 @@ export const VideoCard: React.FC<Props> = ({
               alt={video.title}
               fill
               sizes="(max-width: 600px) 50vw, (max-width: 900px) 50vw, 33vw"
-              style={{ objectFit: "cover" }}
+              style={{
+                objectFit: "cover",
+                ...(isArchive && { filter: "saturate(0.7)", opacity: 0.85 }),
+              }}
               priority={priority}
             />
             {video.type === "livestream" && (
@@ -109,6 +137,7 @@ export const VideoCard: React.FC<Props> = ({
                 <PlatformIcon platform={platform} />
               </PlatformIconWrapper>
             )}
+            {thumbnailOverlay}
           </StyledCardMedia>
           {children}
         </CardActionArea>

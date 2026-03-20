@@ -2,6 +2,8 @@
 
 ## Overview
 
+> **Note:** The `infrastructure/terraform/` directory and associated workflows are not yet implemented. This document describes the intended conventions and design for when Terraform IaC is introduced.
+
 This project uses **Terraform** to manage Google Cloud Platform (GCP) infrastructure.
 Infrastructure as Code (IaC) enables tracking infrastructure changes in Git and deploying safely through a review process.
 

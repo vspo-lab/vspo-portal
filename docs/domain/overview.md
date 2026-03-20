@@ -64,7 +64,7 @@ Spodule provides a centralized schedule and content browser. It normalizes strea
 | --- | --- |
 | Framework | Next.js 15 |
 | UI Library | React 19 |
-| Styling | MUI v7 + TailwindCSS v4 |
+| Styling | MUI v7 + Emotion |
 | Deployment | Cloudflare Workers via OpenNext adapter |
 | Package Manager | pnpm (monorepo) |
 | i18n | 5 languages (en, ja, cn, tw, ko) |

@@ -65,9 +65,9 @@ const StyledAvatarGroup = styled(AvatarGroup)(({ theme }) => ({
 const TitleTypography = styled(Typography)(({ theme }) => ({
   fontSize: "0.9rem",
   fontWeight: 500,
-  lineHeight: 1.2,
-  height: "2.4em",
-  minHeight: "2.4em",
+  lineHeight: 1.5,
+  height: "3.0em",
+  minHeight: "3.0em",
   overflow: "hidden",
   textOverflow: "ellipsis",
   display: "-webkit-box",
@@ -82,7 +82,7 @@ const TitleTypography = styled(Typography)(({ theme }) => ({
 
 const CreatorTypography = styled(Typography)(({ theme }) => ({
   fontSize: "0.8rem",
-  lineHeight: 1.2,
+  lineHeight: 1.4,
   color: theme.vars.palette.text.secondary,
   padding: `0 ${theme.spacing(0.5)}`,
   marginBottom: theme.spacing(0.8),

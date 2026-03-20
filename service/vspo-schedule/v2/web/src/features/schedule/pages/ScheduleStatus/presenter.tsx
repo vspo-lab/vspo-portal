@@ -1,9 +1,9 @@
 import SearchIcon from "@mui/icons-material/Search";
-import { Box, Container, Fab, Paper, Tab, Tabs } from "@mui/material";
+import { Box, Container, Fab, Fade, Paper, Tab, Tabs } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
 import type React from "react";
-import { Loading } from "@/features/shared/components/Elements/Loading/Loading";
+import { LivestreamGridSkeleton } from "@/features/shared/components/Elements/Skeleton/LivestreamGridSkeleton";
 import type { Event } from "@/features/shared/domain";
 import type { Livestream } from "../../../shared/domain/livestream";
 import {
@@ -33,22 +33,6 @@ const ContentContainer = styled(Box)(({ theme }) => ({
   minHeight: "100px",
   backgroundColor: theme.vars.palette.background.default,
   color: theme.vars.palette.text.primary,
-}));
-
-const LoadingOverlay = styled(Box)(({ theme }) => ({
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 5,
-  backgroundColor: theme.vars.palette.background.default,
-  [theme.getColorSchemeSelector("dark")]: {
-    backgroundColor: theme.vars.palette.background.paper,
-  },
 }));
 
 type PresenterProps = {
@@ -100,26 +84,20 @@ export const ScheduleStatusPresenter: React.FC<PresenterProps> = ({
       )}
 
       <ContentContainer sx={{ mt: 4 }}>
-        {/* Always render content but with opacity based on loading state */}
-        <Box
-          sx={{
-            opacity: isLoading ? 0 : 1,
-            visibility: isLoading ? "hidden" : "visible",
-            transition: "opacity 0.2s",
-          }}
-        >
-          <EventsContent events={events} />
-          <LivestreamContent
-            livestreamsByDate={livestreamsByDate}
-            timeZone={timeZone}
-          />
-        </Box>
-
-        {/* Loading overlay */}
-        {isLoading && (
-          <LoadingOverlay>
-            <Loading />
-          </LoadingOverlay>
+        {isLoading ? (
+          <Box sx={{ p: 2 }}>
+            <LivestreamGridSkeleton />
+          </Box>
+        ) : (
+          <Fade in timeout={300}>
+            <Box>
+              <EventsContent events={events} />
+              <LivestreamContent
+                livestreamsByDate={livestreamsByDate}
+                timeZone={timeZone}
+              />
+            </Box>
+          </Fade>
         )}
       </ContentContainer>
 

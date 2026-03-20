@@ -95,7 +95,6 @@ const normalizeTimeZone = (s: string) => s.toLowerCase();
 const getTimeZoneLabel = (timeZone: string) => (
   <>
     {timeZone.split("/").map((part, i) => (
-      // biome-ignore lint/suspicious/noArrayIndexKey: Order is stable for timezone parts
       <React.Fragment key={i}>
         {i !== 0 && (
           <>

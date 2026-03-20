@@ -1,18 +1,18 @@
 import { Livestream } from "@/features/shared/domain";
 import { useCallback, useEffect, useState } from "react";
 
-export interface StreamPlaybackState {
+export type StreamPlaybackState = {
   streamId: string;
   volume: number;
   isMuted: boolean;
   isPlaying: boolean;
-}
+};
 
-export interface UsePlaybackControlsProps {
+export type UsePlaybackControlsProps = {
   streams: Livestream[];
-}
+};
 
-export interface UsePlaybackControlsReturn {
+export type UsePlaybackControlsReturn = {
   streamStates: Record<string, StreamPlaybackState>;
   globalVolume: number;
   isGlobalMuted: boolean;
@@ -23,7 +23,7 @@ export interface UsePlaybackControlsReturn {
   onSetStreamVolume: (streamId: string, volume: number) => void;
   onToggleStreamMute: (streamId: string) => void;
   onMuteAllButOne: (streamId: string) => void;
-}
+};
 
 export const usePlaybackControls = ({
   streams,

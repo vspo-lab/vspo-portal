@@ -106,7 +106,7 @@ export const StreamSelectorPresenter: React.FC<
   const canSelectMore = selectedStreams.length < maxStreams;
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
-    onStatusFilterChange(newValue as "all" | "live" | "upcoming");
+    onStatusFilterChange(newValue as "all" | "live" | "upcoming"); // type-safe: MUI Tabs only emits values from our Tab value props
   };
 
   const formatStreamTitle = (title: string) => {

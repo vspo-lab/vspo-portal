@@ -30,7 +30,16 @@ All infrastructure changes are reviewed through Pull Requests and automatically 
 
 ## Workflow Structure
 
-### File List
+### Active Workflows
+
+| File | Trigger | Purpose |
+|---------|---------|------|
+| `deploy-web-workers.yaml` | Push to `main`/`develop`, paths `service/vspo-schedule/v2/web/**` | Build and deploy web frontend to Cloudflare Workers |
+| `pr-check.yaml` | PR with web/packages changes | Biome, TypeScript, Knip, and Textlint checks |
+
+### Planned Terraform Workflows (Not Yet Implemented)
+
+> **Note:** The following Terraform workflows and `infrastructure/terraform/` directory do not exist yet. This section describes the intended design for when Terraform IaC is introduced.
 
 | File | Trigger | Purpose |
 |---------|---------|------|
@@ -253,15 +262,18 @@ All CI tools are managed with aqua with pinned versions.
 # aqua.yaml
 registries:
   - type: standard
-    ref: v4.300.0
+    ref: v4.284.1
 
 packages:
   - name: hashicorp/terraform@v1.14.2
   - name: terraform-linters/tflint@v0.54.0
   - name: aquasecurity/trivy@v0.67.2
   - name: terraform-docs/terraform-docs@v0.20.0
-  - name: GoogleCloudPlatform/cloud-sdk@534.0.0
-  - name: reviewdog/reviewdog@v0.20.3
+  - name: twistedpair/google-cloud-sdk@534.0.0
+  - name: reviewdog/reviewdog@v0.21.0
+  - name: suzuki-shunsuke/github-comment@v6.3.5
+  - name: int128/ghcp@v1.15.0
+  - name: evilmartians/lefthook@v2.1.1
 ```
 
 ### Version Updates
@@ -348,10 +360,12 @@ on:
 
 ### Pipeline
 
-1. Checkout and setup (pnpm, Node.js)
-2. Install dependencies (`pnpm install`)
-3. Build with OpenNextJS (`pnpm build:web`)
-4. Deploy to Cloudflare Workers via Wrangler v3
+1. Checkout code
+2. Setup pnpm (via composite action `.github/actions/setup-pnpm`)
+3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.6.0)
+   - The action runs from the env-specific wrangler config directory
+   - Build (`pnpm cf:build`) is triggered by the wrangler config's `build.command`
+   - Secrets are injected as Wrangler secrets via the action's `secrets` input
 
 ### Environment Mapping
 

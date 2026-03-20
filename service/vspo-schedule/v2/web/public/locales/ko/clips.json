@@ -7,6 +7,7 @@
     "trending": "트렌딩"
   },
   "platformTabs": {
+    "all": "전체",
     "twitch": "Twitch",
     "youtube": "YouTube",
     "shorts": "Shorts"

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Platform types
-const platformSchema = z.enum([
+export const platformSchema = z.enum([
   "youtube",
   "twitch",
   "twitcasting",

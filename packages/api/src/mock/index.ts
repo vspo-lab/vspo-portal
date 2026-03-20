@@ -12,7 +12,7 @@ import { youtubeShorts } from "./data/youtubeShorts";
 // Using type assertion since we don't have wrangler file for CF bindings
 const ENV = process.env.ENV || "development";
 
-interface MockData {
+type MockData = {
   streams: apiGen.ListStreams200;
   creators: apiGen.ListCreators200;
   events: apiGen.ListEvents200;
@@ -20,7 +20,7 @@ interface MockData {
   clipsYoutubeClip: apiGen.ListClips200;
   clipsYoutubeShort: apiGen.ListClips200;
   clipsTwitchClip: apiGen.ListClips200;
-}
+};
 
 // Initialize mock data with imported values
 const mockData: MockData = {
@@ -63,7 +63,12 @@ export const MockHandler = {
     );
 
     return {
-      videos: filteredStreams as unknown as apiGen.PostStream200VideosItem[],
+      videos: filteredStreams.map(
+        (stream) =>
+          ({
+            ...stream,
+          }) satisfies apiGen.PostStream200VideosItem,
+      ),
     };
   },
 
@@ -113,7 +118,9 @@ export const MockHandler = {
       throw new Error(`Event with ID ${id} not found`);
     }
 
-    return event as unknown as apiGen.GetEvent200;
+    return {
+      ...event,
+    } satisfies apiGen.GetEvent200;
   },
 
   /**

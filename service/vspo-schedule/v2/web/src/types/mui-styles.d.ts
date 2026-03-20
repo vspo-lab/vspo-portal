@@ -4,7 +4,7 @@ import type { DeepPartial } from "./deep-partial";
 // biome-ignore lint: Required for MUI theme CSS vars type augmentation
 import type {} from "@mui/material/themeCssVarsAugmentation";
 
-interface CustomPalette {
+type CustomPalette = {
   customColors: {
     vspoPurple: string;
     darkBlue: string;
@@ -15,8 +15,13 @@ interface CustomPalette {
       upcoming: string;
       trending: string;
     };
+    status: {
+      success: string;
+      warning: string;
+      info: string;
+    };
   };
-}
+};
 
 declare module "@mui/material/styles" {
   interface Mixins {

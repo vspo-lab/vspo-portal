@@ -4,13 +4,13 @@ import axios from "axios";
 import type * as apiGen from "./gen/openapi";
 import { isLocalEnv, MockHandler } from "./mock";
 
-interface ApiErrorResponse {
+type ApiErrorResponse = {
   error: {
-    code: AppError["code"] | string;
+    code: string;
     message: string;
     requestId: string;
   };
-}
+};
 
 // Define a simpler approach without using type assertions
 function isValidAppErrorCode(code: string): code is AppError["code"] {
@@ -30,54 +30,19 @@ function isValidAppErrorCode(code: string): code is AppError["code"] {
   ].includes(code);
 }
 
-export interface VSPOApiOptions {
-  /**
-   * API Key for authentication
-   */
+export type VSPOApiOptions = {
   apiKey?: string;
-
-  /**
-   * Cloudflare Access Client ID
-   */
   cfAccessClientId?: string;
-
-  /**
-   * Cloudflare Access Client Secret
-   */
   cfAccessClientSecret?: string;
-
-  /**
-   * Custom session ID to include in requests
-   */
   sessionId?: string;
-
-  /**
-   * Base URL for API requests
-   *
-   */
   baseUrl?: string;
-
-  /**
-   * Retry on network errors
-   */
   retry?: {
-    /**
-     * How many attempts should be made
-     * The maximum number of requests will be `attempts + 1`
-     * `0` means no retries
-     *
-     * @default 3
-     */
+    /** @default 3 */
     attempts?: number;
-
-    /**
-     * Return how many milliseconds to wait until the next attempt is made
-     *
-     * @default `(retryCount) => Math.round(Math.exp(retryCount) * 50)`
-     */
+    /** @default `(retryCount) => Math.round(Math.exp(retryCount) * 50)` */
     backoff?: (retryCount: number) => number;
   };
-}
+};
 
 export class VSPOApi {
   private readonly apiKey: string | undefined;
@@ -217,6 +182,7 @@ export class VSPOApi {
     }
 
     // If we get here, all retries failed
+    // type-safe: err is always AppError assigned in the retry loop
     return Err(err as AppError);
   }
 

@@ -20,7 +20,9 @@
     "pages": {
       "list": "配信一覧",
       "clip": "切り抜き",
-      "multiview": "マルチビュー"
+      "freechat": "フリチャ",
+      "multiview": "マルチビュー",
+      "more": "その他"
     }
   },
   "drawer": {

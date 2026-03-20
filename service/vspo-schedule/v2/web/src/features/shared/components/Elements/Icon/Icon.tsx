@@ -8,6 +8,7 @@ import GridViewIcon from "@mui/icons-material/GridView";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import InfoIcon from "@mui/icons-material/Info";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { styled } from "@mui/material/styles";
 import Image from "next/image";
@@ -62,7 +63,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
         />
       );
     default:
-      return <></>;
+      return null;
   }
 };
 
@@ -92,7 +93,9 @@ export const DrawerIcon: React.FC<DrawerIconProps> = ({ id }) => {
       return <FontAwesomeIcon icon={faDiscord} style={{ height: "20px" }} />;
     case "multiview":
       return <GridViewIcon />;
+    case "more":
+      return <MoreHorizIcon />;
     default:
-      return <></>;
+      return null;
   }
 };

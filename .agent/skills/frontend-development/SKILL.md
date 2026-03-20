@@ -1,6 +1,6 @@
 ---
 name: Frontend Development
-description: "Next.js 15 App Router frontend development. Feature-based + Container/Presentational pattern, React Compiler ON hooks, Cache Components, MUI v7 + TailwindCSS v4."
+description: "Next.js 15 Pages Router frontend development. Feature-based + Container/Presenter pattern, MUI v7 + Emotion CSS-in-JS."
 ---
 
 # Trigger
@@ -10,8 +10,7 @@ description: "Next.js 15 App Router frontend development. Feature-based + Contai
 
 # Reference Documents
 
-- `docs/web-frontend/architecture.md` - Feature-based + Container/Presentational pattern
-- `docs/web-frontend/react-hooks.md` - React Compiler ON hooks guidelines
-- `docs/web-frontend/cache-components.md` - Next.js Cache Components design
-- `docs/web-frontend/css.md` - TailwindCSS v4 + cva + cn()
+- `docs/web-frontend/architecture.md` - Feature-based + Container/Presenter pattern
+- `docs/web-frontend/react-hooks.md` - React hooks guidelines
+- `docs/web-frontend/styling.md` - MUI v7 + Emotion theming and component styling
 - `docs/web-frontend/accessibility.md` - WCAG 2.2 Level AA

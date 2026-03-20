@@ -162,6 +162,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
     const { t } = useTranslation("multiview");
 
     const embedUrl = useMemo((): string => {
+      // try-catch: runs during React render — must not throw to avoid unmounting the component tree
       try {
         const parentDomain =
           typeof window !== "undefined"

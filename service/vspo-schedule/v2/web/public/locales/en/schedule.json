@@ -36,5 +36,6 @@
     "all": "All",
     "allWithDate": "All ({{date}})"
   },
-  "noLivestreams": "No scheduled streams. Please check the previous day's schedule."
+  "noLivestreams": "No scheduled streams. Please check the previous day's schedule.",
+  "nowLive": "Now Live"
 }
