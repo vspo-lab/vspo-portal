@@ -45,7 +45,10 @@ Static assets (JS bundles, images, locales) are served via the `ASSETS` binding 
 
 ## OpenNextJS Configuration
 
-`service/vspo-schedule/v2/web/open-next.config.ts` -- minimal config with incremental caching disabled (R2 cache commented out).
+`service/vspo-schedule/v2/web/open-next.config.ts`:
+
+- Incremental caching disabled (R2 cache commented out)
+- `useWorkerdCondition: false` -- disables the workerd esbuild condition to prevent `@emotion/*` packages from resolving edge-light variants that are not included by Next.js file tracing. The default condition falls back to runtime is-browser detection, which works correctly on Workers.
 
 ## Build & Deploy Commands
 
@@ -68,9 +71,10 @@ Defined in `.github/workflows/deploy-web-workers.yaml`.
 
 **Steps:**
 1. Checkout code
-2. Setup pnpm
-3. Copy environment-specific wrangler config to project root
-4. Deploy via `wrangler-action` (v3.14.1)
+2. Setup pnpm (via composite action `.github/actions/setup-pnpm`)
+3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.6.0)
+   - `workingDirectory` is set to the env-specific wrangler config dir (`config/wrangler/{env}`)
+   - `preCommands` copies config files to the web root so the build can find sources
 
 **Environment Variables (passed as Wrangler secrets):**
 

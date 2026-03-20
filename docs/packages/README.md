@@ -19,9 +19,10 @@ type Result<V, E extends BaseError = BaseError> = OkResult<V> | ErrResult<E>
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `Ok()` | `Ok<V>(val: V): OkResult<V>` | Create a success result |
-| `Err()` | `Err<E>(err: E): ErrResult<E>` | Create an error result |
-| `wrap()` | `wrap<T, E>(p: Promise<T>, factory: (err) => E): Promise<Result<T, E>>` | Convert a Promise into a Result |
+| `Ok()` | `Ok(): OkResult<never>` | Create a success result with no value |
+| `Ok(val)` | `Ok<V>(val: V): OkResult<V>` | Create a success result with a value |
+| `Err()` | `Err<E extends BaseError>(err: E): ErrResult<E>` | Create an error result |
+| `wrap()` | `wrap<T, E extends BaseError>(p: Promise<T>, errorFactory: (err: Error) => E): Promise<Result<T, E>>` | Convert a Promise into a Result |
 
 ### AppError
 

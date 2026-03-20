@@ -11,10 +11,30 @@ application code. Asynchronous boundaries are wrapped with `wrap`, which returns
 - [error.ts](../../packages/errors/error.ts) — AppError class
 
 ## Usage
-Example:
+
+### Basic: wrap and propagate
+
+When the Result from `wrap` can be returned directly, do so without re-wrapping:
 
 ```ts
-// third-party async function with potential to throw
+// wrap returns Result<string, AppError> — return it as-is
+return await wrap(
+  response.text(),
+  (error) =>
+    new AppError({
+      message: "Failed to read asset text",
+      code: "INTERNAL_SERVER_ERROR",
+      cause: error,
+    }),
+);
+```
+
+### Early return on error
+
+When you need to inspect the result before continuing, check `err` and
+return early:
+
+```ts
 const textResult = await wrap(
   response.text(),
   (error) =>
@@ -26,10 +46,11 @@ const textResult = await wrap(
 );
 
 if (textResult.err) {
-  return Err(textResult.err);
+  return Err(textResult.err);  // propagate the error
 }
 
-return Ok(textResult.val);
+// After the guard, textResult.val is narrowed to the success type
+const text = textResult.val;
 ```
 
 ## How It Works
@@ -64,7 +85,10 @@ Reason:
 
 **Notes:**
 - Use `wrap` at async boundaries; avoid `try-catch` in app logic.
-- `wrap` treats thrown values as `Error`; refine the factory if you need stricter typing.
+- `wrap` casts thrown values to `Error` (`e as Error`). The `errorFactory`
+  callback receives `Error`, but non-Error throws (e.g., a thrown string) will
+  arrive with missing `message`/`stack` properties. In practice this is safe
+  because standard libraries throw `Error` instances.
 
 ---
 
