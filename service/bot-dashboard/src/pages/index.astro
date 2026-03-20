@@ -11,7 +11,7 @@ if (Astro.locals.user) {
 const locale = Astro.locals.locale;
 
 const errorParam = Astro.url.searchParams.get("error");
-const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || errorParam === "fetch_failed"
+const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || errorParam === "fetch_failed" || errorParam === "invalid_state"
   ? (`error.${errorParam}` as const)
   : null;
 ---

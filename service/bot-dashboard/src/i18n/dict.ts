@@ -68,6 +68,8 @@ const ja = {
   "error.no_code": "認証コードが見つかりませんでした。もう一度お試しください。",
   "error.fetch_failed":
     "ユーザー情報の取得に失敗しました。もう一度お試しください。",
+  "error.invalid_state":
+    "認証リクエストが無効です。もう一度お試しください。",
 
   // Auth
   "auth.logout": "ログアウト",
@@ -143,6 +145,7 @@ const en: Record<keyof typeof ja, string> = {
   "error.auth_failed": "Discord authentication failed. Please try again.",
   "error.no_code": "Authorization code not found. Please try again.",
   "error.fetch_failed": "Failed to fetch user information. Please try again.",
+  "error.invalid_state": "Invalid authentication request. Please try again.",
 
   // Auth
   "auth.logout": "Logout",

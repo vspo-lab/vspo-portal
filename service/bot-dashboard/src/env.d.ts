@@ -13,6 +13,7 @@ declare namespace App {
     accessToken: string;
     refreshToken: string;
     expiresAt: number;
+    oauth_state: string;
   }
   interface Locals {
     user: SessionData["user"] | null;

@@ -21,7 +21,7 @@ type DiscordTokenResponse = z.infer<typeof DiscordTokenResponseSchema>;
 const DiscordApiUserSchema = z.object({
   id: z.string(),
   username: z.string(),
-  global_name: z.string().nullable(),
+  global_name: z.string().nullable().optional(),
   avatar: z.string().nullable(),
 });
 
