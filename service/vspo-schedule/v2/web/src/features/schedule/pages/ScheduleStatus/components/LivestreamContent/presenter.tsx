@@ -1,7 +1,7 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { keyframes, styled } from "@mui/material/styles";
 import { format } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import { useRouter } from "next/router";
@@ -66,6 +66,11 @@ const TimeBlockHeader = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
 }));
+
+const pulseDot = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+`;
 
 type LivestreamContentProps = {
   livestreamsByDate: Record<string, Livestream[]>;
@@ -147,8 +152,73 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
     );
   }
 
+  const liveStreams = Object.values(livestreamsByDate)
+    .flat()
+    .filter((stream) => stream.status === "live");
+
   return (
     <Box>
+      {liveStreams.length > 0 && (
+        <Box sx={{ mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              mb: 1.5,
+              px: 0.5,
+            }}
+          >
+            <Box
+              sx={(theme) => ({
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: theme.vars.palette.customColors.videoHighlight.live,
+                animation: `${pulseDot} 1.5s ease-in-out infinite`,
+                "@media (prefers-reduced-motion: reduce)": {
+                  animation: "none",
+                },
+              })}
+            />
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              {t("nowLive", "配信中")}
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              {liveStreams.length}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              overflowX: "auto",
+              pb: 1,
+              scrollSnapType: "x mandatory",
+              "&::-webkit-scrollbar": { display: "none" },
+              scrollbarWidth: "none",
+            }}
+          >
+            {liveStreams.map((stream) => (
+              <Box
+                key={stream.id}
+                sx={{
+                  minWidth: { xs: 200, sm: 240 },
+                  maxWidth: { xs: 200, sm: 240 },
+                  flexShrink: 0,
+                  scrollSnapAlign: "start",
+                }}
+              >
+                <LivestreamCard
+                  livestream={stream}
+                  isFreechat={false}
+                  timeZone={timeZone}
+                />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      )}
       {Object.entries(livestreamsByTimeBlock).map(
         ([date, timeBlocks], dateIndex) => (
           <ContentSection key={date}>
@@ -193,6 +263,12 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
                     }}
                   >
                     {timeBlock}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.secondary", ml: 1 }}
+                  >
+                    {livestreams.length}
                   </Typography>
                 </TimeBlockHeader>
 
