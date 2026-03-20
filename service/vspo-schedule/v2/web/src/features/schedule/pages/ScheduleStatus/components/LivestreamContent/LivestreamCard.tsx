@@ -8,13 +8,18 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { keyframes, styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
 import type React from "react";
 import { useMemo } from "react";
 import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
 import type { Livestream } from "@/features/shared/domain/livestream";
 import { formatDate } from "@/lib/utils";
+
+const pulseDot = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+`;
 
 // VideoCard Component
 const StyledCard = styled(Card)(() => ({
@@ -224,11 +229,7 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
               height: 6,
               borderRadius: "50%",
               bgcolor: "white",
-              animation: "pulse 1.5s ease-in-out infinite",
-              "@keyframes pulse": {
-                "0%, 100%": { opacity: 1 },
-                "50%": { opacity: 0.5 },
-              },
+              animation: `${pulseDot} 1.5s ease-in-out infinite`,
               "@media (prefers-reduced-motion: reduce)": {
                 animation: "none",
               },
@@ -271,12 +272,12 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
                   lineHeight: 1,
                 }}
               >
-                あと {countdown}
+                {countdown}
               </Typography>
             </Box>
           ) : null;
         })()}
-      {livestream.viewCount > 0 && (
+      {livestreamStatus === "live" && livestream.viewCount > 0 && (
         <Box
           sx={{
             position: "absolute",
@@ -363,11 +364,7 @@ export const LivestreamCard: React.FC<LivestreamCardProps> = (props) => {
                         bgcolor:
                           theme.vars.palette.customColors.videoHighlight.live,
                         mr: 0.5,
-                        animation: "pulse 1.5s ease-in-out infinite",
-                        "@keyframes pulse": {
-                          "0%, 100%": { opacity: 1 },
-                          "50%": { opacity: 0.5 },
-                        },
+                        animation: `${pulseDot} 1.5s ease-in-out infinite`,
                         "@media (prefers-reduced-motion: reduce)": {
                           animation: "none",
                         },

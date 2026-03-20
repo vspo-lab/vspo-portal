@@ -74,13 +74,13 @@ const StyledCard = styled(Card, {
   borderRadius: "12px",
   backgroundColor: theme.vars.palette.background.paper,
   boxShadow: highlightColor
-    ? `0 0 0 2px color-mix(in srgb, ${highlightColor} 30%, transparent), 0 1px 3px rgba(0,0,0,0.08)`
+    ? `0 0 0 2px ${highlightColor}, 0 1px 3px rgba(0,0,0,0.08)`
     : "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)",
   transition: "transform 150ms ease, box-shadow 150ms ease",
   "&:hover": {
     transform: "translateY(-4px)",
     boxShadow: highlightColor
-      ? `0 0 0 2px color-mix(in srgb, ${highlightColor} 40%, transparent), 0 8px 16px rgba(0,0,0,0.12)`
+      ? `0 0 0 2px ${highlightColor}, 0 8px 16px rgba(0,0,0,0.12)`
       : "0 8px 16px rgba(0,0,0,0.12)",
   },
   "@media (prefers-reduced-motion: reduce)": {
