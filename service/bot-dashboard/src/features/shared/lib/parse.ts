@@ -1,6 +1,6 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
-import type { z } from "zod";
+import { z } from "zod";
 
 /**
  * Zod スキーマで unknown を安全にパースし、Result 型で返す

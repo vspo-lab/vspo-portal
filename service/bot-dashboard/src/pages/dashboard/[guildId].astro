@@ -32,6 +32,7 @@ const [guildsResult, channelsResult] = await Promise.all([
 
 const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
 const channels = channelsResult.err ? [] : channelsResult.val.channels;
+const fetchError = guildsResult.err ?? channelsResult.err ?? null;
 const enabledCount = channels.filter((c) => c.enabled).length;
 
 // Handle action results
@@ -54,6 +55,14 @@ const editingChannel = editChannelId
         {t(locale, "dashboard.channelsEnabled", { enabled: String(enabledCount), total: String(channels.length) })}
       </p>
     </div>
+
+    {
+      fetchError && (
+        <div role="alert" class="rounded-md border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
+          {t(locale, "dashboard.error", { message: fetchError.message })}
+        </div>
+      )
+    }
 
     {
       actionError && (

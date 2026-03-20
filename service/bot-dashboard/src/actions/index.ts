@@ -38,7 +38,7 @@ export const server = {
       if (result.err) {
         throw new ActionError({
           code: "INTERNAL_SERVER_ERROR",
-          message: result.val.message,
+          message: result.err.message,
         });
       }
     },
@@ -64,7 +64,7 @@ export const server = {
       if (result.err) {
         throw new ActionError({
           code: "INTERNAL_SERVER_ERROR",
-          message: result.val.message,
+          message: result.err.message,
         });
       }
     },
