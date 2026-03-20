@@ -1,7 +1,7 @@
 const ja = {
   // Common
-  "app.name": "Spodule Bot",
-  "app.title": "Spodule Bot Dashboard",
+  "app.name": "すぽじゅーる Bot",
+  "app.title": "すぽじゅーる Bot ダッシュボード",
 
   // Login page
   "login.title": "ログイン",
