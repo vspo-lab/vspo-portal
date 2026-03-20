@@ -91,6 +91,18 @@ export const SimplePlaybackControls: React.FC<SimplePlaybackControlsProps> = ({
     [controls, playbackContext],
   );
 
+  const handleMuteAllButOne = useCallback(
+    (streamId: string) => {
+      controls.onMuteAllButOne(streamId);
+      playbackContext.muteAllButOne(streamId);
+    },
+    [controls, playbackContext],
+  );
+
+  const handleSyncToLive = useCallback(() => {
+    playbackContext.syncAllToLive();
+  }, [playbackContext]);
+
   if (!isVisible || streams.length === 0) {
     return null;
   }
@@ -107,6 +119,8 @@ export const SimplePlaybackControls: React.FC<SimplePlaybackControlsProps> = ({
       onToggleStreamPlay={handleToggleStreamPlay}
       onSetStreamVolume={handleSetStreamVolume}
       onToggleStreamMute={handleToggleStreamMute}
+      onMuteAllButOne={handleMuteAllButOne}
+      onSyncToLive={handleSyncToLive}
     />
   );
 };

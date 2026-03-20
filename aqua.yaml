@@ -1,0 +1,22 @@
+registries:
+  - type: standard
+    ref: v4.284.1 # renovate: depName=aquaproj/aqua-registry
+packages:
+  - name: hashicorp/terraform
+    version: v1.14.2
+  - name: terraform-linters/tflint
+    version: v0.54.0
+  - name: reviewdog/reviewdog
+    version: v0.21.0
+  - name: terraform-docs/terraform-docs
+    version: v0.20.0
+  - name: suzuki-shunsuke/github-comment
+    version: v6.3.5
+  - name: int128/ghcp
+    version: v1.15.0
+  - name: aquasecurity/trivy
+    version: v0.67.2
+  - name: evilmartians/lefthook
+    version: v2.1.1
+  - name: twistedpair/google-cloud-sdk
+    version: 534.0.0

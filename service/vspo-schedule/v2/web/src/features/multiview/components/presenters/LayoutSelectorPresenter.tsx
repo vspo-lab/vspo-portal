@@ -1,5 +1,6 @@
 import {
   AutoAwesome,
+  DashboardOutlined,
   GridViewOutlined,
   PictureInPictureOutlined,
   ViewArrayOutlined,
@@ -18,30 +19,25 @@ import {
   styled,
   useMediaQuery,
   useTheme,
-  type Theme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import type { TFunction } from "next-i18next";
 import React from "react";
 import { LayoutType } from "../../hooks/useMultiviewLayout";
-
-const scaledBorderRadius = (theme: Theme, scale: number) =>
-  typeof theme.shape.borderRadius === "number"
-    ? theme.shape.borderRadius * scale
-    : `calc(${theme.shape.borderRadius} * ${scale})`;
+import { scaledBorderRadius } from "../../utils/theme";
 
 const SelectorContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2.5),
   backgroundColor: "white",
+  [theme.getColorSchemeSelector("dark")]: {
+    backgroundColor: theme.vars.palette.customColors.gray,
+  },
   borderRadius: scaledBorderRadius(theme, 1.5),
   boxShadow: theme.shadows[2],
   border: `1px solid ${theme.palette.divider}`,
   [theme.breakpoints.down("md")]: {
     padding: theme.spacing(1.5),
     borderRadius: theme.shape.borderRadius,
-  },
-  [theme.getColorSchemeSelector("dark")]: {
-    backgroundColor: theme.vars.palette.customColors.gray,
   },
 }));
 
@@ -170,6 +166,8 @@ const getLayoutIcon = (layoutType: LayoutType) => {
       return <GridViewOutlined fontSize="small" />;
     case "3x3":
       return <ViewModuleOutlined fontSize="small" />;
+    case "4x3":
+      return <DashboardOutlined fontSize="small" />;
     case "picture-in-picture":
       return <PictureInPictureOutlined fontSize="small" />;
     case "auto":
@@ -204,42 +202,59 @@ const getLayoutPreview = (layoutType: LayoutType) => {
     case "3x3":
       return (
         <LayoutPreview>
-          <Box
-            sx={{
-              position: "absolute",
-              width: "100%",
-              height: "1px",
-              backgroundColor: "divider",
-              top: "33%",
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              width: "100%",
-              height: "1px",
-              backgroundColor: "divider",
-              top: "66%",
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              height: "100%",
-              width: "1px",
-              backgroundColor: "divider",
-              left: "33%",
-            }}
-          />
-          <Box
-            sx={{
-              position: "absolute",
-              height: "100%",
-              width: "1px",
-              backgroundColor: "divider",
-              left: "66%",
-            }}
-          />
+          {["33%", "66%"].map((pos) => (
+            <Box
+              key={`h-${pos}`}
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "1px",
+                backgroundColor: "divider",
+                top: pos,
+              }}
+            />
+          ))}
+          {["33%", "66%"].map((pos) => (
+            <Box
+              key={`v-${pos}`}
+              sx={{
+                position: "absolute",
+                height: "100%",
+                width: "1px",
+                backgroundColor: "divider",
+                left: pos,
+              }}
+            />
+          ))}
+        </LayoutPreview>
+      );
+    case "4x3":
+      return (
+        <LayoutPreview>
+          {["33%", "66%"].map((pos) => (
+            <Box
+              key={`h-${pos}`}
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "1px",
+                backgroundColor: "divider",
+                top: pos,
+              }}
+            />
+          ))}
+          {["25%", "50%", "75%"].map((pos) => (
+            <Box
+              key={`v-${pos}`}
+              sx={{
+                position: "absolute",
+                height: "100%",
+                width: "1px",
+                backgroundColor: "divider",
+                left: pos,
+              }}
+            />
+          ))}
         </LayoutPreview>
       );
     case "picture-in-picture":
@@ -281,6 +296,8 @@ const getLayoutName = (layoutType: LayoutType, t: TFunction) => {
       return t("layout.quad", "Quad");
     case "3x3":
       return t("layout.nine", "Nine");
+    case "4x3":
+      return t("layout.twelve", "Twelve");
     case "picture-in-picture":
       return t("layout.pip", "PiP");
     case "auto":
@@ -301,6 +318,8 @@ const getLayoutShortcut = (layoutType: LayoutType) => {
       return "4";
     case "3x3":
       return "9";
+    case "4x3":
+      return "0";
     case "picture-in-picture":
       return "P";
     case "auto":
@@ -315,7 +334,6 @@ export type LayoutSelectorPresenterProps = {
   availableLayouts: LayoutType[];
   streamCount: number;
   onLayoutChange: (layout: LayoutType) => void;
-  onKeyboardShortcut?: (key: string) => void;
 };
 
 export const LayoutSelectorPresenter: React.FC<
@@ -325,7 +343,6 @@ export const LayoutSelectorPresenter: React.FC<
   availableLayouts,
   streamCount,
   onLayoutChange,
-  onKeyboardShortcut,
 }) => {
   const { t } = useTranslation("multiview");
   const theme = useTheme();
@@ -341,7 +358,7 @@ export const LayoutSelectorPresenter: React.FC<
 
   React.useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
+      if (event.altKey) {
         const key = event.key.toLowerCase();
         const layoutMap: Record<string, LayoutType> = {
           "1": "1x1",
@@ -349,6 +366,7 @@ export const LayoutSelectorPresenter: React.FC<
           "3": "1x2",
           "4": "2x2",
           "9": "3x3",
+          "0": "4x3",
           p: "picture-in-picture",
           a: "auto",
         };
@@ -357,14 +375,13 @@ export const LayoutSelectorPresenter: React.FC<
         if (layoutType && availableLayouts.includes(layoutType)) {
           event.preventDefault();
           onLayoutChange(layoutType);
-          onKeyboardShortcut?.(key);
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [availableLayouts, onLayoutChange, onKeyboardShortcut]);
+  }, [availableLayouts, onLayoutChange]);
 
   return (
     <SelectorContainer elevation={1}>
@@ -398,7 +415,7 @@ export const LayoutSelectorPresenter: React.FC<
                     </Typography>
                     {!isMobile && shortcut && (
                       <Typography variant="caption" color="text.secondary">
-                        {t("layout.shortcut", "ショートカット")}: Ctrl+
+                        {t("layout.shortcut", "ショートカット")}: Alt+
                         {shortcut}
                       </Typography>
                     )}
@@ -436,7 +453,11 @@ export const LayoutSelectorPresenter: React.FC<
                     position: "absolute",
                     top: 4,
                     right: 4,
-                    backgroundColor: "background.paper",
+                    backgroundColor: "white",
+                    [theme.getColorSchemeSelector("dark")]: {
+                      backgroundColor:
+                        theme.vars.palette.customColors.gray,
+                    },
                   }}
                 />
               )}
@@ -451,7 +472,7 @@ export const LayoutSelectorPresenter: React.FC<
           color="text.secondary"
           sx={{ mt: 2, display: "block", textAlign: "center" }}
         >
-          {t("layout.keyboard-hint", "Ctrl + 数字キーでレイアウトを素早く変更")}
+          {t("layout.keyboard-hint", "Alt + 数字キーでレイアウトを素早く変更")}
         </Typography>
       )}
     </SelectorContainer>

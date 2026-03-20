@@ -10,7 +10,7 @@ import {
   styled,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useMemo } from "react";
 import { generateEmbedUrl } from "../../utils/platformUtils";
 
 const PlayerContainer = styled(Box)(({ theme }) => ({
@@ -20,21 +20,20 @@ const PlayerContainer = styled(Box)(({ theme }) => ({
   minHeight: "200px",
   maxWidth: "100%",
   backgroundColor: "white",
-  borderRadius: theme.shape.borderRadius,
+  [theme.getColorSchemeSelector("dark")]: {
+    backgroundColor: theme.vars.palette.customColors.gray,
+  },
+  borderRadius: 0,
   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
-  transition: "transform 0.2s ease, opacity 0.2s ease",
-  border: "2px solid transparent",
-  boxShadow: theme.shadows[1],
-  [theme.breakpoints.down("md")]: {
-    minHeight: "150px",
-  },
-  "&:hover .player-header": {
+  border: "none",
+  boxShadow: "none",
+  "&:hover .player-header, &:focus-within .player-header": {
     opacity: 1,
   },
-  [theme.getColorSchemeSelector("dark")]: {
-    backgroundColor: theme.vars.palette.customColors.darkGray,
+  [theme.breakpoints.down("md")]: {
+    minHeight: "150px",
   },
 }));
 
@@ -44,33 +43,32 @@ const PlayerHeader = styled(Box)(({ theme }) => ({
   left: 0,
   right: 0,
   zIndex: 10,
-  background: "linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)",
-  padding: theme.spacing(1),
+  backgroundColor: "rgba(0,0,0,0.7)",
+  padding: theme.spacing(0.5, 1),
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "flex-start",
+  alignItems: "center",
+  cursor: "grab",
   opacity: 0,
-  transition: "opacity 0.3s ease",
+  transition: "opacity 0.2s ease",
+  "&:active": {
+    cursor: "grabbing",
+  },
+  "@media (prefers-reduced-motion: reduce)": {
+    transition: "none",
+  },
 }));
 
 const DragHandle = styled(IconButton)(({ theme }) => ({
   color: theme.palette.common.white,
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, 0.1)"
-      : "rgba(0, 0, 0, 0.5)",
   cursor: "grab",
-  "&:hover": {
-    backgroundColor:
-      theme.palette.mode === "dark"
-        ? "rgba(255, 255, 255, 0.2)"
-        : "rgba(0, 0, 0, 0.7)",
-  },
   "&:active": {
     cursor: "grabbing",
   },
   marginRight: theme.spacing(0.5),
   padding: theme.spacing(0.5),
+  minWidth: 44,
+  minHeight: 44,
 }));
 
 const HeaderActions = styled(Box)({
@@ -98,6 +96,8 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
         : "rgba(0, 0, 0, 0.7)",
   },
   marginLeft: theme.spacing(1),
+  minWidth: 44,
+  minHeight: 44,
 }));
 
 const VideoFrame = styled("iframe")({
@@ -143,7 +143,7 @@ export type VideoPlayerPresenterProps = {
   muted?: boolean;
 };
 
-export const VideoPlayerPresenter = forwardRef<
+export const VideoPlayerPresenter = React.memo(forwardRef<
   HTMLIFrameElement,
   VideoPlayerPresenterProps
 >(
@@ -161,106 +161,103 @@ export const VideoPlayerPresenter = forwardRef<
   ) => {
     const { t } = useTranslation("multiview");
 
-    const getEmbedUrl = (stream: Livestream): string => {
+    const embedUrl = useMemo((): string => {
       try {
-        // Generate embed URL with API control enabled
+        const parentDomain =
+          typeof window !== "undefined"
+            ? window.location.hostname
+            : "localhost";
+
         if (stream.platform === "youtube") {
           const videoId =
             stream.videoPlayerLink?.match(/embed\/([^?]+)/)?.[1] ||
             stream.link?.match(/watch\?v=([^&]+)/)?.[1] ||
             stream.id;
-          // Enable YouTube iframe API with proper parameters
-          return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${window.location.origin}&autoplay=0&mute=${muted ? 1 : 0}&controls=1&modestbranding=1`;
-        } else if (stream.platform === "twitch") {
-          // Extract channel name from different sources
-          let channelName = "";
-
-          // Try to extract from videoPlayerLink first
-          if (stream.videoPlayerLink) {
-            const match = stream.videoPlayerLink.match(/channel=([^&]+)/);
-            if (match) {
-              channelName = match[1];
-            }
-          }
-
-          // If not found, try link property
-          if (!channelName && stream.link) {
-            const match = stream.link.match(/twitch\.tv\/([^/?]+)/);
-            if (match) {
-              channelName = match[1];
-            }
-          }
-
-          // Fallback to channelId or id
-          if (!channelName) {
-            channelName = stream.channelId || stream.id;
-          }
-
-          // Debug info removed for production
-
-          // Enable Twitch iframe API with proper parent domain
-          const parentDomain = window.location.hostname;
-          return `https://player.twitch.tv/?channel=${channelName}&parent=${parentDomain}&autoplay=false&muted=${muted}&controls=true`;
-        }
-
-        // Fallback to generating embed URL using platform utilities
-        if (stream.platform !== "unknown") {
-          const videoId = stream.channelId || stream.id;
-          return generateEmbedUrl(stream.platform, videoId, {
-            autoplay: false, // Never autoplay
+          return generateEmbedUrl("youtube", videoId, {
+            autoplay: false,
             muted,
-            parentDomain:
-              typeof window !== "undefined"
-                ? window.location.hostname
-                : "localhost",
+            parentDomain,
           });
         }
 
-        // Final fallback to the link property
-        return stream.link || "";
+        if (stream.platform === "twitch") {
+          let channelName = "";
+          if (stream.videoPlayerLink) {
+            const match = stream.videoPlayerLink.match(/channel=([^&]+)/);
+            if (match) channelName = match[1];
+          }
+          if (!channelName && stream.link) {
+            const match = stream.link.match(/twitch\.tv\/([^/?]+)/);
+            if (match) channelName = match[1];
+          }
+          if (!channelName) {
+            channelName = stream.channelId || stream.id;
+          }
+          return generateEmbedUrl("twitch", channelName, {
+            autoplay: false,
+            muted,
+            parentDomain,
+          });
+        }
+
+        if (stream.platform === "twitcasting") {
+          const userId = stream.channelId || stream.id;
+          return generateEmbedUrl("twitcasting", userId, {
+            autoplay: false,
+            muted,
+          });
+        }
+
+        if (stream.platform !== "unknown") {
+          const videoId = stream.channelId || stream.id;
+          return generateEmbedUrl(stream.platform, videoId, {
+            autoplay: false,
+            muted,
+            parentDomain,
+          });
+        }
+
+        return "";
       } catch (error) {
         console.error("Error generating embed URL:", error);
-        return stream.link || "";
+        return "";
       }
-    };
+    }, [stream.id, stream.platform, stream.videoPlayerLink, stream.link, stream.channelId, muted]);
 
-    const truncateTitle = (title: string, maxLength: number = 40) => {
-      return title.length > maxLength
-        ? `${title.substring(0, maxLength)}...`
-        : title;
-    };
 
     return (
-      <PlayerContainer
-        role="button"
-        aria-label={t(
-          "player.dragHandle.ariaLabel",
-          `${stream.channelTitle}の配信をドラッグして移動`,
-        )}
-        tabIndex={0}
-      >
-        <PlayerHeader className="player-header">
+      <PlayerContainer>
+        <PlayerHeader
+          className="player-header drag-handle"
+          aria-label={t(
+            "player.dragHandle.ariaLabel",
+            `${stream.channelTitle}の配信をドラッグして移動`,
+          )}
+        >
           <StreamInfo>
             <Typography
               variant="caption"
+              noWrap
               sx={{
                 fontWeight: 600,
                 display: "block",
-                textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+                fontSize: "0.75rem",
+                lineHeight: 1.3,
               }}
             >
-              {stream.channelTitle}
+              {stream.title}
             </Typography>
             <Typography
               variant="caption"
+              noWrap
               sx={{
-                opacity: 0.9,
                 display: "block",
-                textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
-                fontSize: "0.75rem",
+                fontSize: "0.65rem",
+                opacity: 0.8,
+                lineHeight: 1.2,
               }}
             >
-              {truncateTitle(stream.title)}
+              {stream.channelTitle}
             </Typography>
           </StreamInfo>
           <HeaderActions>
@@ -272,14 +269,19 @@ export const VideoPlayerPresenter = forwardRef<
             >
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
-            <CloseButton size="small" onClick={onRemove}>
+            <CloseButton
+              className="no-drag"
+              size="small"
+              onClick={onRemove}
+              aria-label={t("player.close.ariaLabel", "配信を閉じる")}
+            >
               <CloseIcon fontSize="small" />
             </CloseButton>
           </HeaderActions>
         </PlayerHeader>
 
-        {hasError ? (
-          <ErrorContainer>
+        {hasError || !embedUrl ? (
+          <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
               {t("player.error.title", "読み込みエラー")}
@@ -291,25 +293,29 @@ export const VideoPlayerPresenter = forwardRef<
         ) : (
           <>
             {isLoading && (
-              <LoadingContainer>
+              <LoadingContainer role="status" aria-label={t("player.loading", "配信を読み込み中")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}
             <VideoFrame
               ref={ref}
-              src={getEmbedUrl(stream)}
+              src={embedUrl}
               title={`${stream.channelTitle} - ${stream.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
+              loading="lazy"
               allowFullScreen
               onLoad={onPlayerReady}
               onError={onPlayerError}
-              style={{ display: isLoading ? "none" : "block" }}
+              style={{
+                visibility: isLoading ? "hidden" : "visible",
+              }}
             />
           </>
         )}
       </PlayerContainer>
     );
   },
-);
+));
 
 VideoPlayerPresenter.displayName = "VideoPlayerPresenter";

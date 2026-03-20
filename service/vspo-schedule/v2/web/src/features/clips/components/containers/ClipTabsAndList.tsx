@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { Clip, Pagination } from "../../../shared/domain/clip";
 import { ClipTabsAndListPresenter, type TabOption } from "../presenters";
 
-export type ClipTabsAndListProps = {
+type ClipTabsAndListProps = {
   clips: Clip[];
   pagination: Pagination;
   initialOrderKey: string;

@@ -1,0 +1,3 @@
+# Trivy ignore rules
+# Add CVE IDs or paths to suppress false positives
+# Example: CVE-2023-12345

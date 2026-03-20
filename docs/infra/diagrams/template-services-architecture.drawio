@@ -1,0 +1,58 @@
+<mxfile host="app.diagrams.net" modified="2026-02-28T00:00:00.000Z" agent="Codex GPT-5" version="24.7.17">
+  <diagram id="template-services-architecture" name="Template Services Architecture">
+    <mxGraphModel dx="1220" dy="780" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="10" value="User Browser" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="240" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="20" value="Next.js 16 Web\n(services/web)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="300" y="230" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="30" value="Hono API\n(services/api)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="620" y="230" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="40" value="MySQL/TiDB\n(Drizzle ORM)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="940" y="230" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="50" value="Google OAuth\n(Better Auth)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="380" width="220" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="60" value="GitHub Actions\n+ Terraform (GCP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="70" width="540" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="100" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="10" target="20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="110" value="REST/JSON" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="20" target="30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="120" value="SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="30" target="40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="130" value="OAuth2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="30" target="50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="140" value="Provision / Deploy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="1" source="60" target="30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="150" value="Provision / Deploy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="1" source="60" target="20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

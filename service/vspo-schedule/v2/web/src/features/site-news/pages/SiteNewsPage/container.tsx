@@ -5,7 +5,7 @@ import { DEFAULT_LOCALE } from "@/lib/Const";
 import type { SiteNewsMarkdownItem } from "@/lib/markdown";
 import { SiteNewsPagePresenter } from "./presenter";
 
-export type SiteNewsPageContainerProps = {
+type SiteNewsPageContainerProps = {
   siteNewsItems: SiteNewsMarkdownItem[];
 };
 

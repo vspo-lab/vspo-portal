@@ -5,13 +5,13 @@ import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import type { Event } from "../domain/event";
 import { eventSchema } from "../domain/event";
 
-export type FetchEventsParams = {
+type FetchEventsParams = {
   lang: string;
   startedDateFrom: string;
   startedDateTo: string;
 };
 
-export type EventFetchResult = Result<
+type EventFetchResult = Result<
   {
     events: Event[];
   },

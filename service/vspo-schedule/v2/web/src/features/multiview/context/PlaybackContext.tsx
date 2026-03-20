@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback, useRef } from "react";
+import React, { createContext, useContext, useCallback, useRef, useMemo } from "react";
 
 export interface VideoPlayerRef {
   play: () => void;
@@ -11,6 +11,7 @@ export interface VideoPlayerRef {
     volume: number;
   };
   toggleFullscreen: () => void;
+  syncToLive: () => void;
 }
 
 interface PlaybackContextType {
@@ -24,6 +25,8 @@ interface PlaybackContextType {
   muteAll: () => void;
   unmuteAll: () => void;
   setAllVolume: (volume: number) => void;
+  muteAllButOne: (streamId: string) => void;
+  syncAllToLive: () => void;
 }
 
 const PlaybackContext = createContext<PlaybackContextType | null>(null);
@@ -90,17 +93,50 @@ export const PlaybackProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  const contextValue: PlaybackContextType = {
-    registerPlayer,
-    unregisterPlayer,
-    getPlayer,
-    getAllPlayers,
-    playAll,
-    pauseAll,
-    muteAll,
-    unmuteAll,
-    setAllVolume,
-  };
+  const muteAllButOne = useCallback((streamId: string) => {
+    playersRef.current.forEach((player, id) => {
+      if (id === streamId) {
+        player.unmute();
+      } else {
+        player.mute();
+      }
+    });
+  }, []);
+
+  const syncAllToLive = useCallback(() => {
+    playersRef.current.forEach((player) => {
+      player.syncToLive();
+    });
+  }, []);
+
+  const contextValue: PlaybackContextType = useMemo(
+    () => ({
+      registerPlayer,
+      unregisterPlayer,
+      getPlayer,
+      getAllPlayers,
+      playAll,
+      pauseAll,
+      muteAll,
+      unmuteAll,
+      setAllVolume,
+      muteAllButOne,
+      syncAllToLive,
+    }),
+    [
+      registerPlayer,
+      unregisterPlayer,
+      getPlayer,
+      getAllPlayers,
+      playAll,
+      pauseAll,
+      muteAll,
+      unmuteAll,
+      setAllVolume,
+      muteAllButOne,
+      syncAllToLive,
+    ],
+  );
 
   return (
     <PlaybackContext.Provider value={contextValue}>

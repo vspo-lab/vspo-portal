@@ -2,15 +2,14 @@ name: PR Check
 on:
   pull_request:
     paths:
-      - 'service/server/**'
       - 'service/vspo-schedule/v2/web/**'
+      - 'packages/**'
       - '.github/workflows/pr-check.yaml'
 
 jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      server: ${{ steps.filter.outputs.server }}
       web: ${{ steps.filter.outputs.web }}
     steps:
       - uses: actions/checkout@v6
@@ -18,8 +17,6 @@ jobs:
         id: filter
         with:
           filters: |
-            server:
-              - 'service/server/**'
             web:
               - 'service/vspo-schedule/v2/web/**'
 
@@ -28,10 +25,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
-        
+
       - name: Biome Check
         run: pnpm biome:check
 
@@ -40,24 +37,33 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
-        
+
       - name: TypeScript Check
         run: pnpm tsc
 
-  server-check:
-    needs: changes
-    if: ${{ needs.changes.outputs.server == 'true' }}
+  knip-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
-        
-      - name: Server Check
-        run: pnpm run ci
-        working-directory: service/server
+
+      - name: Knip Check
+        run: pnpm knip
+
+  textlint-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Textlint Check
+        run: pnpm textlint

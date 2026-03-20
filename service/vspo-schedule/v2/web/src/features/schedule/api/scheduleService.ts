@@ -109,4 +109,4 @@ const fetchSchedule = async (
   };
 };
 
-export { fetchSchedule, type Schedule, type FetchScheduleParams };
+export { fetchSchedule };

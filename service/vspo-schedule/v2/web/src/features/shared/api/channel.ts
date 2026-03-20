@@ -3,7 +3,7 @@ import { AppError, type BaseError, type Result, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import type { Channel } from "../domain/channel";
 
-export type FetchVspoMembersResult = Result<
+type FetchVspoMembersResult = Result<
   {
     members: Channel[];
   },

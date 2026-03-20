@@ -5,7 +5,7 @@ import { AppError, Err, Ok, type Result, wrap } from "@vspo-lab/error";
 import { remark } from "remark";
 import html from "remark-html";
 
-export type MarkdownContent = {
+type MarkdownContent = {
   content: string;
   data: Record<string, unknown>;
   html?: string;
@@ -461,31 +461,6 @@ export async function getMarkdownContent(
 }
 
 /**
- * Get markdown content synchronously (only works in Node.js environment)
- */
-export function getMarkdownContentSync(
-  locale: string,
-  category: string,
-  slug: string,
-): MarkdownContent | null {
-  const fileContentsResult = readMarkdownFromFilesystem(locale, category, slug);
-  if (fileContentsResult.err) {
-    if (locale !== "ja") {
-      // Fallback to Japanese if translation doesn't exist
-      const fallbackResult = readMarkdownFromFilesystem("ja", category, slug);
-      if (!fallbackResult.err) {
-        const { data, content } = parseFrontmatter(fallbackResult.val);
-        return { content, data, html: undefined };
-      }
-    }
-    return null;
-  }
-
-  const { data, content } = parseFrontmatter(fileContentsResult.val);
-  return { content, data, html: undefined };
-}
-
-/**
  * Get all markdown slugs for a category (works in both Cloudflare and Node.js environments)
  */
 export async function getAllMarkdownSlugs(
@@ -503,17 +478,6 @@ export async function getAllMarkdownSlugs(
     return [];
   }
   // Use filesystem for development
-  const result = readDirectoryFromFilesystem(locale, category);
-  return result.err ? [] : result.val;
-}
-
-/**
- * Get all markdown slugs for a category (synchronous - only works in Node.js environment)
- */
-export function getAllMarkdownSlugsSync(
-  category: string,
-  locale = "ja",
-): string[] {
   const result = readDirectoryFromFilesystem(locale, category);
   return result.err ? [] : result.val;
 }
@@ -585,41 +549,6 @@ export async function getAllSiteNewsItems(
 
   return results
     .filter((item): item is SiteNewsMarkdownItem => item !== null)
-    .sort((a, b) => b.id - a.id); // Sort by ID descending
-}
-
-/**
- * Get all site news items from markdown (synchronous - only works in Node.js environment)
- */
-export function getAllSiteNewsItemsSync(
-  locale: string,
-): SiteNewsMarkdownItem[] {
-  const slugs = getAllMarkdownSlugsSync("site-news", locale);
-
-  return slugs
-    .flatMap((slug): SiteNewsMarkdownItem[] => {
-      const markdownContent = getMarkdownContentSync(locale, "site-news", slug);
-      if (!markdownContent) return [];
-
-      const id = Number.parseInt(slug, 10);
-      if (Number.isNaN(id)) return [];
-
-      return [
-        {
-          id,
-          title: extractString(markdownContent.data.title),
-          content: markdownContent.content,
-          html: markdownContent.html || null,
-          updated: markdownContent.data.updated
-            ? markdownContent.data.updated instanceof Date
-              ? markdownContent.data.updated.toISOString()
-              : String(markdownContent.data.updated)
-            : "",
-          tags: extractStringArray(markdownContent.data.tags),
-          tweetLink: extractString(markdownContent.data.tweetLink) || null,
-        },
-      ];
-    })
     .sort((a, b) => b.id - a.id); // Sort by ID descending
 }
 

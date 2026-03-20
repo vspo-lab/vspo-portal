@@ -2,7 +2,7 @@ import { Platform } from "@/features/shared/domain/video";
 import { z } from "zod";
 
 // URL validation schema
-export const urlSchema = z.object({
+const urlSchema = z.object({
   url: z.string().url("無効なURLです"),
   platform: z.enum(["youtube", "twitch", "twitcasting", "niconico", "unknown"]),
   videoId: z.string(),
@@ -10,7 +10,7 @@ export const urlSchema = z.object({
   type: z.enum(["live", "vod", "unknown"]),
 });
 
-export type ParsedUrl = z.infer<typeof urlSchema>;
+type ParsedUrl = z.infer<typeof urlSchema>;
 
 // Platform-specific URL patterns
 const YOUTUBE_PATTERNS = {
@@ -39,16 +39,14 @@ const TWITCH_PATTERNS = {
     /^https?:\/\/player\.twitch\.tv\/\?(?:.*&)?(?:channel|video)=([a-zA-Z0-9_-]+)(?:&.*)?$/,
 };
 
-// Platform detection
-export const detectPlatform = (url: string): Platform => {
-  // YouTube detection
+// Platform detection (internal)
+const detectPlatform = (url: string): Platform => {
   for (const pattern of Object.values(YOUTUBE_PATTERNS)) {
     if (pattern.test(url)) {
       return "youtube";
     }
   }
 
-  // Twitch detection
   for (const pattern of Object.values(TWITCH_PATTERNS)) {
     if (pattern.test(url)) {
       return "twitch";
@@ -58,8 +56,8 @@ export const detectPlatform = (url: string): Platform => {
   return "unknown";
 };
 
-// Extract video ID from YouTube URL
-export const extractYouTubeVideoId = (url: string): string | null => {
+// Extract video ID from YouTube URL (internal)
+const extractYouTubeVideoId = (url: string): string | null => {
   for (const [name, pattern] of Object.entries(YOUTUBE_PATTERNS)) {
     const match = url.match(pattern);
     if (match) {
@@ -73,33 +71,29 @@ export const extractYouTubeVideoId = (url: string): string | null => {
   return null;
 };
 
-// Extract channel/video ID from Twitch URL
-export const extractTwitchId = (
+// Extract channel/video ID from Twitch URL (internal)
+const extractTwitchId = (
   url: string,
 ): {
   type: "channel" | "video" | "clip";
   id: string;
   clipId?: string;
 } | null => {
-  // Check for video URL
   const videoMatch = url.match(TWITCH_PATTERNS.video);
   if (videoMatch) {
     return { type: "video", id: videoMatch[1] };
   }
 
-  // Check for clip URL
   const clipMatch = url.match(TWITCH_PATTERNS.clip);
   if (clipMatch) {
     return { type: "clip", id: clipMatch[1], clipId: clipMatch[2] };
   }
 
-  // Check for channel URL
   const channelMatch = url.match(TWITCH_PATTERNS.channel);
   if (channelMatch) {
     return { type: "channel", id: channelMatch[1] };
   }
 
-  // Check for embed URL
   const embedMatch = url.match(TWITCH_PATTERNS.embed);
   if (embedMatch) {
     return { type: "channel", id: embedMatch[1] };
@@ -108,14 +102,13 @@ export const extractTwitchId = (
   return null;
 };
 
-// Determine if URL is for live stream or VOD
-export const determineStreamType = (
+// Determine if URL is for live stream or VOD (internal)
+const determineStreamType = (
   url: string,
   platform: Platform,
 ): "live" | "vod" | "unknown" => {
   switch (platform) {
     case "youtube":
-      // YouTube live URLs
       if (
         YOUTUBE_PATTERNS.live.test(url) ||
         YOUTUBE_PATTERNS.channel.test(url) ||
@@ -124,14 +117,12 @@ export const determineStreamType = (
       ) {
         return "live";
       }
-      // YouTube Shorts are typically VODs
       if (YOUTUBE_PATTERNS.shorts.test(url)) {
         return "vod";
       }
-      // Standard YouTube videos could be either - we'd need to check the API
       return "unknown";
 
-    case "twitch":
+    case "twitch": {
       const twitchId = extractTwitchId(url);
       if (twitchId) {
         if (twitchId.type === "channel") {
@@ -142,16 +133,21 @@ export const determineStreamType = (
         }
       }
       return "unknown";
+    }
 
     default:
       return "unknown";
   }
 };
 
-// Main URL parsing function
+/**
+ * Parse a URL and extract platform, video ID, validity, and stream type.
+ *
+ * @precondition url must be a non-empty string
+ * @postcondition Returns a ParsedUrl with platform detection and video ID extraction
+ */
 export const parseUrl = (url: string): ParsedUrl => {
   try {
-    // Basic URL validation
     new URL(url);
   } catch {
     return {
@@ -168,21 +164,23 @@ export const parseUrl = (url: string): ParsedUrl => {
   let isValid = false;
 
   switch (platform) {
-    case "youtube":
+    case "youtube": {
       const youtubeId = extractYouTubeVideoId(url);
       if (youtubeId) {
         videoId = youtubeId;
         isValid = true;
       }
       break;
+    }
 
-    case "twitch":
+    case "twitch": {
       const twitchId = extractTwitchId(url);
       if (twitchId) {
         videoId = twitchId.clipId || twitchId.id;
         isValid = true;
       }
       break;
+    }
 
     default:
       isValid = false;
@@ -199,100 +197,3 @@ export const parseUrl = (url: string): ParsedUrl => {
     type,
   };
 };
-
-// Generate embed URL for different platforms
-export const generateEmbedUrl = (parsedUrl: ParsedUrl): string | null => {
-  if (!parsedUrl.isValid) {
-    return null;
-  }
-
-  const domain =
-    typeof window !== "undefined" ? window.location.hostname : "localhost";
-
-  switch (parsedUrl.platform) {
-    case "youtube":
-      return `https://www.youtube.com/embed/${parsedUrl.videoId}?autoplay=0&origin=${encodeURIComponent(`https://${domain}`)}`;
-
-    case "twitch":
-      const twitchId = extractTwitchId(parsedUrl.url);
-      if (twitchId?.type === "channel") {
-        return `https://player.twitch.tv/?channel=${parsedUrl.videoId}&parent=${domain}&autoplay=false`;
-      } else if (twitchId?.type === "video") {
-        return `https://player.twitch.tv/?video=${parsedUrl.videoId}&parent=${domain}&autoplay=false`;
-      }
-      return null;
-
-    default:
-      return null;
-  }
-};
-
-// Generate chat URL for different platforms
-export const generateChatUrl = (
-  parsedUrl: ParsedUrl,
-  isDarkMode = false,
-): string | null => {
-  if (!parsedUrl.isValid) {
-    return null;
-  }
-
-  const domain =
-    typeof window !== "undefined" ? window.location.hostname : "localhost";
-
-  switch (parsedUrl.platform) {
-    case "youtube":
-      const themeParam = isDarkMode ? "&dark_theme=1" : "";
-      return `https://www.youtube.com/live_chat?v=${parsedUrl.videoId}&embed_domain=${domain}${themeParam}`;
-
-    case "twitch":
-      const twitchId = extractTwitchId(parsedUrl.url);
-      if (twitchId?.type === "channel") {
-        const darkParam = isDarkMode ? "&darkpopout" : "";
-        return `https://www.twitch.tv/embed/${parsedUrl.videoId}/chat?parent=${domain}${darkParam}`;
-      }
-      return null; // VODs don't have live chat
-
-    default:
-      return null;
-  }
-};
-
-// Validation helpers
-export const isValidUrl = (url: string): boolean => {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-export const isSupportedPlatform = (url: string): boolean => {
-  const platform = detectPlatform(url);
-  return platform !== "unknown";
-};
-
-// URL examples for help text
-export const URL_EXAMPLES = {
-  youtube: [
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "https://youtu.be/dQw4w9WgXcQ",
-    "https://www.youtube.com/live/dQw4w9WgXcQ",
-    "https://www.youtube.com/@channel/live",
-  ],
-  twitch: [
-    "https://www.twitch.tv/username",
-    "https://www.twitch.tv/videos/123456789",
-    "https://www.twitch.tv/username/clip/ClipName",
-  ],
-};
-
-// Error messages
-export const ERROR_MESSAGES = {
-  INVALID_URL: "無効なURLです。正しいURLを入力してください。",
-  UNSUPPORTED_PLATFORM:
-    "サポートされていないプラットフォームです。YouTube、TwitchのURLを入力してください。",
-  EXTRACT_FAILED: "動画IDの抽出に失敗しました。URLを確認してください。",
-  NETWORK_ERROR: "ネットワークエラーが発生しました。接続を確認してください。",
-  METADATA_FAILED: "動画情報の取得に失敗しました。",
-} as const;
