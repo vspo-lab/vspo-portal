@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback, useRef, useMemo } from "react";
 
-export interface VideoPlayerRef {
+export type VideoPlayerRef = {
   play: () => void;
   pause: () => void;
   setVolume: (volume: number) => void;
@@ -12,9 +12,9 @@ export interface VideoPlayerRef {
   };
   toggleFullscreen: () => void;
   syncToLive: () => void;
-}
+};
 
-interface PlaybackContextType {
+type PlaybackContextType = {
   registerPlayer: (streamId: string, player: VideoPlayerRef) => void;
   unregisterPlayer: (streamId: string) => void;
   getPlayer: (streamId: string) => VideoPlayerRef | undefined;
@@ -27,7 +27,7 @@ interface PlaybackContextType {
   setAllVolume: (volume: number) => void;
   muteAllButOne: (streamId: string) => void;
   syncAllToLive: () => void;
-}
+};
 
 const PlaybackContext = createContext<PlaybackContextType | null>(null);
 

@@ -108,24 +108,12 @@ class AppLogger implements CustomLogger {
     return loggerStorage.getStore()?.additionalFields;
   }
 
-  static debug(message: string, fields?: Fields): void {
-    AppLogger.getInstance().debug(message, fields);
-  }
-
-  static info(message: string, fields?: Fields): void {
-    AppLogger.getInstance().info(message, fields);
-  }
-
-  static warn(message: string, fields?: Fields): void {
-    AppLogger.getInstance().warn(message, fields);
-  }
-
-  static error(message: string, fields?: Fields): void {
-    AppLogger.getInstance().error(message, fields);
-  }
-
   private shouldLog(level: LogLevel): boolean {
     return level >= this.minLevel;
+  }
+
+  static debug(message: string, fields?: Fields): void {
+    AppLogger.getInstance().debug(message, fields);
   }
 
   debug(message: string, fields?: Fields): void {
@@ -140,6 +128,10 @@ class AppLogger implements CustomLogger {
     });
   }
 
+  static info(message: string, fields?: Fields): void {
+    AppLogger.getInstance().info(message, fields);
+  }
+
   info(message: string, fields?: Fields): void {
     if (!this.shouldLog(LogLevel.INFO)) return;
 
@@ -152,6 +144,10 @@ class AppLogger implements CustomLogger {
     });
   }
 
+  static warn(message: string, fields?: Fields): void {
+    AppLogger.getInstance().warn(message, fields);
+  }
+
   warn(message: string, fields?: Fields): void {
     if (!this.shouldLog(LogLevel.WARN)) return;
 
@@ -162,6 +158,10 @@ class AppLogger implements CustomLogger {
       ...(context.additionalFields || {}),
       ...fields,
     });
+  }
+
+  static error(message: string, fields?: Fields): void {
+    AppLogger.getInstance().error(message, fields);
   }
 
   error(message: string, fields?: Fields): void {

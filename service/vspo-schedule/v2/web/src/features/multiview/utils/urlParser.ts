@@ -147,6 +147,7 @@ const determineStreamType = (
  * @postcondition Returns a ParsedUrl with platform detection and video ID extraction
  */
 export const parseUrl = (url: string): ParsedUrl => {
+  // try-catch: URL constructor throws on invalid input — used as a validation guard
   try {
     new URL(url);
   } catch {

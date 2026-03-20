@@ -1,16 +1,34 @@
 import type { ListStreams200 } from "../../gen/openapi";
 
-// Generate a random timestamp between 1 day ago and 14 days ago
-const generateRandomStartDate = () => {
-  const now = new Date();
-  const hoursOffset = Math.floor(Math.random() * 24); // Random hours
-  const minutesOffset = Math.floor(Math.random() * 60); // Random minutes
+/**
+ * Returns a deterministic mock start date for the given index.
+ * Uses fixed ISO strings to ensure reproducible mock data.
+ */
+const MOCK_START_DATES = [
+  "2025-05-10T08:30:00Z",
+  "2025-05-10T12:15:00Z",
+  "2025-05-10T16:00:00Z",
+  "2025-05-10T20:45:00Z",
+  "2025-05-09T09:00:00Z",
+  "2025-05-09T13:30:00Z",
+  "2025-05-09T17:15:00Z",
+  "2025-05-09T21:00:00Z",
+  "2025-05-08T10:00:00Z",
+  "2025-05-08T14:45:00Z",
+  "2025-05-08T18:30:00Z",
+  "2025-05-08T22:15:00Z",
+  "2025-05-07T07:00:00Z",
+  "2025-05-07T11:30:00Z",
+  "2025-05-07T15:00:00Z",
+  "2025-05-07T19:45:00Z",
+  "2025-05-06T08:00:00Z",
+] as const;
 
-  const randomDate = new Date(now);
-  randomDate.setHours(hoursOffset);
-  randomDate.setMinutes(minutesOffset);
-
-  return randomDate.toISOString();
+let mockDateIndex = 0;
+const generateMockStartDate = (): string => {
+  const date = MOCK_START_DATES[mockDateIndex % MOCK_START_DATES.length];
+  mockDateIndex++;
+  return date;
 };
 
 export const streams = {
@@ -46,10 +64,8 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/EnfCi40xU1Q",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=EnfCi40xU1Q",
       status: "live",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
-      statusColor: 16711680,
-      formattedStartedAt: "2025年5月11日 20:04:31",
     },
     {
       id: "d6555b2e-8dec-4757-b002-0ef322ed8362",
@@ -86,11 +102,8 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/jybZe76pH98",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=jybZe76pH98",
       status: "live",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
-
-      statusColor: 16711680,
-      formattedStartedAt: "2025年5月11日 18:33:37",
     },
     {
       id: "3802e8e6-6600-42d4-9a3e-d639f32f0bf6",
@@ -114,11 +127,8 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/gBCwltTsjhk",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=gBCwltTsjhk",
       status: "live",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
-
-      statusColor: 16711680,
-      formattedStartedAt: "2025年5月11日 15:55:52",
     },
     {
       id: "c2f7e7ae-b1b7-43bb-a795-60a20fcc33ab",
@@ -141,12 +151,8 @@ export const streams = {
       videoPlayerLink: "https://player.twitch.tv/?channel=akarindao",
       chatPlayerLink: "https://www.twitch.tv/embed/akarindao/chat",
       status: "live",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
-      platformIconURL:
-        "https://raw.githubusercontent.com/sugar-cat7/vspo-portal/main/service/server/assets/icon/twitch.png",
-      statusColor: 16711680,
-      formattedStartedAt: "2025年5月11日 15:55:47",
     },
     {
       id: "4177f136-fb77-47d4-85fc-8eda49477f65",
@@ -200,11 +206,8 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/ciXC4LEcK7Y",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=ciXC4LEcK7Y",
       status: "upcoming",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
-
-      statusColor: 65280,
-      formattedStartedAt: "2025年5月12日 12:30:00",
     },
     {
       id: "42b3ca6a-dfb4-49e7-b809-27fc34b1f6db",
@@ -251,10 +254,8 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/02DOZpCCDCo",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=02DOZpCCDCo",
       status: "upcoming",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
-      statusColor: 65280,
-      formattedStartedAt: "2025年5月12日 09:00:00",
     },
     {
       id: "53be4b8f-63f4-4418-b53e-9658e1bf142b",
@@ -304,7 +305,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/dIWCMl-2vtk",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=dIWCMl-2vtk",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -328,7 +329,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/hFnhp8f28pw",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=hFnhp8f28pw",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -352,7 +353,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/OfBhTpOCXe4",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=OfBhTpOCXe4",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -376,7 +377,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/KkOUGHyxcK4",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=KkOUGHyxcK4",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -413,7 +414,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/O893Usc83rU",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=O893Usc83rU",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -447,7 +448,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/XQ7YwOnkfpk",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=XQ7YwOnkfpk",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -488,7 +489,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/x-9zJqAJH24",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=x-9zJqAJH24",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -538,7 +539,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/DxJY3rUifd4",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=DxJY3rUifd4",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -570,7 +571,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/ZICfDcsYV1k",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=ZICfDcsYV1k",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
     {
@@ -593,7 +594,7 @@ export const streams = {
       videoPlayerLink: "https://www.youtube.com/embed/LrqpvCo6G_0",
       chatPlayerLink: "https://www.youtube.com/live_chat?v=LrqpvCo6G_0",
       status: "ended",
-      startedAt: generateRandomStartDate(),
+      startedAt: generateMockStartDate(),
       endedAt: null,
     },
   ],
@@ -605,4 +606,4 @@ export const streams = {
     totalCount: 30,
     hasNext: true,
   },
-} as ListStreams200;
+} satisfies ListStreams200;

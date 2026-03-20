@@ -45,7 +45,7 @@ const SupportedPlatforms = styled(Box)(({ theme }) => ({
   },
 }));
 
-export interface UrlInputPresenterProps {
+export type UrlInputPresenterProps = {
   url: string;
   isLoading: boolean;
   error: string | null;
@@ -54,7 +54,7 @@ export interface UrlInputPresenterProps {
   onUrlChange: (url: string) => void;
   onSubmit: () => void;
   onClear: () => void;
-}
+};
 
 export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
   url,

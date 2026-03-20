@@ -9,7 +9,16 @@ import {
   getInitializedI18nInstance,
   getSetCookieTimeZone,
 } from "@/lib/utils";
-import type { FavoriteSearchCondition } from "../../types/favorite";
+import {
+  type FavoriteSearchCondition,
+  favoriteSearchConditionSchema,
+} from "../../types/favorite";
+
+const VALID_STATUSES = ["live", "upcoming", "archive", "all"] as const;
+type LiveStatus = (typeof VALID_STATUSES)[number];
+
+const isValidStatus = (s: string): s is LiveStatus =>
+  (VALID_STATUSES as readonly string[]).includes(s);
 
 export type ScheduleStatusPageProps = {
   livestreams: Livestream[];
@@ -35,7 +44,7 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
     getSetCookieTimeZone(res) ??
     req.cookies[TIME_ZONE_COOKIE] ??
     DEFAULT_TIME_ZONE;
-  const liveStatus = (status as string) || "all";
+  const liveStatus = typeof status === "string" ? status : "all";
 
   // Extract additional parameters from query
   const {
@@ -49,8 +58,14 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
   let favoriteCondition: FavoriteSearchCondition | null = null;
   const favoriteCookie = req.cookies["favorite-search-condition"];
   if (favoriteCookie) {
+    // try-catch retained: wraps sync JSON.parse which cannot use async wrap()
     try {
-      favoriteCondition = JSON.parse(favoriteCookie) as FavoriteSearchCondition;
+      const parsed = favoriteSearchConditionSchema.safeParse(
+        JSON.parse(favoriteCookie),
+      );
+      if (parsed.success) {
+        favoriteCondition = parsed.data;
+      }
     } catch {
       // Invalid JSON, ignore
     }
@@ -89,15 +104,15 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
     startedDate,
     limit,
     locale: locale ?? "ja",
-    status: (status as "live" | "upcoming" | "archive" | "all") || "all",
-    order: order as "asc" | "desc",
+    status: isValidStatus(liveStatus) ? liveStatus : "all",
+    order,
     timeZone,
     memberType,
     platform,
     req,
   });
 
-  const lastUpdateTimestamp = Date.now();
+  const lastUpdateTimestamp = getCurrentUTCDate().getTime();
 
   // Extract data from schedule
   const events = schedule.events;

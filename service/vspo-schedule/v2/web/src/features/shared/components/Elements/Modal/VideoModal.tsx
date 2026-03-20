@@ -23,7 +23,7 @@ import React, { useEffect } from "react";
 import type { Clip } from "@/features/shared/domain/clip";
 import type { Freechat } from "@/features/shared/domain/freechat";
 import type { Livestream } from "@/features/shared/domain/livestream";
-import type { Platform, Video } from "@/features/shared/domain/video";
+import type { Video } from "@/features/shared/domain/video";
 import { convertVideoPlayerLink } from "@/features/shared/utils";
 import { useTimeZoneContext, useVideoModalContext } from "@/hooks";
 import { formatDate } from "@/lib/utils";
@@ -246,9 +246,7 @@ const LivestreamInfoTabsPresenter: React.FC<
                 <Button
                   variant="outlined"
                   color="primary"
-                  startIcon={
-                    <PlatformIcon platform={video.platform as Platform} />
-                  }
+                  startIcon={<PlatformIcon platform={video.platform} />}
                   href={video.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -290,7 +288,6 @@ const LivestreamInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -299,7 +296,6 @@ const LivestreamInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -416,9 +412,7 @@ const FreechatInfoTabsPresenter: React.FC<
                 <Button
                   variant="outlined"
                   color="primary"
-                  startIcon={
-                    <PlatformIcon platform={video.platform as Platform} />
-                  }
+                  startIcon={<PlatformIcon platform={video.platform} />}
                   href={video.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -460,7 +454,6 @@ const FreechatInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -469,7 +462,6 @@ const FreechatInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -552,9 +544,7 @@ const ClipInfoTabsPresenter: React.FC<
                 <Button
                   variant="outlined"
                   color="primary"
-                  startIcon={
-                    <PlatformIcon platform={video.platform as Platform} />
-                  }
+                  startIcon={<PlatformIcon platform={video.platform} />}
                   href={video.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -596,7 +586,6 @@ const ClipInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -605,7 +594,6 @@ const ClipInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -628,6 +616,7 @@ const InfoTabsContainer: React.FC<{ video: Video }> = ({ video }) => {
   };
 
   // Render the appropriate presenter based on video type
+  // Assertions needed: Video.type is z.string() (not a discriminated union), so TS cannot narrow automatically
   if (video.type === "livestream") {
     return (
       <LivestreamInfoTabsPresenter

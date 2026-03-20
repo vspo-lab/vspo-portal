@@ -1,4 +1,5 @@
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
+import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import React, { useMemo } from "react";
@@ -19,7 +20,7 @@ export const TimeZoneSelector = () => {
     }, {});
   }, []);
   const timeZones = Intl.supportedValuesOf("timeZone");
-  const now = Date.now();
+  const now = getCurrentUTCDate().getTime();
   const formattedTimeZoneOffsets = timeZones.reduce<Record<string, string>>(
     (acc, tz) => {
       acc[tz] = formatDate(now, "OOOO", { timeZone: tz });
@@ -95,7 +96,6 @@ const normalizeTimeZone = (s: string) => s.toLowerCase();
 const getTimeZoneLabel = (timeZone: string) => (
   <>
     {timeZone.split("/").map((part, i) => (
-      // biome-ignore lint/suspicious/noArrayIndexKey: Order is stable for timezone parts
       <React.Fragment key={i}>
         {i !== 0 && (
           <>

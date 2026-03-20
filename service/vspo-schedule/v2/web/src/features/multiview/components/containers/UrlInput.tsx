@@ -1,3 +1,5 @@
+import { getCurrentUTCString } from "@vspo-lab/dayjs";
+import { AppError, wrap } from "@vspo-lab/error";
 import { Livestream } from "@/features/shared/domain";
 import { useTranslation } from "next-i18next";
 import React, { useState, useCallback } from "react";
@@ -22,24 +24,25 @@ const fetchOEmbedMetadata = async (
   const endpoint = oembedEndpoints[platform];
   if (!endpoint) return null;
 
-  try {
-    const response = await fetch(endpoint, { signal: AbortSignal.timeout(5000) });
-    if (!response.ok) return null;
-    const data: Record<string, unknown> = await response.json();
-    return {
-      title: typeof data.title === "string" ? data.title : "",
-      authorName: typeof data.author_name === "string" ? data.author_name : "",
-    };
-  } catch {
-    return null;
-  }
+  const result = await wrap(
+    fetch(endpoint, { signal: AbortSignal.timeout(5000) }).then(async (response) => {
+      if (!response.ok) return null;
+      const data: Record<string, unknown> = await response.json();
+      return {
+        title: typeof data.title === "string" ? data.title : "",
+        authorName: typeof data.author_name === "string" ? data.author_name : "",
+      };
+    }),
+    (err) => new AppError({ message: `oEmbed fetch failed: ${err.message}`, code: "INTERNAL_SERVER_ERROR", cause: err }),
+  );
+  return result.val ?? null;
 };
 
-export interface UrlInputProps {
+export type UrlInputProps = {
   selectedStreams: Livestream[];
   maxStreams: number;
   onStreamAdd: (stream: Livestream) => void;
-}
+};
 
 export const UrlInput: React.FC<UrlInputProps> = ({
   selectedStreams,
@@ -53,8 +56,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
   const parseStreamFromUrl = useCallback(
     async (url: string): Promise<Livestream | null> => {
-      // This is a simplified implementation
-      // In a real app, you'd parse different platform URLs and fetch metadata
+      // try-catch: URL constructor and oEmbed fetches can throw; must not crash the React tree
       try {
         const urlObj = new URL(url);
 
@@ -88,7 +90,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               channelThumbnailUrl: "",
               viewCount: 0,
               tags: [],
-              scheduledStartTime: new Date().toISOString(),
+              scheduledStartTime: getCurrentUTCString(),
               scheduledEndTime: null,
             };
           }
@@ -116,7 +118,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               channelThumbnailUrl: "",
               viewCount: 0,
               tags: [],
-              scheduledStartTime: new Date().toISOString(),
+              scheduledStartTime: getCurrentUTCString(),
               scheduledEndTime: null,
             };
           }
@@ -142,7 +144,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
               channelThumbnailUrl: "",
               viewCount: 0,
               tags: [],
-              scheduledStartTime: new Date().toISOString(),
+              scheduledStartTime: getCurrentUTCString(),
               scheduledEndTime: null,
             };
           }
@@ -177,6 +179,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
     setIsLoading(true);
     setError(null);
 
+    // try-catch: React event handler — errors must be caught to show UI feedback instead of crashing
     try {
       const stream = await parseStreamFromUrl(url.trim());
 

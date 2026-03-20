@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { LoadedConfig, loadConfigFromUrl } from "../utils/configLoader";
 
-export interface UseConfigurationLoaderOptions {
+export type UseConfigurationLoaderOptions = {
   onConfigLoaded?: (config: LoadedConfig) => void;
   onError?: () => void;
-}
+};
 
-export interface UseConfigurationLoaderReturn {
+export type UseConfigurationLoaderReturn = {
   state: {
     isLoading: boolean;
     loadedConfig: LoadedConfig | null;
@@ -14,7 +14,7 @@ export interface UseConfigurationLoaderReturn {
   isReady: boolean;
   hasError: boolean;
   needsUserAction: boolean;
-}
+};
 
 export const useConfigurationLoader = (
   options: UseConfigurationLoaderOptions = {},

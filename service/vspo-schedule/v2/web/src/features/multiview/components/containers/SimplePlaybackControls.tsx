@@ -4,10 +4,10 @@ import { usePlaybackContext } from "../../context/PlaybackContext";
 import { usePlaybackControls } from "../../hooks/usePlaybackControls";
 import { SimplePlaybackControlsPresenter } from "../presenters";
 
-export interface SimplePlaybackControlsProps {
+export type SimplePlaybackControlsProps = {
   streams: Livestream[];
   isVisible?: boolean;
-}
+};
 
 export const SimplePlaybackControls: React.FC<SimplePlaybackControlsProps> = ({
   streams,

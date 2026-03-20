@@ -42,7 +42,7 @@ const GridContainer = styled(Paper)(({ theme }) => ({
   border: "none",
   position: "sticky",
   // Align below the fixed AppBar — use toolbar mixin height
-  top: (theme.mixins.toolbar.minHeight as number) ?? 56,
+  top: (theme.mixins.toolbar.minHeight as number) ?? 56, // type-safe: MUI toolbar.minHeight is always number at runtime
   zIndex: 1,
   width: "100%",
   height: "auto",
