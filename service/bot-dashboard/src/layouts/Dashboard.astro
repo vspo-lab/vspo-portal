@@ -21,9 +21,9 @@ const avatarUrl = DiscordUser.avatarUrl(user);
 <Base title={title}>
   <div class="flex min-h-screen flex-col">
     <header
-      class="flex h-14 items-center justify-between border-b border-border px-6"
+      class="flex h-14 items-center justify-between bg-vspo-purple px-6 text-white"
     >
-      <a href="/dashboard" class="text-lg font-bold">{t(locale, "app.name")}</a>
+      <a href="/dashboard" class="font-heading text-lg font-bold">{t(locale, "app.name")}</a>
       <UserMenu
         displayName={user.displayName}
         avatarUrl={avatarUrl}

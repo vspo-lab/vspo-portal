@@ -12,7 +12,7 @@ const { channels, guildId } = Astro.props;
 const { locale } = Astro.locals;
 ---
 
-<div class="overflow-x-auto rounded-lg border border-border">
+<div class="overflow-x-auto rounded-[--radius] border border-border">
   <table class="w-full text-sm">
     <thead>
       <tr class="border-b border-border bg-muted/50">
@@ -38,7 +38,7 @@ const { locale } = Astro.locals;
                 <input type="hidden" name="enable" value={ch.enabled ? "false" : "true"} />
                 <button
                   type="submit"
-                  class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${ch.enabled ? "bg-discord" : "bg-muted"}`}
+                  class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-[--duration-fast] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
                   aria-label={t(locale, ch.enabled ? "channel.disable" : "channel.enable")}
                 >
                   <span

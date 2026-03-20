@@ -1,25 +1,58 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #09090b;
-  --color-foreground: #fafafa;
-  --color-card: #09090b;
-  --color-card-foreground: #fafafa;
-  --color-popover: #09090b;
-  --color-popover-foreground: #fafafa;
-  --color-primary: #fafafa;
-  --color-primary-foreground: #18181b;
-  --color-secondary: #27272a;
-  --color-secondary-foreground: #fafafa;
-  --color-muted: #27272a;
-  --color-muted-foreground: #a1a1aa;
-  --color-accent: #27272a;
-  --color-accent-foreground: #fafafa;
-  --color-destructive: #7f1d1d;
-  --color-destructive-foreground: #fafafa;
-  --color-border: #27272a;
-  --color-input: #27272a;
-  --color-ring: #d4d4d8;
+  /* === Brand Colors (from vspo-schedule) === */
+  --color-vspo-purple: #7266cf;
+  --color-vspo-purple-soft: #8b81d9;
+  --color-dark-blue: #2d4870;
   --color-discord: #5865f2;
-  --radius: 0.5rem;
+
+  /* === Semantic Colors (dark mode, matching MUI dark defaults + vspo-schedule) === */
+  --color-background: #121212;
+  --color-foreground: rgba(255, 255, 255, 0.87);
+  --color-card: #1e1e1e;
+  --color-card-foreground: rgba(255, 255, 255, 0.87);
+  --color-popover: #1e1e1e;
+  --color-popover-foreground: rgba(255, 255, 255, 0.87);
+  --color-primary: #7266cf;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #2d2d2d;
+  --color-secondary-foreground: rgba(255, 255, 255, 0.87);
+  --color-muted: #2d2d2d;
+  --color-muted-foreground: rgba(255, 255, 255, 0.6);
+  --color-accent: #2d2d2d;
+  --color-accent-foreground: rgba(255, 255, 255, 0.87);
+  --color-destructive: #e53935;
+  --color-destructive-foreground: #ffffff;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-input: rgba(255, 255, 255, 0.12);
+  --color-ring: #7266cf;
+
+  /* === Status Colors (from vspo-schedule dark mode) === */
+  --color-success: #66bb6a;
+  --color-warning: #ffa726;
+  --color-info: #42a5f5;
+  --color-live: #ff5252;
+
+  /* === Border Radius (from vspo-schedule component values) === */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+
+  /* === Shadows (from vspo-schedule VideoCard) === */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-action: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(114, 102, 207, 0.4);
+
+  /* === Typography (from vspo-schedule Theme.tsx) === */
+  --font-sans: "Noto Sans JP", "Hiragino Kaku Gothic Pro", system-ui, sans-serif;
+  --font-heading: "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
+
+  /* === Motion (from vspo-schedule) === */
+  --duration-fast: 150ms;
+  --duration-md: 300ms;
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
 }

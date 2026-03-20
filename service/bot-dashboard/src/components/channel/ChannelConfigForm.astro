@@ -28,7 +28,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
   id="config-modal"
 >
   <div
-    class="mx-4 w-full max-w-lg rounded-lg border border-border bg-card p-6"
+    class="mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card p-6 shadow-action"
   >
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
@@ -67,7 +67,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
                   name="memberType"
                   value={opt.value}
                   checked={channel.memberType === opt.value}
-                  class="accent-discord"
+                  class="accent-vspo-purple"
                 />
                 <span class="text-sm">{opt.label}</span>
               </label>
@@ -88,7 +88,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
                     name="customMemberIds"
                     value={creator.id}
                     checked={channel.customMembers?.includes(creator.id)}
-                    class="accent-discord"
+                    class="accent-vspo-purple"
                   />
                   {creator.thumbnailUrl && (
                     <img
