@@ -103,8 +103,8 @@ Available codes: `BAD_REQUEST`, `FORBIDDEN`, `INTERNAL_SERVER_ERROR`, `USAGE_EXC
 
 ## Planned: Domain Error Codes
 
-> **Status: Not yet implemented.** The files referenced below (`domain-code.ts`,
-> `domain-context.ts`, `error-messages.ts`) do not exist yet. This section describes
-> a planned extension for domain-specific error codes (`E1xxx`-`E4xxx`) with
+> **Status: Not yet implemented.** The files referenced below — `domain-code.ts`,
+> `domain-context.ts`, `error-messages.ts` — do not exist yet. This section describes
+> a planned extension for domain-specific error codes, `E1xxx`-`E4xxx`, with
 > type-safe context and user-facing messages. See the git history of this file for
 > the full design draft.

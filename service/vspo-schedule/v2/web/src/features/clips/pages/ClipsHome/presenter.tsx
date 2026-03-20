@@ -6,9 +6,9 @@ import {
   Container,
   Grid,
   Paper,
+  styled,
   Tab,
   Tabs,
-  styled,
   Typography,
   useMediaQuery,
   useTheme,
@@ -240,12 +240,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Platform Tabs */}
-      <Tabs
-        value={0}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{ mb: 2 }}
-      >
+      <Tabs value={0} variant="scrollable" scrollButtons="auto" sx={{ mb: 2 }}>
         <Tab label={t("platformTabs.all", "すべて")} />
         <Tab
           label={t("platformTabs.youtube", "YouTube")}
