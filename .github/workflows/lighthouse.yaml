@@ -1,0 +1,32 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    paths:
+      - 'service/vspo-schedule/v2/web/**'
+      - 'packages/**'
+
+jobs:
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Build web app
+        run: pnpm --filter vspo-schedule-v2-web exec next build
+        env:
+          NEXT_PUBLIC_SITE_URL: "http://localhost:3333"
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
