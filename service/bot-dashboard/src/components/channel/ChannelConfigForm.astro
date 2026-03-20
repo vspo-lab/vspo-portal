@@ -1,0 +1,120 @@
+---
+import { actions } from "astro:actions";
+import Button from "~/components/ui/Button.astro";
+import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
+import { MemberType } from "~/features/channel/domain/member-type";
+import type { CreatorType } from "~/features/shared/domain/creator";
+import { t, memberTypeKey } from "~/i18n/dict";
+
+interface Props {
+  channel: ChannelConfigType;
+  creators: CreatorType[];
+  guildId: string;
+}
+
+const { channel, creators, guildId } = Astro.props;
+const { locale } = Astro.locals;
+const memberTypeOptions = MemberType.schema.options.map((value) => ({
+  value,
+  label: t(locale, memberTypeKey(value)),
+}));
+const showCustomMembers = MemberType.requiresCustomSelection(
+  channel.memberType,
+);
+---
+
+<dialog
+  open
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  id="config-modal"
+  aria-labelledby="config-modal-heading"
+>
+  <div
+    class="mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card p-6 shadow-action"
+  >
+    <div class="mb-4 flex items-center justify-between">
+      <h2 id="config-modal-heading" class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
+      <a
+        href={`/dashboard/${guildId}`}
+        class="text-muted-foreground hover:text-foreground"
+        role="button"
+        aria-label={t(locale, "channelConfig.close")}
+      >
+        ✕
+      </a>
+    </div>
+
+    <form method="post" action={actions.updateChannel} class="space-y-4">
+      <input type="hidden" name="guildId" value={guildId} />
+      <input type="hidden" name="channelId" value={channel.channelId} />
+
+      <div class="space-y-2">
+        <label for="language" class="text-sm font-medium">{t(locale, "channelConfig.language")}</label>
+        <select
+          id="language"
+          name="language"
+          class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="ja" selected={channel.language === "ja"}>{t(locale, "channelConfig.language.ja")}</option>
+          <option value="en" selected={channel.language === "en"}>{t(locale, "channelConfig.language.en")}</option>
+        </select>
+      </div>
+
+      <fieldset class="space-y-2">
+        <legend class="text-sm font-medium">{t(locale, "channelConfig.memberType")}</legend>
+        <div class="space-y-2">
+          {
+            memberTypeOptions.map((opt) => (
+              <label class="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="memberType"
+                  value={opt.value}
+                  checked={channel.memberType === opt.value}
+                  class="accent-vspo-purple"
+                />
+                <span class="text-sm">{opt.label}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      {
+        showCustomMembers && (
+          <div class="space-y-2">
+            <span class="text-sm font-medium">{t(locale, "channelConfig.customMembers")}</span>
+            <div class="max-h-48 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+              {creators.map((creator) => (
+                <label class="flex items-center gap-2 rounded px-2 py-1 hover:bg-accent/50">
+                  <input
+                    type="checkbox"
+                    name="customMemberIds"
+                    value={creator.id}
+                    checked={channel.customMembers?.includes(creator.id)}
+                    class="accent-vspo-purple"
+                  />
+                  {creator.thumbnailUrl && (
+                    <img
+                      src={creator.thumbnailUrl}
+                      alt=""
+                      class="h-5 w-5 rounded-full"
+                    />
+                  )}
+                  <span class="text-sm">{creator.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      <div class="flex justify-end gap-2 pt-2">
+        <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
+          {t(locale, "channelConfig.cancel")}
+        </Button>
+        <Button type="submit" variant="discord">{t(locale, "channelConfig.save")}</Button>
+      </div>
+    </form>
+  </div>
+</dialog>

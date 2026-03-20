@@ -1,0 +1,31 @@
+---
+const sizeClasses = {
+  xs: { img: "h-5 w-5", text: "text-xs" },
+  sm: { img: "h-8 w-8", text: "text-sm font-medium" },
+  md: { img: "h-10 w-10", text: "text-sm font-bold" },
+  lg: { img: "h-12 w-12", text: "text-lg font-bold" },
+} as const;
+
+interface Props {
+  src: string | null;
+  name: string;
+  size: keyof typeof sizeClasses;
+}
+
+const { src, name, size } = Astro.props;
+const classes = sizeClasses[size];
+---
+
+{
+  src ? (
+    <img src={src} alt={name} class={`${classes.img} rounded-full`} />
+  ) : (
+    <div
+      class={`flex ${classes.img} items-center justify-center rounded-full bg-muted ${classes.text}`}
+      role="img"
+      aria-label={name}
+    >
+      {name[0]}
+    </div>
+  )
+}

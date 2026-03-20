@@ -1,0 +1,94 @@
+---
+import { actions } from "astro:actions";
+import { env } from "cloudflare:workers";
+import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
+import ChannelTable from "~/components/channel/ChannelTable.astro";
+import Dashboard from "~/layouts/Dashboard.astro";
+import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
+import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
+import { t } from "~/i18n/dict";
+
+const locale = Astro.locals.locale;
+const { guildId } = Astro.params;
+if (!guildId) {
+  return Astro.redirect("/dashboard");
+}
+
+const accessToken = Astro.locals.accessToken;
+if (!accessToken) {
+  return Astro.redirect("/");
+}
+
+const [guildsResult, channelsResult] = await Promise.all([
+  ListGuildsUsecase.execute({
+    accessToken,
+    appWorker: env.APP_WORKER,
+  }),
+  VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),
+]);
+
+const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
+const allGuilds = guildsResult.err ? [] : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
+const currentGuild = allGuilds.find((g) => g.id === guildId);
+const guildName = currentGuild?.name ?? guildId;
+const channels = channelsResult.err ? [] : channelsResult.val.channels;
+const fetchError = guildsResult.err ?? channelsResult.err ?? null;
+const enabledCount = channels.filter((c) => c.enabled).length;
+
+// Handle action results
+const updateResult = Astro.getActionResult(actions.updateChannel);
+const toggleResult = Astro.getActionResult(actions.toggleChannel);
+const actionError = updateResult?.error ?? toggleResult?.error;
+
+// Editing state via query param
+const editChannelId = Astro.url.searchParams.get("edit");
+const editingChannel = editChannelId
+  ? channels.find((c) => c.channelId === editChannelId)
+  : null;
+---
+
+<Dashboard title={guildName} guilds={sidebarGuilds}>
+  <div class="space-y-6">
+    <div>
+      <nav class="mb-2 text-sm text-muted-foreground">
+        <a href="/dashboard" class="hover:text-foreground">{t(locale, "dashboard.allServers")}</a>
+        <span class="mx-1">/</span>
+        <span>{guildName}</span>
+      </nav>
+      <h1 class="font-heading text-2xl font-bold tracking-tight">{guildName}</h1>
+      <p class="text-muted-foreground">
+        {t(locale, "dashboard.channelsEnabled", { enabled: String(enabledCount), total: String(channels.length) })}
+      </p>
+    </div>
+
+    {
+      fetchError && (
+        <div role="alert" class="flex items-gap gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+          <span>{t(locale, "dashboard.error", { message: fetchError.message })}</span>
+        </div>
+      )
+    }
+
+    {
+      actionError && (
+        <div role="alert" class="flex items-center gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+          <span>{t(locale, "dashboard.error", { message: actionError.message })}</span>
+        </div>
+      )
+    }
+
+    <ChannelTable channels={channels} guildId={guildId} />
+
+    {
+      editingChannel && (
+        <ChannelConfigForm
+          channel={editingChannel}
+          creators={[]}
+          guildId={guildId}
+        />
+      )
+    }
+  </div>
+</Dashboard>

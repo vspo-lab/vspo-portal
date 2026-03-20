@@ -1,0 +1,46 @@
+name: Deploy Bot Dashboard
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'service/bot-dashboard/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: ${{ github.ref == 'refs/heads/main' && 'bot-dashboard-production' || 'bot-dashboard-development' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+          run_install: false
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turbo Build
+        run: pnpm turbo build --filter=bot-dashboard...
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          wranglerVersion: "4.6.0"
+          workingDirectory: service/bot-dashboard
+          command: deploy --env ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
+          environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
+          secrets: |
+            DISCORD_CLIENT_ID
+            DISCORD_CLIENT_SECRET
+            DISCORD_REDIRECT_URI
+            DISCORD_BOT_CLIENT_ID
+        env:
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+          DISCORD_REDIRECT_URI: ${{ secrets.DISCORD_REDIRECT_URI }}
+          DISCORD_BOT_CLIENT_ID: ${{ secrets.DISCORD_BOT_CLIENT_ID }}
