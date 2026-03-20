@@ -19,9 +19,11 @@
 **Files:**
 - Create: `docs/plan/README.md`
 
+Note: The spec mentions `.gitkeep` but `README.md` makes it unnecessary since git tracks directories with files.
+
 - [ ] **Step 1: Create docs/plan/README.md**
 
-```markdown
+````markdown
 # Feature Plans
 
 This directory contains specification documents for feature development.
@@ -41,7 +43,7 @@ docs/plan/
     ├── checklist.md     # Implementation checklist
     └── decisions.md     # Design decisions (optional)
 ```
-```
+````
 
 - [ ] **Step 2: Commit**
 
@@ -100,6 +102,8 @@ Key changes from current config:
 - `no-dropping-the-ra`: added as `true` (ら抜き言葉)
 - `no-hankaku-kana`: added as `true` (half-width katakana)
 - `common-misspellings`: added as `true` (English spelling)
+
+Note: `textlint:fix` script already exists in `package.json`, no change needed.
 
 - [ ] **Step 3: Run textlint auto-fix on existing docs**
 
@@ -194,6 +198,8 @@ Add to the `"scripts"` section:
 "markdownlint": "markdownlint-cli2",
 "markdownlint:fix": "markdownlint-cli2 --fix"
 ```
+
+Note: Unlike the spec which uses explicit file globs in the script, the plan uses bare `markdownlint-cli2` because file targeting is handled by the config's `globs` field in `.markdownlint-cli2.jsonc`. This is cleaner and avoids duplication.
 
 - [ ] **Step 4: Run markdownlint to see initial violations**
 
@@ -360,7 +366,7 @@ This list will grow over time. Run `cspell` to discover additional project-speci
     ".astro"
   ],
   "files": [
-    "**/*.{ts,tsx,js,jsx,md}"
+    "**/*.{ts,tsx,js,jsx,md,json}"
   ],
   "allowCompoundWords": true
 }
@@ -373,6 +379,8 @@ Add to the `"scripts"` section:
 ```json
 "cspell": "cspell lint ."
 ```
+
+Note: The spec uses explicit globs in the script, but the plan uses `cspell lint .` because file targeting is handled by the `files` field in `cspell.json`. JSON files are included in the config's `files` field for completeness.
 
 - [ ] **Step 5: Run cspell and iterate on dictionary**
 
@@ -432,7 +440,7 @@ pre-commit:
 ```
 
 Notes:
-- `textlint` and `markdownlint` use `glob: "*.md"` so they only run when markdown files are staged
+- `textlint` and `markdownlint` use `glob: "*.md"` as a **trigger filter** — when any `.md` file is staged, the full lint command runs on all target files (not just staged ones). This is intentional: partial file linting can miss cross-file issues.
 - `cspell` is intentionally excluded (too slow for pre-commit, CI-only)
 
 - [ ] **Step 2: Test the hooks**
@@ -620,7 +628,9 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 ```
 
-Note: `GITLEAKS_LICENSE` secret is required for the gitleaks GitHub Action on private repos. For public repos it works without a license. If the repo is private and no license is available, replace with the free `gitleaks/gitleaks-action@v2` without args and it will use defaults.
+Notes:
+- `GITLEAKS_LICENSE` secret is required for the gitleaks GitHub Action on private repos. For public repos it works without a license. If the repo is private and no license is available, replace with the free `gitleaks/gitleaks-action@v2` without args and it will use defaults.
+- `.trivyignore` already exists in the repo (currently empty except comments). The Trivy action references it via `trivyignores` parameter.
 
 - [ ] **Step 4: Commit**
 
@@ -711,7 +721,7 @@ same repo (not forks). Uses GITHUB_TOKEN to prevent infinite loops."
   "ci": {
     "collect": {
       "startServerCommand": "npx next start -p 3333",
-      "startServerReadyPattern": "- Local:",
+      "startServerReadyPattern": "Ready in",
       "url": [
         "http://localhost:3333/",
         "http://localhost:3333/schedule"
@@ -768,8 +778,9 @@ jobs:
       - name: Build web app
         run: pnpm --filter vspo-schedule-v2-web exec next build
         env:
-          # Minimal env for build (add required env vars here)
           NEXT_PUBLIC_SITE_URL: "http://localhost:3333"
+
+Note: Uses `exec next build` instead of the package's `build` script to skip `next-sitemap` (not needed for Lighthouse audits). The same approach is used in the bundle-size workflow.
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
@@ -1025,6 +1036,8 @@ Key changes:
 - Lint-only jobs (`textlint`, `markdownlint`, `cspell`) use `build: 'false'`
 - Added `markdownlint-check`, `cspell-check`, `bundle-size` jobs
 - Added commented-out `test` job skeleton ready for Vitest
+
+Note: `biome-check` keeps `build: 'true'` (default) because Biome checks JSON files that may reference built artifacts. `typescript-check` and `knip-check` also require built packages for cross-workspace type resolution. If CI time becomes a concern, `biome-check` could potentially use `build: 'false'` — test locally first.
 
 - [ ] **Step 2: Commit**
 
