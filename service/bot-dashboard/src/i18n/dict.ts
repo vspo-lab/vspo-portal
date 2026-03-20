@@ -60,8 +60,8 @@ const ja = {
   // Member types
   "memberType.vspo_jp": "VSPO JP",
   "memberType.vspo_en": "VSPO EN",
-  "memberType.all": "All Members",
-  "memberType.custom": "Custom",
+  "memberType.all": "全メンバー",
+  "memberType.custom": "カスタム",
 
   // Error
   "error.auth_failed": "Discord 認証に失敗しました。もう一度お試しください。",

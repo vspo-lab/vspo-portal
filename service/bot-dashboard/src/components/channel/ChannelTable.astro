@@ -40,11 +40,11 @@ const { locale } = Astro.locals;
                   type="submit"
                   role="switch"
                   aria-checked={ch.enabled ? "true" : "false"}
-                  class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-[--duration-fast] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
+                  class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
                   aria-label={t(locale, ch.enabled ? "channel.disable" : "channel.enable")}
                 >
                   <span
-                    class={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${ch.enabled ? "translate-x-6" : "translate-x-1"}`}
+                    class={`inline-block h-4 w-4 rounded-full bg-white transition-transform duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "translate-x-6" : "translate-x-1"}`}
                   />
                 </button>
               </form>

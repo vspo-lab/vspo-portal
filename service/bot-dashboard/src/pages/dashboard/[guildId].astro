@@ -4,7 +4,7 @@ import { env } from "cloudflare:workers";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
 import ChannelTable from "~/components/channel/ChannelTable.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
-import { ListChannelsUsecase } from "~/features/channel/usecase/list-channels";
+import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
 import { t } from "~/i18n/dict";
 
@@ -24,10 +24,7 @@ const [guildsResult, channelsResult] = await Promise.all([
     accessToken,
     appWorker: env.APP_WORKER,
   }),
-  ListChannelsUsecase.execute({
-    appWorker: env.APP_WORKER,
-    guildId,
-  }),
+  VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),
 ]);
 
 const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
@@ -50,7 +47,7 @@ const editingChannel = editChannelId
 <Dashboard title={t(locale, "guild.serverTitle", { guildId })} guilds={sidebarGuilds}>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-bold tracking-tight">{t(locale, "guild.serverTitle", { guildId })}</h1>
+      <h1 class="font-heading text-2xl font-bold tracking-tight">{t(locale, "guild.serverTitle", { guildId })}</h1>
       <p class="text-muted-foreground">
         {t(locale, "dashboard.channelsEnabled", { enabled: String(enabledCount), total: String(channels.length) })}
       </p>

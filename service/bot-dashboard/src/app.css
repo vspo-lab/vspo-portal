@@ -3,8 +3,6 @@
 @theme {
   /* === Brand Colors (from vspo-schedule) === */
   --color-vspo-purple: #7266cf;
-  --color-vspo-purple-soft: #8b81d9;
-  --color-dark-blue: #2d4870;
   --color-discord: #5865f2;
 
   /* === Semantic Colors (dark mode, matching MUI dark defaults + vspo-schedule) === */
@@ -12,8 +10,6 @@
   --color-foreground: rgba(255, 255, 255, 0.87);
   --color-card: #1e1e1e;
   --color-card-foreground: rgba(255, 255, 255, 0.87);
-  --color-popover: #1e1e1e;
-  --color-popover-foreground: rgba(255, 255, 255, 0.87);
   --color-primary: #7266cf;
   --color-primary-foreground: #ffffff;
   --color-secondary: #2d2d2d;
@@ -28,18 +24,9 @@
   --color-input: rgba(255, 255, 255, 0.12);
   --color-ring: #7266cf;
 
-  /* === Status Colors (from vspo-schedule dark mode) === */
-  --color-success: #66bb6a;
-  --color-warning: #ffa726;
-  --color-info: #42a5f5;
-  --color-live: #ff5252;
-
   /* === Border Radius (from vspo-schedule component values) === */
   --radius: 12px;
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
 
   /* === Shadows (from vspo-schedule VideoCard) === */
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -53,6 +40,5 @@
 
   /* === Motion (from vspo-schedule) === */
   --duration-fast: 150ms;
-  --duration-md: 300ms;
   --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
 }

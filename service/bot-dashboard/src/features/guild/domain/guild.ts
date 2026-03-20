@@ -1,7 +1,5 @@
-import type { AppError, Result } from "@vspo-lab/error";
 import { z } from "zod";
 import { ChannelConfig } from "~/features/channel/domain/channel-config";
-import { parseResult } from "~/features/shared/lib/parse";
 
 const MANAGE_GUILD = 0x20;
 
@@ -65,12 +63,6 @@ type GuildBotConfig = z.infer<typeof GuildBotConfigSchema>;
 
 const GuildBotConfig = {
   schema: GuildBotConfigSchema,
-
-  fromApiResponse: (raw: unknown): Result<GuildBotConfig, AppError> =>
-    parseResult(GuildBotConfigSchema, raw),
-
-  enabledCount: (config: GuildBotConfig): number =>
-    config.channels.filter((c) => c.enabled).length,
 } as const;
 
 export {

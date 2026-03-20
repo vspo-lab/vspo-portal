@@ -1,7 +1,4 @@
-import type { Result } from "@vspo-lab/error";
-import { AppError, Err } from "@vspo-lab/error";
 import { z } from "zod";
-import { parseResult, safeJsonParse } from "~/features/shared/lib/parse";
 import { MemberType } from "./member-type";
 
 const ChannelConfigSchema = z.object({
@@ -17,49 +14,6 @@ type ChannelConfig = z.infer<typeof ChannelConfigSchema>;
 
 const ChannelConfig = {
   schema: ChannelConfigSchema,
-
-  fromApiResponse: (raw: unknown): Result<ChannelConfig, AppError> =>
-    parseResult(ChannelConfigSchema, raw),
-
-  /** デフォルト設定を生成する */
-  defaultFor: (channelId: string, channelName: string): ChannelConfig => ({
-    channelId,
-    channelName,
-    enabled: true,
-    language: "ja",
-    memberType: "all",
-    customMembers: undefined,
-  }),
-
-  /** FormData からバリデーション付きで変換する */
-  fromFormData: (
-    formData: FormData,
-  ): Result<
-    Pick<ChannelConfig, "language" | "memberType" | "customMembers">,
-    AppError
-  > => {
-    const schema = ChannelConfigSchema.pick({
-      language: true,
-      memberType: true,
-      customMembers: true,
-    });
-    const rawCustomMembers = String(formData.get("customMembers") ?? "[]");
-    const parsed = safeJsonParse(rawCustomMembers);
-    if (parsed.err) {
-      return Err(
-        new AppError({
-          message: "customMembers is invalid JSON",
-          code: "BAD_REQUEST",
-        }),
-      );
-    }
-    const customMembers: unknown = parsed.val;
-    return parseResult(schema, {
-      language: formData.get("language"),
-      memberType: formData.get("memberType"),
-      customMembers,
-    });
-  },
 } as const;
 
 export { ChannelConfig, type ChannelConfig as ChannelConfigType };

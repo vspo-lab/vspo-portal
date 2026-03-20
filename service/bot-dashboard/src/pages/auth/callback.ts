@@ -3,11 +3,19 @@ import type { APIRoute } from "astro";
 import { LoginUsecase } from "~/features/auth/usecase/login";
 
 export const GET: APIRoute = async (context) => {
+  // Handle Discord error responses (e.g., user denied consent)
+  const error = context.url.searchParams.get("error");
+  if (error) {
+    return context.redirect("/?error=auth_failed");
+  }
+
   const state = context.url.searchParams.get("state");
   const sessionState = await context.session?.get("oauth_state");
   if (!state || state !== sessionState) {
     return context.redirect("/?error=invalid_state");
   }
+  // Consume state to prevent replay
+  context.session?.set("oauth_state", "");
 
   const code = context.url.searchParams.get("code");
   if (!code) {
