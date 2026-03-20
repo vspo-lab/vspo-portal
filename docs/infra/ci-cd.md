@@ -5,7 +5,7 @@
 This project uses GitHub Actions and tfaction to build the infrastructure CI/CD pipeline.
 All infrastructure changes are reviewed through Pull Requests and automatically deployed upon merge.
 
-```
+```text
 +---------------------------------------------------------------------------+
 |                     Infrastructure CI/CD Pipeline                          |
 +---------------------------------------------------------------------------+
@@ -77,7 +77,7 @@ on:
 
 ### Job Structure
 
-```
+```text
 +-------------------------------------------------------------+
 |                    terraform-plan-dev.yml                      |
 +-------------------------------------------------------------+
@@ -157,7 +157,7 @@ env:
 
 ### Branch Strategy
 
-```
+```text
 main (production)
   ^
   +-- PR (terraform-plan-prod -> terraform-apply-prod)
@@ -172,7 +172,7 @@ feature/*
 
 ### Directory Structure
 
-```
+```text
 infrastructure/terraform/
 +-- env/
 |   +-- dev/           # Development environment -> develop branch
@@ -316,6 +316,7 @@ jobs:
 ```
 
 By using GitHub Environments:
+
 - Apply deployment protection rules
 - Manage environment-specific secrets
 - Add approval workflows

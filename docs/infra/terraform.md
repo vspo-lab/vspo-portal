@@ -13,7 +13,7 @@ For tfaction-based operational standards and design decisions, see:
 
 ## Directory Structure
 
-```
+```text
 infrastructure/terraform/
 +-- tfaction.yaml              # tfaction root configuration
 +-- .tflint.hcl                # TFLint configuration
@@ -95,7 +95,7 @@ resource "google_storage_bucket" "state_bucket" { ... }  # Bad: bucket is redund
 
 ### Module Structure
 
-```
+```text
 modules/
 +-- terraform_backend/
     +-- main.tf           # Main resources (or function-specific files)

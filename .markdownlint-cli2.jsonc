@@ -1,0 +1,30 @@
+{
+  // markdownlint configuration for vspo-portal
+  // https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+  "config": {
+    "default": true,
+    // Disable line length — incompatible with Japanese text
+    "MD013": false,
+    // Allow inline HTML for specific tags
+    "MD033": {
+      "allowed_elements": ["details", "summary", "br", "sub", "sup"]
+    },
+    // Allow duplicate headings in different sections
+    "MD024": {
+      "siblings_only": true
+    },
+    // Allow trailing punctuation in headings (Japanese uses "？" etc.)
+    "MD026": false,
+    // Disable table column style — too many false positives with Japanese-mixed tables
+    "MD060": false,
+    // Disable first-line-heading — PR templates and fragments don't need H1
+    "MD041": false
+  },
+  "globs": ["docs/**/*.md", "README.md", ".github/**/*.md"],
+  "ignores": [
+    "node_modules",
+    "**/node_modules",
+    "docs/superpowers/plans/**",
+    "docs/superpowers/specs/**"
+  ]
+}

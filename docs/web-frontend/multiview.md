@@ -4,7 +4,7 @@ Watch multiple livestreams simultaneously. Supports YouTube, Twitch, and Twitcas
 
 ## Structure
 
-```
+```text
 features/multiview/
 ├── api/multiviewService.ts       # Fetch streams (parallel, deduplicated)
 ├── context/PlaybackContext.tsx    # Cross-player coordination

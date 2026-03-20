@@ -74,7 +74,7 @@ test("Entire item creation flow", async ({ page }) => {
 
 ## References (Primary Sources)
 
-- Playwright Best Practices: https://playwright.dev/docs/best-practices
-- Playwright Isolation: https://playwright.dev/docs/browser-contexts
-- Playwright Authentication: https://playwright.dev/docs/auth
-- Playwright API Testing: https://playwright.dev/docs/api-testing
+- Playwright Best Practices: <https://playwright.dev/docs/best-practices>
+- Playwright Isolation: <https://playwright.dev/docs/browser-contexts>
+- Playwright Authentication: <https://playwright.dev/docs/auth>
+- Playwright API Testing: <https://playwright.dev/docs/api-testing>

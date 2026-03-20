@@ -65,4 +65,4 @@ Use the table-driven tests from [docs/testing/unit-testing.md](../testing/unit-t
 
 ## References
 
-- https://speakerdeck.com/twada/growing-reliable-code-php-conference-fukuoka-2025
+- <https://speakerdeck.com/twada/growing-reliable-code-php-conference-fukuoka-2025>

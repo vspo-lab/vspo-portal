@@ -14,7 +14,7 @@
 - **PR comment notifications**: tfcmt automatically comments plan results on PRs
 - **Drift detection**: Periodically detect drift and manage it as GitHub Issues
 
-```
+```text
 +-------------------------------------------------------------+
 |                    tfaction Workflow                           |
 +-------------------------------------------------------------+

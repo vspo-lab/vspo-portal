@@ -70,7 +70,7 @@ const Card = styled("div")(({ theme }) => ({
 
 ## Naming Convention
 
-```
+```text
 --{layer}-{category}-{variant}
 --palette-ink-900      (Base)
 --token-text-soft      (Semantic)

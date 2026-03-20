@@ -1,6 +1,7 @@
 # React Hooks Guidelines
 
 > References:
+>
 > - [You Might Not Need an Effect – React](https://react.dev/learn/you-might-not-need-an-effect)
 > - [React Compiler – React](https://react.dev/learn/react-compiler)
 
@@ -101,6 +102,7 @@ if (typeof window !== "undefined") { checkAuthToken(); }
 **Default**: Let React Compiler handle it.
 
 **Add manually when**:
+
 - Value/function controls Effect dependency re-execution
 - Child uses `React.memo` + heavy render and parent re-renders often
 - External library requires referential identity

@@ -35,5 +35,5 @@
 
 ## References (Primary Sources)
 
-- Playwright Visual Comparisons: https://playwright.dev/docs/test-snapshots
-- Storybook Visual Testing: https://storybook.js.org/docs/writing-tests/visual-testing
+- Playwright Visual Comparisons: <https://playwright.dev/docs/test-snapshots>
+- Storybook Visual Testing: <https://storybook.js.org/docs/writing-tests/visual-testing>

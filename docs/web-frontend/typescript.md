@@ -93,7 +93,7 @@ function createProfile(): UserProfile {
 }
 ```
 
-**Pattern: Discriminated Unions**
+#### Pattern: Discriminated Unions
 
 ```typescript
 // ✅ GOOD: satisfies preserves literal types, enabling discrimination
@@ -105,7 +105,7 @@ function processResult(success: boolean) {
 }
 ```
 
-**Pattern: Configuration objects**
+#### Pattern: Configuration objects
 
 ```typescript
 // ✅ GOOD: Validates config shape while preserving inference
@@ -147,7 +147,7 @@ const selectionSchema = z.object({
 type Selection = z.infer<typeof selectionSchema>;
 ```
 
-2. **Metadata Pattern**:
+1. **Metadata Pattern**:
 
 ```typescript
 const MetadataSchema = z.object({

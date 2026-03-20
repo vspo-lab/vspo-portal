@@ -81,6 +81,6 @@ Most complex state management in the app. See [Multiview](./multiview.md) for fu
 - **Persistence**: LocalStorage for state, URL params for sharing
 - **PlaybackContext**: Cross-video controls (playAll, pauseAll, muteAll)
 
-```
+```text
 Priority: URL State > LocalStorage > Defaults
 ```

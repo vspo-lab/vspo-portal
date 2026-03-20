@@ -160,7 +160,7 @@ OGP images and meta information may need to change dynamically depending on the 
 
 ## File Structure
 
-```
+```text
 public/
 ├── favicon.png           # 48x48px
 ├── apple-touch-icon.png  # 180x180px

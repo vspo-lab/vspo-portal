@@ -84,6 +84,7 @@ Static content pages (site-news, about) load markdown files via `lib/markdown.ts
 | Local dev (Node.js) | Filesystem | `public/content/{locale}/{category}/{slug}.md` |
 
 Features:
+
 - **Content manifest**: `content-manifest.json` indexes available files per locale/category
 - **Locale fallback**: Falls back to `ja` if translation is missing
 - **Frontmatter parsing**: Extracts YAML-like metadata (title, date, tags)
@@ -105,7 +106,7 @@ Located in `features/shared/api/`. All return `Result<T, AppError>`.
 
 API responses are validated against Zod schemas before returning:
 
-```
+```text
 API Response -> Zod schema.parse() -> Domain type -> Result<T, AppError>
 ```
 

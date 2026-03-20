@@ -10,7 +10,7 @@ Located in `features/shared/components/Layout/`.
 
 Main page wrapper used by most pages via `getLayout`.
 
-```
+```text
 ContentLayout
 ├── CustomHead (title, description, OG tags, canonical URL)
 ├── Header (fixed AppBar + menu toggle + logo + social links)
@@ -38,6 +38,7 @@ Special case: removes padding when `path === "/multiview"`.
 ### Header
 
 Fixed AppBar with:
+
 - Menu toggle button (opens sidebar drawer)
 - Logo linking to `/schedule/all`
 - Social icons (GitHub, Twitter/X)
@@ -52,6 +53,7 @@ Fixed AppBar with:
 ### CustomBottomNavigation
 
 Mobile-only fixed bottom bar with 3 routes:
+
 - Schedule (`/schedule/all`)
 - Clips (`/clips`)
 - Multiview (`/multiview`)
@@ -73,6 +75,7 @@ Displays a video thumbnail as a clickable card.
 | `highlight` | `{ label, color, bold }?` | Status chip (e.g., "LIVE", "Upcoming") |
 
 Behavior:
+
 - 16:9 aspect ratio thumbnail via Next.js Image
 - Platform icon overlay (top-left)
 - Highlight chip (top-right) with colored border
@@ -83,6 +86,7 @@ Behavior:
 Full-screen dialog for video playback. No props -- uses `VideoModalContext`.
 
 Features:
+
 - Embedded video player (platform-specific iframe)
 - Tabbed info panel: Overview + Chat
 - Overview: title, status, start time, channel info, description, watch/share links
