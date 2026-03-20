@@ -68,14 +68,11 @@ const ja = {
   "memberType.custom": "Custom",
 
   // Error
-  "error.auth_failed":
-    "Discord authentication failed. Please try again.",
-  "error.no_code":
-    "Authorization code not found. Please try again.",
+  "error.auth_failed": "Discord authentication failed. Please try again.",
+  "error.no_code": "Authorization code not found. Please try again.",
   "error.fetch_failed":
     "Failed to retrieve user information. Please try again.",
-  "error.invalid_state":
-    "Invalid authentication request. Please try again.",
+  "error.invalid_state": "Invalid authentication request. Please try again.",
 
   // Auth
   "auth.logout": "Logout",

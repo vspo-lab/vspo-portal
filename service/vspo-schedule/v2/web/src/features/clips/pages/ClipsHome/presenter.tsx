@@ -161,7 +161,9 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
         showIcon: true,
       },
       {
-        label: isMobile ? "1mo" : t("searchDialog.timeframes.1month", "1 month"),
+        label: isMobile
+          ? "1mo"
+          : t("searchDialog.timeframes.1month", "1 month"),
         value: "month",
         showIcon: true,
       },
