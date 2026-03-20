@@ -8,7 +8,7 @@ import type { OverridableComponent } from "@mui/material/OverridableComponent";
 import { styled } from "@mui/material/styles";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { AlertSnackbar } from "../Elements";
+import { AlertSnackbar, CustomDrawer } from "../Elements";
 import { CustomHead } from "../Head/Head";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -79,6 +79,9 @@ export const ContentLayout = ({
   maxPageWidth,
   padTop,
 }: ContentLayoutProps) => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const handleDrawerToggle = () => setDrawerOpen((prev) => !prev);
+
   const [alertOpen, setAlertOpen] = useState(false);
 
   const handleAlertClose = () => {
@@ -104,8 +107,17 @@ export const ContentLayout = ({
         canonicalPath={canonicalPath}
       />
       <div data-layout-header>
-        <Header title={title} />
+        <Header
+          title={title}
+          drawerOpen={drawerOpen}
+          onDrawerToggle={handleDrawerToggle}
+        />
       </div>
+      <CustomDrawer
+        open={drawerOpen}
+        onOpen={handleDrawerToggle}
+        onClose={handleDrawerToggle}
+      />
       <AlertSnackbar open={alertOpen} onClose={handleAlertClose} />
       <StyledContainer
         component="main"

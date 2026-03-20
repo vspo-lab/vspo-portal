@@ -7,8 +7,7 @@ import { Box } from "@mui/system";
 import Image from "next/image";
 import { useTranslation } from "next-i18next";
 import type React from "react";
-import { useState } from "react";
-import { CustomDrawer, Link } from "../Elements";
+import { Link } from "../Elements";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.vars.palette.customColors.vspoPurple,
@@ -62,13 +61,11 @@ const AppBarOffset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
 type Props = {
   title: string;
+  drawerOpen: boolean;
+  onDrawerToggle: () => void;
 };
-export const Header: React.FC<Props> = ({ title }) => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+export const Header: React.FC<Props> = ({ title, onDrawerToggle }) => {
   const { t } = useTranslation("common");
-  const toggleDrawerOpen = () => {
-    setDrawerOpen(!drawerOpen);
-  };
 
   return (
     <>
@@ -85,7 +82,7 @@ export const Header: React.FC<Props> = ({ title }) => {
               color="inherit"
               aria-label="toggle drawer"
               edge="start"
-              onClick={toggleDrawerOpen}
+              onClick={onDrawerToggle}
               sx={{ mr: 1 }}
             >
               <MenuIcon />
@@ -134,12 +131,6 @@ export const Header: React.FC<Props> = ({ title }) => {
       </StyledAppBar>
 
       <AppBarOffset />
-
-      <CustomDrawer
-        open={drawerOpen}
-        onOpen={toggleDrawerOpen}
-        onClose={toggleDrawerOpen}
-      />
     </>
   );
 };
