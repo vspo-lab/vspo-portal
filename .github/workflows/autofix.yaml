@@ -1,0 +1,36 @@
+name: Autofix
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  autofix:
+    name: Auto-fix lint and format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Only run on same-repo PRs (not forks)
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+
+      - name: Run Biome fix
+        run: |
+          pnpm biome check --fix --unsafe
+          pnpm biome format --write .
+
+      - name: Auto-commit fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-fix lint and format"
+          commit_options: "--no-verify"
