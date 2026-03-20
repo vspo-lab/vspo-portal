@@ -6,6 +6,8 @@ import {
   Container,
   Grid,
   Paper,
+  Tab,
+  Tabs,
   styled,
   Typography,
   useMediaQuery,
@@ -237,6 +239,28 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Platform Tabs */}
+      <Tabs
+        value={0}
+        variant="scrollable"
+        scrollButtons="auto"
+        sx={{ mb: 2 }}
+      >
+        <Tab label={t("platformTabs.all", "すべて")} />
+        <Tab
+          label={t("platformTabs.youtube", "YouTube")}
+          onClick={() => router.push("/clips/youtube")}
+        />
+        <Tab
+          label={t("platformTabs.shorts", "Shorts")}
+          onClick={() => router.push("/clips/youtube/shorts")}
+        />
+        <Tab
+          label={t("platformTabs.twitch", "Twitch")}
+          onClick={() => router.push("/clips/twitch")}
+        />
+      </Tabs>
+
       {/* Date Filter */}
       <FilterContainer elevation={1}>
         <FilterTitle>
