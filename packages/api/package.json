@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@vspo-lab/error": "workspace:^",
-    "axios": "^1.13.6",
-    "zod": "catalog:"
+    "axios": "^1.13.6"
   }
 }

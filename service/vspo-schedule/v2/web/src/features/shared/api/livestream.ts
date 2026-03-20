@@ -20,6 +20,14 @@ import {
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import { type Livestream, livestreamSchema, type Status } from "../domain";
 
+/** Maps URL status param to domain Status. Hoisted to avoid duplication. */
+const STATUS_MAP: Record<string, Status | undefined> = {
+  live: "live",
+  upcoming: "upcoming",
+  archive: "ended",
+  all: undefined,
+};
+
 type FetchLivestreamsParams = {
   limit: number;
   lang: string;
@@ -93,12 +101,7 @@ export const fetchLivestreams = async (
   if (cfEnv) {
     const { APP_WORKER } = cfEnv;
 
-    const statusMap: Record<string, Status | undefined> = {
-      live: "live",
-      upcoming: "upcoming",
-      archive: "ended",
-      all: undefined,
-    };
+    const statusMap = STATUS_MAP;
 
     const lang = params.lang === "ja" ? "default" : params.lang;
 

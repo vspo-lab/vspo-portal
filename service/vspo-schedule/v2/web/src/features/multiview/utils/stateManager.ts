@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getCurrentUTCString } from "@vspo-lab/dayjs";
-import { Livestream } from "@/features/shared/domain";
+import { type Platform, Livestream, platformSchema } from "@/features/shared/domain";
 import { LayoutType } from "../hooks/useMultiviewLayout";
 
 /**
@@ -60,13 +60,12 @@ interface CompactMultiviewState {
   v: number; // version
 }
 
-// Validation schemas for deserialized data
-const VALID_PLATFORMS = ["youtube", "twitch", "twitcasting", "niconico", "unknown"] as const;
+// Validation helpers using shared schemas
 const VALID_LAYOUTS: LayoutType[] = ["1x1", "2x1", "1x2", "2x2", "3x3", "4x3", "picture-in-picture", "auto"];
 
-/** Type guard: checks if a string is a valid platform. */
-const isValidPlatform = (value: string): value is typeof VALID_PLATFORMS[number] =>
-  (VALID_PLATFORMS as ReadonlyArray<string>).includes(value);
+/** Type guard: checks if a string is a valid platform using shared platformSchema. */
+const isValidPlatform = (value: string): value is Platform =>
+  platformSchema.safeParse(value).success;
 
 /** Type guard: checks if a string is a valid LayoutType. */
 const isValidLayout = (value: string): value is LayoutType =>

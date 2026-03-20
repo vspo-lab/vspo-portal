@@ -1,5 +1,4 @@
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
-import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import React, { useMemo } from "react";
@@ -20,7 +19,7 @@ export const TimeZoneSelector = () => {
     }, {});
   }, []);
   const timeZones = Intl.supportedValuesOf("timeZone");
-  const now = getCurrentUTCDate().getTime();
+  const now = Date.now();
   const formattedTimeZoneOffsets = timeZones.reduce<Record<string, string>>(
     (acc, tz) => {
       acc[tz] = formatDate(now, "OOOO", { timeZone: tz });

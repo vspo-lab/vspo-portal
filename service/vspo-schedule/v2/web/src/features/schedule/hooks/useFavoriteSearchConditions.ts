@@ -44,10 +44,11 @@ export const useFavoriteSearchCondition = () => {
     setCookieValue(undefined);
   }, [setCookieValue]);
 
+  const favorite = getFavorite();
   return {
-    favorite: getFavorite(),
+    favorite,
     saveFavorite,
     deleteFavorite,
-    hasFavorite: !!getFavorite(),
+    hasFavorite: !!favorite,
   };
 };

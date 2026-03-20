@@ -112,7 +112,7 @@ export const getLivestreamsServerSideProps: GetServerSideProps<
     req,
   });
 
-  const lastUpdateTimestamp = getCurrentUTCDate().getTime();
+  const lastUpdateTimestamp = Date.now();
 
   // Extract data from schedule
   const events = schedule.events;

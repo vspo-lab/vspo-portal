@@ -1,19 +1,16 @@
 import { AppError, Err, Ok, type Result } from "@vspo-lab/error";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
-import { z } from "zod";
 import type * as apiGen from "./gen/openapi";
 import { isLocalEnv, MockHandler } from "./mock";
 
-const apiErrorResponseSchema = z.object({
-  error: z.object({
-    code: z.string(),
-    message: z.string(),
-    requestId: z.string(),
-  }),
-});
-
-type ApiErrorResponse = z.infer<typeof apiErrorResponseSchema>;
+type ApiErrorResponse = {
+  error: {
+    code: string;
+    message: string;
+    requestId: string;
+  };
+};
 
 // Define a simpler approach without using type assertions
 function isValidAppErrorCode(code: string): code is AppError["code"] {
@@ -33,37 +30,19 @@ function isValidAppErrorCode(code: string): code is AppError["code"] {
   ].includes(code);
 }
 
-const vspoApiOptionsSchema = z.object({
-  /** API Key for authentication */
-  apiKey: z.string().optional(),
-  /** Cloudflare Access Client ID */
-  cfAccessClientId: z.string().optional(),
-  /** Cloudflare Access Client Secret */
-  cfAccessClientSecret: z.string().optional(),
-  /** Custom session ID to include in requests */
-  sessionId: z.string().optional(),
-  /** Base URL for API requests */
-  baseUrl: z.string().optional(),
-  /** Retry on network errors */
-  retry: z
-    .object({
-      /**
-       * How many attempts should be made.
-       * The maximum number of requests will be `attempts + 1`.
-       * `0` means no retries.
-       * @default 3
-       */
-      attempts: z.number().optional(),
-      /**
-       * Return how many milliseconds to wait until the next attempt is made.
-       * @default `(retryCount) => Math.round(Math.exp(retryCount) * 50)`
-       */
-      backoff: z.custom<(retryCount: number) => number>().optional(),
-    })
-    .optional(),
-});
-
-export type VSPOApiOptions = z.infer<typeof vspoApiOptionsSchema>;
+export type VSPOApiOptions = {
+  apiKey?: string;
+  cfAccessClientId?: string;
+  cfAccessClientSecret?: string;
+  sessionId?: string;
+  baseUrl?: string;
+  retry?: {
+    /** @default 3 */
+    attempts?: number;
+    /** @default `(retryCount) => Math.round(Math.exp(retryCount) * 50)` */
+    backoff?: (retryCount: number) => number;
+  };
+};
 
 export class VSPOApi {
   private readonly apiKey: string | undefined;
