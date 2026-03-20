@@ -17,9 +17,9 @@ type ListGuildsResult = {
 };
 
 /**
- * ユーザーが管理可能なサーバー一覧を取得する
- * @precondition 有効な accessToken と appWorker が必要
- * @postcondition installed / notInstalled / sidebarGuilds に分類して返す
+ * Retrieve the list of servers the user can manage
+ * @precondition Valid accessToken and appWorker are required
+ * @postcondition Returns results categorized into installed / notInstalled / sidebarGuilds
  */
 const execute = async (
   params: ListGuildsParams,

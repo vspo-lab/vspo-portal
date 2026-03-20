@@ -182,7 +182,7 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
               })}
             />
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              {t("nowLive", "配信中")}
+              {t("nowLive", "Live")}
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {liveStreams.length}

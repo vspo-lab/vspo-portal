@@ -81,14 +81,14 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {t(
           "urlInput.description",
-          "YouTube、Twitch、その他のプラットフォームのURLから直接配信を追加できます",
+          "Add streams directly from YouTube, Twitch, and other platform URLs",
         )}
       </Typography>
 
       <InputSection>
         <TextField
           fullWidth
-          placeholder={t("urlInput.placeholder", "配信URLを入力してください")}
+          placeholder={t("urlInput.placeholder", "Enter a stream URL")}
           value={url}
           onChange={(e) => onUrlChange(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -125,8 +125,8 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
           sx={{ whiteSpace: "nowrap" }}
         >
           {isLoading
-            ? t("urlInput.adding", "追加中...")
-            : t("urlInput.add", "追加")}
+            ? t("urlInput.adding", "Adding...")
+            : t("urlInput.add", "Add")}
         </Button>
       </InputSection>
 
@@ -142,7 +142,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
         <Alert severity="warning" sx={{ mb: 1 }}>
           {t(
             "urlInput.maxStreamsReached",
-            "最大{{count}}つまでの配信を選択できます",
+            "You can select up to {{count}} streams",
             { count: maxStreams },
           )}
         </Alert>
@@ -154,7 +154,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
         color="text.secondary"
         sx={{ display: "block", mb: 1 }}
       >
-        {t("urlInput.streamCount", "{{current}}/{{max}} 配信選択中", {
+        {t("urlInput.streamCount", "{{current}}/{{max}} streams selected", {
           current: selectedStreams.length,
           max: maxStreams,
         })}
@@ -167,7 +167,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
           color="text.secondary"
           sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
         >
-          {t("urlInput.supportedPlatforms.title", "対応プラットフォーム:")}
+          {t("urlInput.supportedPlatforms.title", "Supported platforms:")}
         </Typography>
         <Typography variant="caption" color="text.secondary">
           {t("urlInput.supportedPlatforms.list", "YouTube")}

@@ -3,8 +3,8 @@ import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { z } from "zod";
 
 /**
- * Zod スキーマで unknown を安全にパースし、Result 型で返す
- * @postcondition パース成功なら Ok(data)、失敗なら Err(AppError) を返す
+ * Safely parse unknown values with a Zod schema and return as Result type
+ * @postcondition Returns Ok(data) on successful parse, Err(AppError) on failure
  */
 export const parseResult = <T>(
   schema: z.ZodType<T>,

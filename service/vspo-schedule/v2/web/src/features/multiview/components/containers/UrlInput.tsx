@@ -161,7 +161,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
   const handleSubmit = useCallback(async () => {
     if (!url.trim()) {
-      setError(t("urlInput.error.emptyUrl", "URLを入力してください"));
+      setError(t("urlInput.error.emptyUrl", "Please enter a URL"));
       return;
     }
 
@@ -169,7 +169,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
       setError(
         t(
           "urlInput.error.maxStreams",
-          "最大{{max}}つまでの配信を選択できます",
+          "You can select up to {{max}} streams",
           { max: maxStreams },
         ),
       );
@@ -185,7 +185,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
       if (!stream) {
         setError(
-          t("urlInput.error.unsupportedUrl", "サポートされていないURLです"),
+          t("urlInput.error.unsupportedUrl", "Unsupported URL"),
         );
         setIsLoading(false);
         return;
@@ -198,7 +198,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
       if (isAlreadyAdded) {
         setError(
-          t("urlInput.error.alreadyAdded", "この配信は既に追加されています"),
+          t("urlInput.error.alreadyAdded", "This stream has already been added"),
         );
         setIsLoading(false);
         return;
@@ -208,7 +208,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
       setUrl("");
       setError(null);
     } catch (error) {
-      setError(t("urlInput.error.parseFailed", "URLの解析に失敗しました"));
+      setError(t("urlInput.error.parseFailed", "Failed to parse URL"));
       console.error("Error adding stream from URL:", error);
     } finally {
       setIsLoading(false);

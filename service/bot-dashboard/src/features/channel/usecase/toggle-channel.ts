@@ -9,9 +9,9 @@ type ToggleChannelParams = {
 };
 
 /**
- * チャンネルの有効/無効を切り替える
- * @precondition 有効な appWorker, guildId, channelId が必要
- * @postcondition enable が true なら有効化、false なら無効化される
+ * Toggle a channel's enabled/disabled state
+ * @precondition Valid appWorker, guildId, and channelId are required
+ * @postcondition Enables the channel if enable is true, disables it if false
  */
 const execute = async (
   params: ToggleChannelParams,

@@ -2,16 +2,16 @@ import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
 
 /**
- * vspo-server の Guild 設定 API アクセス層
- * @precondition APP_WORKER Service Binding が設定されていること
+ * Guild configuration API access layer for vspo-server
+ * @precondition APP_WORKER Service Binding must be configured
  */
 const VspoGuildApiRepository = {
-  /** Bot が導入されているサーバー ID 一覧を取得する */
+  /** Retrieve list of server IDs where the Bot is installed */
   getBotGuildIds: async (
     _appWorker: Fetcher,
   ): Promise<Result<ReadonlySet<string>, AppError>> => {
-    // TODO: Phase 5 で vspo-server API に接続
-    // 現在は mock データを返す
+    // TODO: Connect to vspo-server API in Phase 5
+    // Currently returns mock data
     return Ok(new Set<string>());
   },
 } as const;

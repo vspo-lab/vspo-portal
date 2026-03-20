@@ -232,7 +232,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           className="player-header drag-handle"
           aria-label={t(
             "player.dragHandle.ariaLabel",
-            `${stream.channelTitle}の配信をドラッグして移動`,
+            `Drag to move ${stream.channelTitle}'s stream`,
           )}
         >
           <StreamInfo>
@@ -265,8 +265,8 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
             <DragHandle
               size="small"
               className="drag-handle"
-              aria-label={t("player.dragHandle.tooltip", "配信を移動")}
-              title={t("player.dragHandle.tooltip", "配信を移動")}
+              aria-label={t("player.dragHandle.tooltip", "Move stream")}
+              title={t("player.dragHandle.tooltip", "Move stream")}
             >
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
@@ -274,7 +274,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
               className="no-drag"
               size="small"
               onClick={onRemove}
-              aria-label={t("player.close.ariaLabel", "配信を閉じる")}
+              aria-label={t("player.close.ariaLabel", "Close stream")}
             >
               <CloseIcon fontSize="small" />
             </CloseButton>
@@ -285,16 +285,16 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
-              {t("player.error.title", "読み込みエラー")}
+              {t("player.error.title", "Loading error")}
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              {t("player.error.description", "配信の読み込みに失敗しました")}
+              {t("player.error.description", "Failed to load stream")}
             </Typography>
           </ErrorContainer>
         ) : (
           <>
             {isLoading && (
-              <LoadingContainer role="status" aria-label={t("player.loading", "配信を読み込み中")}>
+              <LoadingContainer role="status" aria-label={t("player.loading", "Loading stream")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}
