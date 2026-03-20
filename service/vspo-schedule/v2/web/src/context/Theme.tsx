@@ -59,6 +59,29 @@ const theme = createTheme({
     light: lightColorSystem,
     dark: darkColorSystem,
   },
+  typography: {
+    fontFamily:
+      '"Noto Sans JP", "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro", system-ui, sans-serif',
+    body1: { fontSize: "0.875rem", lineHeight: 1.5 },
+    body2: { fontSize: "0.8rem", lineHeight: 1.4 },
+    caption: { fontSize: "0.75rem", lineHeight: 1.4 },
+    h4: {
+      fontFamily: '"M PLUS Rounded 1c", "Noto Sans JP", sans-serif',
+      fontWeight: 700,
+    },
+    h5: {
+      fontFamily: '"M PLUS Rounded 1c", "Noto Sans JP", sans-serif',
+      fontSize: "1.25rem",
+      fontWeight: 600,
+      lineHeight: 1.4,
+    },
+    h6: {
+      fontFamily: '"M PLUS Rounded 1c", "Noto Sans JP", sans-serif',
+      fontSize: "1rem",
+      fontWeight: 600,
+      lineHeight: 1.4,
+    },
+  },
   mixins: {
     scrollbar: {
       scrollbarWidth: "none",

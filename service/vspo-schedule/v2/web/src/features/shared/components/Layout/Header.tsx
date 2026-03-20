@@ -28,16 +28,12 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   },
 }));
 const StyledTypography = styled(Typography)({
-  fontFamily:
-    "'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro', 'Hiragino Mincho Pro', 'ヒラギノ明朝 Pro', 'Hiragino Maru Gothic Pro', 'ヒラギノ丸ゴ Pro', sans-serif",
   fontWeight: "bold",
   fontSize: "0.9rem",
 });
 const StyledSubtitle = styled(Typography)({
-  fontFamily:
-    "'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro', 'Hiragino Mincho Pro', 'ヒラギノ明朝 Pro', 'Hiragino Maru Gothic Pro', 'ヒラギノ丸ゴ Pro', sans-serif",
   fontWeight: "normal",
-  fontSize: "0.5rem",
+  fontSize: "0.7rem",
   paddingLeft: "0px",
 });
 
