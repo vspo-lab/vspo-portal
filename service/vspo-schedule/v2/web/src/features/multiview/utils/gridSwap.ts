@@ -16,6 +16,7 @@ import GridLayout from "react-grid-layout";
  */
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
+  maxCols?: number,
 ): GridLayout.Layout[] => {
   if (layout.length <= 1) return layout;
 
@@ -74,7 +75,7 @@ export const resolveOverlaps = (
 
   return items.map((item) => ({
     ...item,
-    x: Math.max(0, item.x),
+    x: Math.max(0, maxCols ? Math.min(item.x, maxCols - item.w) : item.x),
     y: Math.max(0, item.y),
   }));
 };

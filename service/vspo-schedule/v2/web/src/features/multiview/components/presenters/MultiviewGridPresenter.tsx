@@ -8,12 +8,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { resolveOverlaps } from "../../utils/gridSwap";
+import { resolveOverlaps, computeSwapDuringDrag } from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
 import { ChatCell, VideoPlayer } from "../containers";
 
@@ -475,7 +475,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       };
     });
 
-    setInternalLayout(resolveOverlaps([...kept, ...newItems]));
+    setInternalLayout(resolveOverlaps([...kept, ...newItems], GRID_COLS));
   }, [streamIdKey, layout.type, layout.cols, rowHeight, cellsPerRow, isMobile, allItemIds, availableHeight]);
 
   // Apply externally provided grid positions (e.g. from a saved custom layout)
@@ -493,6 +493,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
             minW: 2,
             minH: 2,
           })),
+          GRID_COLS,
         ),
       );
     }
@@ -514,34 +515,95 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  const handleDragStart = () => {
+  // --- Drag handlers with real-time swap detection ---
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const lastSwappedIdRef = useRef<string | null>(null);
+
+  const handleDragStart = (
+    _layout: GridLayout.Layout[],
+    oldItem: GridLayout.Layout,
+  ) => {
     isDraggingRef.current = true;
+    dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
+    lastSwappedIdRef.current = null;
     containerRef.current?.classList.add("is-dragging");
   };
 
-  const handleDrag = () => {};
+  const handleDrag = useCallback((
+    rglLayout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
+  ) => {
+    // Real-time swap detection during drag
+    const merged = mergeLayoutSizes(rglLayout, internalLayout);
+    // Ensure dragged item has current position from RGL
+    const withDragPos = merged.map(item =>
+      item.i === newItem.i ? { ...item, x: newItem.x, y: newItem.y } : item,
+    );
+    const { layout: swapped, swappedId } = computeSwapDuringDrag(
+      withDragPos,
+      newItem.i,
+      dragOriginRef.current ?? { x: newItem.x, y: newItem.y },
+      lastSwappedIdRef.current,
+    );
+    if (swappedId) {
+      lastSwappedIdRef.current = swappedId;
+      dragOriginRef.current = { x: newItem.x, y: newItem.y };
+      // Update non-dragged items only (dragged item position is controlled by RGL)
+      setInternalLayout(swapped);
+    }
+  }, [internalLayout]);
 
   const handleDragStop = (
     rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    _newItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
   ) => {
     containerRef.current?.classList.remove("is-dragging");
-    // Use RGL's layout as the single source of truth, then resolve overlaps synchronously
-    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
+    // Ensure dragged item has final position from RGL
+    const merged = mergeLayoutSizes(rglLayout, internalLayout);
+    const withFinalPos = merged.map(item =>
+      item.i === newItem.i ? { ...item, x: newItem.x, y: newItem.y } : item,
+    );
+    setInternalLayout(resolveOverlaps(withFinalPos, GRID_COLS));
     isDraggingRef.current = false;
+    dragOriginRef.current = null;
+    lastSwappedIdRef.current = null;
   };
 
+  // --- Resize handlers with explicit newItem dimensions ---
   const handleResizeStart = () => {
     isResizingRef.current = true;
   };
 
+  const handleResize = useCallback((
+    rglLayout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
+  ) => {
+    // Update layout during resize to prevent stale state in controlled mode
+    const merged = mergeLayoutSizes(rglLayout, internalLayout);
+    const withNewSize = merged.map(item =>
+      item.i === newItem.i
+        ? { ...item, x: newItem.x, y: newItem.y, w: newItem.w, h: newItem.h }
+        : item,
+    );
+    setInternalLayout(withNewSize);
+  }, [internalLayout]);
+
   const handleResizeStop = (
     rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
-    _newItem: GridLayout.Layout,
+    newItem: GridLayout.Layout,
   ) => {
-    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
+    // Explicitly merge newItem dimensions (rglLayout may be stale in controlled mode)
+    const merged = mergeLayoutSizes(rglLayout, internalLayout);
+    const withNewSize = merged.map(item =>
+      item.i === newItem.i
+        ? { ...item, x: newItem.x, y: newItem.y, w: newItem.w, h: newItem.h }
+        : item,
+    );
+    setInternalLayout(resolveOverlaps(withNewSize, GRID_COLS));
     isResizingRef.current = false;
   };
 
@@ -622,6 +684,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
         onDrag={handleDrag}
         onDragStop={handleDragStop}
         onResizeStart={handleResizeStart}
+        onResize={handleResize}
         onResizeStop={handleResizeStop}
         draggableHandle=".drag-handle"
         draggableCancel=".no-drag"
