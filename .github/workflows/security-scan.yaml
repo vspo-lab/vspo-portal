@@ -57,9 +57,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar xz
+          sudo mv gitleaks /usr/local/bin/
+
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          args: --config=.gitleaks.toml
-        env:
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        run: gitleaks detect --source=. --config=.gitleaks.toml --verbose
