@@ -66,8 +66,8 @@ const GuildBotConfig = {
 } as const;
 
 export {
-  GuildSummary,
-  type GuildSummary as GuildSummaryType,
   GuildBotConfig,
   type GuildBotConfig as GuildBotConfigType,
+  GuildSummary,
+  type GuildSummary as GuildSummaryType,
 };

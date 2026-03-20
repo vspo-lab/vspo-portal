@@ -618,12 +618,12 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       <GridContainer elevation={1} ref={containerRef}>
         <EmptyState>
           <Typography variant="h5" gutterBottom>
-            {t("grid.empty.title", "配信を選択してください")}
+            {t("grid.empty.title", "Please select streams")}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {t(
               "grid.empty.description",
-              "右側のパネルから配信を選択するか、URLを入力して追加してください",
+              "Select streams from the panel on the right, or add by entering a URL",
             )}
           </Typography>
         </EmptyState>

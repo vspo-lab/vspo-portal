@@ -1,18 +1,18 @@
 import GridLayout from "react-grid-layout";
 
 /**
- * 整数グリッド座標上で全アイテムの重なりを解消する。
+ * Resolve all item overlaps on integer grid coordinates.
  *
- * アルゴリズム:
- * 1. 最も重なり面積が大きいペアを1つ見つける
- * 2. 重なりが小さい軸方向に最小距離だけ押し出す
- * 3. **全ペアの探索を最初からやり直す**（押し出しで新たな重なりが生まれるため）
- * 4. 重なりがなくなるまで繰り返す（最大 n*(n-1)/2 * 10 回）
+ * Algorithm:
+ * 1. Find the pair with the largest overlap area
+ * 2. Push apart by the minimum distance along the axis with less overlap
+ * 3. **Restart the search from the beginning** (pushing apart may create new overlaps)
+ * 4. Repeat until no overlaps remain (max n*(n-1)/2 * 10 iterations)
  *
- * 1回の押し出しで必ず1ペアの重なりが解消されるため、有限回で収束する。
+ * Each push resolves exactly one pair's overlap, so it converges in finite steps.
  *
- * @param layout - 現在のレイアウト（整数グリッド座標）
- * @returns 重なりのないレイアウト
+ * @param layout - Current layout (integer grid coordinates)
+ * @returns Layout without overlaps
  */
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
@@ -81,10 +81,10 @@ export const resolveOverlaps = (
 };
 
 /**
- * ドラッグ中のスワップを計算する。
+ * Calculate swap during drag.
  *
- * ドラッグ中のアイテムと最も重なるアイテムを検出し、位置を交換する。
- * 二次衝突はresolveOverlapsで解消。
+ * Detect the item with the most overlap with the dragged item and swap positions.
+ * Secondary collisions are resolved by resolveOverlaps.
  */
 export const computeSwapDuringDrag = (
   currentLayout: GridLayout.Layout[],
@@ -141,7 +141,7 @@ export const computeSwapDuringDrag = (
 };
 
 /**
- * 2つのレイアウトアイテムの重なり面積を計算する。
+ * Calculate overlap area of two layout items.
  */
 export const getOverlapArea = (
   a: GridLayout.Layout,

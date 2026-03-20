@@ -34,8 +34,8 @@ const AuthorizationUrlResultSchema = z.object({
 type AuthorizationUrlResult = z.infer<typeof AuthorizationUrlResultSchema>;
 
 /**
- * Discord OAuth2 Authorization URL を生成する
- * @postcondition 有効な Discord OAuth2 URL と CSRF 防止用の state を返す
+ * Generate a Discord OAuth2 Authorization URL
+ * @postcondition Returns a valid Discord OAuth2 URL and a state value for CSRF protection
  */
 const buildAuthorizationUrl = (env: AuthUrlEnv): AuthorizationUrlResult => {
   const state = crypto.randomUUID();
@@ -53,9 +53,9 @@ const buildAuthorizationUrl = (env: AuthUrlEnv): AuthorizationUrlResult => {
 };
 
 /**
- * OAuth2 コールバックを処理する
- * @precondition 有効な authorization code が必要
- * @postcondition ユーザー情報とトークンを返す。セッション保存は呼び出し側が行う。
+ * Handle the OAuth2 callback
+ * @precondition A valid authorization code is required
+ * @postcondition Returns user information and tokens. Session persistence is the caller's responsibility.
  */
 const handleCallback = async (
   code: string,

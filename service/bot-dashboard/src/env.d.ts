@@ -1,6 +1,16 @@
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="@cloudflare/workers-types" />
 
+declare namespace Cloudflare {
+  interface Env {
+    APP_WORKER: Fetcher;
+    DISCORD_CLIENT_ID: string;
+    DISCORD_BOT_CLIENT_ID: string;
+    DISCORD_CLIENT_SECRET: string;
+    DISCORD_REDIRECT_URI: string;
+  }
+}
+
 declare namespace App {
   interface SessionData {
     /** Spec deviation: displayName, refreshToken, expiresAt added to support token refresh and display name */

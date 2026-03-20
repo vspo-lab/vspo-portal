@@ -46,11 +46,11 @@ const ExchangeCodeParamsSchema = z.object({
 type ExchangeCodeParams = z.infer<typeof ExchangeCodeParamsSchema>;
 
 /**
- * Discord OAuth2/REST API アクセス層
- * @precondition 有効な OAuth2 credentials が必要
+ * Discord OAuth2/REST API access layer
+ * @precondition Valid OAuth2 credentials are required
  */
 const DiscordApiRepository = {
-  /** Authorization code をアクセストークンに交換する */
+  /** Exchange an authorization code for an access token */
   exchangeCode: async (
     params: ExchangeCodeParams,
   ): Promise<Result<DiscordTokenResponse, AppError>> => {
@@ -80,7 +80,7 @@ const DiscordApiRepository = {
     return parseResult(DiscordTokenResponseSchema, await res.json());
   },
 
-  /** リフレッシュトークンでアクセストークンを更新する */
+  /** Refresh the access token using a refresh token */
   refreshToken: async (params: {
     refreshToken: string;
     clientId: string;
@@ -111,7 +111,7 @@ const DiscordApiRepository = {
     return parseResult(DiscordTokenResponseSchema, await res.json());
   },
 
-  /** ログインユーザー情報を取得する */
+  /** Retrieve the currently logged-in user's information */
   getCurrentUser: async (
     accessToken: string,
   ): Promise<Result<DiscordApiUser, AppError>> => {
@@ -140,7 +140,7 @@ const DiscordApiRepository = {
     return parseResult(DiscordApiUserSchema, await res.json());
   },
 
-  /** ユーザーが参加しているサーバー一覧を取得する */
+  /** Retrieve the list of servers the user belongs to */
   getUserGuilds: async (
     accessToken: string,
   ): Promise<Result<DiscordApiGuild[], AppError>> => {
@@ -179,8 +179,8 @@ const DiscordApiRepository = {
 } as const;
 
 export {
-  DiscordApiRepository,
-  type DiscordTokenResponse,
-  type DiscordApiUser,
   type DiscordApiGuild,
+  DiscordApiRepository,
+  type DiscordApiUser,
+  type DiscordTokenResponse,
 };

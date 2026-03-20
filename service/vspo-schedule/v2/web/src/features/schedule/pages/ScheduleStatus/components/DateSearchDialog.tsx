@@ -144,7 +144,7 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
           </FormControl>
         </FormGroup>
 
-        {/* お気に入り管理セクション */}
+        {/* Favorites management section */}
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" gutterBottom>
             {t("search.favorites.save", "Favorite Search Conditions")}

@@ -1,11 +1,11 @@
-## 現状
-<!-- 変更前の状態を簡潔に -->
+## Current State
+<!-- Briefly describe the state before this change -->
 
-## 問題
-<!-- このまま変更しない場合に起きる問題 -->
+## Problem
+<!-- What issue occurs if this change is not made -->
 
-## 実装内容
-<!-- 何をどう変更したかを箇条書きで -->
+## Changes
+<!-- List what was changed and how -->
 
-## 影響範囲
-<!-- 他モジュールへの影響があれば記載 -->
+## Impact
+<!-- Note any impact on other modules -->

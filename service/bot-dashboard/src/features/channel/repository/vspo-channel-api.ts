@@ -3,16 +3,16 @@ import { type AppError, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 
 /**
- * vspo-server の Channel 設定 API アクセス層
- * @precondition APP_WORKER Service Binding が設定されていること
+ * Channel configuration API access layer for vspo-server
+ * @precondition APP_WORKER Service Binding must be configured
  */
 const VspoChannelApiRepository = {
-  /** サーバーの Bot 設定を取得する */
+  /** Retrieve the Bot configuration for a server */
   getGuildConfig: async (
     _appWorker: Fetcher,
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
-    // TODO: Phase 5 で vspo-server API に接続
+    // TODO: Connect to vspo-server API in Phase 5
     // Mock data
     return Ok({
       guildId,
@@ -45,7 +45,7 @@ const VspoChannelApiRepository = {
     });
   },
 
-  /** チャンネル設定を更新する */
+  /** Update a channel's configuration */
   updateChannel: async (
     _appWorker: Fetcher,
     _guildId: string,
@@ -56,27 +56,27 @@ const VspoChannelApiRepository = {
       customMembers?: string[] | undefined;
     },
   ): Promise<Result<void, AppError>> => {
-    // TODO: Phase 5 で vspo-server API に接続
+    // TODO: Connect to vspo-server API in Phase 5
     return Ok(undefined);
   },
 
-  /** Bot を有効化する */
+  /** Enable the Bot */
   enableChannel: async (
     _appWorker: Fetcher,
     _guildId: string,
     _channelId: string,
   ): Promise<Result<void, AppError>> => {
-    // TODO: Phase 5 で vspo-server API に接続
+    // TODO: Connect to vspo-server API in Phase 5
     return Ok(undefined);
   },
 
-  /** Bot を無効化する */
+  /** Disable the Bot */
   disableChannel: async (
     _appWorker: Fetcher,
     _guildId: string,
     _channelId: string,
   ): Promise<Result<void, AppError>> => {
-    // TODO: Phase 5 で vspo-server API に接続
+    // TODO: Connect to vspo-server API in Phase 5
     return Ok(undefined);
   },
 } as const;
