@@ -134,7 +134,7 @@ export const ContentLayout = ({
         />
       </div>
       <div data-layout-bottom-nav>
-        <CustomBottomNavigation />
+        <CustomBottomNavigation onDrawerToggle={handleDrawerToggle} />
       </div>
     </>
   );
