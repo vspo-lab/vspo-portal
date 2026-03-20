@@ -34,7 +34,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
-          wranglerVersion: "4.6.0"
+          wranglerVersion: "4.73.0"
           workingDirectory: service/bot-dashboard
           command: deploy --env ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
           environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}

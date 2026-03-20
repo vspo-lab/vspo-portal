@@ -8,9 +8,7 @@ export default defineConfig({
     defaultLocale: "ja",
     locales: ["ja", "en"],
   },
-  adapter: cloudflare({
-    sessionKVBindingName: "SESSION",
-  }),
+  adapter: cloudflare(),
   vite: {
     plugins: [tailwindcss()],
   },
