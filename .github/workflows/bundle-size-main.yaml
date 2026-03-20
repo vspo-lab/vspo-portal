@@ -25,7 +25,7 @@ jobs:
           NEXT_PUBLIC_SITE_URL: "https://www.vspo-portal.com"
 
       - name: Analyze bundle
-        uses: hashicorp/nextjs-bundle-analysis@v0.2
+        uses: hashicorp/nextjs-bundle-analysis@v0.5.0
         with:
           build-directory: service/vspo-schedule/v2/web/.next
           workflow-id: bundle-size-main.yaml
