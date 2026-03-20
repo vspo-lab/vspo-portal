@@ -3,7 +3,7 @@ import { Box, Container, Fab, Paper, Tab, Tabs } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useTranslation } from "next-i18next";
 import type React from "react";
-import { Loading } from "@/features/shared/components/Elements/Loading/Loading";
+import { LivestreamGridSkeleton } from "@/features/shared/components/Elements/Skeleton/LivestreamGridSkeleton";
 import type { Event } from "@/features/shared/domain";
 import type { Livestream } from "../../../shared/domain/livestream";
 import {
@@ -115,10 +115,12 @@ export const ScheduleStatusPresenter: React.FC<PresenterProps> = ({
           />
         </Box>
 
-        {/* Loading overlay */}
+        {/* Loading skeleton */}
         {isLoading && (
           <LoadingOverlay>
-            <Loading />
+            <Box sx={{ width: "100%", p: 2 }}>
+              <LivestreamGridSkeleton />
+            </Box>
           </LoadingOverlay>
         )}
       </ContentContainer>
