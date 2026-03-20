@@ -22,6 +22,8 @@ const classes = sizeClasses[size];
   ) : (
     <div
       class={`flex ${classes.img} items-center justify-center rounded-full bg-muted ${classes.text}`}
+      role="img"
+      aria-label={name}
     >
       {name[0]}
     </div>

@@ -23,18 +23,22 @@ const showCustomMembers = MemberType.requiresCustomSelection(
 );
 ---
 
-<div
+<dialog
+  open
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
   id="config-modal"
+  aria-labelledby="config-modal-heading"
 >
   <div
     class="mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card p-6 shadow-action"
   >
     <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
+      <h2 id="config-modal-heading" class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
       <a
         href={`/dashboard/${guildId}`}
         class="text-muted-foreground hover:text-foreground"
+        role="button"
+        aria-label={t(locale, "channelConfig.close")}
       >
         ✕
       </a>
@@ -56,8 +60,8 @@ const showCustomMembers = MemberType.requiresCustomSelection(
         </select>
       </div>
 
-      <div class="space-y-2">
-        <span class="text-sm font-medium">{t(locale, "channelConfig.memberType")}</span>
+      <fieldset class="space-y-2">
+        <legend class="text-sm font-medium">{t(locale, "channelConfig.memberType")}</legend>
         <div class="space-y-2">
           {
             memberTypeOptions.map((opt) => (
@@ -74,7 +78,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
             ))
           }
         </div>
-      </div>
+      </fieldset>
 
       {
         showCustomMembers && (
@@ -113,4 +117,4 @@ const showCustomMembers = MemberType.requiresCustomSelection(
       </div>
     </form>
   </div>
-</div>
+</dialog>

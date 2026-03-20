@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Turbo Build
-        run: pnpm build
+        run: pnpm turbo build --filter=bot-dashboard...
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3.14.1
         with:

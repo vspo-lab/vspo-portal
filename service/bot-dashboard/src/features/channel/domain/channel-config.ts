@@ -1,6 +1,7 @@
-import { type Result, AppError, Err } from "@vspo-lab/error";
+import type { Result } from "@vspo-lab/error";
+import { AppError, Err } from "@vspo-lab/error";
 import { z } from "zod";
-import { parseResult } from "~/features/shared/lib/parse";
+import { parseResult, safeJsonParse } from "~/features/shared/lib/parse";
 import { MemberType } from "./member-type";
 
 const ChannelConfigSchema = z.object({
@@ -42,11 +43,9 @@ const ChannelConfig = {
       memberType: true,
       customMembers: true,
     });
-    const rawCustomMembers = (formData.get("customMembers") as string) || "[]";
-    let customMembers: unknown;
-    try {
-      customMembers = JSON.parse(rawCustomMembers);
-    } catch {
+    const rawCustomMembers = String(formData.get("customMembers") ?? "[]");
+    const parsed = safeJsonParse(rawCustomMembers);
+    if (parsed.err) {
       return Err(
         new AppError({
           message: "customMembers is invalid JSON",
@@ -54,6 +53,7 @@ const ChannelConfig = {
         }),
       );
     }
+    const customMembers: unknown = parsed.val;
     return parseResult(schema, {
       language: formData.get("language"),
       memberType: formData.get("memberType"),

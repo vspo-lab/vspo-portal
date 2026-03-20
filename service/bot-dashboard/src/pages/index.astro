@@ -9,10 +9,15 @@ if (Astro.locals.user) {
 }
 
 const locale = Astro.locals.locale;
+
+const errorParam = Astro.url.searchParams.get("error");
+const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || errorParam === "fetch_failed"
+  ? (`error.${errorParam}` as const)
+  : null;
 ---
 
 <Base title={t(locale, "login.title")}>
-  <div
+  <main
     class="flex min-h-screen flex-col items-center justify-center gap-8 p-4"
   >
     <div class="flex flex-col items-center gap-4 text-center">
@@ -23,6 +28,12 @@ const locale = Astro.locals.locale;
         {t(locale, "login.description")}
       </p>
     </div>
+
+    {errorKey && (
+      <div class="w-full max-w-lg rounded-md border border-destructive bg-destructive/10 p-4 text-sm text-destructive-foreground">
+        {t(locale, errorKey)}
+      </div>
+    )}
 
     <a href="/auth/discord">
       <Button variant="discord" size="lg" class="gap-2 text-base">
@@ -43,9 +54,9 @@ const locale = Astro.locals.locale;
     <div class="grid max-w-2xl gap-4 sm:grid-cols-3">
       <Card>
         <div class="flex flex-col space-y-1.5 p-6 pb-2">
-          <h3 class="text-base font-semibold leading-none tracking-tight">
+          <h2 class="text-base font-semibold leading-none tracking-tight">
             {t(locale, "login.feature.list")}
-          </h3>
+          </h2>
         </div>
         <div class="p-6 pt-0">
           <p class="text-sm text-muted-foreground">
@@ -55,9 +66,9 @@ const locale = Astro.locals.locale;
       </Card>
       <Card>
         <div class="flex flex-col space-y-1.5 p-6 pb-2">
-          <h3 class="text-base font-semibold leading-none tracking-tight">
+          <h2 class="text-base font-semibold leading-none tracking-tight">
             {t(locale, "login.feature.filter")}
-          </h3>
+          </h2>
         </div>
         <div class="p-6 pt-0">
           <p class="text-sm text-muted-foreground">
@@ -67,9 +78,9 @@ const locale = Astro.locals.locale;
       </Card>
       <Card>
         <div class="flex flex-col space-y-1.5 p-6 pb-2">
-          <h3 class="text-base font-semibold leading-none tracking-tight">
+          <h2 class="text-base font-semibold leading-none tracking-tight">
             {t(locale, "login.feature.realtime")}
-          </h3>
+          </h2>
         </div>
         <div class="p-6 pt-0">
           <p class="text-sm text-muted-foreground">
@@ -78,5 +89,5 @@ const locale = Astro.locals.locale;
         </div>
       </Card>
     </div>
-  </div>
+  </main>
 </Base>

@@ -19,4 +19,28 @@ const parseResult = <T>(
   return Ok(parsed.data);
 };
 
-export { parseResult };
+/**
+ * JSON.parse を安全にラップし、Result 型で返す
+ * @postcondition パース成功なら Ok(parsed)、失敗なら Err(AppError) を返す
+ */
+const safeJsonParse = (input: string): Result<unknown, AppError> => {
+  const result = z
+    .string()
+    .transform((s, ctx) => {
+      try {
+        return JSON.parse(s) as unknown;
+      } catch {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid JSON" });
+        return z.NEVER;
+      }
+    })
+    .safeParse(input);
+  if (!result.success) {
+    return Err(
+      new AppError({ message: result.error.message, code: "BAD_REQUEST" }),
+    );
+  }
+  return Ok(result.data);
+};
+
+export { parseResult, safeJsonParse };

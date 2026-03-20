@@ -1,11 +1,12 @@
+import { env } from "cloudflare:workers";
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
-import { env } from "cloudflare:workers";
 import { z } from "zod";
 import { parseResult } from "~/features/shared/lib/parse";
 
 const isDevMock = () =>
-  (env as Record<string, unknown>).DEV_MOCK_AUTH === "true";
+  (env as Record<string, unknown>).DEV_MOCK_AUTH === "true" &&
+  import.meta.env.DEV;
 
 const DiscordTokenResponseSchema = z.object({
   access_token: z.string(),
@@ -145,8 +146,18 @@ const DiscordApiRepository = {
   ): Promise<Result<DiscordApiGuild[], AppError>> => {
     if (isDevMock()) {
       return Ok([
-        { id: "111111111111111111", name: "Dev Server 1", icon: null, permissions: "32" },
-        { id: "222222222222222222", name: "Dev Server 2", icon: null, permissions: "32" },
+        {
+          id: "111111111111111111",
+          name: "Dev Server 1",
+          icon: null,
+          permissions: "32",
+        },
+        {
+          id: "222222222222222222",
+          name: "Dev Server 2",
+          icon: null,
+          permissions: "32",
+        },
       ]);
     }
 

@@ -85,3 +85,6 @@ dist
 docs/superpowers/plans/
 docs/plan/
 .claude/settings.local.json
+
+# Cloudflare generated types
+**/worker-configuration.d.ts

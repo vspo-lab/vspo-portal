@@ -12,7 +12,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.locale = context.preferredLocale === "en" ? "en" : "ja";
 
   const devMockAuth = (env as Record<string, unknown>).DEV_MOCK_AUTH;
-  if (devMockAuth === "true") {
+  if (devMockAuth === "true" && import.meta.env.DEV) {
     context.locals.user = MOCK_USER;
     context.locals.accessToken = "mock-access-token";
     return next();
@@ -21,7 +21,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const user = await context.session?.get("user");
   context.locals.user = user ?? null;
   context.locals.accessToken = user
-    ? (await context.session?.get("accessToken")) ?? null
+    ? ((await context.session?.get("accessToken")) ?? null)
     : null;
 
   if (!user && context.url.pathname.startsWith("/dashboard")) {

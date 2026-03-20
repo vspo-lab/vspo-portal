@@ -11,11 +11,9 @@ const ja = {
   "login.feature.list": "一覧管理",
   "login.feature.list.desc": "サーバーとチャンネルの設定をひと目で確認",
   "login.feature.filter": "メンバーフィルター",
-  "login.feature.filter.desc":
-    "JP・EN・カスタムで通知対象を細かく設定",
+  "login.feature.filter.desc": "JP・EN・カスタムで通知対象を細かく設定",
   "login.feature.realtime": "即座に反映",
-  "login.feature.realtime.desc":
-    "Web から変更するだけで Bot に即座に反映",
+  "login.feature.realtime.desc": "Web から変更するだけで Bot に即座に反映",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -29,6 +27,7 @@ const ja = {
   "dashboard.error": "エラー: {message}",
 
   // Guild
+  "guild.serverTitle": "サーバー {guildId}",
   "guild.manageSettings": "設定を管理",
   "guild.addBot": "Bot を追加",
 
@@ -42,6 +41,7 @@ const ja = {
   "channel.enable": "有効化",
   "channel.edit": "編集",
   "channel.empty": "設定されたチャンネルがありません。",
+  "channel.table": "チャンネル設定一覧",
 
   // Channel config form
   "channelConfig.title": "#{channelName} の設定",
@@ -50,14 +50,24 @@ const ja = {
   "channelConfig.language.en": "English",
   "channelConfig.memberType": "メンバータイプ",
   "channelConfig.customMembers": "カスタムメンバー",
+  "channelConfig.close": "閉じる",
   "channelConfig.cancel": "キャンセル",
   "channelConfig.save": "保存",
+
+  // Navigation
+  "nav.sidebar": "サーバーナビゲーション",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
   "memberType.vspo_en": "VSPO EN",
   "memberType.all": "All Members",
   "memberType.custom": "Custom",
+
+  // Error
+  "error.auth_failed": "Discord 認証に失敗しました。もう一度お試しください。",
+  "error.no_code": "認証コードが見つかりませんでした。もう一度お試しください。",
+  "error.fetch_failed":
+    "ユーザー情報の取得に失敗しました。もう一度お試しください。",
 
   // Auth
   "auth.logout": "ログアウト",
@@ -74,14 +84,12 @@ const en: Record<keyof typeof ja, string> = {
     "Easily manage your Discord Bot's stream notification settings from the web. View and update language and member filters per channel at a glance.",
   "login.button": "Login with Discord",
   "login.feature.list": "List Management",
-  "login.feature.list.desc":
-    "View server and channel settings at a glance",
+  "login.feature.list.desc": "View server and channel settings at a glance",
   "login.feature.filter": "Member Filters",
   "login.feature.filter.desc":
     "Fine-tune notification targets with JP, EN, or custom filters",
   "login.feature.realtime": "Instant Updates",
-  "login.feature.realtime.desc":
-    "Changes take effect immediately on the Bot",
+  "login.feature.realtime.desc": "Changes take effect immediately on the Bot",
 
   // Dashboard
   "dashboard.servers": "Servers",
@@ -95,6 +103,7 @@ const en: Record<keyof typeof ja, string> = {
   "dashboard.error": "Error: {message}",
 
   // Guild
+  "guild.serverTitle": "Server {guildId}",
   "guild.manageSettings": "Manage Settings",
   "guild.addBot": "Add Bot",
 
@@ -108,6 +117,7 @@ const en: Record<keyof typeof ja, string> = {
   "channel.enable": "Enable",
   "channel.edit": "Edit",
   "channel.empty": "No channels configured.",
+  "channel.table": "Channel settings",
 
   // Channel config form
   "channelConfig.title": "#{channelName} Settings",
@@ -116,14 +126,23 @@ const en: Record<keyof typeof ja, string> = {
   "channelConfig.language.en": "English",
   "channelConfig.memberType": "Member Type",
   "channelConfig.customMembers": "Custom Members",
+  "channelConfig.close": "Close",
   "channelConfig.cancel": "Cancel",
   "channelConfig.save": "Save",
+
+  // Navigation
+  "nav.sidebar": "Servers navigation",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
   "memberType.vspo_en": "VSPO EN",
   "memberType.all": "All Members",
   "memberType.custom": "Custom",
+
+  // Error
+  "error.auth_failed": "Discord authentication failed. Please try again.",
+  "error.no_code": "Authorization code not found. Please try again.",
+  "error.fetch_failed": "Failed to fetch user information. Please try again.",
 
   // Auth
   "auth.logout": "Logout",
@@ -150,13 +169,23 @@ export const t = (
   let value = dictionaries[locale][key] ?? dictionaries.ja[key] ?? key;
   if (params) {
     for (const [k, v] of Object.entries(params)) {
-      value = value.replace(`{${k}}`, v);
+      value = value.replaceAll(`{${k}}`, v);
     }
   }
   return value;
 };
 
 /** Type-safe key for member type translation lookup */
+const memberTypeKeys = {
+  vspo_jp: "memberType.vspo_jp",
+  vspo_en: "memberType.vspo_en",
+  all: "memberType.all",
+  custom: "memberType.custom",
+} as const satisfies Record<
+  import("~/features/channel/domain/member-type").MemberTypeValue,
+  MemberTypeKey
+>;
+
 export const memberTypeKey = (
   value: import("~/features/channel/domain/member-type").MemberTypeValue,
-): MemberTypeKey => `memberType.${value}` as MemberTypeKey;
+): MemberTypeKey => memberTypeKeys[value];

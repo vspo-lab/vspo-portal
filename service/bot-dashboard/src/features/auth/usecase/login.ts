@@ -26,18 +26,30 @@ const LoginResultSchema = z.object({
 
 type LoginResult = z.infer<typeof LoginResultSchema>;
 
+const AuthorizationUrlResultSchema = z.object({
+  url: z.string(),
+  state: z.string(),
+});
+
+type AuthorizationUrlResult = z.infer<typeof AuthorizationUrlResultSchema>;
+
 /**
  * Discord OAuth2 Authorization URL を生成する
- * @postcondition 有効な Discord OAuth2 URL を返す
+ * @postcondition 有効な Discord OAuth2 URL と CSRF 防止用の state を返す
  */
-const buildAuthorizationUrl = (env: AuthUrlEnv): string => {
+const buildAuthorizationUrl = (env: AuthUrlEnv): AuthorizationUrlResult => {
+  const state = crypto.randomUUID();
   const params = new URLSearchParams({
     client_id: env.DISCORD_CLIENT_ID,
     redirect_uri: env.DISCORD_REDIRECT_URI,
     response_type: "code",
     scope: "identify guilds",
+    state,
   });
-  return `https://discord.com/api/oauth2/authorize?${params.toString()}`;
+  return {
+    url: `https://discord.com/api/oauth2/authorize?${params.toString()}`,
+    state,
+  };
 };
 
 /**

@@ -13,14 +13,14 @@ const { locale } = Astro.locals;
 ---
 
 <div class="overflow-x-auto rounded-[--radius] border border-border">
-  <table class="w-full text-sm">
+  <table class="w-full text-sm" aria-label={t(locale, "channel.table")}>
     <thead>
       <tr class="border-b border-border bg-muted/50">
-        <th class="px-4 py-3 text-left font-medium">{t(locale, "channel.name")}</th>
-        <th class="px-4 py-3 text-left font-medium">{t(locale, "channel.enabled")}</th>
-        <th class="px-4 py-3 text-left font-medium">{t(locale, "channel.language")}</th>
-        <th class="px-4 py-3 text-left font-medium">{t(locale, "channel.members")}</th>
-        <th class="px-4 py-3 text-right font-medium">{t(locale, "channel.actions")}</th>
+        <th scope="col" class="px-4 py-3 text-left font-medium">{t(locale, "channel.name")}</th>
+        <th scope="col" class="px-4 py-3 text-left font-medium">{t(locale, "channel.enabled")}</th>
+        <th scope="col" class="px-4 py-3 text-left font-medium">{t(locale, "channel.language")}</th>
+        <th scope="col" class="px-4 py-3 text-left font-medium">{t(locale, "channel.members")}</th>
+        <th scope="col" class="px-4 py-3 text-right font-medium">{t(locale, "channel.actions")}</th>
       </tr>
     </thead>
     <tbody>
@@ -38,6 +38,8 @@ const { locale } = Astro.locals;
                 <input type="hidden" name="enable" value={ch.enabled ? "false" : "true"} />
                 <button
                   type="submit"
+                  role="switch"
+                  aria-checked={ch.enabled ? "true" : "false"}
                   class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-[--duration-fast] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
                   aria-label={t(locale, ch.enabled ? "channel.disable" : "channel.enable")}
                 >

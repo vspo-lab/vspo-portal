@@ -1,8 +1,14 @@
-import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
+import type { APIRoute } from "astro";
 import { LoginUsecase } from "~/features/auth/usecase/login";
 
 export const GET: APIRoute = async (context) => {
+  const state = context.url.searchParams.get("state");
+  const sessionState = await context.session.get("oauth_state");
+  if (!state || state !== sessionState) {
+    return context.redirect("/?error=invalid_state");
+  }
+
   const code = context.url.searchParams.get("code");
   if (!code) {
     return context.redirect("/?error=no_code");

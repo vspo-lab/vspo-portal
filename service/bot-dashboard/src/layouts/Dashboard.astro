@@ -31,10 +31,11 @@ const avatarUrl = DiscordUser.avatarUrl(user);
     </header>
     <div class="flex flex-1">
       <aside class="hidden w-64 border-r border-border p-4 lg:block">
-        <nav class="space-y-2">
+        <nav class="space-y-2" aria-label={t(locale, "nav.sidebar")}>
           <a
             href="/dashboard"
             class={`block rounded-md px-3 py-2 text-sm ${currentPath === "/dashboard" || currentPath === "/dashboard/" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50"}`}
+            {...(currentPath === "/dashboard" || currentPath === "/dashboard/" ? { "aria-current": "page" as const } : {})}
           >
             {t(locale, "dashboard.allServers")}
           </a>
@@ -43,6 +44,7 @@ const avatarUrl = DiscordUser.avatarUrl(user);
               <a
                 href={`/dashboard/${guild.id}`}
                 class={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${currentPath === `/dashboard/${guild.id}` ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50"}`}
+                {...(currentPath === `/dashboard/${guild.id}` ? { "aria-current": "page" as const } : {})}
               >
                 <AvatarFallback
                   src={guild.iconUrl}
