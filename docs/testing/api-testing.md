@@ -2,39 +2,34 @@
 
 ## Purpose
 
-- Ensure HTTP endpoint contracts (status/header/body) are not broken
-- Detect divergence between OpenAPI and implementation early
+- Ensure API client contracts (`@vspo-lab/api`) are not broken
+- Validate MockHandler responses match expected shapes
+- Detect divergence between OpenAPI spec and client usage
 
 ## Scope
 
-- Routes in `services/api/presentation/**`
-- Authentication, validation, and response formatting
+- API client usage in `service/vspo-schedule/v2/web/src/features/shared/api/**`
+- Mock data in `packages/api/src/mock/**`
+- Result type handling patterns
 
 ## Implementation Rules
 
-1. Hit the Hono app directly using `testClient` or `app.request()`
-2. Always include failure contracts for 4xx/5xx, not just 200-series
+1. Test API calls through `VSPOApi` client with `MockHandler` for deterministic data
+2. Always include failure contracts (`Err` results), not just success paths
 3. Cover input variations with table-driven tests
-4. Use the OpenAPI `/doc` as the input source for contract tests
+4. Validate response shapes against OpenAPI-generated types
 
 ## Mocking Policy
 
-- Default: no mocking (pass through route -> UseCase -> Repository with real implementations)
-- Exception: replace only external API calls at the boundary
-
-## Contract Testing
-
-- API cases: Vitest + Hono testClient
-- OpenAPI contracts: validate `/doc` with tools like Schemathesis
+- Default: use `MockHandler` for API responses (no real network calls in tests)
+- Validate that mock data matches OpenAPI-generated types from `packages/api/src/gen/`
 
 ## Execution Commands
 
-- API unit/integration: `pnpm --filter api test:run`
-- API integration (separate config): `pnpm --filter api test:integration`
+- Web: `pnpm --filter vspo-schedule-v2-web test:run`
+- API package: `pnpm --filter @vspo-lab/api test`
 
 ## References (Primary Sources)
 
-- Hono Testing Helper: https://hono.dev/docs/helpers/testing
-- Hono `app.request()`: https://hono.dev/docs/api/hono#request
-- Playwright API Testing: https://playwright.dev/docs/api-testing
-- Schemathesis CLI: https://schemathesis.readthedocs.io/en/stable/reference/cli/
+- Vitest Mocking: https://vitest.dev/guide/mocking.html
+- Orval (OpenAPI codegen): https://orval.dev/

@@ -8,8 +8,8 @@
 ## Scope
 
 - Pure logic in `packages/*`
-- Domain logic in `services/api/domain/**`
-- Utilities in `services/web/shared/lib/**`
+- Domain schemas and types in `service/vspo-schedule/v2/web/src/features/shared/domain/**`
+- Utilities in `service/vspo-schedule/v2/web/src/features/shared/utils/**`
 
 ## Implementation Rules
 
@@ -44,8 +44,8 @@ describe("normalizeText", () => {
 ## Execution Commands
 
 - All: `pnpm test:unit`
-- API only: `pnpm --filter api test:run`
-- Web only: `pnpm --filter web vitest run`
+- Web: `pnpm --filter vspo-schedule-v2-web vitest run`
+- Packages: `pnpm --filter @vspo-lab/* test`
 
 ## References (Primary Sources)
 

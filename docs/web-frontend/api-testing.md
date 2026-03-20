@@ -5,196 +5,222 @@
 
 ## Quick Start
 
+> **Note:** Test scripts are not yet configured. When adding Vitest, register these scripts in the relevant `package.json`:
+
 ```bash
-pnpm --filter api test:run          # Unit + integration
-pnpm --filter api test:integration  # Integration only
+pnpm --filter vspo-schedule-v2-web test:run  # Run all tests including API tests
 ```
 
 ## Architecture
 
+This repo is a frontend-only Next.js (Pages Router) application. There is no backend server in this codebase. API interactions are handled through the `@vspo-lab/api` package, which provides:
+
 ```
-testClient(app) --> Routes --> UseCase --> Repository
-     ^                ^          ^           ^
-  Type-safe       Auth mock   Real DI     Real DB
-
-  Mock only: external API, auth tokens, email, notifications
+Next.js Page (SSR)
+    └── features/**/api/*Service.ts
+            └── VSPOApi client (@vspo-lab/api)
+                    ├── Production: HTTP requests to external API
+                    └── Local/Test: MockHandler (static mock data)
 ```
 
-### What to Mock
+### What to Mock in API Tests
 
-| Service | Mock Purpose |
-|---------|-------------|
-| `ThirdPartyAPIClient` | External API calls |
-| `AuthService` | Token issuance/verification |
-| `AlertService` | Notifications |
-| `FileStorageService` | File storage |
-| `MessageService` | Email sending |
+| Layer | What to Mock | How |
+|-------|-------------|-----|
+| `VSPOApi` client methods | HTTP calls to external API | `vi.fn()` on `streams.list`, `events.list`, etc. |
+| `MockHandler` | Pre-built static data for all endpoints | Import directly from `@vspo-lab/api/mock` |
+| Cloudflare bindings | `APP_WORKER` service binding | Mock `getCloudflareEnvironmentContext()` |
+| `wrap()` behavior | Error wrapping | Return `Ok(...)` or `Err(...)` directly |
 
-## Test Container Factory
+## MockHandler (Built-in Mock System)
+
+The `@vspo-lab/api` package ships with a `MockHandler` that provides static mock data for every endpoint. This is the primary mechanism for local development and can be reused in tests.
 
 ```typescript
-// test/helpers/createTestContainer.ts
-import {
-  createMockThirdPartyAPIClient,
-  createMockAuthService,
-  createMockAlertService,
-  createMockMessageService,
-} from "./mockExternal";
+import { MockHandler } from "@vspo-lab/api/mock";
+import type { ListStreamsParams, ListClipsParams } from "@vspo-lab/api";
 
-export const createTestContainer = (): Container => {
-  // Real repositories (real DB)
-  const txManager = TxManager;
-  const userRepository = UserRepository;
-  const taskRepository = TaskRepository;
+// Get mock streams
+const streams = MockHandler.getStreams({} as ListStreamsParams);
 
-  // Mock external services only
-  const externalAPIClient = createMockThirdPartyAPIClient();
-  const tokenService = createMockAuthService();
-  const notificationService = createMockAlertService();
+// Get mock clips filtered by platform
+const clips = MockHandler.getClips({ platform: "youtube", clipType: "clip" } as ListClipsParams);
 
-  // Wire use cases with real repos + mock externals
-  const userUseCase = UserUseCase.from({ userRepository, txManager });
-  const taskUseCase = TaskUseCase.from({ taskRepository, userRepository, txManager });
+// Search streams by ID
+const searched = MockHandler.searchStreams({ streamIds: ["id-1", "id-2"] });
 
-  return { userUseCase, taskUseCase, tokenService, notificationService } as Container;
-};
+// Get a specific event
+const event = MockHandler.getEvent("event-id-123");
+
+// Get mock creators, freechats, events
+const creators = MockHandler.getCreators({});
+const freechats = MockHandler.getFreechats({});
+const events = MockHandler.getEvents({});
 ```
 
-## Test App Factory
+`MockHandler` is automatically activated when `ENV=local` or the API base URL contains `localhost`.
+
+## VSPOApi Client Mock
+
+For tests that need to control API responses (success/failure), mock the `VSPOApi` client directly:
 
 ```typescript
-// test/helpers/createTestApp.ts
-export const createTestApp = (options: TestAppOptions) => {
-  const app = new OpenAPIHono<HonoEnv>({ defaultHook: handleZodError });
-  app.use(contextStorage());
-  app.onError(handleError);
+import { Ok, Err, AppError } from "@vspo-lab/error";
+import { VSPOApi } from "@vspo-lab/api";
 
-  // Bypass auth, inject test user + container
-  app.use("*", async (c, next) => {
-    c.set("container", options.container);
-    c.set("requestId", `test-${Date.now()}`);
-    c.set("itemId", options.itemId);
-    c.set("user", options.user ?? {
-      id: options.itemId,
-      email: "test@example.com",
-      name: "Test User",
+vi.mock("@vspo-lab/api", () => ({
+  VSPOApi: vi.fn().mockImplementation(() => ({
+    streams: {
+      list: vi.fn().mockResolvedValue(Ok({ streams: [] })),
+      search: vi.fn().mockResolvedValue(Ok({ videos: [] })),
+    },
+    clips: {
+      list: vi.fn().mockResolvedValue(Ok({ clips: [] })),
+    },
+    events: {
+      list: vi.fn().mockResolvedValue(Ok({ events: [] })),
+      get: vi.fn().mockResolvedValue(Ok({ id: "e-1" })),
+      create: vi.fn().mockResolvedValue(Ok({ id: "e-new" })),
+    },
+    creators: {
+      list: vi.fn().mockResolvedValue(Ok({ creators: [] })),
+    },
+    freechats: {
+      list: vi.fn().mockResolvedValue(Ok({ freechats: [] })),
+    },
+  })),
+}));
+```
+
+## Data Fetching Layer Test Example
+
+```typescript
+// Testing service/vspo-schedule/v2/web/src/features/shared/api/livestream.ts
+import { fetchLivestreams } from "@/features/shared/api/livestream";
+import { Ok, Err, AppError } from "@vspo-lab/error";
+
+describe("fetchLivestreams", () => {
+  it("Returns Ok with transformed livestreams on success", async () => {
+    // Mock VSPOApi.streams.list to return raw API data
+    mockStreamsList.mockResolvedValue(
+      Ok({
+        streams: [
+          {
+            rawId: "yt-123",
+            title: "Test Stream",
+            platform: "youtube",
+            status: "live",
+            startedAt: "2025-01-01T00:00:00Z",
+            creatorName: "Test Creator",
+          },
+        ],
+      }),
+    );
+
+    const result = await fetchLivestreams({
+      limit: 10,
+      lang: "ja",
+      status: "all",
+      order: "asc",
+      timezone: "Asia/Tokyo",
+      startedDate: "2025-01-01",
     });
-    await next();
+
+    expect(result.err).toBeUndefined();
+    expect(result.val?.livestreams).toHaveLength(1);
+    expect(result.val?.livestreams[0].id).toBe("yt-123");
   });
 
-  return registerRoutes(app);
-};
-```
+  it("Returns Err wrapped in AppError on API failure", async () => {
+    mockStreamsList.mockResolvedValue(
+      Err(new AppError({ message: "Server error", code: "INTERNAL_SERVER_ERROR" })),
+    );
 
-## External Service Mocks
-
-```typescript
-// test/helpers/mockExternal.ts
-export const createMockThirdPartyAPIClient = () => ({
-  fetch: vi.fn().mockResolvedValue(Ok({ data: { id: "item-123" }, status: "success" })),
-  post: vi.fn().mockResolvedValue(Ok({ id: "created-123", status: "created" })),
-});
-
-export const createMockAuthService = () => ({
-  createToken: vi.fn().mockResolvedValue(Ok("mock-token-xxx")),
-  verifyToken: vi.fn().mockResolvedValue(Ok({ itemId: "user-123", valid: true })),
-});
-
-export const createMockAlertService = () => ({
-  send: vi.fn().mockResolvedValue(Ok({ sent: true, messageId: "msg-123" })),
-});
-```
-
-## Integration Test Example
-
-```typescript
-// test/integration/routes/item.test.ts
-describe("Item API", () => {
-  const TEST_ITEM_ID = `test-item-${Date.now()}`;
-  const container = createTestContainer();
-  const app = createTestApp({ container, itemId: TEST_ITEM_ID });
-  const client = testClient(app);
-
-  beforeAll(async () => {
-    await createTestItem({ id: TEST_ITEM_ID, status: "active", name: "Test Item" });
-  });
-
-  afterAll(async () => {
-    await cleanupTestData(TEST_ITEM_ID);
-  });
-
-  describe("GET /me", () => {
-    it("Can retrieve item information", async () => {
-      const res = await client.me.$get();
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data.id).toBe(TEST_ITEM_ID);
+    const result = await fetchLivestreams({
+      limit: 10,
+      lang: "ja",
+      status: "all",
+      order: "asc",
+      timezone: "Asia/Tokyo",
     });
-  });
 
-  describe("PUT /me", () => {
-    it("Can update item information", async () => {
-      const res = await client.me.$put({ json: { name: "Updated Name" } });
-      expect(res.status).toBe(200);
-
-      // Verify persistence
-      const getRes = await client.me.$get();
-      const getData = await getRes.json();
-      expect(getData.name).toBe("Updated Name");
-    });
+    expect(result.err).toBeDefined();
+    expect(result.err?.code).toBe("INTERNAL_SERVER_ERROR");
   });
 });
 ```
 
-## DB Test Utilities
+## Cloudflare Service Binding Mock
+
+When testing the Cloudflare Workers path (used in production), mock the environment context:
 
 ```typescript
-// test/helpers/testDb.ts
-export const createTestItem = async (data: { id: string; email: string; name: string }) => {
-  const db = (await getDb()).val;
-  await db.insert(items).values({ ...data, createdAt: new Date(), updatedAt: new Date() });
-};
+import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 
-export const cleanupTestData = async (itemId: string) => {
-  const db = (await getDb()).val;
-  await db.delete(orders).where(eq(orders.itemId, itemId));
-  await db.delete(items).where(eq(items.id, itemId));
-};
+vi.mock("@/lib/cloudflare/context", () => ({
+  getCloudflareEnvironmentContext: vi.fn().mockResolvedValue({
+    cfEnv: {
+      APP_WORKER: {
+        newStreamUsecase: () => ({
+          list: vi.fn().mockResolvedValue(Ok({ streams: [] })),
+        }),
+      },
+    },
+  }),
+}));
+```
 
-/** Execute test within a transaction (auto-rollback) */
-export const withTestTransaction = async <T>(fn: (tx: typeof db) => Promise<T>): Promise<T> => {
-  const db = (await getDb()).val;
-  return db.transaction(async (tx) => {
-    const result = await fn(tx);
-    throw new RollbackError(result);
-  }).catch((e) => {
-    if (e instanceof RollbackError) return e.result;
-    throw e;
-  });
-};
+## Result Type Assertion Helpers
+
+```typescript
+import type { Result } from "@vspo-lab/error";
+import { AppError } from "@vspo-lab/error";
+
+/** Assert that a Result is Ok and return its value */
+function expectOk<T>(result: Result<T, AppError>): T {
+  expect(result.err).toBeUndefined();
+  expect(result.val).toBeDefined();
+  return result.val!;
+}
+
+/** Assert that a Result is Err and return the error */
+function expectErr(result: Result<unknown, AppError>): AppError {
+  expect(result.err).toBeDefined();
+  return result.err!;
+}
 ```
 
 ## File Structure
 
 ```
-services/api/test/
-├── setup.ts
-├── helpers/
-│   ├── createTestApp.ts
-│   ├── createTestContainer.ts
-│   ├── mockExternal.ts
-│   └── testDb.ts
-└── integration/
-    └── routes/
-        ├── item.test.ts
-        └── order.test.ts
-```
+service/vspo-schedule/v2/web/
+├── src/
+│   ├── features/shared/api/         # Data fetching functions (primary test targets)
+│   │   ├── livestream.ts            # fetchLivestreams (uses VSPOApi)
+│   │   ├── clip.ts                  # fetchClips
+│   │   ├── event.ts                 # fetchEvents
+│   │   ├── freechat.ts              # fetchFreechats
+│   │   └── channel.ts               # fetchChannels
+│   ├── features/*/api/*Service.ts   # Feature-specific data fetching
+│   └── lib/cloudflare/context.ts    # Cloudflare env access
+├── __tests__/                       # Test files (when added)
+├── vitest.config.ts                 # (to be created)
+└── vitest.setup.ts                  # (to be created)
 
-## OpenAPI Contract Testing
-
-Use [Schemathesis](https://schemathesis.readthedocs.io/) to auto-generate tests from the `/doc` endpoint:
-
-```bash
-pip install schemathesis
-schemathesis run http://localhost:8787/doc --checks all
+packages/api/
+├── src/
+│   ├── client.ts                    # VSPOApi class (HTTP client)
+│   ├── index.ts                     # Public exports
+│   ├── mock/
+│   │   ├── index.ts                 # MockHandler + isLocalEnv
+│   │   └── data/                    # Static mock data
+│   │       ├── streams.ts
+│   │       ├── creators.ts
+│   │       ├── events.ts
+│   │       ├── freechats.ts
+│   │       ├── twitchClips.ts
+│   │       ├── youtubeClips.ts
+│   │       └── youtubeShorts.ts
+│   └── gen/openapi.ts               # Generated API types (from orval)
+└── package.json
 ```

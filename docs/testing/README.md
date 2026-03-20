@@ -15,8 +15,8 @@ This directory is the Single Source of Truth for implementation guidelines per t
 | Type | Purpose | Primary Tools | Guidelines |
 | --- | --- | --- | --- |
 | Unit | Verify local behavior of functions/domains | Vitest | Fast, pure, minimal side effects |
-| Integration | Verify collaboration across multiple modules | Vitest + real DB | Pass through Repository/UseCase/DB |
-| API | Ensure endpoint contracts and input/output guarantees | Hono testClient + OpenAPI | Hit routes with real implementations |
+| Integration | Verify collaboration across multiple modules | Vitest | Pass through feature modules with real API client |
+| API | Ensure API client contracts and data fetching | Vitest + MockHandler | Validate VSPOApi client and mock data |
 | UI | Verify components from the user's perspective | Vitest + Testing Library | Role-based selection, real DOM focus |
 | VRT | Detect visual regressions | Storybook + Playwright | Stabilize snapshots |
 | E2E | Guarantee entire user flows | Playwright | Verify paths in production-equivalent environments |
@@ -25,9 +25,8 @@ This directory is the Single Source of Truth for implementation guidelines per t
 
 | Target Package | Minimum Coverage | CI Enforced |
 | --- | --- | --- |
-| `services/api/domain/**` | 60% | Yes |
 | `packages/**` | 60% | Yes |
-| `services/web/shared/lib/**` | 50% | No (recommended) |
+| `service/vspo-schedule/v2/web/src/features/shared/**` | 50% | No (recommended) |
 
 - PRs that fall below the threshold will fail in CI
 - Thresholds are raised incrementally (initial settings are conservative)

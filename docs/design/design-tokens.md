@@ -56,16 +56,16 @@
 ## Usage
 
 ```tsx
-// MUI sx prop
-<Box sx={{ bgcolor: "var(--color-background)", color: "var(--color-foreground)" }} />
+// MUI sx prop (using theme.vars for light/dark mode compatibility)
+<Box sx={{ bgcolor: "background.default", color: "text.primary" }} />
 
-// Emotion styled()
-const Card = styled("div")({
-  backgroundColor: "var(--color-card)",
-  border: "1px solid var(--color-border)",
-  borderRadius: "var(--radius-lg)",
-  boxShadow: "var(--shadow-card)",
-});
+// Emotion styled() with theme access
+const Card = styled("div")(({ theme }) => ({
+  backgroundColor: theme.vars.palette.background.paper,
+  border: `1px solid ${theme.vars.palette.divider}`,
+  borderRadius: theme.shape.borderRadius * 2.5, // ~20px
+  boxShadow: theme.shadows[1],
+}));
 ```
 
 ## Naming Convention

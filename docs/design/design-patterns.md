@@ -47,7 +47,9 @@ Include lead text so users quickly understand the page purpose. Manage page leng
 
 ```tsx
 const { isMobile } = useEnvironment();
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{/* Cards */}</div>
+<Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr" }, gap: 2 }}>
+  {/* Cards */}
+</Box>
 ```
 
 ## Feedback

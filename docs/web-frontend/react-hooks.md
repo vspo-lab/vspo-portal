@@ -13,7 +13,7 @@
 1. **Write plain code first** -- derive values during rendering, handle events in handlers.
 2. **Manual `useMemo` / `useCallback` only when needed** -- stabilizing Effect deps, third-party referential identity, or profiler-confirmed bottlenecks.
 3. **Do not blindly remove old optimizations** -- verify behavior first.
-4. **Keep `eslint-plugin-react-hooks` enabled in CI.**
+4. **Keep Biome's React hooks lint rules enabled in CI** (configured in `biome.json`).
 
 ## When useEffect Is Unnecessary
 

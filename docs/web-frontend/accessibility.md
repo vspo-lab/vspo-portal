@@ -16,6 +16,8 @@ For the full specification, see [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/).
 
 ---
 
+**Note on code examples**: React Aria examples below use utility class names (e.g., `text-sm`, `rounded-full`) for brevity. In this project, implement equivalent styles using MUI `sx` prop or Emotion `styled()` per [Styling Guide](./styling.md).
+
 ## React Aria
 
 This project uses **React Aria** for accessibility support.
@@ -436,7 +438,7 @@ If building a custom modal without React Aria, ensure:
 ```css
 /* globals.css */
 :focus-visible {
-  outline: 2px solid var(--color-ring);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -518,13 +520,13 @@ Use visual cues other than color alongside state changes.
 
 ```tsx
 // Good: Color + icon + text
-<div className="flex items-center gap-2 text-error">
+<Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "error.main" }}>
   <AlertCircleIcon aria-hidden="true" />
-  <span>Error: Please check your input</span>
-</div>
+  <Typography variant="body2" color="error">Error: Please check your input</Typography>
+</Box>
 
 // Bad: Color only
-<div className="text-error">Please check your input</div>
+<Typography color="error">Please check your input</Typography>
 ```
 
 ### 6. Target Size
@@ -738,7 +740,7 @@ export function Select({ id, label, options, error, ...props }: SelectProps) {
 | Tool | Purpose | Detection Range |
 |------|---------|----------------|
 | axe-core | Automated checks in CI/CD | Approx. 40% |
-| eslint-plugin-jsx-a11y | Static analysis | Basic issues |
+| Biome lint rules | Static analysis (replaces eslint-plugin-jsx-a11y) | Basic issues |
 | Lighthouse | Comprehensive evaluation including performance | Score-based |
 
 #### axe-core Integration Example
@@ -797,5 +799,5 @@ describe("Accessibility", () => {
 - [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 - [React Aria](https://react-spectrum.adobe.com/react-aria/) / [Components](https://react-spectrum.adobe.com/react-aria/components.html)
 - [axe-core](https://github.com/dequelabs/axe-core)
-- [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)
+- [Biome Accessibility Rules](https://biomejs.dev/linter/rules/#accessibility)
 - [Design Checklist](../design/accessibility.md)

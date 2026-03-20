@@ -7,37 +7,32 @@
 
 ## Scope
 
-- `services/api/usecase/**`
-- `services/api/infra/repository/**`
-- Application flows that include the DB
+- Feature modules in `service/vspo-schedule/v2/web/src/features/**`
+- Cross-feature data flows through `features/shared/api/**`
+- Application flows involving the external API client (`@vspo-lab/api`)
 
 ## Implementation Rules
 
-1. Use real implementations for app internals (UseCase/Repository/DB)
-2. Mock only at boundaries for external service dependencies
+1. Use real feature module implementations (API service layer, data transformations)
+2. Mock only the external API boundary (`@vspo-lab/api` → `MockHandler`)
 3. Enumerate business scenarios with table-driven tests
 4. Keep each test independent; do not depend on data from previous cases
 
-## Data Management
-
-- Run migrate/seed before tests
-- Create required data per test and avoid unnecessary shared state
-- Ensure reproducibility in CI via `compose.test.yaml`
-
 ## Mocking Policy
 
-- Default: no mocking (especially use a real DB)
-- Exception: only uncontrollable external boundaries such as payment, email, and external SaaS
+- Default: use `MockHandler` for external API responses
+- Exception: mock Cloudflare service bindings when testing Worker-specific behavior
+- Prohibited: mocking internal feature module logic
 
 ## File Placement
 
-- `services/api/test/integration/**/*.test.ts`
-- Align with the `include` setting in `services/api/vitest.integration.config.ts`
+- Colocated with feature: `service/vspo-schedule/v2/web/src/features/**/*.test.ts`
+- Package tests: `packages/*/src/**/*.test.ts`
 
 ## Execution Commands
 
 - All: `pnpm test:integration`
-- API only: `pnpm --filter api test:integration`
+- Web: `pnpm --filter vspo-schedule-v2-web test:integration`
 
 ## References (Primary Sources)
 

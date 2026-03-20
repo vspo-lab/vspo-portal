@@ -45,7 +45,7 @@ Technical documentation for the vspo-portal monorepo.
 | Document | Description |
 |----------|-------------|
 | [Unit Testing](./web-frontend/unit-testing.md) | Project-specific test patterns (Vitest, mocks, Result type) |
-| [API Testing](./web-frontend/api-testing.md) | API contract testing with testClient and MockHandler |
+| [API Testing](./web-frontend/api-testing.md) | API data fetching tests with VSPOApi client mock and MockHandler |
 | [TDD Strategy](./web-frontend/twada-tdd.md) | t_wada-style Red-Green-Refactor |
 
 ### Backend
