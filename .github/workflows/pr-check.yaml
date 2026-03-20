@@ -1,9 +1,13 @@
 name: PR Check
+
 on:
   pull_request:
     paths:
       - 'service/vspo-schedule/v2/web/**'
+      - 'service/bot-dashboard/**'
       - 'packages/**'
+      - 'docs/**'
+      - 'README.md'
       - '.github/workflows/pr-check.yaml'
 
 jobs:
@@ -11,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       web: ${{ steps.filter.outputs.web }}
+      bot-dashboard: ${{ steps.filter.outputs.bot-dashboard }}
+      packages: ${{ steps.filter.outputs.packages }}
+      docs: ${{ steps.filter.outputs.docs }}
+      code: ${{ steps.filter.outputs.code }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
@@ -19,51 +27,134 @@ jobs:
           filters: |
             web:
               - 'service/vspo-schedule/v2/web/**'
+            bot-dashboard:
+              - 'service/bot-dashboard/**'
+            packages:
+              - 'packages/**'
+            docs:
+              - 'docs/**'
+              - 'README.md'
+              - '.github/**/*.md'
+            code:
+              - '**/*.ts'
+              - '**/*.tsx'
+              - '**/*.js'
+              - '**/*.jsx'
+              - '**/*.json'
 
   biome-check:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
-
       - name: Biome Check
         run: pnpm biome:check
 
   typescript-check:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
-
       - name: TypeScript Check
         run: pnpm tsc
 
   knip-check:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
-
       - name: Knip Check
         run: pnpm knip
 
   textlint-check:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
-
+        with:
+          build: 'false'
       - name: Textlint Check
         run: pnpm textlint
+
+  markdownlint-check:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+      - name: Markdownlint Check
+        run: pnpm markdownlint
+
+  cspell-check:
+    needs: changes
+    if: needs.changes.outputs.code == 'true' || needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+      - name: Spell Check
+        run: pnpm cspell
+
+  bundle-size:
+    needs: changes
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+      - name: Build web app
+        run: pnpm --filter vspo-schedule-v2-web exec next build
+        env:
+          NEXT_PUBLIC_SITE_URL: "https://www.vspo-portal.com"
+      - name: Analyze bundle
+        uses: hashicorp/nextjs-bundle-analysis@v0.2
+        with:
+          build-directory: service/vspo-schedule/v2/web/.next
+          workflow-id: bundle-size-main.yaml
+
+  # ----- Future: Uncomment when Vitest is introduced -----
+  # test:
+  #   needs: changes
+  #   if: needs.changes.outputs.code == 'true'
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 15
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Setup PNPM
+  #       uses: ./.github/actions/setup-pnpm
+  #     - name: Run tests
+  #       run: pnpm test
+  #     - name: Upload coverage
+  #       if: always()
+  #       uses: codecov/codecov-action@v5
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         flags: unittests
+  #         fail_ci_if_error: false
