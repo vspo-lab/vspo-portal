@@ -51,3 +51,30 @@ export const Ended: Story = {
     timeZone: "Asia/Tokyo",
   },
 };
+
+export const WithAdditionalMembers: Story = {
+  args: {
+    livestream: baseLivestream,
+    isFreechat: false,
+    timeZone: "Asia/Tokyo",
+    additionalMembers: [
+      { name: "Member A", iconUrl: "https://via.placeholder.com/36" },
+      { name: "Member B", iconUrl: "https://via.placeholder.com/36" },
+    ],
+  },
+};
+
+export const Freechat: Story = {
+  args: {
+    livestream: { ...baseLivestream, status: "upcoming" },
+    isFreechat: true,
+  },
+};
+
+export const NoThumbnail: Story = {
+  args: {
+    livestream: { ...baseLivestream, channelThumbnailUrl: "" },
+    isFreechat: false,
+    timeZone: "Asia/Tokyo",
+  },
+};

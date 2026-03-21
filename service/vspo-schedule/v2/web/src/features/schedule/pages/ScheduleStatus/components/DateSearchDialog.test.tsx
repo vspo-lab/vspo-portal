@@ -108,4 +108,77 @@ describe("DateSearchDialog", () => {
       screen.getByRole("button", { name: "Save Current Conditions" }),
     ).toBeInTheDocument();
   });
+
+  it("renders favorite with vspo_all memberType and no platform", () => {
+    renderWithTheme(
+      <DateSearchDialog
+        {...defaultProps}
+        hasFavorite={true}
+        favorite={{
+          memberType: "vspo_all",
+          platform: "",
+          createdAt: "2024-01-15",
+        }}
+      />,
+    );
+    // vspo_all → key "search.memberType.all", fallback "vspo_all" → mock returns "vspo_all"
+    // platform is falsy → t("search.platform.all", "All Platforms") → mock returns "All Platforms"
+    expect(screen.getByText("vspo_all | All Platforms")).toBeInTheDocument();
+  });
+
+  it("renders favorite with non-vspo_all memberType and truthy platform", () => {
+    renderWithTheme(
+      <DateSearchDialog
+        {...defaultProps}
+        hasFavorite={true}
+        favorite={{
+          memberType: "vspo_jp",
+          platform: "youtube",
+          createdAt: "2024-01-15",
+        }}
+      />,
+    );
+    // vspo_jp → key "search.memberType.jp", fallback "vspo_jp" → mock returns "vspo_jp"
+    // platform = "youtube" → t("search.platform.youtube", "youtube") → mock returns "youtube"
+    expect(screen.getByText("vspo_jp | youtube")).toBeInTheDocument();
+  });
+
+  it("renders favorite with null memberType using empty fallback", () => {
+    renderWithTheme(
+      <DateSearchDialog
+        {...defaultProps}
+        hasFavorite={true}
+        favorite={{
+          memberType: undefined as unknown as "vspo_all",
+          platform: "",
+          createdAt: "2024-01-15",
+        }}
+      />,
+    );
+    // memberType undefined → fallback "" → mock returns ""
+    // platform falsy → "All Platforms"
+    // Result: " | All Platforms"
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === " | All Platforms";
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders favorite with vspo_en memberType and twitch platform", () => {
+    renderWithTheme(
+      <DateSearchDialog
+        {...defaultProps}
+        hasFavorite={true}
+        favorite={{
+          memberType: "vspo_en",
+          platform: "twitch",
+          createdAt: "2024-01-15",
+        }}
+      />,
+    );
+    // vspo_en → key "search.memberType.en", fallback "vspo_en" → mock returns "vspo_en"
+    // platform = "twitch" → t("search.platform.twitch", "twitch") → mock returns "twitch"
+    expect(screen.getByText("vspo_en | twitch")).toBeInTheDocument();
+  });
 });

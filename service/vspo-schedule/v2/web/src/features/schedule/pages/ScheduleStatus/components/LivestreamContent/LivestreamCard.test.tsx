@@ -4,15 +4,30 @@ import { ThemeModeProvider } from "@/context/Theme";
 import type { Livestream } from "@/features/shared/domain/livestream";
 import { LivestreamCard } from "./LivestreamCard";
 
+const mockUseMediaQuery = vi.fn().mockReturnValue(false);
+vi.mock("@mui/material", async () => {
+  const actual = await vi.importActual("@mui/material");
+  return {
+    ...actual,
+    useMediaQuery: (...args: unknown[]) => mockUseMediaQuery(...args),
+  };
+});
+
+let capturedHighlight: unknown;
+
 vi.mock("@/features/shared/components/Elements/Card/VideoCard", () => ({
   VideoCard: ({
     children,
+    highlight,
   }: {
     children: React.ReactNode;
     video: unknown;
     highlight?: unknown;
     priority?: boolean;
-  }) => <div data-testid="video-card">{children}</div>,
+  }) => {
+    capturedHighlight = highlight;
+    return <div data-testid="video-card">{children}</div>;
+  },
 }));
 
 vi.mock("next/router", () => ({
@@ -111,5 +126,81 @@ describe("LivestreamCard", () => {
     // Check that the additional member avatars are rendered
     expect(screen.getByAltText("Member A")).toBeInTheDocument();
     expect(screen.getByAltText("Member B")).toBeInTheDocument();
+  });
+
+  it("renders upcoming highlight when status is upcoming", () => {
+    renderWithTheme(
+      <LivestreamCard
+        livestream={makeLivestream({ status: "upcoming" })}
+        isFreechat={false}
+        timeZone="Asia/Tokyo"
+      />,
+    );
+    expect(capturedHighlight).toEqual({
+      label: "upcoming",
+      color: "#2D4870",
+      bold: true,
+    });
+  });
+
+  it("falls back to empty string when channelThumbnailUrl is falsy", () => {
+    renderWithTheme(
+      <LivestreamCard
+        livestream={makeLivestream({ channelThumbnailUrl: "" })}
+        isFreechat={false}
+        timeZone="Asia/Tokyo"
+      />,
+    );
+    // Card renders without crashing even when channelThumbnailUrl is empty
+    expect(screen.getByTestId("video-card")).toBeInTheDocument();
+    expect(screen.getByText("Test Stream Title")).toBeInTheDocument();
+  });
+
+  it("does not show time for freechat cards (isFreechat=true)", () => {
+    renderWithTheme(
+      <LivestreamCard
+        livestream={makeLivestream({ status: "upcoming" })}
+        isFreechat={true}
+      />,
+    );
+    // formattedTime should be "" so no time container is shown
+    expect(screen.queryByText("19:00~")).not.toBeInTheDocument();
+    // Card still renders
+    expect(screen.getByText("Test Stream Title")).toBeInTheDocument();
+  });
+
+  it("renders AvatarGroup with mobile max when isMobile is true", () => {
+    mockUseMediaQuery.mockReturnValueOnce(true);
+    const additionalMembers = [
+      { name: "Member A", iconUrl: "https://example.com/a.jpg" },
+      { name: "Member B", iconUrl: "https://example.com/b.jpg" },
+    ];
+    renderWithTheme(
+      <LivestreamCard
+        livestream={makeLivestream()}
+        isFreechat={false}
+        timeZone="Asia/Tokyo"
+        additionalMembers={additionalMembers}
+      />,
+    );
+    expect(screen.getByAltText("Member A")).toBeInTheDocument();
+    expect(screen.getByAltText("Member B")).toBeInTheDocument();
+  });
+
+  it("handles falsy title, channelTitle, and scheduledStartTime", () => {
+    renderWithTheme(
+      <LivestreamCard
+        livestream={makeLivestream({
+          title: "" as string,
+          channelTitle: "" as string,
+          scheduledStartTime: "" as string,
+          channelThumbnailUrl: "" as string,
+        })}
+        isFreechat={false}
+        timeZone="Asia/Tokyo"
+      />,
+    );
+    // Card still renders even with all falsy string fields
+    expect(screen.getByTestId("video-card")).toBeInTheDocument();
   });
 });

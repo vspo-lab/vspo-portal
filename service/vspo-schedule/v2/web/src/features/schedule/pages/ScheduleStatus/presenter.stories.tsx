@@ -47,3 +47,32 @@ export const LiveFilter: Story = {
     statusFilter: "live",
   },
 };
+
+export const UpcomingTab: Story = {
+  args: {
+    ...Default.args,
+    statusFilter: "upcoming",
+  },
+};
+
+export const WithEvents: Story = {
+  args: {
+    ...Default.args,
+    events: [
+      {
+        id: "evt-1",
+        type: "event",
+        title: "V-Spo Cup 2024",
+        startedDate: "2024-01-15",
+        contentSummary: null,
+      },
+      {
+        id: "evt-2",
+        type: "event",
+        title: "Birthday Stream",
+        startedDate: "2024-01-16",
+        contentSummary: null,
+      },
+    ],
+  },
+};

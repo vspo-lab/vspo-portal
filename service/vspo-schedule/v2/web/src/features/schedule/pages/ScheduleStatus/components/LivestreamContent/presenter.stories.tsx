@@ -51,3 +51,34 @@ export const WithStreams: Story = {
     timeZone: "Asia/Tokyo",
   },
 };
+
+export const MultipleDates: Story = {
+  args: {
+    livestreamsByDate: {
+      "2024-01-15": [
+        baseLivestream,
+        {
+          ...baseLivestream,
+          id: "ls-2",
+          title: "Valorant Ranked",
+          scheduledStartTime: "2024-01-15T14:00:00Z",
+        },
+      ],
+      "2024-01-16": [
+        {
+          ...baseLivestream,
+          id: "ls-3",
+          title: "Minecraft Collab",
+          scheduledStartTime: "2024-01-16T10:00:00Z",
+        },
+        {
+          ...baseLivestream,
+          id: "ls-4",
+          title: "PUBG Tournament",
+          scheduledStartTime: "2024-01-16T18:00:00Z",
+        },
+      ],
+    },
+    timeZone: "Asia/Tokyo",
+  },
+};

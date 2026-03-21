@@ -55,3 +55,47 @@ export const WithFavorite: Story = {
     },
   },
 };
+
+export const WithFavoriteJP: Story = {
+  args: {
+    ...Default.args,
+    hasFavorite: true,
+    favorite: {
+      memberType: "vspo_jp",
+      platform: "youtube",
+      createdAt: "2024-01-10",
+    },
+  },
+};
+
+export const WithFavoriteAllMembers: Story = {
+  args: {
+    ...Default.args,
+    hasFavorite: true,
+    favorite: {
+      memberType: "vspo_all",
+      platform: "",
+      createdAt: "2024-01-10",
+    },
+  },
+};
+
+export const SearchEnabled: Story = {
+  args: {
+    ...Default.args,
+    isSearchEnabled: true,
+    dateInputValue: "2024-06-15",
+    formData: {
+      selectedDate: new Date("2024-06-15"),
+      memberType: "vspo_jp",
+      platform: "youtube",
+    },
+  },
+};
+
+export const Closed: Story = {
+  args: {
+    ...Default.args,
+    open: false,
+  },
+};

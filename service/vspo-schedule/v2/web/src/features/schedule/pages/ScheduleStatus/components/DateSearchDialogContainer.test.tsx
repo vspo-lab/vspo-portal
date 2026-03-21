@@ -375,6 +375,16 @@ describe("DateSearchDialogContainer", () => {
     expect(formData.platform).toBe("youtube");
   });
 
+  it("ignores invalid date query param (NaN branch)", () => {
+    mockQuery = { date: "invalid-date-string" };
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    // Invalid date should not populate dateInputValue or enable search
+    expect(capturedDialogProps.dateInputValue).toBe("");
+    expect(capturedDialogProps.isSearchEnabled).toBe(false);
+  });
+
   it("sets selectedDate to null when invalid date string is entered", () => {
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
