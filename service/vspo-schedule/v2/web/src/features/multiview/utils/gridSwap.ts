@@ -114,12 +114,14 @@ const supplementConstraints = (
 ): void => {
   const n = rects.length;
 
-  // Build a set of pairs already constrained (in either direction)
+  const varIndex = new Map<Variable, number>();
+  for (let i = 0; i < vars.length; i++) varIndex.set(vars[i], i);
+
   const covered = new Set<string>();
   for (const c of existing) {
-    const li = vars.indexOf(c.left);
-    const ri = vars.indexOf(c.right);
-    if (li >= 0 && ri >= 0) {
+    const li = varIndex.get(c.left);
+    const ri = varIndex.get(c.right);
+    if (li !== undefined && ri !== undefined) {
       covered.add(`${Math.min(li, ri)},${Math.max(li, ri)}`);
     }
   }

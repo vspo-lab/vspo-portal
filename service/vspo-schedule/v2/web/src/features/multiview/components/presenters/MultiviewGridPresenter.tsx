@@ -323,9 +323,11 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const lastSwappedIdRef = useRef<string | null>(null);
   const dragRafRef = useRef(0);
 
-
   // Internal layout state — only reset when layout button is pressed
   const [internalLayout, setInternalLayout] = useState<GridLayout.Layout[]>([]);
+  // Ref mirror for accessing latest layout inside RAF callbacks without stale closures
+  const internalLayoutRef = useRef(internalLayout);
+  internalLayoutRef.current = internalLayout;
   // Track layout type to detect layout button presses
   const prevLayoutTypeRef = useRef(layout.type);
 
@@ -372,6 +374,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     return () => {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(rafId);
+      cancelAnimationFrame(dragRafRef.current);
       clearTimeout(timeoutId);
       clearTimeout(timeoutId2);
       observer.disconnect();
@@ -539,7 +542,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
 
     cancelAnimationFrame(dragRafRef.current);
     dragRafRef.current = requestAnimationFrame(() => {
-      const merged = mergeLayoutSizes(rglLayout, internalLayout);
+      const merged = mergeLayoutSizes(rglLayout, internalLayoutRef.current);
       const { layout: swapped, swappedId } = computeSwapDuringDrag(
         merged,
         draggedIdRef.current!,
@@ -548,11 +551,12 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       );
 
       if (swappedId && swappedId !== lastSwappedIdRef.current) {
+        // Update origin to the swapped target's pre-swap position (now free)
+        const target = merged.find((item) => item.i === swappedId);
+        if (target) {
+          dragOriginRef.current = { x: target.x, y: target.y };
+        }
         lastSwappedIdRef.current = swappedId;
-        dragOriginRef.current = {
-          x: rglLayout.find((item) => item.i === draggedIdRef.current)?.x ?? dragOriginRef.current!.x,
-          y: rglLayout.find((item) => item.i === draggedIdRef.current)?.y ?? dragOriginRef.current!.y,
-        };
         React.startTransition(() => setInternalLayout(swapped));
       }
     });
@@ -565,7 +569,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   ) => {
     cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
-    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayoutRef.current)));
     isDraggingRef.current = false;
     draggedIdRef.current = null;
     dragOriginRef.current = null;
