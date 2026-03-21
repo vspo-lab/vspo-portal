@@ -19,6 +19,7 @@ desaturation
 desumasu
 devcontainer
 dorny
+dwyer
 enablejsapi
 endregion
 español
@@ -73,6 +74,7 @@ postconditions
 preact
 preconditions
 reduxjs
+rects
 rehype
 remark
 rerender
@@ -89,6 +91,7 @@ spodule
 srgb
 starlight
 stefanzweifel
+stuckey
 tanstack
 textlint
 textlintrc
@@ -115,12 +118,14 @@ unmounted
 vercel
 vitejs
 vitest
+vpsc
 vspo
 vspo-lab
 vtuber
 vtubers
 wada
 wcag
+webcola
 workerd
 wrangler
 youtu
