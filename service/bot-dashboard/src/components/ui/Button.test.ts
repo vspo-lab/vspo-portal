@@ -11,7 +11,10 @@ describe("Button", () => {
     { variant: "outline", expectedClass: "border" },
     { variant: "ghost", expectedClass: "hover:bg-accent" },
     { variant: "discord", expectedClass: "bg-discord" },
-  ] as const)("renders $variant variant with correct classes", async ({ variant, expectedClass }) => {
+  ] as const)("renders $variant variant with correct classes", async ({
+    variant,
+    expectedClass,
+  }) => {
     const container = await AstroContainer.create();
     const html = await container.renderToString(Button, {
       props: { variant },
