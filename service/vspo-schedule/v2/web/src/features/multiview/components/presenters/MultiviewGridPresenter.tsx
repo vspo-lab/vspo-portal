@@ -13,7 +13,11 @@ import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { GRID_COLS, resolveOverlaps } from "../../utils/gridSwap";
+import {
+  GRID_COLS,
+  computeSwapDuringDrag,
+  resolveOverlaps,
+} from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
 import { ChatCell, VideoPlayer } from "../containers";
 
@@ -314,6 +318,10 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   // Drag state
   const isDraggingRef = useRef(false);
   const isResizingRef = useRef(false);
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const draggedIdRef = useRef<string | null>(null);
+  const lastSwappedIdRef = useRef<string | null>(null);
+  const dragRafRef = useRef(0);
 
 
   // Internal layout state — only reset when layout button is pressed
@@ -511,22 +519,57 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  const handleDragStart = () => {
+  const handleDragStart = (
+    _rglLayout: GridLayout.Layout[],
+    oldItem: GridLayout.Layout,
+  ) => {
     isDraggingRef.current = true;
+    draggedIdRef.current = oldItem.i;
+    dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
+    lastSwappedIdRef.current = null;
     containerRef.current?.classList.add("is-dragging");
   };
 
-  const handleDrag = () => {};
+  const handleDrag = (
+    rglLayout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    _newItem: GridLayout.Layout,
+  ) => {
+    if (!draggedIdRef.current || !dragOriginRef.current) return;
+
+    cancelAnimationFrame(dragRafRef.current);
+    dragRafRef.current = requestAnimationFrame(() => {
+      const merged = mergeLayoutSizes(rglLayout, internalLayout);
+      const { layout: swapped, swappedId } = computeSwapDuringDrag(
+        merged,
+        draggedIdRef.current!,
+        dragOriginRef.current!,
+        lastSwappedIdRef.current,
+      );
+
+      if (swappedId && swappedId !== lastSwappedIdRef.current) {
+        lastSwappedIdRef.current = swappedId;
+        dragOriginRef.current = {
+          x: rglLayout.find((item) => item.i === draggedIdRef.current)?.x ?? dragOriginRef.current!.x,
+          y: rglLayout.find((item) => item.i === draggedIdRef.current)?.y ?? dragOriginRef.current!.y,
+        };
+        React.startTransition(() => setInternalLayout(swapped));
+      }
+    });
+  };
 
   const handleDragStop = (
     rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
     _newItem: GridLayout.Layout,
   ) => {
+    cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
-    // Use RGL's layout as the single source of truth, then resolve overlaps synchronously
     setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
     isDraggingRef.current = false;
+    draggedIdRef.current = null;
+    dragOriginRef.current = null;
+    lastSwappedIdRef.current = null;
   };
 
   const handleResizeStart = () => {
