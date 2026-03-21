@@ -376,7 +376,7 @@ Runs on PRs touching `service/vspo-schedule/v2/web/**`, `service/bot-dashboard/*
 | `textlint-check` | Docs changes (`docs/**`, `README.md`) | `pnpm textlint` |
 | `markdownlint-check` | Docs changes | `pnpm markdownlint` |
 | `cspell-check` | Code or docs changes | `pnpm cspell` |
-| `bundle-size` | Web or packages changes | `hashicorp/nextjs-bundle-analysis@v0.5.0` |
+| `bundle-size` | Web or packages changes | `nextjs-bundle-analysis` (via npx) |
 
 > **Future:** A `test` job (Vitest + Codecov) is prepared but commented out until Vitest is introduced.
 
@@ -400,7 +400,7 @@ Runs on PRs (opened/synchronize/reopened) from the same repository (not forks). 
 
 ### Baseline (`bundle-size-main.yaml`)
 
-Saves the bundle size baseline on pushes to `main`/`develop` for web/packages changes. Uses `hashicorp/nextjs-bundle-analysis@v0.5.0`.
+Saves the bundle size baseline on pushes to `main`/`develop` for web/packages changes. Uses `nextjs-bundle-analysis` via npx to generate reports, with artifacts uploaded via `actions/upload-artifact@v4`.
 
 ### PR Comparison
 

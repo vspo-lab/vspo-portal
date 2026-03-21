@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# plan docs (generated, not tracked)
+# generated docs (not tracked)
 docs/plan/
 
 # dependencies
@@ -81,7 +81,6 @@ dist
 # claude hooks state
 .claude/.post_edit_check_pending
 
-# superpowers documents (generated, not tracked)
 docs/superpowers/
 .claude/settings.local.json
 
