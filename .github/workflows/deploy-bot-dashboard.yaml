@@ -34,7 +34,9 @@ jobs:
         run: pnpm turbo build --filter=bot-dashboard...
       - name: Upload secrets
         working-directory: service/bot-dashboard
+        shell: bash
         run: |
+          set -o pipefail
           node -e "
             const secrets = {
               DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
@@ -43,7 +45,7 @@ jobs:
               DISCORD_BOT_CLIENT_ID: process.env.DISCORD_BOT_CLIENT_ID,
             };
             process.stdout.write(JSON.stringify(secrets));
-          " | pnpm exec wrangler secret bulk
+          " | pnpm exec wrangler secret bulk 2>&1 | tail -1
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -60,3 +62,4 @@ jobs:
           wranglerVersion: "4.76.0"
           workingDirectory: service/bot-dashboard
           command: deploy
+          quiet: true
