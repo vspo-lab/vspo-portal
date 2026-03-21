@@ -19,5 +19,5 @@
     "types": ["@cloudflare/workers-types/2023-07-01"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "./src/features/shared/types/api.d.ts"]
+  "exclude": ["node_modules", "./src/features/shared/types/api.d.ts", "**/*.test.ts", "**/*.test.tsx", "**/*.stories.ts", "**/*.stories.tsx", "vitest.config.ts", "vitest.setup.ts"]
 }

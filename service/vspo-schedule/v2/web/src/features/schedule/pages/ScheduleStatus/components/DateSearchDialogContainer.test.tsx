@@ -57,21 +57,33 @@ vi.mock("./DateSearchDialog", () => ({
           {props.dateInputValue as string}
         </span>
         <button
+          type="button"
           data-testid="submit-btn"
           onClick={props.onSubmit as () => void}
           disabled={!(props.isSearchEnabled as boolean)}
         />
-        <button data-testid="clear-btn" onClick={props.onClear as () => void} />
-        <button data-testid="close-btn" onClick={props.onClose as () => void} />
         <button
+          type="button"
+          data-testid="clear-btn"
+          onClick={props.onClear as () => void}
+        />
+        <button
+          type="button"
+          data-testid="close-btn"
+          onClick={props.onClose as () => void}
+        />
+        <button
+          type="button"
           data-testid="save-favorite-btn"
           onClick={props.onSaveFavorite as () => void}
         />
         <button
+          type="button"
           data-testid="delete-favorite-btn"
           onClick={props.onDeleteFavorite as () => void}
         />
         <button
+          type="button"
           data-testid="load-favorite-btn"
           onClick={props.onLoadFavorite as () => void}
         />

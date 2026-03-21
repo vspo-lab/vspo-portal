@@ -65,9 +65,7 @@ describe("DateSearchDialog", () => {
 
   it("calls onSubmit when search button is clicked", async () => {
     const onSubmit = vi.fn();
-    renderWithTheme(
-      <DateSearchDialog {...defaultProps} onSubmit={onSubmit} />,
-    );
+    renderWithTheme(<DateSearchDialog {...defaultProps} onSubmit={onSubmit} />);
     const searchButton = screen.getByRole("button", { name: "Search" });
     await userEvent.click(searchButton);
     expect(onSubmit).toHaveBeenCalledOnce();
@@ -75,9 +73,7 @@ describe("DateSearchDialog", () => {
 
   it("calls onClear when clear button is clicked", async () => {
     const onClear = vi.fn();
-    renderWithTheme(
-      <DateSearchDialog {...defaultProps} onClear={onClear} />,
-    );
+    renderWithTheme(<DateSearchDialog {...defaultProps} onClear={onClear} />);
     const clearButton = screen.getByRole("button", { name: "Clear" });
     await userEvent.click(clearButton);
     expect(onClear).toHaveBeenCalledOnce();
@@ -85,9 +81,7 @@ describe("DateSearchDialog", () => {
 
   it("calls onClose when cancel button is clicked", async () => {
     const onClose = vi.fn();
-    renderWithTheme(
-      <DateSearchDialog {...defaultProps} onClose={onClose} />,
-    );
+    renderWithTheme(<DateSearchDialog {...defaultProps} onClose={onClose} />);
     const cancelButton = screen.getByRole("button", { name: "Cancel" });
     await userEvent.click(cancelButton);
     expect(onClose).toHaveBeenCalledOnce();
@@ -109,9 +103,7 @@ describe("DateSearchDialog", () => {
   });
 
   it("shows save button when hasFavorite is false", () => {
-    renderWithTheme(
-      <DateSearchDialog {...defaultProps} hasFavorite={false} />,
-    );
+    renderWithTheme(<DateSearchDialog {...defaultProps} hasFavorite={false} />);
     expect(
       screen.getByRole("button", { name: "Save Current Conditions" }),
     ).toBeInTheDocument();

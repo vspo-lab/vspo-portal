@@ -54,13 +54,13 @@ describe("ListGuildsUsecase", () => {
       });
 
       expect(result.err).toBeUndefined();
-      const val = result.val!;
-      expect(val.installed).toHaveLength(1);
-      expect(val.installed[0].id).toBe("1");
-      expect(val.installed[0].botInstalled).toBe(true);
-      expect(val.notInstalled).toHaveLength(1);
-      expect(val.notInstalled[0].id).toBe("3");
-      expect(val.notInstalled[0].botInstalled).toBe(false);
+      if (result.err) return;
+      expect(result.val.installed).toHaveLength(1);
+      expect(result.val.installed[0].id).toBe("1");
+      expect(result.val.installed[0].botInstalled).toBe(true);
+      expect(result.val.notInstalled).toHaveLength(1);
+      expect(result.val.notInstalled[0].id).toBe("3");
+      expect(result.val.notInstalled[0].botInstalled).toBe(false);
     });
 
     it("builds sidebarGuilds from installed guilds with iconUrl", async () => {
@@ -77,8 +77,8 @@ describe("ListGuildsUsecase", () => {
       });
 
       expect(result.err).toBeUndefined();
-      const val = result.val!;
-      expect(val.sidebarGuilds).toEqual([
+      if (result.err) return;
+      expect(result.val.sidebarGuilds).toEqual([
         {
           id: "1",
           name: "Admin Guild",
@@ -102,7 +102,8 @@ describe("ListGuildsUsecase", () => {
       });
 
       expect(result.err).toBeUndefined();
-      expect(result.val!.sidebarGuilds[0].iconUrl).toBeNull();
+      if (result.err) return;
+      expect(result.val.sidebarGuilds[0].iconUrl).toBeNull();
     });
 
     it("returns Err when getUserGuilds fails", async () => {
@@ -157,10 +158,10 @@ describe("ListGuildsUsecase", () => {
       });
 
       expect(result.err).toBeUndefined();
-      const val = result.val!;
-      expect(val.installed).toEqual([]);
-      expect(val.notInstalled).toEqual([]);
-      expect(val.sidebarGuilds).toEqual([]);
+      if (result.err) return;
+      expect(result.val.installed).toEqual([]);
+      expect(result.val.notInstalled).toEqual([]);
+      expect(result.val.sidebarGuilds).toEqual([]);
     });
   });
 });

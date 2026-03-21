@@ -1,8 +1,7 @@
 import type { Preview } from "@storybook/react";
-import React from "react";
-import { ThemeModeProvider } from "../src/context/Theme";
-import { I18nextProvider } from "react-i18next";
 import i18n from "i18next";
+import { I18nextProvider } from "react-i18next";
+import { ThemeModeProvider } from "../src/context/Theme";
 
 const i18nInstance = i18n.createInstance();
 i18nInstance.init({

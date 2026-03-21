@@ -1,5 +1,4 @@
 import { act, render, screen } from "@testing-library/react";
-import type React from "react";
 import { ScheduleStatusContainer } from "./container";
 
 // ---------------------------------------------------------------------------
@@ -49,16 +48,19 @@ vi.mock("./presenter", () => ({
         <span data-testid="all-tab-label">{props.allTabLabel as string}</span>
         <span data-testid="is-loading">{String(props.isLoading)}</span>
         <button
+          type="button"
           data-testid="change-filter"
           onClick={() =>
             (props.onStatusFilterChange as (s: string) => void)("live")
           }
         />
         <button
+          type="button"
           data-testid="open-search"
           onClick={props.onSearchDialogOpen as () => void}
         />
         <button
+          type="button"
           data-testid="close-search"
           onClick={props.onSearchDialogClose as () => void}
         />

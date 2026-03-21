@@ -52,18 +52,19 @@ describe("groupLivestreamsByTimeBlock", () => {
       timeZone: "UTC",
       expectedBlock: "00:00 - 06:00",
     },
-  ])(
-    "groups stream into $name",
-    ({ scheduledStartTime, timeZone, expectedBlock }) => {
-      const input = {
-        "2024-01-15": [makeLivestream({ scheduledStartTime })],
-      };
-      const result = groupLivestreamsByTimeBlock(input, timeZone);
-      expect(result["2024-01-15"]).toBeDefined();
-      expect(Object.keys(result["2024-01-15"])).toContain(expectedBlock);
-      expect(result["2024-01-15"][expectedBlock]).toHaveLength(1);
-    },
-  );
+  ])("groups stream into $name", ({
+    scheduledStartTime,
+    timeZone,
+    expectedBlock,
+  }) => {
+    const input = {
+      "2024-01-15": [makeLivestream({ scheduledStartTime })],
+    };
+    const result = groupLivestreamsByTimeBlock(input, timeZone);
+    expect(result["2024-01-15"]).toBeDefined();
+    expect(Object.keys(result["2024-01-15"])).toContain(expectedBlock);
+    expect(result["2024-01-15"][expectedBlock]).toHaveLength(1);
+  });
 
   it("skips streams without scheduledStartTime", () => {
     const input = {

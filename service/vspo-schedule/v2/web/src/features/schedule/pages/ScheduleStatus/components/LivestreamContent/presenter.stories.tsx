@@ -40,7 +40,12 @@ export const WithStreams: Story = {
     livestreamsByDate: {
       "2024-01-15": [
         baseLivestream,
-        { ...baseLivestream, id: "ls-2", title: "Valorant Ranked", scheduledStartTime: "2024-01-15T14:00:00Z" },
+        {
+          ...baseLivestream,
+          id: "ls-2",
+          title: "Valorant Ranked",
+          scheduledStartTime: "2024-01-15T14:00:00Z",
+        },
       ],
     },
     timeZone: "Asia/Tokyo",

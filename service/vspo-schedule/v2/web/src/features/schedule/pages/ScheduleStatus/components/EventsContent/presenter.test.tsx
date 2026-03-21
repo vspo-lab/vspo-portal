@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { Event } from "@/features/shared/domain";
 import { ThemeModeProvider } from "@/context/Theme";
+import type { Event } from "@/features/shared/domain";
 import { EventsContentPresenter } from "./presenter";
 
 vi.mock("next-i18next", () => ({

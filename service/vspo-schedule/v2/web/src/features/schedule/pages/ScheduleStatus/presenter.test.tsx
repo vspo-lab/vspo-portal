@@ -40,8 +40,12 @@ describe("ScheduleStatusPresenter", () => {
   it("renders tabs (all, live, upcoming)", () => {
     renderWithTheme(<ScheduleStatusPresenter {...defaultProps} />);
     expect(screen.getByRole("tab", { name: "All" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "status.live" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "status.upcoming" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "status.live" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "status.upcoming" }),
+    ).toBeInTheDocument();
   });
 
   it("hides tabs when isArchivePage is true", () => {

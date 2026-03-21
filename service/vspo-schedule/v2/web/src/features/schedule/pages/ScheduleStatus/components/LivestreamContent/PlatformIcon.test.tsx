@@ -9,7 +9,7 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("@fortawesome/react-fontawesome", () => ({
-  FontAwesomeIcon: (props: { icon: unknown }) => (
+  FontAwesomeIcon: (_props: { icon: unknown }) => (
     <span data-testid="fa-icon" />
   ),
 }));

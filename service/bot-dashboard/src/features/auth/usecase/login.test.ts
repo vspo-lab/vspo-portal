@@ -119,7 +119,12 @@ describe("LoginUsecase", () => {
       );
       // id must be a string per DiscordApiUserSchema; returning a number triggers parse failure
       vi.mocked(DiscordApiRepository.getCurrentUser).mockResolvedValue(
-        Ok({ id: 123 as unknown as string, username: "u", global_name: null, avatar: null }),
+        Ok({
+          id: 123 as unknown as string,
+          username: "u",
+          global_name: null,
+          avatar: null,
+        }),
       );
 
       const result = await LoginUsecase.handleCallback("code", env);
