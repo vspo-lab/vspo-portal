@@ -377,8 +377,19 @@ Runs on PRs touching `service/vspo-schedule/v2/web/**`, `service/bot-dashboard/*
 | `markdownlint-check` | Docs changes | `pnpm markdownlint` |
 | `cspell-check` | Code or docs changes | `pnpm cspell` |
 | `bundle-size` | Web or packages changes | `nextjs-bundle-analysis` (via npx) |
+| `test` | Web, bot-dashboard, or packages changes | Vitest + Codecov |
 
-> **Future:** A `test` job (Vitest + Codecov) is prepared but commented out until Vitest is introduced.
+### Test Job Details
+
+The `test` job runs per-service coverage and uploads results to Codecov:
+
+1. Build only `@vspo-lab/*` packages (skip full app builds)
+2. Run `pnpm --filter vspo-schedule-v2-web test:coverage`
+3. Run `pnpm --filter bot-dashboard test:coverage`
+4. Upload `coverage-final.json` to Codecov with separate flags (`web`, `bot-dashboard`)
+5. Post a PR summary comment via `peter-evans/create-or-update-comment`
+
+Coverage configuration is in `codecov.yml` at the repository root, with `flags` mapping to each service's `src/` directory.
 
 ---
 

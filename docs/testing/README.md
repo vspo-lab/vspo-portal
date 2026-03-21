@@ -23,14 +23,35 @@ This directory is the Single Source of Truth for implementation guidelines per t
 
 ## Coverage Policy
 
-| Target Package | Minimum Coverage | CI Enforced |
+| Target | Minimum Coverage | CI Enforced |
 | --- | --- | --- |
 | `packages/**` | 60% | Yes |
-| `service/vspo-schedule/v2/web/src/features/shared/**` | 50% | No (recommended) |
+| `service/vspo-schedule/v2/web/` (schedule Container/Presenter) | 100% | Yes (via Codecov) |
+| `service/bot-dashboard/` (components/domain/usecase) | 100% | Yes (via Codecov) |
 
-- PRs that fall below the threshold will fail in CI
-- Thresholds are raised incrementally (initial settings are conservative)
+- Coverage is uploaded to Codecov per service with separate flags (`web`, `bot-dashboard`)
 - Do not write meaningless tests just for coverage. Achieve coverage naturally through tests that verify behavior
+
+## Current Test Infrastructure
+
+| Service | Framework | UI Testing | Storybook | Config |
+| --- | --- | --- | --- | --- |
+| vspo-schedule/v2/web | Vitest + jsdom | @testing-library/react | Yes (@storybook/nextjs) | `vitest.config.ts` |
+| bot-dashboard | Vitest + Astro Container API | @testing-library/dom | No (Astro SSR) | `vitest.config.ts` |
+
+### Test Commands
+
+```bash
+# Schedule (Next.js)
+pnpm --filter vspo-schedule-v2-web test          # Watch mode
+pnpm --filter vspo-schedule-v2-web test:run      # Single run
+pnpm --filter vspo-schedule-v2-web test:coverage # With coverage
+
+# Bot Dashboard (Astro)
+pnpm --filter bot-dashboard test          # Watch mode
+pnpm --filter bot-dashboard test:run      # Single run
+pnpm --filter bot-dashboard test:coverage # With coverage
+```
 
 ## Document Index
 

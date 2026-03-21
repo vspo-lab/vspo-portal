@@ -1,5 +1,7 @@
 # E2E Testing Implementation Guidelines
 
+> **Status:** Not yet implemented. Playwright is not installed. This document describes the target architecture.
+
 ## Purpose
 
 - Guarantee major user flows through production-equivalent execution paths
