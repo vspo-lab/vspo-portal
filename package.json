@@ -24,19 +24,19 @@
   "author": "sugar-cat7",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.4.7",
+    "@biomejs/biome": "^2.4.8",
     "@textlint/textlint-plugin-markdown": "^15.5.2",
     "@types/node": "catalog:",
     "cspell": "^9.7.0",
-    "knip": "^5.86.0",
+    "knip": "^5.88.1",
     "markdownlint-cli2": "^0.21.0",
     "textlint": "^15.5.2",
     "textlint-rule-common-misspellings": "^1.0.1",
     "textlint-rule-preset-ja-technical-writing": "^12.0.2",
-    "turbo": "^2.8.17",
+    "turbo": "^2.8.20",
     "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.32.1",
   "engines": {
     "pnpm": ">=9.15.9",
     "node": ">=22.12.0"

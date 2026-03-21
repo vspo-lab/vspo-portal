@@ -14,8 +14,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.0",
-    "@astrojs/cloudflare": "^13.0.0",
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/cloudflare": "^13.1.3",
     "@vspo-lab/error": "workspace:^",
     "astro": "^6.0.0",
     "zod": "catalog:"
@@ -25,12 +25,12 @@
     "@tailwindcss/vite": "^4.1.8",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
+    "@types/node": "catalog:",
     "@vitest/coverage-v8": "^4.1.0",
     "happy-dom": "^20.8.4",
     "tailwindcss": "^4.1.8",
     "typescript": "catalog:",
     "vitest": "^4.1.0",
-    "wrangler": "catalog:",
-    "@types/node": "catalog:"
+    "wrangler": "catalog:"
   }
 }
