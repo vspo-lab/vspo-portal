@@ -41,10 +41,12 @@ vi.mock("@/lib/utils", () => ({
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+let nextId = 0;
+
 const makeLivestream = (
   overrides: Partial<Livestream> & { scheduledStartTime: string },
 ): Livestream => ({
-  id: `id-${Math.random().toString(36).slice(2, 8)}`,
+  id: `id-${nextId++}`,
   type: "livestream",
   title: "Test Stream",
   description: "",

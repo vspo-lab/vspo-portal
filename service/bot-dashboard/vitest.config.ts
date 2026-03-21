@@ -11,7 +11,7 @@ export default getViteConfig(
         reporter: ["text", "json", "html"],
         include: ["src/features/**/*.ts", "src/components/**/*.astro"],
         exclude: [
-          "src/**/*.test.ts",
+          "src/**/*.test.{ts,tsx}",
           "src/**/index.ts",
           "src/features/auth/repository/**",
           "src/features/channel/repository/**",
