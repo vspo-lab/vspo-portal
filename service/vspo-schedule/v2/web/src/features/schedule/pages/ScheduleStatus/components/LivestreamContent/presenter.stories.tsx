@@ -11,7 +11,7 @@ const baseLivestream: Livestream = {
   thumbnailUrl: "https://via.placeholder.com/480x270",
   viewCount: 1500,
   channelId: "ch-1",
-  channelTitle: "Ichinose Uruha",
+  channelTitle: "Test Channel",
   channelThumbnailUrl: "https://via.placeholder.com/36",
   link: "https://example.com",
   tags: [],
