@@ -1,6 +1,7 @@
 {
   "workspaces": {
     "packages/api": {
+      "entry": ["orval.config.ts"],
       "project": "**/*.ts"
     },
     "packages/dayjs": {

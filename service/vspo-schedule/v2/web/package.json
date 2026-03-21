@@ -27,7 +27,7 @@
     "@mui/material": "^7.3.9",
     "@mui/material-nextjs": "^7.3.9",
     "@mui/system": "^7.3.9",
-    "@next/third-parties": "^16.1.6",
+    "@next/third-parties": "^16.2.1",
     "@opennextjs/cloudflare": "^1.17.1",
     "@vspo-lab/api": "workspace:^",
     "@vspo-lab/dayjs": "workspace:^",

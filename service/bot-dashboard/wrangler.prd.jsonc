@@ -15,10 +15,5 @@
       "service": "prd-vspo-portal-app",
       "entrypoint": "ApplicationService"
     }
-  ],
-  /** Secrets should be set via `wrangler secret put --config wrangler.prd.jsonc` */
-  "vars": {
-    "DISCORD_CLIENT_ID": "",
-    "DISCORD_BOT_CLIENT_ID": ""
-  }
+  ]
 }
