@@ -143,13 +143,17 @@ jobs:
 
   test:
     needs: changes
-    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.bot-dashboard == 'true' || needs.changes.outputs.packages == 'true'
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+      - name: Build package dependencies
+        run: pnpm --filter "@vspo-lab/*" build
       - name: Run tests with coverage
         run: |
           pnpm --filter vspo-schedule-v2-web test:coverage
