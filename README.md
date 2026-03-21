@@ -1,6 +1,6 @@
 # Vspo Portal
 
-Join the Spodule Discord for developers by clicking [here](https://discord.gg/Q7Hm8h3HAG)!
+Join the [Spodule Discord for developers](https://discord.gg/Q7Hm8h3HAG)!
 
 ## Getting Started
 

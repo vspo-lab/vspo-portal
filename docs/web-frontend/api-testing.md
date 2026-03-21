@@ -15,7 +15,7 @@ pnpm --filter vspo-schedule-v2-web test:run  # Run all tests including API tests
 
 This repo is a frontend-only Next.js (Pages Router) application. There is no backend server in this codebase. API interactions are handled through the `@vspo-lab/api` package, which provides:
 
-```
+```text
 Next.js Page (SSR)
     └── features/**/api/*Service.ts
             └── VSPOApi client (@vspo-lab/api)
@@ -192,7 +192,7 @@ function expectErr(result: Result<unknown, AppError>): AppError {
 
 ## File Structure
 
-```
+```text
 service/vspo-schedule/v2/web/
 ├── src/
 │   ├── features/shared/api/         # Data fetching functions (primary test targets)

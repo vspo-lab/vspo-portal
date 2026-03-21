@@ -165,7 +165,7 @@ const testCases = [
 
 ## File Structure
 
-```
+```text
 service/vspo-schedule/v2/web/
 ├── src/
 │   ├── features/**/api/*.ts          # Data fetching (test these with mocked VSPOApi)

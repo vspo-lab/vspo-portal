@@ -4,7 +4,7 @@
 
 pnpm workspaces + Turborepo monorepo. Single service (`vspo-schedule/web`) consuming four shared packages.
 
-```
+```text
 vspo-portal/
 ├── packages/                  # Shared libraries (@vspo-lab/*)
 │   ├── api/                   # API client (Axios + Result type)

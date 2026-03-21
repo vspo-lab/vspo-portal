@@ -314,6 +314,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 ```
 
 **Available data attributes for styling:**
+
 - `[data-hovered]` - On hover
 - `[data-focused]` - On focus
 - `[data-focus-visible]` - On keyboard focus
@@ -425,6 +426,7 @@ Group related form elements.
 Use React Aria's `<Modal>` + `<Dialog>` components (see [React Aria section](#modal--dialog) above), which handle focus trapping, ESC dismissal, and focus restoration automatically.
 
 If building a custom modal without React Aria, ensure:
+
 - `role="dialog"` and `aria-modal="true"` are set
 - Title is associated via `aria-labelledby`
 - Focus is trapped inside the dialog
@@ -634,6 +636,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 ```
 
 **Requirements:**
+
 - `min-h-[44px]` for target size
 - `focus-visible` for focus ring
 - Visual change and `aria-disabled` when `disabled`
@@ -781,6 +784,7 @@ describe("Accessibility", () => {
 | Android | TalkBack |
 
 **Check items:**
+
 - Is the heading structure read correctly?
 - Are form labels associated?
 - Is alternative text for images appropriate?

@@ -52,7 +52,7 @@ Goal: **one round-trip** of communication.
 
 ### Feedback Format Example
 
-```
+```text
 [#7 Visual Grouping] Settings screen, "Notification Settings" section
 Issue: Spacing between groups too narrow (24px).
 Suggestion: Increase to 40px to clarify boundaries.
@@ -60,7 +60,7 @@ Suggestion: Increase to 40px to clarify boundaries.
 
 ## Review Flow (New Development)
 
-```
+```text
 Design Start -> IA Deliverables -> [IA Review] -> UI Design -> [UI Review] -> Development
 ```
 

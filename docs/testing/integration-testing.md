@@ -36,6 +36,6 @@
 
 ## References (Primary Sources)
 
-- Playwright Test Isolation: https://playwright.dev/docs/browser-contexts
-- Next.js Testing (test type overview): https://nextjs.org/docs/app/guides/testing
+- Playwright Test Isolation: <https://playwright.dev/docs/browser-contexts>
+- Next.js Testing (test type overview): <https://nextjs.org/docs/app/guides/testing>
 - t_wada guidelines: `docs/web-frontend/twada-tdd.md`

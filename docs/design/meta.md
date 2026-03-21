@@ -160,7 +160,7 @@ OGP images and meta information may need to change dynamically depending on the 
 
 ## File Structure
 
-```
+```text
 public/
 ├── favicon.png           # 48x48px
 ├── apple-touch-icon.png  # 180x180px
@@ -173,7 +173,7 @@ public/
 
 ## References
 
-- [Google Favicon Guidelines](https://developers.google.com/search/docs/appearance/favicon-in-search?hl=ja)
+- [Google Favicon Guidelines](https://developers.google.com/search/docs/appearance/favicon-in-search?hl=en)
 - [Apple - Configuring Web Applications](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html)
 - [Open Graph Protocol](https://ogp.me/)
 - [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards)

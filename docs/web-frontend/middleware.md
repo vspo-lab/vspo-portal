@@ -6,7 +6,7 @@
 
 ## Request Flow
 
-```
+```text
 Request
   → Skip if static file / _next / api
   → setLocale(): resolve and set NEXT_LOCALE cookie

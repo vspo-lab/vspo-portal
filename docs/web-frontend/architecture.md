@@ -32,7 +32,7 @@ Next.js 15 application using the **Pages Router**, deployed to Cloudflare Worker
 
 ## Directory Structure
 
-```
+```text
 service/vspo-schedule/v2/web/src/
 ├── pages/                         # Next.js Pages Router (route entry points)
 │   ├── _app.tsx                   # Provider stack + per-page layout
@@ -73,7 +73,7 @@ service/vspo-schedule/v2/web/src/
 
 Each feature follows a consistent layout:
 
-```
+```text
 features/<feature>/
 ├── api/                           # Feature-specific data orchestration
 │   └── <feature>Service.ts        # Composes shared API calls
@@ -175,7 +175,7 @@ When a container would be a trivial pass-through (no logic), skip it and use the
 
 ## Dependency Direction
 
-```
+```text
 @vspo-lab/* packages (error, api, dayjs, logging)
          |
     features/shared/ (domain, api, components)

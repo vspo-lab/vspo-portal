@@ -54,6 +54,7 @@ const text = textResult.val;
 ```
 
 ## How It Works
+
 `Result<T, E>`: A union type where success holds `val` and failure holds `err`.
 
 `wrap`: Takes a promise, awaits it, and returns `Ok(val)` or `Err(err)` with
@@ -62,6 +63,7 @@ the error created by `errorFactory`.
 Benefit: This keeps error handling concise and type-safe for async operations.
 
 ## Benefits
+
 - Type Safety: TypeScript narrows based on `result.err`.
 - Simplicity: Replaces verbose try/catch blocks for promises.
 - Flexibility: Customize error types with `AppError` or domain errors.
@@ -79,11 +81,13 @@ wrap(fetchData(), errorFactory).then((result) => { ... });
 ```
 
 Reason:
+
 - `await` makes control flow explicit and easier to follow
 - Error handling with Result type works naturally with `await`
 - `.then()` chains lead to nested callbacks and harder debugging
 
 **Notes:**
+
 - Use `wrap` at async boundaries; avoid `try-catch` in app logic.
 - `wrap` casts thrown values to `Error` (`e as Error`). The `errorFactory`
   callback receives `Error`, but non-Error throws (e.g., a thrown string) will

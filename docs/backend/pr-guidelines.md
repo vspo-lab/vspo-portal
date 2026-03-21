@@ -27,7 +27,7 @@ List technical changes as bullet points.
 
 Include only one concern per PR.
 
-```
+```text
 # Good: one concern
 - PR: "Add item creation API"
   - domain/item.ts, usecase/item.ts, repository/item.ts, http/item.ts

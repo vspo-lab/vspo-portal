@@ -42,85 +42,72 @@ A livestream, VOD, or broadcast from a VSPO! creator on a supported platform.
 | Attribute | Type | Required | Description |
 | --- | --- | --- | --- |
 | id | string | yes | Unique identifier |
-| rawId | string | yes | Platform-native video/stream ID |
+| type | string | yes | Content type (e.g., `livestream`) |
 | title | string | yes | Stream title |
-| languageCode | string | yes | Language code (en, ja, cn, tw, ko, ...) |
-| rawChannelID | string | yes | Platform-native channel ID of the creator |
 | description | string | yes | Stream description text |
-| publishedAt | string | yes | ISO 8601 timestamp of publication |
 | platform | enum | yes | One of: `youtube`, `twitch`, `twitcasting`, `niconico`, `unknown` |
 | tags | string[] | yes | Categorization tags |
-| thumbnailURL | string | yes | URL to the stream thumbnail image |
-| creatorName | string | no | Display name of the creator |
-| creatorThumbnailURL | string | no | URL to the creator's avatar |
+| thumbnailUrl | string | yes | URL to the stream thumbnail image |
+| channelId | string | yes | Platform-native channel ID of the creator |
+| channelTitle | string | yes | Display name of the creator's channel |
+| channelThumbnailUrl | string | yes | URL to the creator's avatar |
 | viewCount | number | yes | Current or final view count |
-| link | string | no | Direct URL to the stream |
-| deleted | boolean | no | Whether the stream has been deleted |
-| translated | boolean | no | Whether the title/description has been machine-translated |
-| videoPlayerLink | string or null | yes | Embeddable video player URL |
-| chatPlayerLink | string or null | yes | Embeddable chat player URL |
+| link | string | yes | Direct URL to the stream |
+| videoPlayerLink | string | no | Embeddable video player URL |
+| chatPlayerLink | string | no | Embeddable chat player URL |
 | status | enum | yes | One of: `live`, `upcoming`, `ended`, `unknown` |
-| startedAt | string or null | yes | ISO 8601 timestamp when the stream started |
-| endedAt | string or null | yes | ISO 8601 timestamp when the stream ended |
+| scheduledStartTime | string | yes | ISO 8601 timestamp of the scheduled start time |
+| scheduledEndTime | string or null | yes | ISO 8601 timestamp of the scheduled end time |
 
 #### Business Rules
 
 - `status` transitions follow: `upcoming` -> `live` -> `ended`.
-- `startedAt` is null for `upcoming` streams that have not yet begun.
-- `endedAt` is null for `live` and `upcoming` streams.
+- `scheduledEndTime` is null for streams that have not yet ended.
 - `platform` determines which player links are available.
 
 ---
 
 ### 2. Creator
 
-A VSPO! member or affiliated content creator with channels across multiple platforms.
+A VSPO! member or affiliated content creator. The API provides a full Creator entity, but the frontend domain maps it to a simplified **Channel** type for UI purposes.
+
+#### API Entity (External)
+
+The API returns a full Creator with nested channel objects per platform. See the API documentation for the complete shape.
+
+#### Frontend Domain Model (Channel)
+
+In the frontend domain (`channel.ts`), Creator is represented as a simplified `Channel`:
 
 | Attribute | Type | Required | Description |
 | --- | --- | --- | --- |
 | id | string | yes | Unique identifier |
 | name | string | yes | Display name |
-| memberType | enum | yes | One of: `vspo_jp`, `vspo_en`, `vspo_ch`, `general` |
 | thumbnailURL | string | yes | URL to the creator's avatar |
-| channel.youtube | object or null | no | YouTube channel information |
-| channel.twitch | object or null | no | Twitch channel information |
-| channel.twitCasting | object or null | no | TwitCasting channel information |
-| channel.niconico | object or null | no | Niconico channel information |
-
-#### Channel Object Shape
-
-Each channel object (youtube, twitch, twitCasting, niconico) has the following shape when present:
-
-| Attribute | Type | Required | Description |
-| --- | --- | --- | --- |
-| rawId | string | yes | Platform-native channel ID |
-| name | string | yes | Channel display name |
-| description | string | yes | Channel description |
-| thumbnailURL | string | yes | Channel avatar URL |
-| publishedAt | string | yes | ISO 8601 channel creation date |
-| subscriberCount | number | yes | Current subscriber/follower count |
+| active | boolean | yes | Whether the creator is currently active (default: true) |
+| memberType | string | yes | Member classification (e.g., `vspo_jp`, `vspo_en`, `vspo_ch`, `general`) |
 
 #### Business Rules
 
 - `memberType` determines UI grouping: `vspo_jp` (main JP roster), `vspo_en` (English branch), `vspo_ch` (Chinese branch), `general` (affiliated/external).
-- A Creator may have channels on zero or more platforms (all channel fields are nullable).
+- The API-to-domain mapping discards per-platform channel details in favor of a flat structure.
 
 ---
 
 ### 3. Clip
 
-A fan-made highlight clip or short video. Structurally identical to Stream with an additional `type` field.
+A fan-made highlight clip. Extends the base video schema with a fixed `type` of `clip` and a `publishedAt` field.
 
 | Attribute | Type | Required | Description |
 | --- | --- | --- | --- |
-| (all Stream attributes) | | | Same as Stream |
-| type | enum | yes | One of: `clip`, `short` |
+| (all base video attributes) | | | Same as Stream (id, title, description, platform, tags, thumbnailUrl, viewCount, channelId, channelTitle, channelThumbnailUrl, link, videoPlayerLink, chatPlayerLink) |
+| type | literal | yes | Always `clip` |
+| publishedAt | string | yes | ISO 8601 timestamp of publication |
 
 #### Business Rules
 
-- Clips always have `status: ended` (they are pre-recorded uploads).
-- `type: short` indicates a short-form vertical video (e.g., YouTube Shorts).
-- `type: clip` indicates a standard-length highlight clip.
+- Clips always have `type: clip` (the domain schema does not distinguish short-form videos at this level).
+- Clips are pre-recorded uploads.
 
 ---
 
@@ -131,17 +118,16 @@ A scheduled event such as a tournament, collaboration, or special broadcast.
 | Attribute | Type | Required | Description |
 | --- | --- | --- | --- |
 | id | string | yes | Unique identifier |
+| type | string | yes | Event type |
 | title | string | yes | Event title |
-| storageFileId | string | no | Reference to an associated image/file in storage |
 | startedDate | string | yes | ISO 8601 date string for the event start |
-| visibility | enum | yes | One of: `public`, `private`, `internal` |
-| tags | string[] | yes | Categorization tags |
+| contentSummary | any | no | Summary content for the event (structure varies) |
+| isNotLink | boolean | no | Whether the event should not be rendered as a link |
 
 #### Business Rules
 
-- `visibility: public` events are shown to all users.
-- `visibility: private` and `visibility: internal` events are restricted (admin use).
 - Events are date-based (not time-precise like streams).
+- `isNotLink` controls whether the event is rendered as a clickable link in the UI.
 
 ---
 

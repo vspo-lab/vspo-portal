@@ -10,7 +10,7 @@ The architecture follows a "frontend-only" model: pages fetch data from the exte
 
 ## System Architecture
 
-```
+```text
 ┌───────────────────────────────────────────────────────────┐
 │                    Cloudflare Workers                       │
 │                                                             │
@@ -50,7 +50,7 @@ Four shared packages under `packages/`. See [Shared Packages](../packages/README
 
 The primary data flow for a page render:
 
-```
+```text
 1. User requests a page
 2. Cloudflare Workers invokes Next.js Pages Router
 3. getServerSideProps calls VSPOApi method
@@ -105,7 +105,7 @@ The `VSPOApi` class accepts the following configuration:
 
 Every API request includes the following headers:
 
-```
+```text
 CF-Access-Client-Id: <cfAccessClientId>
 CF-Access-Client-Secret: <cfAccessClientSecret>
 x-api-key: <apiKey>

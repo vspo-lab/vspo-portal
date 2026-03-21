@@ -82,7 +82,7 @@ Spodule provides a centralized schedule and content browser. It normalizes strea
 
 The primary web application lives at:
 
-```
+```text
 service/vspo-schedule/v2/web/
 ```
 

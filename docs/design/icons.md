@@ -64,7 +64,7 @@ When Lucide React does not have an appropriate icon, create an original one foll
 | Padding (all sides) | 8px each |
 | Actual creation area | 112 x 112 px |
 
-```
+```text
 +---------------------+
 |        8px          |
 |   +-----------+     |

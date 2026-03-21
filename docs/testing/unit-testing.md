@@ -49,6 +49,6 @@ describe("normalizeText", () => {
 
 ## References (Primary Sources)
 
-- Vitest `test.each`: https://vitest.dev/api/#test-each
-- Vitest Mocking (over-mocking warnings): https://vitest.dev/guide/mocking.html
+- Vitest `test.each`: <https://vitest.dev/api/#test-each>
+- Vitest Mocking (over-mocking warnings): <https://vitest.dev/guide/mocking.html>
 - t_wada guidelines: `docs/web-frontend/twada-tdd.md`

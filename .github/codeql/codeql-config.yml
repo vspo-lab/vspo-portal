@@ -1,0 +1,14 @@
+name: "CodeQL Config"
+
+paths-ignore:
+  - "**/node_modules/**"
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+  - "**/scripts/**"
+  - "**/dist/**"
+  - "**/.next/**"
+  - "**/.open-next/**"
+  - "**/coverage/**"
+  - "**/meta/**"
+  - "**/packages/api/src/generated/**"
+  - "**/packages/api/src/gen/**"

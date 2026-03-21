@@ -31,5 +31,5 @@
 
 ## References (Primary Sources)
 
-- Vitest Mocking: https://vitest.dev/guide/mocking.html
-- Orval (OpenAPI codegen): https://orval.dev/
+- Vitest Mocking: <https://vitest.dev/guide/mocking.html>
+- Orval (OpenAPI codegen): <https://orval.dev/>

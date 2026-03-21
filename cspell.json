@@ -1,0 +1,40 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "dictionaries": ["project-words"],
+  "dictionaryDefinitions": [
+    {
+      "name": "project-words",
+      "path": ".cspell/project-words.txt",
+      "addWords": true
+    }
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    ".next",
+    ".turbo",
+    ".wrangler",
+    ".open-next",
+    "coverage",
+    "pnpm-lock.yaml",
+    "packages/api/src/generated/**",
+    "packages/api/src/gen/**",
+    "packages/api/src/mock/**",
+    "**/*.snap",
+    "**/.git/**",
+    ".pnpm-store",
+    "meta/**",
+    ".astro",
+    "**/*.drawio",
+    "**/worker-configuration.d.ts",
+    "**/cloudflare-env.d.ts",
+    "**/public/locales/**",
+    "**/public/content/**",
+    "docs/approuter/**",
+    "docs/plan/**",
+    "docs/superpowers/**"
+  ],
+  "files": ["**/*.{ts,tsx,js,jsx,md,json}"],
+  "allowCompoundWords": true
+}

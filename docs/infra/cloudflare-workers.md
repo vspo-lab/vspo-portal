@@ -6,7 +6,7 @@ The web frontend is deployed to Cloudflare Workers via [OpenNextJS Cloudflare](h
 
 ## Architecture
 
-```
+```text
 GitHub (push to main/develop)
   → GitHub Actions workflow
     → pnpm cf:build (OpenNextJS compilation)
@@ -64,12 +64,14 @@ pnpm cf:typegen   # Generate CloudflareEnv types from wrangler config
 Defined in `.github/workflows/deploy-web-workers.yaml`.
 
 **Triggers:**
+
 - Push to `main` branch → deploys to `web-production` environment
 - Push to `develop` branch → deploys to `web-development` environment
 - Manual `workflow_dispatch`
 - Only triggers on changes to `service/vspo-schedule/v2/web/**`
 
 **Steps:**
+
 1. Checkout code
 2. Setup pnpm (via composite action `.github/actions/setup-pnpm`)
 3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.6.0)
