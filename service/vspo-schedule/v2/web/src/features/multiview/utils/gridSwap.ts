@@ -17,9 +17,10 @@ const BOUNDARY_WEIGHT = 1e8;
 /**
  * Resolve all overlaps among items on an integer grid using VPSC (webcola).
  *
- * Uses webcola's VPSC solver with boundary constraints for the bulk of the work,
- * then applies a greedy fixup for edge cases that webcola's scan-line misses
- * (e.g., items with identical centers on the scan axis).
+ * Two-phase approach:
+ * 1. VPSC (webcola) — scan-line constraint generation + supplemental O(n²) pass
+ *    for pairs the scan-line misses, solved with boundary constraints
+ * 2. Lightweight fixup — resolves residual overlaps from integer rounding
  *
  * @precondition layout items have positive w and h
  * @postcondition No pairwise overlaps; x in [0, GRID_COLS-w], y >= 0
@@ -39,25 +40,33 @@ export const resolveOverlaps = (
 
   const items = layout.map((item) => ({ ...item }));
   solveWithVpsc(items);
-  greedyFixup(items);
+  roundingFixup(items);
   return items;
 };
 
 /**
  * VPSC-based overlap removal with boundary constraints.
+ *
+ * Uses webcola's scan-line constraint generation as the base, then supplements
+ * with an O(n²) pass to add constraints for any overlapping pairs that the
+ * scan-line missed (e.g. items with identical centers or where X overlap > Y overlap).
+ *
  * Mutates items' x/y in place.
  */
 const solveWithVpsc = (items: GridLayout.Layout[]): void => {
+  const n = items.length;
   const rects = items.map(
     (item) =>
       new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
   );
 
+  // --- X-pass ---
   const xVars = rects.map((r) => new Variable(r.cx()));
   const xCs = generateXConstraints(rects, xVars);
+  supplementConstraints(rects, xVars, xCs, "x");
   const leftBound = new Variable(0, BOUNDARY_WEIGHT);
   const rightBound = new Variable(GRID_COLS, BOUNDARY_WEIGHT);
-  for (let i = 0; i < rects.length; i++) {
+  for (let i = 0; i < n; i++) {
     const halfW = rects[i].width() / 2;
     xCs.push(new Constraint(leftBound, xVars[i], halfW));
     xCs.push(new Constraint(xVars[i], rightBound, halfW));
@@ -65,17 +74,20 @@ const solveWithVpsc = (items: GridLayout.Layout[]): void => {
   new Solver([...xVars, leftBound, rightBound], xCs).solve();
   xVars.forEach((v, i) => rects[i].setXCentre(v.position()));
 
+  // --- Y-pass (uses updated X positions) ---
   const yVars = rects.map((r) => new Variable(r.cy()));
   const yCs = generateYConstraints(rects, yVars);
+  supplementConstraints(rects, yVars, yCs, "y");
   const topBound = new Variable(0, BOUNDARY_WEIGHT);
-  for (let i = 0; i < rects.length; i++) {
+  for (let i = 0; i < n; i++) {
     const halfH = rects[i].height() / 2;
     yCs.push(new Constraint(topBound, yVars[i], halfH));
   }
   new Solver([...yVars, topBound], yCs).solve();
   yVars.forEach((v, i) => rects[i].setYCentre(v.position()));
 
-  for (let i = 0; i < items.length; i++) {
+  // --- Write back ---
+  for (let i = 0; i < n; i++) {
     const r = rects[i];
     items[i] = {
       ...items[i],
@@ -86,126 +98,119 @@ const solveWithVpsc = (items: GridLayout.Layout[]): void => {
 };
 
 /**
- * Greedy fixup for remaining overlaps after VPSC.
+ * Add separation constraints for overlapping pairs not already covered.
  *
- * Handles edge cases that webcola's scan-line algorithm misses (items with
- * identical centers, rounding artifacts). Pushes apart along the shorter
- * overlap axis, respecting grid boundaries.
+ * webcola's scan-line can miss pairs where:
+ * - Items share the same center on the scan axis
+ * - X overlap > Y overlap (skipped by X-pass, but Y-pass scan-line may also miss)
+ *
+ * This performs an O(n²) check and adds constraints only for uncovered pairs.
+ */
+const supplementConstraints = (
+  rects: Rectangle[],
+  vars: Variable[],
+  existing: Constraint[],
+  axis: "x" | "y",
+): void => {
+  const n = rects.length;
+
+  // Build a set of pairs already constrained (in either direction)
+  const covered = new Set<string>();
+  for (const c of existing) {
+    const li = vars.indexOf(c.left);
+    const ri = vars.indexOf(c.right);
+    if (li >= 0 && ri >= 0) {
+      covered.add(`${Math.min(li, ri)},${Math.max(li, ri)}`);
+    }
+  }
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      if (covered.has(`${i},${j}`)) continue;
+
+      const a = rects[i];
+      const b = rects[j];
+      const ox = Math.min(a.X, b.X) - Math.max(a.x, b.x);
+      const oy = Math.min(a.Y, b.Y) - Math.max(a.y, b.y);
+      if (ox <= 0 || oy <= 0) continue;
+
+      // For X-pass: only add if X separation is preferred (ox <= oy)
+      // For Y-pass: add for any remaining overlap (X-pass already ran)
+      if (axis === "x" && ox > oy) continue;
+
+      const size =
+        axis === "x"
+          ? (a.width() + b.width()) / 2
+          : (a.height() + b.height()) / 2;
+      const aCenter = axis === "x" ? a.cx() : a.cy();
+      const bCenter = axis === "x" ? b.cx() : b.cy();
+
+      if (aCenter <= bCenter) {
+        existing.push(new Constraint(vars[i], vars[j], size + 1e-6));
+      } else {
+        existing.push(new Constraint(vars[j], vars[i], size + 1e-6));
+      }
+    }
+  }
+};
+
+/**
+ * Lightweight fixup for integer rounding artifacts.
+ *
+ * After VPSC + rounding, at most 1-2 pairs may overlap by 1 unit.
+ * Resolves by pushing/swapping, bounded to O(n²) iterations.
  *
  * Mutates items' x/y in place.
  */
-const greedyFixup = (items: GridLayout.Layout[]): void => {
-  const maxIter = items.length * items.length * 2;
+const roundingFixup = (items: GridLayout.Layout[]): void => {
+  const maxIter = items.length * 2;
 
   for (let iter = 0; iter < maxIter; iter++) {
-    let worstI = -1;
-    let worstJ = -1;
-    let worstArea = 0;
+    let found = false;
 
-    for (let i = 0; i < items.length; i++) {
-      for (let j = i + 1; j < items.length; j++) {
-        const area = getOverlapArea(items[i], items[j]);
-        if (area > worstArea) {
-          worstArea = area;
-          worstI = i;
-          worstJ = j;
+    for (let i = 0; i < items.length && !found; i++) {
+      for (let j = i + 1; j < items.length && !found; j++) {
+        if (getOverlapArea(items[i], items[j]) === 0) continue;
+        found = true;
+
+        const a = items[i];
+        const b = items[j];
+        const overlapX =
+          Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const overlapY =
+          Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+
+        if (overlapX <= overlapY) {
+          // Push apart in X
+          const aIsLeft = a.x + a.w / 2 <= b.x + b.w / 2;
+          const [li, ri] = aIsLeft ? [i, j] : [j, i];
+          const left = items[li];
+          const right = items[ri];
+          const targetX = left.x + left.w;
+          if (targetX + right.w <= GRID_COLS) {
+            items[ri] = { ...right, x: targetX };
+          } else if (right.x - left.w >= 0) {
+            items[li] = { ...left, x: right.x - left.w };
+          } else {
+            // X blocked — push Y
+            if (a.y <= b.y) {
+              items[j] = { ...b, y: a.y + a.h };
+            } else {
+              items[i] = { ...a, y: b.y + b.h };
+            }
+          }
+        } else {
+          // Push apart in Y
+          if (a.y + a.h / 2 <= b.y + b.h / 2) {
+            items[j] = { ...b, y: a.y + a.h };
+          } else {
+            items[i] = { ...a, y: b.y + b.h };
+          }
         }
       }
     }
 
-    if (worstI < 0) break;
-
-    const a = items[worstI];
-    const b = items[worstJ];
-    const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-    const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-
-    // 1. Try pushing apart along the shorter overlap axis
-    if (overlapX <= overlapY && tryPushX(items, worstI, worstJ)) {
-      continue;
-    }
-    // 2. If X-push blocked by boundary, try swapping positions
-    if (trySwap(items, worstI, worstJ)) {
-      continue;
-    }
-    // 3. Last resort: push apart along Y (always succeeds)
-    pushY(items, worstI, worstJ);
-  }
-};
-
-/**
- * Try to push two overlapping items apart along X.
- * Returns false if blocked by grid boundaries on both sides.
- */
-const tryPushX = (
-  items: GridLayout.Layout[],
-  i: number,
-  j: number,
-): boolean => {
-  const a = items[i];
-  const b = items[j];
-  const aIsLeft = a.x + a.w / 2 <= b.x + b.w / 2;
-  const [leftIdx, rightIdx] = aIsLeft ? [i, j] : [j, i];
-  const left = items[leftIdx];
-  const right = items[rightIdx];
-
-  const targetX = left.x + left.w;
-  if (targetX + right.w <= GRID_COLS) {
-    items[rightIdx] = { ...right, x: targetX };
-    return true;
-  }
-  const targetLeftX = right.x - left.w;
-  if (targetLeftX >= 0) {
-    items[leftIdx] = { ...left, x: targetLeftX };
-    return true;
-  }
-  return false;
-};
-
-/**
- * Try swapping two items' positions to resolve overlap.
- * Useful when one item is stuck at a boundary — trading places puts
- * the smaller item at the edge and the larger item in the open space.
- * Returns false if swapping doesn't resolve the overlap or violates bounds.
- */
-const trySwap = (
-  items: GridLayout.Layout[],
-  i: number,
-  j: number,
-): boolean => {
-  const a = items[i];
-  const b = items[j];
-
-  const newAx = b.x;
-  const newAy = b.y;
-  const newBx = a.x;
-  const newBy = a.y;
-
-  // Check bounds after swap
-  if (newAx < 0 || newAx + a.w > GRID_COLS) return false;
-  if (newBx < 0 || newBx + b.w > GRID_COLS) return false;
-  if (newAy < 0 || newBy < 0) return false;
-
-  // Check if swap actually resolves the overlap between these two items
-  const oxAfter =
-    Math.min(newAx + a.w, newBx + b.w) - Math.max(newAx, newBx);
-  const oyAfter =
-    Math.min(newAy + a.h, newBy + b.h) - Math.max(newAy, newBy);
-  if (oxAfter > 0 && oyAfter > 0) return false;
-
-  items[i] = { ...a, x: newAx, y: newAy };
-  items[j] = { ...b, x: newBx, y: newBy };
-  return true;
-};
-
-/** Push two items apart along Y (always succeeds — grid scrolls vertically). */
-const pushY = (items: GridLayout.Layout[], i: number, j: number): void => {
-  const a = items[i];
-  const b = items[j];
-  if (a.y + a.h / 2 <= b.y + b.h / 2) {
-    items[j] = { ...b, y: a.y + a.h };
-  } else {
-    items[i] = { ...a, y: b.y + b.h };
+    if (!found) break;
   }
 };
 
