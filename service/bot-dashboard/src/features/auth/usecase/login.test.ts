@@ -113,6 +113,19 @@ describe("LoginUsecase", () => {
       expect(DiscordApiRepository.getCurrentUser).not.toHaveBeenCalled();
     });
 
+    it("returns Err when user parsing fails", async () => {
+      vi.mocked(DiscordApiRepository.exchangeCode).mockResolvedValue(
+        Ok(tokenResponse),
+      );
+      // id must be a string per DiscordApiUserSchema; returning a number triggers parse failure
+      vi.mocked(DiscordApiRepository.getCurrentUser).mockResolvedValue(
+        Ok({ id: 123 as unknown as string, username: "u", global_name: null, avatar: null }),
+      );
+
+      const result = await LoginUsecase.handleCallback("code", env);
+      expect(result.err).toBeDefined();
+    });
+
     it("returns Err when user fetch fails", async () => {
       vi.mocked(DiscordApiRepository.exchangeCode).mockResolvedValue(
         Ok(tokenResponse),
