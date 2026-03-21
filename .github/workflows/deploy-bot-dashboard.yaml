@@ -34,7 +34,9 @@ jobs:
         run: pnpm turbo build --filter=bot-dashboard...
       - name: Upload secrets
         working-directory: service/bot-dashboard
+        shell: bash
         run: |
+          set -o pipefail
           node -e "
             const secrets = {
               DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
