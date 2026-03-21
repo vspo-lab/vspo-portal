@@ -32,27 +32,6 @@ jobs:
         run: cp wrangler.prd.jsonc wrangler.jsonc
       - name: Turbo Build
         run: pnpm turbo build --filter=bot-dashboard...
-      - name: Upload secrets
-        working-directory: service/bot-dashboard
-        shell: bash
-        run: |
-          set -o pipefail
-          node -e "
-            const secrets = {
-              DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
-              DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
-              DISCORD_REDIRECT_URI: process.env.DISCORD_REDIRECT_URI,
-              DISCORD_BOT_CLIENT_ID: process.env.DISCORD_BOT_CLIENT_ID,
-            };
-            process.stdout.write(JSON.stringify(secrets));
-          " | pnpm exec wrangler secret bulk 2>&1 | tail -1
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
-          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
-          DISCORD_REDIRECT_URI: ${{ secrets.DISCORD_REDIRECT_URI }}
-          DISCORD_BOT_CLIENT_ID: ${{ secrets.DISCORD_BOT_CLIENT_ID }}
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3.14.1
         with:
@@ -63,3 +42,22 @@ jobs:
           workingDirectory: service/bot-dashboard
           command: deploy
           quiet: true
+      - name: Upload secrets
+        working-directory: service/bot-dashboard
+        run: |
+          node -e "
+            const secrets = {
+              DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+              DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+              DISCORD_REDIRECT_URI: process.env.DISCORD_REDIRECT_URI,
+              DISCORD_BOT_CLIENT_ID: process.env.DISCORD_BOT_CLIENT_ID,
+            };
+            process.stdout.write(JSON.stringify(secrets));
+          " | pnpm exec wrangler secret bulk
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+          DISCORD_REDIRECT_URI: ${{ secrets.DISCORD_REDIRECT_URI }}
+          DISCORD_BOT_CLIENT_ID: ${{ secrets.DISCORD_BOT_CLIENT_ID }}
