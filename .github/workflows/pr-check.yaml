@@ -10,6 +10,10 @@ on:
       - 'README.md'
       - '.github/workflows/pr-check.yaml'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -146,6 +150,11 @@ jobs:
     if: needs.changes.outputs.web == 'true' || needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      web-result: ${{ steps.web-test.outcome }}
+      web-summary: ${{ steps.web-test.outputs.summary }}
+      bot-result: ${{ steps.bot-test.outcome }}
+      bot-summary: ${{ steps.bot-test.outputs.summary }}
     steps:
       - uses: actions/checkout@v6
       - name: Setup PNPM
@@ -154,12 +163,32 @@ jobs:
           build: 'false'
       - name: Build package dependencies
         run: pnpm --filter "@vspo-lab/*" build
-      - name: Run tests with coverage
+
+      - name: Test web (schedule)
+        id: web-test
+        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true'
         run: |
-          pnpm --filter vspo-schedule-v2-web test:coverage
-          pnpm --filter bot-dashboard test:coverage
+          cd service/vspo-schedule/v2/web
+          pnpm test:coverage 2>&1 | tee /tmp/web-test-output.txt
+          # Extract summary line
+          TESTS=$(grep "Tests" /tmp/web-test-output.txt | tail -1)
+          FILES=$(grep "Test Files" /tmp/web-test-output.txt | tail -1)
+          COVERAGE=$(grep "All files" /tmp/web-test-output.txt | head -1 | sed 's/\x1b\[[0-9;]*m//g' | awk -F'|' '{printf "Stmts: %s / Branch: %s / Funcs: %s / Lines: %s", $2, $3, $4, $5}')
+          echo "summary=${FILES} | ${TESTS} | ${COVERAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Test bot-dashboard
+        id: bot-test
+        if: needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true'
+        run: |
+          cd service/bot-dashboard
+          pnpm test:coverage 2>&1 | tee /tmp/bot-test-output.txt
+          TESTS=$(grep "Tests" /tmp/bot-test-output.txt | tail -1)
+          FILES=$(grep "Test Files" /tmp/bot-test-output.txt | tail -1)
+          COVERAGE=$(grep "All files" /tmp/bot-test-output.txt | head -1 | sed 's/\x1b\[[0-9;]*m//g' | awk -F'|' '{printf "Stmts: %s / Branch: %s / Funcs: %s / Lines: %s", $2, $3, $4, $5}')
+          echo "summary=${FILES} | ${TESTS} | ${COVERAGE}" >> "$GITHUB_OUTPUT"
+
       - name: Upload coverage (web)
-        if: always()
+        if: always() && steps.web-test.outcome == 'success'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -167,10 +196,94 @@ jobs:
           flags: web
           fail_ci_if_error: false
       - name: Upload coverage (bot-dashboard)
-        if: always()
+        if: always() && steps.bot-test.outcome == 'success'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: service/bot-dashboard/coverage/coverage-final.json
           flags: bot-dashboard
           fail_ci_if_error: false
+
+  # Post a summary comment on the PR with all check results
+  pr-summary:
+    needs: [changes, biome-check, typescript-check, knip-check, textlint-check, markdownlint-check, cspell-check, bundle-size, test]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Build summary comment
+        id: summary
+        env:
+          BIOME: ${{ needs.biome-check.result }}
+          TSC: ${{ needs.typescript-check.result }}
+          KNIP: ${{ needs.knip-check.result }}
+          TEXTLINT: ${{ needs.textlint-check.result }}
+          MARKDOWNLINT: ${{ needs.markdownlint-check.result }}
+          CSPELL: ${{ needs.cspell-check.result }}
+          BUNDLE: ${{ needs.bundle-size.result }}
+          TEST: ${{ needs.test.result }}
+          WEB_SUMMARY: ${{ needs.test.outputs.web-summary }}
+          BOT_SUMMARY: ${{ needs.test.outputs.bot-summary }}
+        run: |
+          icon() {
+            case "$1" in
+              success) echo "✅";;
+              failure) echo "❌";;
+              skipped) echo "⏭️";;
+              cancelled) echo "🚫";;
+              *) echo "⬜";;
+            esac
+          }
+
+          {
+            echo "## PR Check Summary"
+            echo ""
+            echo "| Check | Status |"
+            echo "|-------|--------|"
+            echo "| Biome (lint + format) | $(icon "$BIOME") ${BIOME} |"
+            echo "| TypeScript | $(icon "$TSC") ${TSC} |"
+            echo "| Knip (unused code) | $(icon "$KNIP") ${KNIP} |"
+            echo "| Textlint | $(icon "$TEXTLINT") ${TEXTLINT} |"
+            echo "| Markdownlint | $(icon "$MARKDOWNLINT") ${MARKDOWNLINT} |"
+            echo "| CSpell | $(icon "$CSPELL") ${CSPELL} |"
+            echo "| Bundle Size | $(icon "$BUNDLE") ${BUNDLE} |"
+            echo "| Tests | $(icon "$TEST") ${TEST} |"
+            echo ""
+
+            if [ -n "$WEB_SUMMARY" ] || [ -n "$BOT_SUMMARY" ]; then
+              echo "### Test Results"
+              echo ""
+              if [ -n "$WEB_SUMMARY" ]; then
+                echo "**Schedule (web):** ${WEB_SUMMARY}"
+              fi
+              if [ -n "$BOT_SUMMARY" ]; then
+                echo "**Bot Dashboard:** ${BOT_SUMMARY}"
+              fi
+              echo ""
+            fi
+          } > /tmp/pr-comment.md
+
+          cat /tmp/pr-comment.md
+
+          # Set multiline output
+          {
+            echo "body<<ENDOFCOMMENT"
+            cat /tmp/pr-comment.md
+            echo "ENDOFCOMMENT"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'PR Check Summary'
+
+      - name: Post or update PR comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.summary.outputs.body }}
+          edit-mode: replace
