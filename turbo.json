@@ -16,15 +16,8 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
-      "inputs": [
-        "src/**/*.tsx",
-        "src/**/*.ts",
-        "src/**/*.test.tsx",
-        "src/**/*.test.ts",
-        "vitest.config.ts",
-        "vitest.setup.ts"
-      ]
+      "cache": false,
+      "persistent": true
     },
     "test:run": {
       "dependsOn": ["^build"],
@@ -32,6 +25,7 @@
       "inputs": [
         "src/**/*.tsx",
         "src/**/*.ts",
+        "src/**/*.astro",
         "src/**/*.test.tsx",
         "src/**/*.test.ts",
         "vitest.config.ts",
@@ -44,6 +38,7 @@
       "inputs": [
         "src/**/*.tsx",
         "src/**/*.ts",
+        "src/**/*.astro",
         "src/**/*.test.tsx",
         "src/**/*.test.ts",
         "vitest.config.ts",
