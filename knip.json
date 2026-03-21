@@ -31,6 +31,6 @@
     "textlint-rule-common-misspellings",
     "textlint-rule-preset-ja-technical-writing"
   ],
-  "ignoreBinaries": ["wrangler"],
+  "ignoreBinaries": ["wrangler", "report"],
   "ignoreWorkspaces": ["service/bot-dashboard"]
 }

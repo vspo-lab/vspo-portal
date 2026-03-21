@@ -30,7 +30,10 @@
     "**/worker-configuration.d.ts",
     "**/cloudflare-env.d.ts",
     "**/public/locales/**",
-    "**/public/content/**"
+    "**/public/content/**",
+    "docs/approuter/**",
+    "docs/plan/**",
+    "docs/superpowers/**"
   ],
   "files": ["**/*.{ts,tsx,js,jsx,md,json}"],
   "allowCompoundWords": true

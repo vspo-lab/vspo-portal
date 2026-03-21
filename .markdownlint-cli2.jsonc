@@ -24,7 +24,8 @@
   "ignores": [
     "node_modules",
     "**/node_modules",
-    "docs/superpowers/plans/**",
-    "docs/superpowers/specs/**"
+    "docs/approuter/**",
+    "docs/plan/**",
+    "docs/superpowers/**"
   ]
 }
