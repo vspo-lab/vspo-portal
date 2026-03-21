@@ -27,7 +27,7 @@ vi.mock("@/lib/utils", () => ({
     }
     return dateStr;
   },
-  groupBy: <T,>(items: T[], keyGetter: (item: T) => string) => {
+  groupBy: <T>(items: T[], keyGetter: (item: T) => string) => {
     const result: Record<string, T[]> = {};
     for (const item of items) {
       const key = keyGetter(item);
@@ -112,34 +112,33 @@ describe("useGroupedLivestreams", () => {
       expectedCount: 2,
       label: "upcoming",
     },
-  ])(
-    'filters $label streams when currentStatusFilter="$filter"',
-    ({ filter, statuses, expectedCount }) => {
-      const streams = statuses.map((status, i) =>
-        makeLivestream({
-          scheduledStartTime: "2024-01-15T10:00:00Z",
-          status,
-          id: `stream-${i}`,
-        }),
-      );
+  ])('filters $label streams when currentStatusFilter="$filter"', ({
+    filter,
+    statuses,
+    expectedCount,
+  }) => {
+    const streams = statuses.map((status, i) =>
+      makeLivestream({
+        scheduledStartTime: "2024-01-15T10:00:00Z",
+        status,
+        id: `stream-${i}`,
+      }),
+    );
 
-      const { result } = renderHook(() =>
-        useGroupedLivestreams({
-          ...defaultParams,
-          livestreams: streams,
-          currentStatusFilter: filter,
-        }),
-      );
+    const { result } = renderHook(() =>
+      useGroupedLivestreams({
+        ...defaultParams,
+        livestreams: streams,
+        currentStatusFilter: filter,
+      }),
+    );
 
-      const allStreams = Object.values(
-        result.current.livestreamsByDate,
-      ).flat();
-      expect(allStreams).toHaveLength(expectedCount);
-      for (const s of allStreams) {
-        expect(s.status).toBe(filter);
-      }
-    },
-  );
+    const allStreams = Object.values(result.current.livestreamsByDate).flat();
+    expect(allStreams).toHaveLength(expectedCount);
+    for (const s of allStreams) {
+      expect(s.status).toBe(filter);
+    }
+  });
 
   it("removes date groups that become empty after filtering", () => {
     const streams = [
@@ -294,6 +293,71 @@ describe("useGroupedLivestreams", () => {
     );
 
     expect(result.current.firstDate).toBeNull();
+  });
+
+  it("archive mode sorts streams within a date in ascending order (all filter)", () => {
+    const streams = [
+      makeLivestream({
+        id: "late",
+        scheduledStartTime: "2024-01-15T20:00:00Z",
+        status: "live",
+      }),
+      makeLivestream({
+        id: "early",
+        scheduledStartTime: "2024-01-15T08:00:00Z",
+        status: "live",
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useGroupedLivestreams({
+        ...defaultParams,
+        livestreams: streams,
+        liveStatus: "archive",
+        currentStatusFilter: "all",
+      }),
+    );
+
+    const dateStreams = result.current.livestreamsByDate["2024-01-15"];
+    expect(dateStreams).toHaveLength(2);
+    // Should be sorted ascending by scheduledStartTime
+    expect(dateStreams[0].id).toBe("early");
+    expect(dateStreams[1].id).toBe("late");
+  });
+
+  it("archive mode sorts filtered streams within a date in ascending order", () => {
+    const streams = [
+      makeLivestream({
+        id: "late-live",
+        scheduledStartTime: "2024-01-15T20:00:00Z",
+        status: "live",
+      }),
+      makeLivestream({
+        id: "early-live",
+        scheduledStartTime: "2024-01-15T08:00:00Z",
+        status: "live",
+      }),
+      makeLivestream({
+        id: "upcoming",
+        scheduledStartTime: "2024-01-15T12:00:00Z",
+        status: "upcoming",
+      }),
+    ];
+
+    const { result } = renderHook(() =>
+      useGroupedLivestreams({
+        ...defaultParams,
+        livestreams: streams,
+        liveStatus: "archive",
+        currentStatusFilter: "live",
+      }),
+    );
+
+    const dateStreams = result.current.livestreamsByDate["2024-01-15"];
+    expect(dateStreams).toHaveLength(2);
+    // Should be sorted ascending by scheduledStartTime, and upcoming filtered out
+    expect(dateStreams[0].id).toBe("early-live");
+    expect(dateStreams[1].id).toBe("late-live");
   });
 
   it("handles non-array livestreams gracefully", () => {

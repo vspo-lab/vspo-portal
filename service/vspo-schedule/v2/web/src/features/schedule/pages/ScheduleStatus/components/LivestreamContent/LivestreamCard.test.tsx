@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { Livestream } from "@/features/shared/domain/livestream";
 import { ThemeModeProvider } from "@/context/Theme";
+import type { Livestream } from "@/features/shared/domain/livestream";
 import { LivestreamCard } from "./LivestreamCard";
 
 vi.mock("@/features/shared/components/Elements/Card/VideoCard", () => ({
@@ -28,9 +28,7 @@ vi.mock("@/lib/utils", () => ({
   formatDate: (_date: unknown, _fmt: string) => "19:00",
 }));
 
-const makeLivestream = (
-  overrides: Partial<Livestream> = {},
-): Livestream => ({
+const makeLivestream = (overrides: Partial<Livestream> = {}): Livestream => ({
   id: "ls-1",
   type: "livestream",
   title: "Test Stream Title",
@@ -82,5 +80,36 @@ describe("LivestreamCard", () => {
       <LivestreamCard livestream={makeLivestream()} isFreechat={true} />,
     );
     expect(screen.queryByText("19:00~")).not.toBeInTheDocument();
+  });
+
+  it("renders without highlight for ended/archive status", () => {
+    renderWithTheme(
+      <LivestreamCard
+        livestream={makeLivestream({ status: "ended" })}
+        isFreechat={false}
+        timeZone="Asia/Tokyo"
+      />,
+    );
+    // Should still render the card (archive status = no highlight)
+    expect(screen.getByTestId("video-card")).toBeInTheDocument();
+    expect(screen.getByText("Test Stream Title")).toBeInTheDocument();
+  });
+
+  it("renders AvatarGroup when additionalMembers are provided", () => {
+    const additionalMembers = [
+      { name: "Member A", iconUrl: "https://example.com/a.jpg" },
+      { name: "Member B", iconUrl: "https://example.com/b.jpg" },
+    ];
+    renderWithTheme(
+      <LivestreamCard
+        livestream={makeLivestream()}
+        isFreechat={false}
+        timeZone="Asia/Tokyo"
+        additionalMembers={additionalMembers}
+      />,
+    );
+    // Check that the additional member avatars are rendered
+    expect(screen.getByAltText("Member A")).toBeInTheDocument();
+    expect(screen.getByAltText("Member B")).toBeInTheDocument();
   });
 });

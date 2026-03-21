@@ -1,4 +1,4 @@
-import { render, screen, act } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import type React from "react";
 import { ScheduleStatusContainer } from "./container";
 
@@ -45,15 +45,9 @@ vi.mock("./presenter", () => ({
     capturedPresenterProps = props;
     return (
       <div data-testid="presenter">
-        <span data-testid="status-filter">
-          {props.statusFilter as string}
-        </span>
-        <span data-testid="all-tab-label">
-          {props.allTabLabel as string}
-        </span>
-        <span data-testid="is-loading">
-          {String(props.isLoading)}
-        </span>
+        <span data-testid="status-filter">{props.statusFilter as string}</span>
+        <span data-testid="all-tab-label">{props.allTabLabel as string}</span>
+        <span data-testid="is-loading">{String(props.isLoading)}</span>
         <button
           data-testid="change-filter"
           onClick={() =>
@@ -105,15 +99,13 @@ describe("ScheduleStatusContainer", () => {
     { input: "upcoming", expected: "upcoming" },
     { input: "invalid-status", expected: "all" },
     { input: "", expected: "all" },
-  ])(
-    "validates liveStatus=$input -> statusFilter=$expected",
-    ({ input, expected }) => {
-      render(
-        <ScheduleStatusContainer {...defaultProps} liveStatus={input} />,
-      );
-      expect(screen.getByTestId("status-filter")).toHaveTextContent(expected);
-    },
-  );
+  ])("validates liveStatus=$input -> statusFilter=$expected", ({
+    input,
+    expected,
+  }) => {
+    render(<ScheduleStatusContainer {...defaultProps} liveStatus={input} />);
+    expect(screen.getByTestId("status-filter")).toHaveTextContent(expected);
+  });
 
   it("navigates on tab change via onStatusFilterChange", () => {
     render(<ScheduleStatusContainer {...defaultProps} locale="ja-JP" />);
@@ -122,17 +114,13 @@ describe("ScheduleStatusContainer", () => {
       screen.getByTestId("change-filter").click();
     });
 
-    expect(mockPush).toHaveBeenCalledWith(
-      "/ja-JP/schedule/live",
-      undefined,
-      { shallow: false },
-    );
+    expect(mockPush).toHaveBeenCalledWith("/ja-JP/schedule/live", undefined, {
+      shallow: false,
+    });
   });
 
   it("does not navigate when selecting the same filter", () => {
-    render(
-      <ScheduleStatusContainer {...defaultProps} liveStatus="live" />,
-    );
+    render(<ScheduleStatusContainer {...defaultProps} liveStatus="live" />);
 
     // Capture the onStatusFilterChange and call with same status
     const handler = capturedPresenterProps.onStatusFilterChange as (
@@ -163,10 +151,60 @@ describe("ScheduleStatusContainer", () => {
     );
   });
 
+  it("sets loading when routeChangeStart URL contains /schedule/", () => {
+    render(<ScheduleStatusContainer {...defaultProps} />);
+
+    // Extract the handleStart callback registered for routeChangeStart
+    const handleStart = mockOn.mock.calls.find(
+      (call) => call[0] === "routeChangeStart",
+    )?.[1] as (url: string) => void;
+
+    act(() => {
+      handleStart("/ja-JP/schedule/live");
+    });
+
+    expect(screen.getByTestId("is-loading")).toHaveTextContent("true");
+  });
+
+  it("does NOT set loading when routeChangeStart URL does not contain /schedule/", () => {
+    render(<ScheduleStatusContainer {...defaultProps} />);
+
+    const handleStart = mockOn.mock.calls.find(
+      (call) => call[0] === "routeChangeStart",
+    )?.[1] as (url: string) => void;
+
+    act(() => {
+      handleStart("/ja-JP/some-other-page");
+    });
+
+    expect(screen.getByTestId("is-loading")).toHaveTextContent("false");
+  });
+
+  it("clears loading on routeChangeComplete", () => {
+    render(<ScheduleStatusContainer {...defaultProps} />);
+
+    const handleStart = mockOn.mock.calls.find(
+      (call) => call[0] === "routeChangeStart",
+    )?.[1] as (url: string) => void;
+    const handleComplete = mockOn.mock.calls.find(
+      (call) => call[0] === "routeChangeComplete",
+    )?.[1] as () => void;
+
+    // First set loading
+    act(() => {
+      handleStart("/ja-JP/schedule/live");
+    });
+    expect(screen.getByTestId("is-loading")).toHaveTextContent("true");
+
+    // Then complete
+    act(() => {
+      handleComplete();
+    });
+    expect(screen.getByTestId("is-loading")).toHaveTextContent("false");
+  });
+
   it("cleans up router event listeners on unmount", () => {
-    const { unmount } = render(
-      <ScheduleStatusContainer {...defaultProps} />,
-    );
+    const { unmount } = render(<ScheduleStatusContainer {...defaultProps} />);
 
     unmount();
 
@@ -185,9 +223,7 @@ describe("ScheduleStatusContainer", () => {
   });
 
   it("passes isArchivePage to presenter", () => {
-    render(
-      <ScheduleStatusContainer {...defaultProps} isArchivePage={true} />,
-    );
+    render(<ScheduleStatusContainer {...defaultProps} isArchivePage={true} />);
 
     expect(capturedPresenterProps.isArchivePage).toBe(true);
   });
