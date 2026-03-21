@@ -1,7 +1,10 @@
+"use client";
+
 import { useMediaQuery, useTheme } from "@mui/material";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 import type React from "react";
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Clip, Pagination } from "../../../shared/domain/clip";
 import { ClipTabsAndListPresenter, type TabOption } from "../presenters";
 
@@ -22,6 +25,8 @@ export const ClipTabsAndList: React.FC<ClipTabsAndListProps> = ({
   ];
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -59,17 +64,10 @@ export const ClipTabsAndList: React.FC<ClipTabsAndListProps> = ({
     }
 
     // Update the URL with the new sort option while keeping other query params
-    router.push(
-      {
-        pathname: router.pathname,
-        query: {
-          ...router.query,
-          orderKey: newOrderKey,
-          page: 0, // Reset to first page (0-indexed) when changing sort
-        },
-      },
-      undefined,
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("orderKey", newOrderKey);
+    params.set("page", "0"); // Reset to first page (0-indexed) when changing sort
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const handlePageChange = (page: number) => {
@@ -77,16 +75,9 @@ export const ClipTabsAndList: React.FC<ClipTabsAndListProps> = ({
     setActiveUIPage(page + 1);
 
     // Update the URL with the new page number while keeping other query params
-    router.push(
-      {
-        pathname: router.pathname,
-        query: {
-          ...router.query,
-          page, // The API page (0-indexed)
-        },
-      },
-      undefined,
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(page)); // The API page (0-indexed)
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (

@@ -58,6 +58,44 @@
       "binding": "APP_WORKER",
       "service": "prd-vspo-portal-app",
       "entrypoint": "ApplicationService"
+    },
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "prd-vspo-schedule-web"
+    }
+  ],
+
+  /**
+   * R2 Incremental Cache
+   * https://opennext.js.org/cloudflare/caching
+   */
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "prd-vspo-schedule-web-cache"
+    }
+  ],
+
+  /**
+   * Durable Objects (Tag Cache + Queue Handler)
+   * https://opennext.js.org/cloudflare/caching
+   */
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "NEXT_TAG_CACHE_DO_SHARDED",
+        "class_name": "DOShardedTagCache"
+      },
+      {
+        "name": "NEXT_CACHE_DO_QUEUE",
+        "class_name": "DOQueueHandler"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["DOShardedTagCache", "DOQueueHandler"]
     }
   ]
 }

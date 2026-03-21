@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic";
 import { createContext, useCallback, useState } from "react";
 import type { Clip } from "@/features/shared/domain";

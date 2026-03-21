@@ -4,22 +4,22 @@ import { ThemeModeProvider } from "@/context/Theme";
 import type { Livestream } from "@/features/shared/domain/livestream";
 import { LivestreamContentPresenter } from "./presenter";
 
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
-  }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 const mockPush = vi.fn();
-let mockQuery: Record<string, string> = { date: "2024-01-15" };
+let mockSearchParams = new URLSearchParams("date=2024-01-15");
 
-vi.mock("next/router", () => ({
+vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({
-    query: mockQuery,
     push: mockPush,
-    pathname: "/schedule/all",
-    events: { on: vi.fn(), off: vi.fn() },
   }),
+  usePathname: () => "/schedule/all",
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => mockSearchParams,
 }));
 
 vi.mock("./LivestreamCard", () => ({
@@ -62,7 +62,7 @@ const renderWithTheme = (ui: React.ReactElement) =>
 
 describe("LivestreamContentPresenter", () => {
   beforeEach(() => {
-    mockQuery = { date: "2024-01-15" };
+    mockSearchParams = new URLSearchParams("date=2024-01-15");
     mockPush.mockClear();
   });
 
@@ -124,13 +124,7 @@ describe("LivestreamContentPresenter", () => {
     );
     fireEvent.click(screen.getByText("navigation.previousDay"));
     expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        query: expect.objectContaining({
-          date: expect.any(String),
-        }),
-      }),
-      undefined,
-      { shallow: false },
+      expect.stringContaining("/schedule/all?date="),
     );
   });
 
@@ -140,13 +134,7 @@ describe("LivestreamContentPresenter", () => {
     );
     fireEvent.click(screen.getByText("navigation.nextDay"));
     expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        query: expect.objectContaining({
-          date: expect.any(String),
-        }),
-      }),
-      undefined,
-      { shallow: false },
+      expect.stringContaining("/schedule/all?date="),
     );
   });
 
@@ -162,13 +150,7 @@ describe("LivestreamContentPresenter", () => {
     );
     fireEvent.click(screen.getByText("navigation.previousDay"));
     expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        query: expect.objectContaining({
-          date: expect.any(String),
-        }),
-      }),
-      undefined,
-      { shallow: false },
+      expect.stringContaining("/schedule/all?date="),
     );
   });
 
@@ -184,13 +166,7 @@ describe("LivestreamContentPresenter", () => {
     );
     fireEvent.click(screen.getByText("navigation.nextDay"));
     expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        query: expect.objectContaining({
-          date: expect.any(String),
-        }),
-      }),
-      undefined,
-      { shallow: false },
+      expect.stringContaining("/schedule/all?date="),
     );
   });
 
@@ -225,7 +201,7 @@ describe("LivestreamContentPresenter", () => {
   });
 
   it("uses current date when no date query param is set", () => {
-    mockQuery = {};
+    mockSearchParams = new URLSearchParams();
     renderWithTheme(
       <LivestreamContentPresenter livestreamsByDate={{}} timeZone="UTC" />,
     );

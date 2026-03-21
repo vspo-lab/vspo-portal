@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import type { Freechat } from "../../../shared/domain/freechat";
 import { FreechatCardPresenter } from "../presenters/FreechatCardPresenter";

@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import CloseIcon from "@mui/icons-material/Close";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
@@ -9,7 +11,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React, { forwardRef, useMemo } from "react";
 import { generateEmbedUrl } from "../../utils/platformUtils";
 
@@ -159,7 +161,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
     },
     ref,
   ) => {
-    const { t } = useTranslation("multiview");
+    const t = useTranslations("multiview");
 
     const embedUrl = useMemo((): string => {
       try {
@@ -229,10 +231,9 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
       <PlayerContainer>
         <PlayerHeader
           className="player-header drag-handle"
-          aria-label={t(
-            "player.dragHandle.ariaLabel",
-            `${stream.channelTitle}の配信をドラッグして移動`,
-          )}
+          aria-label={t("player.dragHandle.ariaLabel", {
+            channelTitle: stream.channelTitle,
+          })}
         >
           <StreamInfo>
             <Typography
@@ -264,8 +265,8 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
             <DragHandle
               size="small"
               className="drag-handle"
-              aria-label={t("player.dragHandle.tooltip", "配信を移動")}
-              title={t("player.dragHandle.tooltip", "配信を移動")}
+              aria-label={t("player.dragHandle.tooltip")}
+              title={t("player.dragHandle.tooltip")}
             >
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
@@ -273,7 +274,7 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
               className="no-drag"
               size="small"
               onClick={onRemove}
-              aria-label={t("player.close.ariaLabel", "配信を閉じる")}
+              aria-label={t("player.close.ariaLabel")}
             >
               <CloseIcon fontSize="small" />
             </CloseButton>
@@ -284,16 +285,16 @@ export const VideoPlayerPresenter = React.memo(forwardRef<
           <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
-              {t("player.error.title", "読み込みエラー")}
+              {t("player.error.title")}
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              {t("player.error.description", "配信の読み込みに失敗しました")}
+              {t("player.error.description")}
             </Typography>
           </ErrorContainer>
         ) : (
           <>
             {isLoading && (
-              <LoadingContainer role="status" aria-label={t("player.loading", "配信を読み込み中")}>
+              <LoadingContainer role="status" aria-label={t("player.loading")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}

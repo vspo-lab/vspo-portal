@@ -1,4 +1,5 @@
-import { useRouter } from "next/router";
+"use client";
+
 import type * as React from "react";
 import { AboutPagePresenter } from "./presenter";
 
@@ -8,13 +9,12 @@ type AboutPageContainerProps = {
     title: string;
     content: string;
   }>;
+  locale: string;
 };
 
 export const AboutPageContainer: React.FC<AboutPageContainerProps> = ({
   sections,
+  locale,
 }) => {
-  const router = useRouter();
-  const locale = router.locale || "ja";
-
   return <AboutPagePresenter sections={sections} locale={locale} />;
 };

@@ -5,22 +5,16 @@ import { ScheduleStatusContainer } from "./container";
 // Mocks
 // ---------------------------------------------------------------------------
 const mockPush = vi.fn();
-const mockOn = vi.fn();
-const mockOff = vi.fn();
 
-vi.mock("next/router", () => ({
+vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({
     push: mockPush,
-    events: { on: mockOn, off: mockOff },
-    query: {},
   }),
 }));
 
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, opts?: Record<string, string>) =>
-      opts?.date ? `All (${opts.date}~)` : key,
-  }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, opts?: Record<string, string>) =>
+    opts?.date ? `All (${opts.date}~)` : key,
 }));
 
 vi.mock("@/lib/utils", () => ({
@@ -87,6 +81,7 @@ const defaultProps = {
 describe("ScheduleStatusContainer", () => {
   beforeEach(() => {
     capturedPresenterProps = {};
+    mockPush.mockClear();
   });
 
   it("renders presenter with default props", () => {
@@ -116,9 +111,7 @@ describe("ScheduleStatusContainer", () => {
       screen.getByTestId("change-filter").click();
     });
 
-    expect(mockPush).toHaveBeenCalledWith("/ja-JP/schedule/live", undefined, {
-      shallow: false,
-    });
+    expect(mockPush).toHaveBeenCalledWith("/schedule/live");
   });
 
   it("does not navigate when selecting the same filter", () => {
@@ -134,94 +127,6 @@ describe("ScheduleStatusContainer", () => {
     });
 
     expect(mockPush).not.toHaveBeenCalled();
-  });
-
-  it("registers router event listeners on mount", () => {
-    render(<ScheduleStatusContainer {...defaultProps} />);
-
-    expect(mockOn).toHaveBeenCalledWith(
-      "routeChangeStart",
-      expect.any(Function),
-    );
-    expect(mockOn).toHaveBeenCalledWith(
-      "routeChangeComplete",
-      expect.any(Function),
-    );
-    expect(mockOn).toHaveBeenCalledWith(
-      "routeChangeError",
-      expect.any(Function),
-    );
-  });
-
-  it("sets loading when routeChangeStart URL contains /schedule/", () => {
-    render(<ScheduleStatusContainer {...defaultProps} />);
-
-    // Extract the handleStart callback registered for routeChangeStart
-    const handleStart = mockOn.mock.calls.find(
-      (call) => call[0] === "routeChangeStart",
-    )?.[1] as (url: string) => void;
-
-    act(() => {
-      handleStart("/ja-JP/schedule/live");
-    });
-
-    expect(screen.getByTestId("is-loading")).toHaveTextContent("true");
-  });
-
-  it("does NOT set loading when routeChangeStart URL does not contain /schedule/", () => {
-    render(<ScheduleStatusContainer {...defaultProps} />);
-
-    const handleStart = mockOn.mock.calls.find(
-      (call) => call[0] === "routeChangeStart",
-    )?.[1] as (url: string) => void;
-
-    act(() => {
-      handleStart("/ja-JP/some-other-page");
-    });
-
-    expect(screen.getByTestId("is-loading")).toHaveTextContent("false");
-  });
-
-  it("clears loading on routeChangeComplete", () => {
-    render(<ScheduleStatusContainer {...defaultProps} />);
-
-    const handleStart = mockOn.mock.calls.find(
-      (call) => call[0] === "routeChangeStart",
-    )?.[1] as (url: string) => void;
-    const handleComplete = mockOn.mock.calls.find(
-      (call) => call[0] === "routeChangeComplete",
-    )?.[1] as () => void;
-
-    // First set loading
-    act(() => {
-      handleStart("/ja-JP/schedule/live");
-    });
-    expect(screen.getByTestId("is-loading")).toHaveTextContent("true");
-
-    // Then complete
-    act(() => {
-      handleComplete();
-    });
-    expect(screen.getByTestId("is-loading")).toHaveTextContent("false");
-  });
-
-  it("cleans up router event listeners on unmount", () => {
-    const { unmount } = render(<ScheduleStatusContainer {...defaultProps} />);
-
-    unmount();
-
-    expect(mockOff).toHaveBeenCalledWith(
-      "routeChangeStart",
-      expect.any(Function),
-    );
-    expect(mockOff).toHaveBeenCalledWith(
-      "routeChangeComplete",
-      expect.any(Function),
-    );
-    expect(mockOff).toHaveBeenCalledWith(
-      "routeChangeError",
-      expect.any(Function),
-    );
   });
 
   it("passes isArchivePage to presenter", () => {

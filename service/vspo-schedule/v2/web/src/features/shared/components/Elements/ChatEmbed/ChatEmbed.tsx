@@ -1,3 +1,5 @@
+"use client";
+
 import { styled, useColorScheme } from "@mui/material/styles";
 import React from "react";
 import type { Freechat } from "@/features/shared/domain/freechat";

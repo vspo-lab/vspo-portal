@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -24,7 +26,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import React from "react";
 
@@ -94,7 +96,7 @@ export const StreamSelectorPresenter: React.FC<
   onStatusFilterChange,
   onToggleChat,
 }) => {
-  const { t } = useTranslation("multiview");
+  const t = useTranslations("multiview");
   const theme = useTheme();
 
   const isStreamSelected = (streamId: string) => {
@@ -120,10 +122,10 @@ export const StreamSelectorPresenter: React.FC<
         <TextField
           fullWidth
           size="small"
-          placeholder={t("selector.search.placeholder", "配信を検索...")}
+          placeholder={t("selector.search.placeholder")}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          aria-label={t("selector.search.ariaLabel", "配信を検索")}
+          aria-label={t("selector.search.ariaLabel")}
           InputProps={{
             startAdornment: (
               <SearchIcon sx={{ mr: 1, color: "text.secondary" }} />
@@ -141,19 +143,19 @@ export const StreamSelectorPresenter: React.FC<
           sx={{ minHeight: 48 }}
         >
           <Tab
-            label={t("selector.tabs.all", "すべて")}
+            label={t("selector.tabs.all")}
             value="all"
             sx={{ minHeight: 48 }}
           />
           <Tab
-            label={t("selector.tabs.live", "ライブ")}
+            label={t("selector.tabs.live")}
             value="live"
             icon={<LiveTvIcon />}
             iconPosition="start"
             sx={{ minHeight: 48 }}
           />
           <Tab
-            label={t("selector.tabs.upcoming", "予定")}
+            label={t("selector.tabs.upcoming")}
             value="upcoming"
             icon={<ScheduleIcon />}
             iconPosition="start"
@@ -169,7 +171,7 @@ export const StreamSelectorPresenter: React.FC<
             <ListItemText
               primary={
                 <Typography color="text.secondary" align="center">
-                  {t("selector.noResults", "該当する配信がありません")}
+                  {t("selector.noResults")}
                 </Typography>
               }
             />
@@ -192,8 +194,8 @@ export const StreamSelectorPresenter: React.FC<
                     <Tooltip
                       title={
                         hasChatOpen
-                          ? t("selector.chat.close", "チャットを閉じる")
-                          : t("selector.chat.open", "チャットを追加")
+                          ? t("selector.chat.close")
+                          : t("selector.chat.open")
                       }
                     >
                       <IconButton
@@ -205,8 +207,8 @@ export const StreamSelectorPresenter: React.FC<
                         }}
                         aria-label={
                           hasChatOpen
-                            ? t("selector.chat.close", "チャットを閉じる")
-                            : t("selector.chat.open", "チャットを追加")
+                            ? t("selector.chat.close")
+                            : t("selector.chat.open")
                         }
                         aria-pressed={hasChatOpen}
                         sx={{
@@ -275,8 +277,8 @@ export const StreamSelectorPresenter: React.FC<
                           }
                           label={
                             stream.status === "live"
-                              ? t("selector.status.live", "LIVE")
-                              : t("selector.status.upcoming", "予定")
+                              ? t("selector.status.live")
+                              : t("selector.status.upcoming")
                           }
                           size="small"
                         />

@@ -1,3 +1,5 @@
+"use client";
+
 import { faGithub, faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -5,7 +7,7 @@ import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/system";
 import Image from "next/image";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useState } from "react";
 import { CustomDrawer, Link } from "../Elements";
@@ -65,7 +67,7 @@ type Props = {
 };
 export const Header: React.FC<Props> = ({ title }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
   const toggleDrawerOpen = () => {
     setDrawerOpen(!drawerOpen);
   };

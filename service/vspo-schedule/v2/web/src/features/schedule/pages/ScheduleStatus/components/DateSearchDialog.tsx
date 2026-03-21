@@ -1,3 +1,5 @@
+"use client";
+
 import { Delete, Star } from "@mui/icons-material";
 import {
   Box,
@@ -16,7 +18,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import type { FavoriteSearchCondition } from "../../../types/favorite";
 
@@ -64,16 +66,16 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
   onLoadFavorite,
   onDeleteFavorite,
 }) => {
-  const { t } = useTranslation("schedule");
+  const t = useTranslations("schedule");
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>{t("search.title", "Date Search")}</DialogTitle>
+      <DialogTitle>{t("search.title")}</DialogTitle>
       <DialogContent>
         <FormGroup sx={{ mt: 1 }}>
           <FormControl fullWidth margin="normal">
             <TextField
-              label={t("search.selectDate", "Select Date")}
+              label={t("search.selectDate")}
               type="date"
               value={dateInputValue}
               onChange={onDateInputChange}
@@ -90,55 +92,43 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
 
           <FormControl fullWidth margin="normal">
             <InputLabel id="member-type-select-label">
-              {t("search.memberType", "Member Type")}
+              {t("search.memberType")}
             </InputLabel>
             <Select
               labelId="member-type-select-label"
               id="member-type-select"
               value={formData.memberType}
-              label={t("search.memberType", "Member Type")}
+              label={t("search.memberType")}
               onChange={onMemberTypeChange}
             >
-              <MenuItem value="vspo_all">
-                {t("search.memberType.all", "All Members")}
-              </MenuItem>
-              <MenuItem value="vspo_jp">
-                {t("search.memberType.jp", "Japanese")}
-              </MenuItem>
-              <MenuItem value="vspo_en">
-                {t("search.memberType.en", "English")}
-              </MenuItem>
-              <MenuItem value="vspo_ch">
-                {t("search.memberType.ch", "Chinese")}
-              </MenuItem>
+              <MenuItem value="vspo_all">{t("search.memberType.all")}</MenuItem>
+              <MenuItem value="vspo_jp">{t("search.memberType.jp")}</MenuItem>
+              <MenuItem value="vspo_en">{t("search.memberType.en")}</MenuItem>
+              <MenuItem value="vspo_ch">{t("search.memberType.ch")}</MenuItem>
             </Select>
           </FormControl>
 
           <FormControl fullWidth margin="normal">
             <InputLabel id="platform-select-label">
-              {t("search.platform", "Platform")}
+              {t("search.platform")}
             </InputLabel>
             <Select
               labelId="platform-select-label"
               id="platform-select"
               value={formData.platform}
-              label={t("search.platform", "Platform")}
+              label={t("search.platform")}
               onChange={onPlatformChange}
             >
-              <MenuItem value="">
-                {t("search.platform.all", "All Platforms")}
-              </MenuItem>
+              <MenuItem value="">{t("search.platform.all")}</MenuItem>
               <MenuItem value="youtube">
-                {t("search.platform.youtube", "YouTube")}
+                {t("search.platform.youtube")}
               </MenuItem>
-              <MenuItem value="twitch">
-                {t("search.platform.twitch", "Twitch")}
-              </MenuItem>
+              <MenuItem value="twitch">{t("search.platform.twitch")}</MenuItem>
               <MenuItem value="twitcasting">
-                {t("search.platform.twitcasting", "TwitCasting")}
+                {t("search.platform.twitcasting")}
               </MenuItem>
               <MenuItem value="niconico">
-                {t("search.platform.niconico", "Niconico")}
+                {t("search.platform.niconico")}
               </MenuItem>
             </Select>
           </FormControl>
@@ -147,7 +137,7 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
         {/* Favorites management section */}
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" gutterBottom>
-            {t("search.favorites.save", "Favorite Search Conditions")}
+            {t("search.favorites.save")}
           </Typography>
 
           {!hasFavorite ? (
@@ -158,7 +148,7 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
               startIcon={<Star />}
               fullWidth
             >
-              {t("search.favorites.saveButton", "Save Current Conditions")}
+              {t("search.favorites.saveButton")}
             </Button>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -176,10 +166,10 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
                 <Star color="primary" />
                 <Box sx={{ flexGrow: 1 }}>
                   <Typography variant="body2" color="text.secondary">
-                    {t("search.favorites.saved", "Saved Conditions")}
+                    {t("search.favorites.saved")}
                   </Typography>
                   <Typography variant="body1">
-                    {`${t(`search.memberType.${favorite?.memberType === "vspo_all" ? "all" : favorite?.memberType?.replace("vspo_", "")}`, favorite?.memberType || "")} | ${favorite?.platform ? t(`search.platform.${favorite.platform}`, favorite.platform) : t("search.platform.all", "All Platforms")}`}
+                    {`${t(`search.memberType.${favorite?.memberType === "vspo_all" ? "all" : favorite?.memberType?.replace("vspo_", "")}`)} | ${favorite?.platform ? t(`search.platform.${favorite.platform}`) : t("search.platform.all")}`}
                   </Typography>
                 </Box>
               </Box>
@@ -191,7 +181,7 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
                   disabled={!isSaveEnabled}
                   sx={{ flex: 1 }}
                 >
-                  {t("search.favorites.saveButton", "Update")}
+                  {t("search.favorites.saveButton")}
                 </Button>
                 <IconButton onClick={onDeleteFavorite} color="error">
                   <Delete />
@@ -202,15 +192,15 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClear}>{t("search.clear", "Clear")}</Button>
-        <Button onClick={onClose}>{t("search.cancel", "Cancel")}</Button>
+        <Button onClick={onClear}>{t("search.clear")}</Button>
+        <Button onClick={onClose}>{t("search.cancel")}</Button>
         <Button
           onClick={onSubmit}
           variant="contained"
           color="primary"
           disabled={!isSearchEnabled}
         >
-          {t("search.search", "Search")}
+          {t("search.search")}
         </Button>
       </DialogActions>
     </Dialog>

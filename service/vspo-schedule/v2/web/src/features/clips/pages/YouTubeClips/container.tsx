@@ -1,16 +1,12 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { ContentLayout } from "@/features/shared/components/Layout";
-import type { NextPageWithLayout } from "@/pages/_app";
 import type { Clip, Pagination } from "../../../shared/domain/clip";
 import { Presenter } from "./presenter";
 
-export type YouTubeClipsProps = {
+type YouTubeClipsProps = {
   clips: Clip[];
   lastUpdateTimestamp: number;
-  meta: {
-    title: string;
-    description: string;
-  };
   pagination: Pagination;
   order: string;
   orderKey: string;
@@ -18,7 +14,7 @@ export type YouTubeClipsProps = {
 };
 
 // Container component (page logic)
-export const YouTubeClips: NextPageWithLayout<YouTubeClipsProps> = (props) => {
+export const YouTubeClips: React.FC<YouTubeClipsProps> = (props) => {
   const [isProcessing, setIsProcessing] = useState<boolean>(true);
 
   useEffect(() => {
@@ -34,19 +30,5 @@ export const YouTubeClips: NextPageWithLayout<YouTubeClipsProps> = (props) => {
       isProcessing={isProcessing}
       currentPeriod={props.currentPeriod}
     />
-  );
-};
-
-// Layout configuration
-YouTubeClips.getLayout = (page, pageProps) => {
-  return (
-    <ContentLayout
-      title={pageProps.meta.title}
-      description={pageProps.meta.description}
-      lastUpdateTimestamp={pageProps.lastUpdateTimestamp}
-      path="/clips"
-    >
-      {page}
-    </ContentLayout>
   );
 };

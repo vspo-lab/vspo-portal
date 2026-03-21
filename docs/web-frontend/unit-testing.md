@@ -167,7 +167,7 @@ service/vspo-schedule/v2/web/
 ├── src/
 │   ├── features/**/api/*.ts          # Data fetching (test these with mocked VSPOApi)
 │   ├── features/**/hooks/*.ts        # React hooks (test with renderHook)
-│   ├── features/**/pages/*/container.tsx  # Container components
+│   ├── app/[locale]/*/page.tsx        # App Router page components
 │   ├── features/**/pages/*/presenter.tsx  # Presenter components (test rendering)
 │   ├── features/shared/domain/       # Domain schemas and types
 │   ├── lib/                          # Utility functions

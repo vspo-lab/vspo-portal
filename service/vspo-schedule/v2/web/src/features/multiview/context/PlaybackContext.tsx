@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useCallback, useRef, useMemo } from "react";
 
 export interface VideoPlayerRef {

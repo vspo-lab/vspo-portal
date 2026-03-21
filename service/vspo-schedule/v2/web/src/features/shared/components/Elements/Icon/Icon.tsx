@@ -1,3 +1,5 @@
+"use client";
+
 import { faDiscord, faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AllInboxIcon from "@mui/icons-material/AllInbox";

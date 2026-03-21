@@ -1,8 +1,4 @@
-import type { IncomingMessage } from "node:http";
-import type { SSRConfig } from "next-i18next";
 import type { Channel, Clip, Pagination } from "@/features/shared/domain";
-import { serverSideTranslations } from "@/lib/i18n/server";
-import { getSessionId } from "@/lib/utils";
 import { fetchVspoMembers } from "../../shared/api/channel";
 import { fetchClips } from "../../shared/api/clip";
 
@@ -11,23 +7,26 @@ type ClipService = {
   popularShortsClips: Clip[];
   popularTwitchClips: Clip[];
   vspoMembers: Channel[];
-  translations: SSRConfig;
 };
 
 type FetchClipServiceParams = {
   beforePublishedAtDate?: string;
   afterPublishedAtDate?: string;
-  locale: string;
-  req: IncomingMessage;
+  sessionId?: string;
 };
 
+/**
+ * Fetches popular clips across all platforms for the clips home page.
+ * @precondition None
+ * @postcondition Returns clips grouped by platform type, with empty arrays for failed fetches.
+ * @idempotent Yes - read-only data fetching.
+ */
 const fetchClipService = async (
   params: FetchClipServiceParams,
 ): Promise<ClipService> => {
-  const { beforePublishedAtDate, afterPublishedAtDate, locale, req } = params;
+  const { beforePublishedAtDate, afterPublishedAtDate, sessionId } = params;
 
   const ITEMS_PER_CATEGORY = 10;
-  const sessionId = getSessionId(req);
 
   const results = await Promise.allSettled([
     fetchClips({
@@ -66,7 +65,6 @@ const fetchClipService = async (
     fetchVspoMembers({
       sessionId,
     }),
-    serverSideTranslations(locale, ["common", "clips"]),
   ]);
 
   const popularYoutubeClips =
@@ -89,24 +87,17 @@ const fetchClipService = async (
       ? results[3].value.val?.members || []
       : [];
 
-  const translations =
-    results[4].status === "fulfilled"
-      ? results[4].value
-      : await serverSideTranslations(locale, ["common", "clips"]);
-
   return {
     popularYoutubeClips,
     popularShortsClips,
     popularTwitchClips,
     vspoMembers,
-    translations,
   };
 };
 
 type SingleClipService = {
   clips: Clip[];
   pagination: Pagination;
-  translations: SSRConfig;
 };
 
 type FetchSingleClipServiceParams = {
@@ -117,10 +108,15 @@ type FetchSingleClipServiceParams = {
   order: "asc" | "desc";
   orderKey: "viewCount" | "publishedAt";
   afterPublishedAtDate?: string;
-  locale: string;
-  req: IncomingMessage;
+  sessionId?: string;
 };
 
+/**
+ * Fetches clips for a single platform with pagination support.
+ * @precondition page >= 0, limit > 0
+ * @postcondition Returns clips array and pagination metadata, with defaults for failed fetches.
+ * @idempotent Yes - read-only data fetching.
+ */
 const fetchSingleClipService = async (
   params: FetchSingleClipServiceParams,
 ): Promise<SingleClipService> => {
@@ -132,29 +128,23 @@ const fetchSingleClipService = async (
     order,
     orderKey,
     afterPublishedAtDate,
-    locale,
-    req,
+    sessionId,
   } = params;
 
-  const sessionId = getSessionId(req);
-
-  const results = await Promise.allSettled([
-    fetchClips({
-      page,
-      limit,
-      platform,
-      clipType,
-      order,
-      orderKey,
-      afterPublishedAtDate,
-      sessionId,
-    }),
-    serverSideTranslations(locale, ["common", "clips"]),
-  ]);
+  const result = await fetchClips({
+    page,
+    limit,
+    platform,
+    clipType,
+    order,
+    orderKey,
+    afterPublishedAtDate,
+    sessionId,
+  });
 
   const clipResult =
-    results[0].status === "fulfilled" && !results[0].value.err
-      ? results[0].value.val
+    !result.err && result.val
+      ? result.val
       : {
           clips: [],
           pagination: {
@@ -165,11 +155,6 @@ const fetchSingleClipService = async (
           },
         };
 
-  const translations =
-    results[1].status === "fulfilled"
-      ? results[1].value
-      : await serverSideTranslations(locale, ["common", "clips"]);
-
   return {
     clips: clipResult.clips || [],
     pagination: clipResult.pagination || {
@@ -178,7 +163,6 @@ const fetchSingleClipService = async (
       totalItems: 0,
       itemsPerPage: limit,
     },
-    translations,
   };
 };
 

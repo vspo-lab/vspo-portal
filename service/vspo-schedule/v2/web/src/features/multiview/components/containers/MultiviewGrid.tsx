@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import { useMediaQuery, useTheme } from "@mui/material";
 import React from "react";

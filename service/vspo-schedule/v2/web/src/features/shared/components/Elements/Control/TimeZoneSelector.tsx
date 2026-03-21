@@ -1,14 +1,17 @@
+"use client";
+
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React, { useMemo } from "react";
 import { useTimeZoneContext } from "@/hooks";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { formatDate } from "@/lib/utils";
 
 export const TimeZoneSelector = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { timeZone, setTimeZone } = useTimeZoneContext();
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
 
   const labels = useMemo(() => {
     return Intl.supportedValuesOf("timeZone").reduce<
@@ -47,7 +50,7 @@ export const TimeZoneSelector = () => {
         if (
           formattedTimeZoneOffsets[value] !== formattedTimeZoneOffsets[timeZone]
         ) {
-          router.replace(router.asPath, undefined, { scroll: false });
+          router.replace(pathname, { scroll: false });
         }
       }}
       options={timeZones}

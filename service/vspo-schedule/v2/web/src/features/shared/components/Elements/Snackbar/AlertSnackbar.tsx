@@ -1,7 +1,9 @@
+"use client";
+
 import CloseIcon from "@mui/icons-material/Close";
 import { Alert, IconButton, Snackbar } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 
 const StyledAlert = styled(Alert)({
   backgroundColor: "#e5f6fd",
@@ -18,7 +20,7 @@ export const AlertSnackbar: React.FC<AlertSnackbarProps> = ({
   open,
   onClose,
 }) => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
 
   return (
     <Snackbar

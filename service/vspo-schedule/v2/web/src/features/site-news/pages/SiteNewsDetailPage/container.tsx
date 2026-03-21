@@ -1,7 +1,7 @@
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 import type * as React from "react";
-import { DEFAULT_LOCALE } from "@/lib/Const";
 import type { SiteNewsMarkdownItem } from "@/lib/markdown";
 import { SiteNewsDetailPagePresenter } from "./presenter";
 
@@ -12,9 +12,8 @@ type SiteNewsDetailPageContainerProps = {
 export const SiteNewsDetailPageContainer: React.FC<
   SiteNewsDetailPageContainerProps
 > = ({ siteNewsItem }) => {
-  const router = useRouter();
-  const locale = router.locale ?? DEFAULT_LOCALE;
-  const { t } = useTranslation("site-news");
+  const locale = useLocale();
+  const t = useTranslations("site-news");
 
   return (
     <SiteNewsDetailPagePresenter

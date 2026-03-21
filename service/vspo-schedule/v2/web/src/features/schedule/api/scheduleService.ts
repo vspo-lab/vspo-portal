@@ -1,16 +1,11 @@
-import type { IncomingMessage } from "node:http";
 import { getPreviousDay } from "@vspo-lab/dayjs";
-import type { SSRConfig } from "next-i18next";
 import { fetchEvents } from "@/features/shared/api/event";
 import { fetchLivestreams } from "@/features/shared/api/livestream";
 import type { Event, Livestream } from "@/features/shared/domain";
-import { serverSideTranslations } from "@/lib/i18n/server";
-import { getSessionId } from "@/lib/utils";
 
 type Schedule = {
   events: Event[];
   livestreams: Livestream[];
-  translations: SSRConfig;
 };
 
 type FetchScheduleParams = {
@@ -22,9 +17,15 @@ type FetchScheduleParams = {
   timeZone: string;
   memberType?: string;
   platform?: string;
-  req: IncomingMessage;
+  sessionId?: string;
 };
 
+/**
+ * Fetches schedule data including events and livestreams.
+ * Falls back to the previous day if no livestreams are found for status "all".
+ * @param params - Schedule fetch parameters including date, locale, status, and optional filters.
+ * @returns Events and livestreams for the requested schedule.
+ */
 const fetchSchedule = async (
   params: FetchScheduleParams,
 ): Promise<Schedule> => {
@@ -37,10 +38,8 @@ const fetchSchedule = async (
     timeZone,
     memberType,
     platform,
-    req,
+    sessionId,
   } = params;
-
-  const sessionId = getSessionId(req);
 
   const results = await Promise.allSettled([
     fetchEvents({
@@ -60,7 +59,6 @@ const fetchSchedule = async (
       platform,
       sessionId,
     }),
-    serverSideTranslations(locale || "ja", ["common", "streams", "schedule"]),
   ]);
 
   const events =
@@ -93,19 +91,9 @@ const fetchSchedule = async (
     }
   }
 
-  const translations =
-    results[2].status === "fulfilled"
-      ? results[2].value
-      : await serverSideTranslations(locale || "ja", [
-          "common",
-          "streams",
-          "schedule",
-        ]);
-
   return {
     events,
     livestreams,
-    translations,
   };
 };
 

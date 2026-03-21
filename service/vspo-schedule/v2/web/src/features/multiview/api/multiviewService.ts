@@ -1,18 +1,14 @@
-import { IncomingMessage } from "http";
 import { fetchLivestreams } from "@/features/shared/api/livestream";
 import { Livestream } from "@/features/shared/domain";
-import { serverSideTranslations } from "@/lib/i18n/server";
-import { getSessionId } from "@/lib/utils";
 import { AppError } from "@vspo-lab/error";
 
 export type MultiviewServiceResponse = {
   livestreams: Livestream[];
-  translations: Record<string, unknown>;
 };
 
 export type FetchMultiviewServiceParams = {
   locale: string;
-  req?: IncomingMessage;
+  sessionId?: string;
   timezone?: string;
   limit?: number;
   includeUpcoming?: boolean;
@@ -20,9 +16,15 @@ export type FetchMultiviewServiceParams = {
   platform?: string;
 };
 
+/**
+ * Fetch livestreams for the multiview page.
+ * @precondition locale must be a valid locale string.
+ * @postcondition Returns livestreams sorted by status (live first) and time.
+ * @idempotent Yes - read-only fetch.
+ */
 export const fetchMultiviewService = async ({
   locale,
-  req,
+  sessionId,
   timezone = "UTC",
   limit = 50,
   includeUpcoming = true,
@@ -30,10 +32,8 @@ export const fetchMultiviewService = async ({
   platform,
 }: FetchMultiviewServiceParams): Promise<MultiviewServiceResponse> => {
   try {
-    const sessionId = req ? getSessionId(req) : undefined;
-
-    // Fetch live, upcoming, and translations in parallel
-    const [livestreamResult, upcomingResult, translations] = await Promise.all([
+    // Fetch live and upcoming in parallel
+    const [livestreamResult, upcomingResult] = await Promise.all([
       fetchLivestreams({
         limit,
         lang: locale,
@@ -56,7 +56,6 @@ export const fetchMultiviewService = async ({
             platform,
           })
         : null,
-      serverSideTranslations(locale, ["common", "multiview"]),
     ]);
 
     if (livestreamResult.err) {
@@ -89,7 +88,6 @@ export const fetchMultiviewService = async ({
 
     return {
       livestreams: sortedLivestreams,
-      translations,
     };
   } catch (error) {
     console.error("Failed to fetch multiview service data:", error);
@@ -103,14 +101,8 @@ export const fetchMultiviewService = async ({
       });
     }
 
-    const translations = await serverSideTranslations(locale, [
-      "common",
-      "multiview",
-    ]);
-
     return {
       livestreams: [],
-      translations,
     };
   }
 };

@@ -1,3 +1,5 @@
+"use client";
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import ShareIcon from "@mui/icons-material/Share";
@@ -17,8 +19,7 @@ import {
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import Image from "next/image";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React, { useEffect } from "react";
 import type { Clip } from "@/features/shared/domain/clip";
 import type { Freechat } from "@/features/shared/domain/freechat";
@@ -26,6 +27,7 @@ import type { Livestream } from "@/features/shared/domain/livestream";
 import type { Platform, Video } from "@/features/shared/domain/video";
 import { convertVideoPlayerLink } from "@/features/shared/utils";
 import { useTimeZoneContext, useVideoModalContext } from "@/hooks";
+import { usePathname } from "@/i18n/navigation";
 import { formatDate } from "@/lib/utils";
 import { Link, PlatformIcon } from "..";
 import { ChatEmbed } from "../ChatEmbed";
@@ -149,7 +151,7 @@ interface BaseInfoTabsPresenterProps {
 const LivestreamInfoTabsPresenter: React.FC<
   BaseInfoTabsPresenterProps & { video: Livestream }
 > = ({ video, tabValue, onTabChange, urlRegex }) => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
   const theme = useTheme();
   const { timeZone } = useTimeZoneContext();
 
@@ -321,7 +323,7 @@ const LivestreamInfoTabsPresenter: React.FC<
 const FreechatInfoTabsPresenter: React.FC<
   BaseInfoTabsPresenterProps & { video: Freechat }
 > = ({ video, tabValue, onTabChange, urlRegex }) => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
   const theme = useTheme();
   const { timeZone } = useTimeZoneContext();
 
@@ -491,7 +493,7 @@ const FreechatInfoTabsPresenter: React.FC<
 const ClipInfoTabsPresenter: React.FC<
   BaseInfoTabsPresenterProps & { video: Clip }
 > = ({ video, tabValue, onTabChange, urlRegex }) => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -677,7 +679,7 @@ const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
   onClose,
   onBack,
 }) => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
 
   return (
     <Dialog open={isOpen} fullScreen>
@@ -787,13 +789,13 @@ const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
 
 // Container component for the entire VideoModal
 export const VideoModal: React.FC = () => {
-  const _router = useRouter();
+  const pathname = usePathname();
   const { activeVideo, popVideo, clearVideos } = useVideoModalContext();
 
   // Clear video modal on url changes
   useEffect(() => {
     clearVideos();
-  }, [clearVideos]);
+  }, [pathname, clearVideos]);
 
   return (
     <VideoModalPresenter

@@ -1,3 +1,5 @@
+"use client";
+
 import { Loading } from "@/features/shared/components/Elements";
 import { Livestream } from "@/features/shared/domain";
 import AddLinkIcon from "@mui/icons-material/AddLink";
@@ -31,7 +33,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React from "react";
 import {
   LayoutSelector,
@@ -144,7 +146,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
   onToggleChat,
   onRemoveChat,
 }) => {
-  const { t } = useTranslation(["multiview", "common"]);
+  const t = useTranslations("multiview");
+  const tCommon = useTranslations("common");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
@@ -227,7 +230,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
     setSaveDialogOpen(false);
     setLayoutName("");
     setSnackbarMessage(
-      t("multiview:customLayout.saved", "配信とレイアウトを保存しました"),
+      t("customLayout.saved"),
     );
     setSnackbarOpen(true);
   }, [layoutName, selectedLayout, t]);
@@ -238,7 +241,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
       deleteCustomLayout(name);
       setCustomLayouts(loadCustomLayouts());
       setSnackbarMessage(
-        t("multiview:customLayout.deleted", "レイアウトを削除しました"),
+        t("customLayout.deleted"),
       );
       setSnackbarOpen(true);
     },
@@ -327,13 +330,13 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         .writeText(shareableUrl)
         .then(() => {
           setSnackbarMessage(
-            t("multiview:share.copied", "共有URLをコピーしました"),
+            t("share.copied"),
           );
           setSnackbarOpen(true);
         })
         .catch(() => {
           setSnackbarMessage(
-            t("multiview:share.copyFailed", "URLのコピーに失敗しました"),
+            t("share.copyFailed"),
           );
           setSnackbarOpen(true);
         });
@@ -425,8 +428,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
             <Tooltip
               title={
                 controlsPanelCollapsed
-                  ? t("multiview:controlPanel.show", "配信とレイアウトを表示")
-                  : t("multiview:controlPanel.hide", "配信とレイアウトを隠す")
+                  ? t("controlPanel.show")
+                  : t("controlPanel.hide")
               }
               placement="left"
             >
@@ -436,8 +439,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                 }
                 aria-label={
                   controlsPanelCollapsed
-                    ? t("multiview:controlPanel.show", "配信とレイアウトを表示")
-                    : t("multiview:controlPanel.hide", "配信とレイアウトを隠す")
+                    ? t("controlPanel.show")
+                    : t("controlPanel.hide")
                 }
                 aria-pressed={!controlsPanelCollapsed}
                 size="large"
@@ -476,15 +479,12 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
           {/* Immersive Mode Toggle - hidden in immersive mode (exit via grid hover) */}
           {!immersiveMode && (
             <Tooltip
-              title={t("multiview:immersive.enter", "レイアウトを非表示")}
+              title={t("immersive.enter")}
               placement="left"
             >
               <IconButton
                 onClick={toggleImmersiveMode}
-                aria-label={t(
-                  "multiview:immersive.enter",
-                  "レイアウトを非表示",
-                )}
+                aria-label={t("immersive.enter")}
                 size="large"
                 sx={{
                   width: 56,
@@ -532,15 +532,12 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
             }}
           >
             <Tooltip
-              title={t("multiview:immersive.exit", "レイアウトを表示")}
+              title={t("immersive.exit")}
               placement="left"
             >
               <IconButton
                 onClick={toggleImmersiveMode}
-                aria-label={t(
-                  "multiview:immersive.exit",
-                  "レイアウトを表示",
-                )}
+                aria-label={t("immersive.exit")}
                 size="large"
                 sx={{
                   width: 56,
@@ -591,14 +588,14 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           fontSize: "1.2rem",
                         }}
                       />
-                      {t("multiview:selector.title", "配信選択")}
+                      {t("selector.title")}
                     </SectionTitle>
                     <IconButton
                       size="small"
                       onClick={() =>
                         setStreamSelectorCollapsed(!streamSelectorCollapsed)
                       }
-                      aria-label={streamSelectorCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
+                      aria-label={streamSelectorCollapsed ? t("expand") : t("collapse")}
                       aria-expanded={!streamSelectorCollapsed}
                       sx={{ ml: 1 }}
                     >
@@ -638,12 +635,12 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           fontSize: "1.2rem",
                         }}
                       />
-                      {t("multiview:urlInput.sectionTitle", "URLから追加")}
+                      {t("urlInput.sectionTitle")}
                     </SectionTitle>
                     <IconButton
                       size="small"
                       onClick={() => setUrlInputCollapsed(!urlInputCollapsed)}
-                      aria-label={urlInputCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
+                      aria-label={urlInputCollapsed ? t("expand") : t("collapse")}
                       aria-expanded={!urlInputCollapsed}
                       sx={{ ml: 1 }}
                     >
@@ -663,7 +660,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                     {manualStreams.length > 0 && (
                       <Box sx={{ mt: 2 }}>
                         <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>
-                          {t("multiview:urlInput.addedStreams", "URLから追加済み")}
+                          {t("urlInput.addedStreams")}
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
                           {manualStreams.map((stream) => (
@@ -708,14 +705,14 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           fontSize: "1.2rem",
                         }}
                       />
-                      {t("multiview:layout.title", "配信とレイアウト")}
+                      {t("layout.title")}
                     </SectionTitle>
                     <IconButton
                       size="small"
                       onClick={() =>
                         setLayoutSectionCollapsed(!layoutSectionCollapsed)
                       }
-                      aria-label={layoutSectionCollapsed ? t("multiview:expand", "展開") : t("multiview:collapse", "折りたたむ")}
+                      aria-label={layoutSectionCollapsed ? t("expand") : t("collapse")}
                       aria-expanded={!layoutSectionCollapsed}
                       sx={{ ml: 1 }}
                     >
@@ -741,7 +738,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           startIcon={<ShareIcon />}
                           onClick={handleShare}
                         >
-                          {t("multiview:share.button", "配信とレイアウトを共有")}
+                          {t("share.button")}
                         </Button>
                         <Button
                           fullWidth
@@ -749,10 +746,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           startIcon={<SaveIcon />}
                           onClick={() => setSaveDialogOpen(true)}
                         >
-                          {t(
-                            "multiview:customLayout.save",
-                            "配信とレイアウトを保存",
-                          )}
+                          {t("customLayout.save")}
                         </Button>
                       </Box>
                     )}
@@ -764,14 +758,11 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                           color="text.secondary"
                           sx={{ mb: 1 }}
                         >
-                          {t(
-                            "multiview:customLayout.savedLayouts",
-                            "保存済みレイアウト",
-                          )}
+                          {t("customLayout.savedLayouts")}
                         </Typography>
                         {selectedStreams.length === 0 && (
                           <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block", fontStyle: "italic" }}>
-                            {t("multiview:customLayout.noStreamsHint", "配信を追加するとレイアウトが適用されます")}
+                            {t("customLayout.noStreamsHint")}
                           </Typography>
                         )}
                         <Box
@@ -807,7 +798,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
                 {selectedStreams.length > 0 && (
                   <Box>
                     <SectionTitle variant="h6">
-                      {t("multiview:playback.title", "再生コントロール")}
+                      {t("playback.title")}
                     </SectionTitle>
                     <SimplePlaybackControls
                       streams={selectedStreams}
@@ -830,9 +821,9 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         fullWidth
       >
         <DialogTitle>
-          {t("multiview:customLayout.dialogTitle", "配信とレイアウトを保存")}
+          {t("customLayout.dialogTitle")}
           <IconButton
-            aria-label={t("common:close", "閉じる")}
+            aria-label={tCommon("close")}
             onClick={() => setSaveDialogOpen(false)}
             sx={{ position: "absolute", right: 8, top: 8 }}
           >
@@ -843,7 +834,7 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
           <TextField
             autoFocus
             fullWidth
-            label={t("multiview:customLayout.nameLabel", "レイアウト名")}
+            label={t("customLayout.nameLabel")}
             value={layoutName}
             onChange={(e) => setLayoutName(e.target.value)}
             onKeyDown={(e) => {
@@ -855,22 +846,19 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
             sx={{ mt: 1 }}
           />
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-            {t(
-              "multiview:customLayout.maxHint",
-              "最大10個まで保存できます。超過すると古いものから削除されます。",
-            )}
+            {t("customLayout.maxHint")}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSaveDialogOpen(false)}>
-            {t("common:cancel", "キャンセル")}
+            {tCommon("cancel")}
           </Button>
           <Button
             onClick={handleSaveLayout}
             variant="contained"
             disabled={!layoutName.trim()}
           >
-            {t("common:save", "保存")}
+            {tCommon("save")}
           </Button>
         </DialogActions>
       </Dialog>
@@ -890,8 +878,8 @@ export const Presenter: React.FC<MultiviewPagePresenterProps> = ({
         }}
       >
         {selectedStreams.length > 0
-          ? t("multiview:status.streamCount", "{{count}}件の配信を表示中", { count: selectedStreams.length })
-          : t("multiview:status.noStreams", "配信が選択されていません")}
+          ? t("status.streamCount", { count: selectedStreams.length })
+          : t("status.noStreams")}
       </Box>
 
       {/* Snackbar for feedback */}

@@ -1,65 +1,122 @@
 # Routing
 
-## Pages Router Pattern
+## App Router Structure
 
-Each page file in `pages/` is a thin entry point that delegates to a feature module:
+Pages live in `src/app/[locale]/` using the App Router convention. Each page is an async Server Component that fetches data and renders directly.
 
-```tsx
-// pages/schedule/[status].tsx
-import { ScheduleStatus } from "@/features/schedule/pages/ScheduleStatus";
-import { getLivestreamsServerSideProps } from "@/features/schedule/pages/ScheduleStatus/serverSideProps";
-
-const SchedulePage: NextPageWithLayout<SchedulePageProps> = ({ pageProps }) => {
-  return <ScheduleStatus {...pageProps} />;
-};
-
-SchedulePage.getLayout = (page, pageProps) => (
-  <ContentLayout
-    title={pageProps.meta.title}
-    description={pageProps.meta.description}
-    path={`/${locale}/schedule/${status}`}
-  >
-    {page}
-  </ContentLayout>
-);
-
-export const getServerSideProps = getLivestreamsServerSideProps;
-export default SchedulePage;
+```text
+src/app/
+├── layout.tsx                    # Root layout (metadata only, returns children)
+├── sitemap.ts                    # App Router native sitemap
+├── sw.ts                         # Service worker (@serwist/next)
+├── not-found.tsx
+├── page.tsx                      # Root redirect
+└── [locale]/
+    ├── layout.tsx                # Locale layout (html, body, providers, NextIntlClientProvider)
+    ├── error.tsx
+    ├── loading.tsx
+    ├── (content)/                # Route group: pages with ContentLayout
+    │   ├── layout.tsx            # Passthrough layout
+    │   ├── schedule/[status]/page.tsx
+    │   ├── freechat/page.tsx
+    │   ├── about/page.tsx
+    │   ├── site-news/page.tsx
+    │   ├── site-news/[id]/page.tsx
+    │   ├── privacy-policy/page.tsx
+    │   └── terms/page.tsx
+    └── (standalone)/             # Route group: clips and multiview (own layout)
+        ├── layout.tsx            # Passthrough layout
+        ├── clips/page.tsx
+        ├── clips/youtube/page.tsx
+        ├── clips/youtube/shorts/page.tsx
+        ├── clips/twitch/page.tsx
+        └── multiview/page.tsx
 ```
 
-Page files should contain no business logic -- only wiring between Next.js routing and feature modules.
+## Route Groups
+
+| Group | Purpose | Pages |
+|-------|---------|-------|
+| `(content)` | Standard pages wrapped in `ContentLayout` by each page | schedule, freechat, about, site-news, privacy-policy, terms |
+| `(standalone)` | Full-width pages with custom layouts | clips, multiview |
+
+Route groups do not affect the URL path. Both groups use passthrough layouts (`<>{children}</>`) -- the actual layout wrapping (`ContentLayout`) is done inside each page's Server Component.
+
+## Layout Hierarchy
+
+### Root Layout (`app/layout.tsx`)
+
+Global metadata only. Returns `children` without wrapping in `<html>` or `<body>` (delegated to locale layout).
+
+### Locale Layout (`app/[locale]/layout.tsx`)
+
+Renders the full HTML shell with providers:
+
+```tsx
+export default async function LocaleLayout({ children, params }) {
+  const { locale } = await params;
+  const messages = await getMessages();
+
+  return (
+    <html lang={locale} suppressHydrationWarning>
+      <body>
+        <InitColorSchemeScript attribute="class" />
+        <NextIntlClientProvider messages={messages}>
+          <AppProviders>{children}</AppProviders>
+        </NextIntlClientProvider>
+        <GoogleAnalytics />
+      </body>
+    </html>
+  );
+}
+```
+
+### Page Structure
+
+Each page is an async Server Component that wraps its content in `ContentLayout`:
+
+```tsx
+export default async function SchedulePage({ params, searchParams }) {
+  const { locale, status } = await params;
+  // ... fetch data, get translations ...
+
+  return (
+    <ContentLayout title={title} path={`/schedule/${status}`}>
+      <ScheduleStatusContainer livestreams={schedule.livestreams} ... />
+    </ContentLayout>
+  );
+}
+```
+
+No more `NextPageWithLayout` or `getLayout` pattern.
 
 ## Route Map
 
-| Path | Page File | Feature |
-|------|-----------|---------|
-| `/` | redirect | -> `/schedule/all` |
-| `/schedule/all` | `schedule/[status].tsx` | schedule |
-| `/schedule/live` | `schedule/[status].tsx` | schedule |
-| `/schedule/upcoming` | `schedule/[status].tsx` | schedule |
-| `/schedule/archive` | `schedule/[status].tsx` | schedule |
-| `/clips` | `clips/index.tsx` | clips (ClipsHome) |
-| `/clips/youtube` | `clips/youtube/index.tsx` | clips (YouTubeClips) |
-| `/clips/youtube/shorts` | `clips/youtube/shorts/index.tsx` | clips (YouTubeClips, type=short) |
-| `/clips/twitch` | `clips/twitch/index.tsx` | clips (TwitchClips) |
-| `/freechat` | `freechat.tsx` | freechat |
-| `/multiview` | `multiview.tsx` | multiview |
-| `/about` | `about.tsx` | about |
-| `/site-news` | `site-news/index.tsx` | site-news |
-| `/site-news/[id]` | `site-news/[id].tsx` | site-news |
-| `/privacy-policy` | `privacy-policy.tsx` | legal-documents |
-| `/terms` | `terms.tsx` | legal-documents |
+| Path | Page File | Feature | Rendering |
+|------|-----------|---------|-----------|
+| `/` | `app/page.tsx` | redirect -> `/schedule/all` | - |
+| `/schedule/all` | `(content)/schedule/[status]/page.tsx` | schedule | Dynamic |
+| `/schedule/live` | `(content)/schedule/[status]/page.tsx` | schedule | Dynamic |
+| `/schedule/upcoming` | `(content)/schedule/[status]/page.tsx` | schedule | Dynamic |
+| `/schedule/archive` | `(content)/schedule/[status]/page.tsx` | schedule | Dynamic |
+| `/clips` | `(standalone)/clips/page.tsx` | clips | Dynamic |
+| `/clips/youtube` | `(standalone)/clips/youtube/page.tsx` | clips | Dynamic |
+| `/clips/youtube/shorts` | `(standalone)/clips/youtube/shorts/page.tsx` | clips | Dynamic |
+| `/clips/twitch` | `(standalone)/clips/twitch/page.tsx` | clips | Dynamic |
+| `/freechat` | `(content)/freechat/page.tsx` | freechat | Dynamic |
+| `/multiview` | `(standalone)/multiview/page.tsx` | multiview | Dynamic |
+| `/about` | `(content)/about/page.tsx` | about | SSG |
+| `/site-news` | `(content)/site-news/page.tsx` | site-news | SSG |
+| `/site-news/[id]` | `(content)/site-news/[id]/page.tsx` | site-news | SSG |
+| `/privacy-policy` | `(content)/privacy-policy/page.tsx` | legal | SSG |
+| `/terms` | `(content)/terms/page.tsx` | legal | SSG |
 
-All routes are locale-prefixed at runtime: `/{locale}/schedule/all`, `/{locale}/clips`, etc.
+All routes are locale-prefixed at runtime: `/{locale}/schedule/all`, etc. The default locale (`ja`) omits the prefix (`localePrefix: "as-needed"`).
 
 ### Redirects (next.config.js)
 
 - `/` -> `/schedule/all`
 - `/notifications/*` -> `/site-news/*` (legacy URL support)
-
-## Per-Page Layout
-
-`_app.tsx` supports per-page layouts via `NextPageWithLayout`. Each page defines a `getLayout` function to wrap itself in `ContentLayout` with appropriate metadata. The provider stack (Theme, TimeZone, VideoModal) is defined in `_app.tsx` -- see [State Management](./state-management.md#context-providers) for details.
 
 ## Layout System
 

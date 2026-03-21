@@ -22,6 +22,13 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
+      - name: Ensure R2 cache bucket exists
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.6.0"
+          command: r2 bucket create ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}-vspo-schedule-web-cache || true
       - name: Web Deploy Worker
         uses: cloudflare/wrangler-action@v3.14.1
         with:

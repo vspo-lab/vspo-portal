@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import {
   Box,
@@ -7,13 +9,17 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { resolveOverlaps } from "../../utils/gridSwap";
+import {
+  GRID_COLS,
+  computeSwapDuringDrag,
+  resolveOverlaps,
+} from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
 import { ChatCell, VideoPlayer } from "../containers";
 
@@ -26,9 +32,6 @@ const GRID_ITEM_STYLE: React.CSSProperties = {
   height: "100%",
   width: "100%",
 };
-
-// Grid cell size for 12 columns — used for background grid lines
-const GRID_COLS = 120;
 
 const GridContainer = styled(Paper)(({ theme }) => ({
   minHeight: "auto",
@@ -308,7 +311,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   onGridPositionsChange,
   externalGridPositions,
 }) => {
-  const { t } = useTranslation("multiview");
+  const t = useTranslations("multiview");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const containerRef = useRef<HTMLDivElement>(null);
@@ -317,10 +320,16 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   // Drag state
   const isDraggingRef = useRef(false);
   const isResizingRef = useRef(false);
-
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const draggedIdRef = useRef<string | null>(null);
+  const lastSwappedIdRef = useRef<string | null>(null);
+  const dragRafRef = useRef(0);
 
   // Internal layout state — only reset when layout button is pressed
   const [internalLayout, setInternalLayout] = useState<GridLayout.Layout[]>([]);
+  // Ref mirror for accessing latest layout inside RAF callbacks without stale closures
+  const internalLayoutRef = useRef(internalLayout);
+  internalLayoutRef.current = internalLayout;
   // Track layout type to detect layout button presses
   const prevLayoutTypeRef = useRef(layout.type);
 
@@ -367,6 +376,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     return () => {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(rafId);
+      cancelAnimationFrame(dragRafRef.current);
       clearTimeout(timeoutId);
       clearTimeout(timeoutId2);
       observer.disconnect();
@@ -514,22 +524,58 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  const handleDragStart = () => {
+  const handleDragStart = (
+    _rglLayout: GridLayout.Layout[],
+    oldItem: GridLayout.Layout,
+  ) => {
     isDraggingRef.current = true;
+    draggedIdRef.current = oldItem.i;
+    dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
+    lastSwappedIdRef.current = null;
     containerRef.current?.classList.add("is-dragging");
   };
 
-  const handleDrag = () => {};
+  const handleDrag = (
+    rglLayout: GridLayout.Layout[],
+    _oldItem: GridLayout.Layout,
+    _newItem: GridLayout.Layout,
+  ) => {
+    if (!draggedIdRef.current || !dragOriginRef.current) return;
+
+    cancelAnimationFrame(dragRafRef.current);
+    dragRafRef.current = requestAnimationFrame(() => {
+      const merged = mergeLayoutSizes(rglLayout, internalLayoutRef.current);
+      const { layout: swapped, swappedId } = computeSwapDuringDrag(
+        merged,
+        draggedIdRef.current!,
+        dragOriginRef.current!,
+        lastSwappedIdRef.current,
+      );
+
+      if (swappedId && swappedId !== lastSwappedIdRef.current) {
+        // Update origin to the swapped target's pre-swap position (now free)
+        const target = merged.find((item) => item.i === swappedId);
+        if (target) {
+          dragOriginRef.current = { x: target.x, y: target.y };
+        }
+        lastSwappedIdRef.current = swappedId;
+        React.startTransition(() => setInternalLayout(swapped));
+      }
+    });
+  };
 
   const handleDragStop = (
     rglLayout: GridLayout.Layout[],
     _oldItem: GridLayout.Layout,
     _newItem: GridLayout.Layout,
   ) => {
+    cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
-    // Use RGL's layout as the single source of truth, then resolve overlaps synchronously
-    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayoutRef.current)));
     isDraggingRef.current = false;
+    draggedIdRef.current = null;
+    dragOriginRef.current = null;
+    lastSwappedIdRef.current = null;
   };
 
   const handleResizeStart = () => {
@@ -556,13 +602,10 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       <GridContainer elevation={1} ref={containerRef}>
         <EmptyState>
           <Typography variant="h5" gutterBottom>
-            {t("grid.empty.title", "配信を選択してください")}
+            {t("grid.empty.title")}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {t(
-              "grid.empty.description",
-              "右側のパネルから配信を選択するか、URLを入力して追加してください",
-            )}
+            {t("grid.empty.description")}
           </Typography>
         </EmptyState>
       </GridContainer>

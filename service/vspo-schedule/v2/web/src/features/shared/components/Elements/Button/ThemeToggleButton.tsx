@@ -1,8 +1,10 @@
+"use client";
+
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormGroup from "@mui/material/FormGroup";
 import Switch from "@mui/material/Switch";
 import { styled, useColorScheme } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -66,7 +68,7 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 
 export const ThemeToggleButton: React.FC = () => {
   const { mode, systemMode, setMode } = useColorScheme();
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
 
   const handleModeChange = (
     _event: React.ChangeEvent<HTMLInputElement>,

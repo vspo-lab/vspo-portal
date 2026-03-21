@@ -1,30 +1,19 @@
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { DEFAULT_LOCALE, LOCALE_COOKIE } from "@/lib/Const";
-import { useCookie } from "./cookie";
+"use client";
+
+// src/hooks/locale.ts
+import { useLocale as useNextIntlLocale } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 export const useLocale = () => {
+  const locale = useNextIntlLocale();
   const router = useRouter();
-  const [localeCookie, setLocaleCookie] = useCookie(
-    LOCALE_COOKIE,
-    DEFAULT_LOCALE,
-  );
+  const pathname = usePathname();
 
-  const setLocale = (locale: string) => {
-    if (locale !== router.locale) {
-      setLocaleCookie(locale);
-      router.push(router.asPath, undefined, { scroll: false, locale });
+  const setLocale = (newLocale: string) => {
+    if (newLocale !== locale) {
+      router.replace(pathname, { locale: newLocale, scroll: false });
     }
   };
 
-  useEffect(() => {
-    if (localeCookie !== router.locale) {
-      setLocaleCookie(router.locale ?? DEFAULT_LOCALE);
-    }
-  }, [router.locale, localeCookie, setLocaleCookie]);
-
-  return {
-    locale: router.locale ?? DEFAULT_LOCALE,
-    setLocale,
-  };
+  return { locale, setLocale };
 };

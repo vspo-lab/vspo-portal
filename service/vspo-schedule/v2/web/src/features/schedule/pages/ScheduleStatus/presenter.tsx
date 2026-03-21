@@ -1,7 +1,9 @@
+"use client";
+
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, Container, Fab, Paper, Tab, Tabs } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { Loading } from "@/features/shared/components/Elements/Loading/Loading";
 import type { Event } from "@/features/shared/domain";
@@ -78,7 +80,7 @@ export const ScheduleStatusPresenter: React.FC<PresenterProps> = ({
   allTabLabel,
   isArchivePage = false,
 }) => {
-  const { t } = useTranslation("streams");
+  const t = useTranslations("streams");
 
   return (
     <Container maxWidth="lg" sx={{ position: "relative", pb: 4, pl: 0, pr: 0 }}>
@@ -126,7 +128,7 @@ export const ScheduleStatusPresenter: React.FC<PresenterProps> = ({
       {/* Floating search button */}
       <Fab
         color="primary"
-        aria-label={t("search.dateSearch", "Search by Date")}
+        aria-label={t("search.dateSearch")}
         onClick={onSearchDialogOpen}
         sx={{
           position: "fixed",

@@ -1,29 +1,14 @@
-import nextPWA from "next-pwa";
-import ci18n from "./next-i18next.config.js";
+import withSerwistInit from "@serwist/next";
+import createNextIntlPlugin from "next-intl/plugin";
 import pkgJson from "./package.json" with { type: "json" };
 
-const withPWA = nextPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
   disable: process.env.NODE_ENV === "development",
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/www\.vspo-schedule\.com/,
-      handler: "StaleWhileRevalidate",
-      options: {
-        cacheName: "vspo-schedule",
-        expiration: {
-          maxEntries: 30,
-          maxAgeSeconds: 60, // 1 minutes
-        },
-        cacheableResponse: {
-          statuses: [0, 200],
-        },
-      },
-    },
-  ],
 });
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const emotionPackages = Object.keys(pkgJson.dependencies).filter((pkg) =>
   pkg.startsWith("@emotion/"),
@@ -34,17 +19,13 @@ const nextConfig = {
   transpilePackages: ["react-tweet"],
   compiler: {
     emotion: {
-      // Enable source maps during development
       sourceMap: process.env.NODE_ENV !== "production",
-      // Labels for dev environment only to help with debugging
       autoLabel: "dev-only",
-      // Use a more readable format for the label
       labelFormat: "[local]",
     },
   },
   experimental: {
     reactCompiler: true,
-    scrollRestoration: true,
   },
   serverExternalPackages: emotionPackages,
   images: {
@@ -72,21 +53,13 @@ const nextConfig = {
         "yt3.googleusercontent.com",
         "yt3.ggpht.com",
         "clips-media-assets2.twitch.tv",
-      ].map(
-        (hostname) =>
-          ({
-            hostname,
-            protocol: "https",
-            port: "",
-            pathname: "**",
-          }),
-      ),
+      ].map((hostname) => ({
+        hostname,
+        protocol: "https",
+        port: "",
+        pathname: "**",
+      })),
     ],
-  },
-  i18n: {
-    defaultLocale: ci18n.i18n.defaultLocale,
-    locales: ci18n.i18n.locales,
-    localeDetection: false,
   },
   skipMiddlewareUrlNormalize: true,
   async redirects() {
@@ -101,11 +74,16 @@ const nextConfig = {
         destination: "/site-news/:id*",
         permanent: true,
       },
+      {
+        source: "/default/:path*",
+        destination: "/:path*",
+        permanent: true,
+      },
     ];
   },
 };
 
-export default withPWA(nextConfig);
+export default withSerwist(withNextIntl(nextConfig));
 
 // added by create cloudflare to enable calling `getCloudflareContext()` in `next dev`
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";

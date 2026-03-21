@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -14,7 +16,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React from "react";
 
 const UrlInputContainer = styled(Paper)(({ theme }) => ({
@@ -66,7 +68,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
   onSubmit,
   onClear,
 }) => {
-  const { t } = useTranslation("multiview");
+  const t = useTranslations("multiview");
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && !isLoading) {
@@ -79,16 +81,13 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
   return (
     <UrlInputContainer elevation={1}>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t(
-          "urlInput.description",
-          "YouTube、Twitch、その他のプラットフォームのURLから直接配信を追加できます",
-        )}
+        {t("urlInput.description")}
       </Typography>
 
       <InputSection>
         <TextField
           fullWidth
-          placeholder={t("urlInput.placeholder", "配信URLを入力してください")}
+          placeholder={t("urlInput.placeholder")}
           value={url}
           onChange={(e) => onUrlChange(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -125,8 +124,8 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
           sx={{ whiteSpace: "nowrap" }}
         >
           {isLoading
-            ? t("urlInput.adding", "追加中...")
-            : t("urlInput.add", "追加")}
+            ? t("urlInput.adding")
+            : t("urlInput.add")}
         </Button>
       </InputSection>
 
@@ -140,11 +139,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
       {/* Max streams warning */}
       {isMaxStreamsReached && (
         <Alert severity="warning" sx={{ mb: 1 }}>
-          {t(
-            "urlInput.maxStreamsReached",
-            "最大{{count}}つまでの配信を選択できます",
-            { count: maxStreams },
-          )}
+          {t("urlInput.maxStreamsReached", { count: maxStreams })}
         </Alert>
       )}
 
@@ -154,7 +149,7 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
         color="text.secondary"
         sx={{ display: "block", mb: 1 }}
       >
-        {t("urlInput.streamCount", "{{current}}/{{max}} 配信選択中", {
+        {t("urlInput.streamCount", {
           current: selectedStreams.length,
           max: maxStreams,
         })}
@@ -167,10 +162,10 @@ export const UrlInputPresenter: React.FC<UrlInputPresenterProps> = ({
           color="text.secondary"
           sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
         >
-          {t("urlInput.supportedPlatforms.title", "対応プラットフォーム:")}
+          {t("urlInput.supportedPlatforms.title")}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {t("urlInput.supportedPlatforms.list", "YouTube")}
+          {t("urlInput.supportedPlatforms.list")}
         </Typography>
       </SupportedPlatforms>
     </UrlInputContainer>

@@ -1,6 +1,8 @@
+"use client";
+
 import LanguageIcon from "@mui/icons-material/Language";
 import { InputAdornment, MenuItem, TextField } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import { useLocale } from "@/hooks";
 
 const localeLabels: { [localeCode: string]: string } = {
@@ -12,7 +14,7 @@ const localeLabels: { [localeCode: string]: string } = {
 };
 
 export const LanguageSelector = () => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
   const { locale, setLocale } = useLocale();
 
   return (

@@ -1,5 +1,7 @@
+"use client";
+
 import { Box, Chip, Toolbar, Typography } from "@mui/material";
-import type { TFunction } from "next-i18next";
+import type { useTranslations } from "next-intl";
 import type * as React from "react";
 import { Breadcrumb, TweetEmbed } from "@/features/shared/components/Elements";
 import type { SiteNewsMarkdownItem } from "@/lib/markdown";
@@ -8,7 +10,7 @@ import { formatDate, getSiteNewsTagColor } from "@/lib/utils";
 type SiteNewsDetailPagePresenterProps = {
   siteNewsItem: SiteNewsMarkdownItem;
   locale: string;
-  t: TFunction;
+  t: ReturnType<typeof useTranslations>;
 };
 
 export const SiteNewsDetailPagePresenter: React.FC<

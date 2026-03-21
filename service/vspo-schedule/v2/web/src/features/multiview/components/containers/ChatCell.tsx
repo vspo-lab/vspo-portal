@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import React, { useCallback } from "react";
 import { ChatCellPresenter } from "../presenters";
