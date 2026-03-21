@@ -29,7 +29,13 @@ const BOUNDARY_WEIGHT = 1e8;
 export const resolveOverlaps = (
   layout: GridLayout.Layout[],
 ): GridLayout.Layout[] => {
-  if (layout.length <= 1) return layout;
+  if (layout.length <= 1) {
+    return layout.map((item) => ({
+      ...item,
+      x: Math.max(0, Math.min(GRID_COLS - item.w, item.x)),
+      y: Math.max(0, item.y),
+    }));
+  }
 
   const items = layout.map((item) => ({ ...item }));
   solveWithVpsc(items);

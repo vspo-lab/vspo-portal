@@ -217,7 +217,7 @@ describe("resolveOverlaps", () => {
     const result = resolveOverlaps(layout);
     const elapsed = performance.now() - start;
     assertNoOverlaps(result);
-    expect(elapsed).toBeLessThan(100); // should be well under 10ms
+    expect(elapsed).toBeLessThan(100); // generous for CI; typically <10ms locally
   });
 });
 
