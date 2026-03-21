@@ -35,7 +35,12 @@ All infrastructure changes are reviewed through Pull Requests and automatically 
 | File | Trigger | Purpose |
 |---------|---------|------|
 | `deploy-web-workers.yaml` | Push to `main`/`develop`, paths `service/vspo-schedule/v2/web/**` | Build and deploy web frontend to Cloudflare Workers |
-| `pr-check.yaml` | PR with web/packages changes | Biome, TypeScript, Knip, and Textlint checks |
+| `deploy-bot-dashboard.yaml` | Push to `main`/`develop`, paths `service/bot-dashboard/**` | Build and deploy bot dashboard to Cloudflare Workers |
+| `pr-check.yaml` | PR with web/packages/docs changes | Biome, TypeScript, Knip, Textlint, Markdownlint, cspell, and bundle size checks |
+| `security-scan.yaml` | PR, push to `main`/`develop`, weekly (Mon 00:00 UTC) | CodeQL, Trivy filesystem scan, gitleaks secret detection |
+| `lighthouse.yaml` | PR with web/packages changes | Lighthouse performance audits |
+| `autofix.yaml` | PR (opened/synchronize/reopened) | Auto-fix lint and format with Biome, auto-commit |
+| `bundle-size-main.yaml` | Push to `main`/`develop`, paths web/packages | Save bundle size baseline for PR comparison |
 
 ### Planned Terraform Workflows (Not Yet Implemented)
 
@@ -203,23 +208,44 @@ backend "gcs" {
 
 ## Security Scanning
 
+### Automated CI Security Scanning (`security-scan.yaml`)
+
+The `security-scan.yaml` workflow runs automatically on PRs, pushes to `main`/`develop`, and weekly (Monday 00:00 UTC). It performs three independent scans:
+
+| Job | Tool | What it detects |
+|-----|------|-----------------|
+| `codeql` | CodeQL (`github/codeql-action@v3`) | Static analysis for JavaScript/TypeScript security issues |
+| `trivy` | Trivy (`aquasecurity/trivy-action@0.35.0`) | CRITICAL/HIGH severity CVEs in filesystem dependencies |
+| `gitleaks` | gitleaks (`v8.24.3`) | Hardcoded secrets and credentials |
+
 ### Trivy
 
-Scans infrastructure configurations for vulnerabilities.
+Scans both infrastructure configurations and application filesystem for vulnerabilities.
 
 ```yaml
-env:
-  TRIVY_SEVERITY: HIGH,CRITICAL
-  TRIVY_SKIP_DIRS: ".terraform"
+# CI (security-scan.yaml)
+- uses: aquasecurity/trivy-action@0.35.0
+  with:
+    scan-type: 'fs'
+    severity: 'CRITICAL,HIGH'
+    trivyignores: '.trivyignore'
+    exit-code: '1'
 ```
 
-#### Detection Targets
+### gitleaks
 
-- Terraform configuration vulnerabilities
-- Cloud resource misconfigurations
-- Secret exposure
+Runs automatically in CI on every PR and push. Can also be run locally.
 
-### TFLint
+```bash
+# Run locally
+gitleaks detect --source . --config=.gitleaks.toml --verbose
+```
+
+### Planned: Terraform Security Scanning (Not Yet Implemented)
+
+> **Note:** The following scanning tools are planned for when Terraform IaC is introduced.
+
+#### TFLint
 
 Checks Terraform best practices.
 
@@ -239,15 +265,6 @@ plugin "google" {
 rule "terraform_naming_convention" {
   enabled = true
 }
-```
-
-### gitleaks (Manual Scan)
-
-Checks for secret leaks.
-
-```bash
-# Run locally
-gitleaks detect --source . --verbose
 ```
 
 ---
@@ -345,9 +362,53 @@ By using GitHub Environments:
 
 ---
 
-## Web Deployment
+## PR Check (`pr-check.yaml`)
 
-The web frontend has a separate deployment pipeline via `deploy-web-workers.yaml`.
+Runs on PRs touching `service/vspo-schedule/v2/web/**`, `service/bot-dashboard/**`, `packages/**`, `docs/**`, or `README.md`. Uses `dorny/paths-filter@v3` to selectively run only the relevant checks.
+
+### Jobs
+
+| Job | Condition | Tool |
+|-----|-----------|------|
+| `biome-check` | Code changes (`*.ts`, `*.tsx`, `*.js`, `*.jsx`, `*.json`) | `pnpm biome:check` |
+| `typescript-check` | Code changes | `pnpm tsc` |
+| `knip-check` | Code changes | `pnpm knip` |
+| `textlint-check` | Docs changes (`docs/**`, `README.md`) | `pnpm textlint` |
+| `markdownlint-check` | Docs changes | `pnpm markdownlint` |
+| `cspell-check` | Code or docs changes | `pnpm cspell` |
+| `bundle-size` | Web or packages changes | `hashicorp/nextjs-bundle-analysis@v0.5.0` |
+
+> **Future:** A `test` job (Vitest + Codecov) is prepared but commented out until Vitest is introduced.
+
+---
+
+## Lighthouse CI (`lighthouse.yaml`)
+
+Runs on PRs touching web or packages changes. Performs automated Lighthouse audits using `treosh/lighthouse-ci-action@v12` with config from `lighthouserc.json`.
+
+> **Note:** Currently runs with `continue-on-error: true` while environment variables and server startup are being tuned.
+
+---
+
+## Autofix (`autofix.yaml`)
+
+Runs on PRs (opened/synchronize/reopened) from the same repository (not forks). Automatically fixes lint and format issues with Biome and auto-commits the changes via `stefanzweifel/git-auto-commit-action@v5`.
+
+---
+
+## Bundle Size Tracking
+
+### Baseline (`bundle-size-main.yaml`)
+
+Saves the bundle size baseline on pushes to `main`/`develop` for web/packages changes. Uses `hashicorp/nextjs-bundle-analysis@v0.5.0`.
+
+### PR Comparison
+
+The `bundle-size` job in `pr-check.yaml` compares the PR's bundle size against the baseline saved by `bundle-size-main.yaml`.
+
+---
+
+## Web Deployment (`deploy-web-workers.yaml`)
 
 ### Trigger
 
@@ -361,7 +422,7 @@ on:
 
 ### Pipeline
 
-1. Checkout code
+1. Checkout code (`actions/checkout@v6`)
 2. Setup pnpm (via composite action `.github/actions/setup-pnpm`)
 3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.6.0)
    - The action runs from the env-specific wrangler config directory
@@ -379,12 +440,44 @@ See [Cloudflare Workers](./cloudflare-workers.md) for deployment architecture de
 
 ---
 
+## Bot Dashboard Deployment (`deploy-bot-dashboard.yaml`)
+
+### Trigger
+
+```yaml
+on:
+  push:
+    branches: [main, develop]
+    paths: ['service/bot-dashboard/**']
+  workflow_dispatch:
+```
+
+### Pipeline
+
+1. Checkout code (`actions/checkout@v6`)
+2. Setup Node.js 22 and pnpm 10.28.0
+3. Install dependencies and build via Turbo (`pnpm turbo build --filter=bot-dashboard...`)
+4. Upload Discord secrets via `wrangler secret bulk`
+5. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.76.0)
+
+### Environment Mapping
+
+| Branch | Environment | Wrangler Config |
+|--------|-------------|-----------------|
+| `develop` | bot-dashboard-development | `wrangler.jsonc` |
+| `main` | bot-dashboard-production | `wrangler.prd.jsonc` |
+
+---
+
 ## Summary
 
 | Phase | Action | Tools |
 |---------|----------|--------|
-| CI (Plan) | Change detection -> Lint -> Scan -> Plan | tfaction, tflint, trivy |
-| Review | Review plan results -> Approve | GitHub PR |
-| CD (Apply) | Apply -> Follow-up PR | tfaction |
-| Web Deploy | Build -> Wrangler deploy | OpenNextJS, Wrangler |
-| Monitoring | Drift Detection | tfaction |
+| PR Check | Lint, type check, spell check, bundle analysis | Biome, tsc, Knip, Textlint, Markdownlint, cspell |
+| Security | CodeQL, filesystem scan, secret detection | CodeQL, Trivy, gitleaks |
+| Performance | Lighthouse audit, bundle size tracking | Lighthouse CI, nextjs-bundle-analysis |
+| Autofix | Auto-fix lint/format on PRs | Biome, git-auto-commit |
+| Web Deploy | Build and deploy to Cloudflare Workers | OpenNextJS, Wrangler v4.6.0 |
+| Bot Dashboard Deploy | Build and deploy to Cloudflare Workers | Turbo, Wrangler v4.76.0 |
+| CI (Plan) | Change detection, lint, scan, plan (planned) | tfaction, tflint, trivy |
+| CD (Apply) | Apply, follow-up PR (planned) | tfaction |

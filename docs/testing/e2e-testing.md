@@ -68,9 +68,9 @@ test("Entire item creation flow", async ({ page }) => {
 
 ## Recommended File Structure
 
-- `services/web/e2e/auth.setup.ts`
-- `services/web/e2e/*.spec.ts`
-- `services/web/playwright.config.ts`
+- `service/vspo-schedule/v2/web/e2e/auth.setup.ts`
+- `service/vspo-schedule/v2/web/e2e/*.spec.ts`
+- `service/vspo-schedule/v2/web/playwright.config.ts`
 
 ## References (Primary Sources)
 

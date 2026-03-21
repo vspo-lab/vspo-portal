@@ -7,8 +7,8 @@
 
 ## Scope
 
-- `services/web/shared/components/**`
-- Container/Presentational boundaries in `services/web/features/**`
+- `service/vspo-schedule/v2/web/src/features/shared/components/**`
+- Container/Presentational boundaries in `service/vspo-schedule/v2/web/src/features/**`
 
 ## Implementation Rules
 

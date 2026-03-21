@@ -7,7 +7,7 @@
 
 ## Scope
 
-- `services/web/vrt/storybook.spec.ts`
+- `service/vspo-schedule/v2/web/vrt/storybook.spec.ts`
 - Storybook stories (design system, key UI elements)
 
 ## Implementation Rules
