@@ -120,9 +120,15 @@ const greedyFixup = (items: GridLayout.Layout[]): void => {
     const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
     const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
 
+    // 1. Try pushing apart along the shorter overlap axis
     if (overlapX <= overlapY && tryPushX(items, worstI, worstJ)) {
       continue;
     }
+    // 2. If X-push blocked by boundary, try swapping positions
+    if (trySwap(items, worstI, worstJ)) {
+      continue;
+    }
+    // 3. Last resort: push apart along Y (always succeeds)
     pushY(items, worstI, worstJ);
   }
 };
@@ -154,6 +160,42 @@ const tryPushX = (
     return true;
   }
   return false;
+};
+
+/**
+ * Try swapping two items' positions to resolve overlap.
+ * Useful when one item is stuck at a boundary — trading places puts
+ * the smaller item at the edge and the larger item in the open space.
+ * Returns false if swapping doesn't resolve the overlap or violates bounds.
+ */
+const trySwap = (
+  items: GridLayout.Layout[],
+  i: number,
+  j: number,
+): boolean => {
+  const a = items[i];
+  const b = items[j];
+
+  const newAx = b.x;
+  const newAy = b.y;
+  const newBx = a.x;
+  const newBy = a.y;
+
+  // Check bounds after swap
+  if (newAx < 0 || newAx + a.w > GRID_COLS) return false;
+  if (newBx < 0 || newBx + b.w > GRID_COLS) return false;
+  if (newAy < 0 || newBy < 0) return false;
+
+  // Check if swap actually resolves the overlap between these two items
+  const oxAfter =
+    Math.min(newAx + a.w, newBx + b.w) - Math.max(newAx, newBx);
+  const oyAfter =
+    Math.min(newAy + a.h, newBy + b.h) - Math.max(newAy, newBy);
+  if (oxAfter > 0 && oyAfter > 0) return false;
+
+  items[i] = { ...a, x: newAx, y: newAy };
+  items[j] = { ...b, x: newBx, y: newBy };
+  return true;
 };
 
 /** Push two items apart along Y (always succeeds — grid scrolls vertically). */

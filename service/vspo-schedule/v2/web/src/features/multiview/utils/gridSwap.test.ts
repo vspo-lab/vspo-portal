@@ -142,6 +142,38 @@ describe("resolveOverlaps", () => {
     assertWithinBounds(result);
   });
 
+  it("swaps positions when boundary blocks push (small item at edge, large inside)", () => {
+    // Large item at right edge overlapping with small item — can't push right,
+    // so swap puts the small item at the edge and large item in the open space
+    const layout = [
+      makeItem({ i: "small", x: 80, y: 0, w: 20, h: 20 }),
+      makeItem({ i: "large", x: 70, y: 0, w: 50, h: 20 }),
+    ];
+    const result = resolveOverlaps(layout);
+    assertNoOverlaps(result);
+    assertWithinBounds(result);
+  });
+
+  it("resolves overlap when both items are at left boundary", () => {
+    const layout = [
+      makeItem({ i: "a", x: 0, y: 0, w: 40, h: 20 }),
+      makeItem({ i: "b", x: 0, y: 0, w: 30, h: 20 }),
+    ];
+    const result = resolveOverlaps(layout);
+    assertNoOverlaps(result);
+    assertWithinBounds(result);
+  });
+
+  it("resolves overlap when items span nearly the full grid width", () => {
+    const layout = [
+      makeItem({ i: "a", x: 0, y: 0, w: 70, h: 20 }),
+      makeItem({ i: "b", x: 50, y: 0, w: 70, h: 20 }),
+    ];
+    const result = resolveOverlaps(layout);
+    assertNoOverlaps(result);
+    // At least one item may be pushed to Y since total width > GRID_COLS
+  });
+
   it("handles 12 items all stacked at (0,0)", () => {
     const layout = Array.from({ length: 12 }, (_, i) =>
       makeItem({ i: `item-${i}`, x: 0, y: 0, w: 10, h: 10 }),
