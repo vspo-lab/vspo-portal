@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: ${{ github.ref == 'refs/heads/main' && 'bot-dashboard-production' || 'bot-dashboard-development' }}
-    env:
-      WRANGLER_CONFIG: ${{ github.ref == 'refs/heads/main' && 'wrangler.prd.jsonc' || 'wrangler.jsonc' }}
     steps:
       - uses: actions/checkout@v6
       - name: Set up Node.js
@@ -28,6 +26,10 @@ jobs:
           run_install: false
       - name: Install dependencies
         run: pnpm install
+      - name: Use production wrangler config
+        if: github.ref == 'refs/heads/main'
+        working-directory: service/bot-dashboard
+        run: cp wrangler.prd.jsonc wrangler.jsonc
       - name: Turbo Build
         run: pnpm turbo build --filter=bot-dashboard...
       - name: Upload secrets
@@ -41,7 +43,7 @@ jobs:
               DISCORD_BOT_CLIENT_ID: process.env.DISCORD_BOT_CLIENT_ID,
             };
             process.stdout.write(JSON.stringify(secrets));
-          " | pnpm exec wrangler secret bulk --config "$WRANGLER_CONFIG"
+          " | pnpm exec wrangler secret bulk
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -57,4 +59,4 @@ jobs:
           packageManager: pnpm
           wranglerVersion: "4.76.0"
           workingDirectory: service/bot-dashboard
-          command: deploy --config ${{ env.WRANGLER_CONFIG }}
+          command: deploy
