@@ -51,7 +51,7 @@ Shortcuts are disabled when focus is in an input field, textarea, or contentEdit
 - `react-grid-layout` (120 columns, rowHeight=10px for fine resize control)
 - `allowOverlap={true}`, `compactType={null}` for free-form placement
 - Drag swap detection at 50% overlap (RAF-throttled)
-- Post-drop/resize overlap resolution: integer-grid algorithm checks all pairs, pushes apart on the axis with minimum overlap (up to 20 passes)
+- Post-drop/resize overlap resolution: VPSC-based algorithm (webcola) solves all separation constraints simultaneously with minimum displacement, followed by greedy fixup for edge cases and integer rounding
 - `resolveOverlaps` is called on ALL paths that modify layout: drag stop, resize stop, stream add/remove, and saved layout restore
 - All 8 resize handles (n, s, e, w, ne, nw, se, sw) — visible on grid item hover
 - Auto-fills viewport height; grid container uses `position: sticky` below the AppBar

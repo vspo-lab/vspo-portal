@@ -13,7 +13,7 @@ import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { resolveOverlaps } from "../../utils/gridSwap";
+import { GRID_COLS, resolveOverlaps } from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
 import { ChatCell, VideoPlayer } from "../containers";
 
@@ -26,9 +26,6 @@ const GRID_ITEM_STYLE: React.CSSProperties = {
   height: "100%",
   width: "100%",
 };
-
-// Grid cell size for 12 columns — used for background grid lines
-const GRID_COLS = 120;
 
 const GridContainer = styled(Paper)(({ theme }) => ({
   minHeight: "auto",
