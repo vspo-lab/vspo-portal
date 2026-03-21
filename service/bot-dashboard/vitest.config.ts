@@ -12,7 +12,6 @@ export default getViteConfig(
         include: [
           "src/features/**/*.ts",
           "src/components/**/*.astro",
-          "src/actions/**/*.ts",
         ],
         exclude: [
           "src/**/*.test.ts",
@@ -20,7 +19,6 @@ export default getViteConfig(
           "src/features/auth/repository/**",
           "src/features/channel/repository/**",
           "src/features/guild/repository/**",
-          "src/actions/**",
         ],
       },
       clearMocks: true,
