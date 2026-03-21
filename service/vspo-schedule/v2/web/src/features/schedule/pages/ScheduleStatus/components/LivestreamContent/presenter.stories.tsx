@@ -74,7 +74,7 @@ export const MultipleDates: Story = {
         {
           ...baseLivestream,
           id: "ls-4",
-          title: "PUBG Tournament",
+          title: "FPS Tournament",
           scheduledStartTime: "2024-01-16T18:00:00Z",
         },
       ],
