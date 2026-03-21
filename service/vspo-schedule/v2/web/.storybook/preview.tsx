@@ -9,6 +9,7 @@ i18nInstance.init({
   fallbackLng: "ja",
   ns: ["common", "streams", "schedule"],
   defaultNS: "common",
+  initImmediate: false,
   resources: {
     ja: {
       streams: {

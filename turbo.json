@@ -29,7 +29,9 @@
         "src/**/*.test.tsx",
         "src/**/*.test.ts",
         "vitest.config.ts",
-        "vitest.setup.ts"
+        "vitest.setup.ts",
+        "package.json",
+        "tsconfig.json"
       ]
     },
     "test:coverage": {
@@ -42,7 +44,9 @@
         "src/**/*.test.tsx",
         "src/**/*.test.ts",
         "vitest.config.ts",
-        "vitest.setup.ts"
+        "vitest.setup.ts",
+        "package.json",
+        "tsconfig.json"
       ]
     }
   }

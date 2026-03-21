@@ -26,8 +26,8 @@ This directory is the Single Source of Truth for implementation guidelines per t
 | Target | Minimum Coverage | CI Enforced |
 | --- | --- | --- |
 | `packages/**` | 60% | Yes |
-| `service/vspo-schedule/v2/web/` (schedule Container/Presenter) | 100% | Yes (via Codecov) |
-| `service/bot-dashboard/` (components/domain/usecase) | 100% | Yes (via Codecov) |
+| `service/vspo-schedule/v2/web/` (schedule Container/Presenter) | 100% | No (Codecov informational) |
+| `service/bot-dashboard/` (components/domain/usecase) | 100% | No (Codecov informational) |
 
 - Coverage is uploaded to Codecov per service with separate flags (`web`, `bot-dashboard`)
 - Do not write meaningless tests just for coverage. Achieve coverage naturally through tests that verify behavior
