@@ -10,6 +10,16 @@ coverage:
         target: 50%
         informational: true
 
+flags:
+  web:
+    paths:
+      - service/vspo-schedule/v2/web/src/
+    carryforward: true
+  bot-dashboard:
+    paths:
+      - service/bot-dashboard/src/
+    carryforward: true
+
 comment:
   layout: "condensed_header, condensed_files, condensed_footer"
   require_changes: true

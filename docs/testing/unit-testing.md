@@ -10,6 +10,9 @@
 - Pure logic in `packages/*`
 - Domain schemas and types in `service/vspo-schedule/v2/web/src/features/shared/domain/**`
 - Utilities in `service/vspo-schedule/v2/web/src/features/shared/utils/**`
+- Domain models in `service/bot-dashboard/src/features/*/domain/**`
+- Usecases in `service/bot-dashboard/src/features/*/usecase/**`
+- Shared utilities in `service/bot-dashboard/src/features/shared/lib/**`
 
 ## Implementation Rules
 

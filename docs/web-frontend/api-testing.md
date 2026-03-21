@@ -5,8 +5,6 @@
 
 ## Quick Start
 
-> **Note:** Test scripts are not yet configured. When adding Vitest, register these scripts in the relevant `package.json`:
-
 ```bash
 pnpm --filter vspo-schedule-v2-web test:run  # Run all tests including API tests
 ```
@@ -204,8 +202,8 @@ service/vspo-schedule/v2/web/
 │   ├── features/*/api/*Service.ts   # Feature-specific data fetching
 │   └── lib/cloudflare/context.ts    # Cloudflare env access
 ├── __tests__/                       # Test files (when added)
-├── vitest.config.ts                 # (to be created)
-└── vitest.setup.ts                  # (to be created)
+├── vitest.config.ts
+└── vitest.setup.ts
 
 packages/api/
 ├── src/

@@ -5,10 +5,7 @@
 
 ## Quick Start
 
-> **Note:** Test scripts are not yet configured in this monorepo. When adding Vitest, register these scripts in the relevant `package.json`:
-
 ```bash
-# In service/vspo-schedule/v2/web/package.json or root package.json:
 pnpm --filter vspo-schedule-v2-web test        # Watch mode
 pnpm --filter vspo-schedule-v2-web test:run    # Single run (CI)
 pnpm --filter vspo-schedule-v2-web test:coverage # With coverage
@@ -175,8 +172,8 @@ service/vspo-schedule/v2/web/
 │   ├── features/shared/domain/       # Domain schemas and types
 │   ├── lib/                          # Utility functions
 │   └── __tests__/                    # Test files (when added)
-├── vitest.config.ts                  # (to be created)
-└── vitest.setup.ts                   # (to be created)
+├── vitest.config.ts
+└── vitest.setup.ts
 
 packages/
 ├── api/src/

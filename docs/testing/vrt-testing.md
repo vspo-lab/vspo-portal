@@ -1,5 +1,7 @@
 # VRT (Visual Regression Testing) Implementation Guidelines
 
+> **Status:** Not yet implemented. Storybook stories exist but Playwright VRT integration is pending. This document describes the target architecture.
+
 ## Purpose
 
 - Detect visual regressions in UI through diff comparison
