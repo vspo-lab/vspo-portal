@@ -141,22 +141,32 @@ jobs:
           name: bundle
           path: service/vspo-schedule/v2/web/.next/analyze/__bundle_analysis.json
 
-  # ----- Future: Uncomment when Vitest is introduced -----
-  # test:
-  #   needs: changes
-  #   if: needs.changes.outputs.code == 'true'
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 15
-  #   steps:
-  #     - uses: actions/checkout@v6
-  #     - name: Setup PNPM
-  #       uses: ./.github/actions/setup-pnpm
-  #     - name: Run tests
-  #       run: pnpm test
-  #     - name: Upload coverage
-  #       if: always()
-  #       uses: codecov/codecov-action@v5
-  #       with:
-  #         token: ${{ secrets.CODECOV_TOKEN }}
-  #         flags: unittests
-  #         fail_ci_if_error: false
+  test:
+    needs: changes
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.bot-dashboard == 'true' || needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+      - name: Run tests with coverage
+        run: |
+          pnpm --filter vspo-schedule-v2-web test:coverage
+          pnpm --filter bot-dashboard test:coverage
+      - name: Upload coverage (web)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: service/vspo-schedule/v2/web/coverage/coverage-final.json
+          flags: web
+          fail_ci_if_error: false
+      - name: Upload coverage (bot-dashboard)
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: service/bot-dashboard/coverage/coverage-final.json
+          flags: bot-dashboard
+          fail_ci_if_error: false
