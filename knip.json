@@ -28,7 +28,9 @@
   },
   "ignoreDependencies": [
     "@textlint/textlint-plugin-markdown",
+    "textlint-rule-common-misspellings",
     "textlint-rule-preset-ja-technical-writing"
   ],
+  "ignoreBinaries": ["wrangler"],
   "ignoreWorkspaces": ["service/bot-dashboard"]
 }

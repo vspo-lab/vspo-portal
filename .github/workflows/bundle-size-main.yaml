@@ -25,7 +25,9 @@ jobs:
           NEXT_PUBLIC_SITE_URL: "https://www.vspo-portal.com"
 
       - name: Analyze bundle
-        uses: hashicorp/nextjs-bundle-analysis@v0.5.0
+        run: cd service/vspo-schedule/v2/web && npx -p nextjs-bundle-analysis report
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
         with:
-          build-directory: service/vspo-schedule/v2/web/.next
-          workflow-id: bundle-size-main.yaml
+          name: bundle
+          path: service/vspo-schedule/v2/web/.next/analyze/__bundle_analysis.json

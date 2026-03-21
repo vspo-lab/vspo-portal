@@ -99,7 +99,7 @@ Key changes from current config:
 - `no-doubled-joshi`: `false` → `true` (duplicated particles)
 - `ja-no-redundant-expression`: `false` → `true` (redundant expressions)
 - `no-double-negative-ja`: added as `true` (double negation)
-- `no-dropping-the-ra`: added as `true` (ら抜き言葉)
+- `no-dropping-the-ra`: added as `true` (ra-nuki words)
 - `no-hankaku-kana`: added as `true` (half-width katakana)
 - `common-misspellings`: added as `true` (English spelling)
 
