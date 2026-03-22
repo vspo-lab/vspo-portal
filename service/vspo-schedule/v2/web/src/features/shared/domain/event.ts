@@ -16,10 +16,3 @@ export const eventSchema = z.object({
  * Type definition for an event
  */
 export type Event = z.infer<typeof eventSchema>;
-
-/**
- * Type definition for events grouped by date
- */
-type EventsByDate = {
-  [date: string]: Event[];
-};

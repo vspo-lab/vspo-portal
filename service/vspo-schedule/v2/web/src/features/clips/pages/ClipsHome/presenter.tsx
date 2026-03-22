@@ -16,7 +16,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loading } from "@/features/shared/components/Elements";
 import type { Clip } from "@/features/shared/domain";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -193,13 +193,14 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const carouselClips = useMemo(
-    () =>
-      [...popularYoutubeClips, ...popularTwitchClips].sort(
-        () => Math.random() - 0.5,
-      ),
-    [popularYoutubeClips, popularTwitchClips],
-  );
+  const [carouselClips] = useState(() => {
+    const arr = [...popularYoutubeClips, ...popularTwitchClips];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
 
   if (isProcessing) {
     return <Loading />;

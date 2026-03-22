@@ -1,25 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Livestream } from "@/features/shared/domain/livestream";
+import { makeLivestream } from "@/features/schedule/__testutils__/fixtures";
 import { groupLivestreamsByTimeBlock } from "./index";
-
-const makeLivestream = (overrides: Partial<Livestream> = {}): Livestream => ({
-  id: "ls-1",
-  type: "livestream",
-  title: "Test Stream",
-  description: "",
-  platform: "youtube",
-  thumbnailUrl: "https://example.com/thumb.jpg",
-  viewCount: 0,
-  channelId: "ch-1",
-  channelTitle: "Test Channel",
-  channelThumbnailUrl: "https://example.com/icon.jpg",
-  link: "https://example.com",
-  tags: [],
-  status: "live",
-  scheduledStartTime: "2024-01-15T10:00:00Z",
-  scheduledEndTime: null,
-  ...overrides,
-});
 
 describe("groupLivestreamsByTimeBlock", () => {
   it("returns empty object for empty input", () => {

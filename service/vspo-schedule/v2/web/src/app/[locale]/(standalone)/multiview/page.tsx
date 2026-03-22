@@ -1,6 +1,5 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { fetchMultiviewService } from "@/features/multiview/api/multiviewService";
@@ -9,7 +8,7 @@ import { MultiviewSkeleton } from "@/features/shared/components/Elements/Loading
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import { generateAlternates } from "@/lib/metadata";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -33,12 +32,8 @@ export async function generateMetadata({
  * @idempotent Yes - given the same params and cookies, produces the same output.
  */
 async function MultiviewContent({ locale }: { locale: string }) {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get("x-session-id")?.value;
-
   const multiviewService = await fetchMultiviewService({
     locale,
-    sessionId,
   });
 
   const lastUpdateTimestamp = getCurrentUTCDate().getTime();

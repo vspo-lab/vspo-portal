@@ -64,7 +64,6 @@ export const SiteNewsDetailPagePresenter: React.FC<
         {siteNewsItem.html ? (
           <Box
             sx={{ marginBottom: "16px" }}
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML content is from trusted source
             dangerouslySetInnerHTML={{
               __html: siteNewsItem.html,
             }}

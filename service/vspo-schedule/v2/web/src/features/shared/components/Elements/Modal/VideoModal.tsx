@@ -293,7 +293,6 @@ const LivestreamInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -302,7 +301,6 @@ const LivestreamInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -463,7 +461,6 @@ const FreechatInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -472,7 +469,6 @@ const FreechatInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
@@ -599,7 +595,6 @@ const ClipInfoTabsPresenter: React.FC<
           {video.description.split(urlRegex).map((text, index) => {
             if (index % 2 === 0) {
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 <React.Fragment key={`text-${index}`}>{text}</React.Fragment>
               );
             }
@@ -608,7 +603,6 @@ const ClipInfoTabsPresenter: React.FC<
                 href={text}
                 target="_blank"
                 rel="noopener noreferrer"
-                // biome-ignore lint/suspicious/noArrayIndexKey: Split produces stable order
                 key={`link-${index}`}
               >
                 {text}
