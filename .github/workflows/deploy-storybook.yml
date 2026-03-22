@@ -1,0 +1,40 @@
+name: Deploy Storybook
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'service/vspo-schedule/v2/web/.storybook/**'
+      - 'service/vspo-schedule/v2/web/src/**/*.stories.@(ts|tsx)'
+      - 'service/vspo-schedule/v2/web/src/**/components/**'
+      - 'service/vspo-schedule/v2/web/wrangler.storybook.jsonc'
+      - 'packages/**'
+      - '.github/workflows/deploy-storybook.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Deploy Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: storybook-development
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Build Storybook
+        working-directory: service/vspo-schedule/v2/web
+        run: pnpm storybook:build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          wranglerVersion: '4.76.0'
+          workingDirectory: service/vspo-schedule/v2/web
+          command: deploy --config wrangler.storybook.jsonc
+          quiet: true
