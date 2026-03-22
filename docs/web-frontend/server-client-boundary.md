@@ -70,6 +70,7 @@ Client Components ("use client")
 | `server-only` でビルド時強制 | ランタイムではなくビルド時にエラー検出 |
 | 型定義の分離 (`*.types.ts`) | `import type` でもモジュール解決は発生するため、安全側に分離 |
 | API 層を全て `server-only` | Cloudflare service binding はサーバーでのみ利用可能 |
+| Server Component からバレル import 禁止 | `Elements/index.ts` 等のバレルは Client Component の hooks も re-export する。Server Component からバレル経由でインポートすると `useContext` エラーになる。直接パス (`Elements/Google/GoogleAnalytics`) を使う |
 
 ### Lazy-Loaded Components (next/dynamic)
 
