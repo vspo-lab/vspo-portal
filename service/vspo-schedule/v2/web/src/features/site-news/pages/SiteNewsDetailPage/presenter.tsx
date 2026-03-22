@@ -1,11 +1,22 @@
 "use client";
 
 import { Box, Chip, Toolbar, Typography } from "@mui/material";
+import dynamic from "next/dynamic";
 import type { useTranslations } from "next-intl";
 import type * as React from "react";
-import { Breadcrumb, TweetEmbed } from "@/features/shared/components/Elements";
+import { Breadcrumb } from "@/features/shared/components/Elements";
 import type { SiteNewsMarkdownItem } from "@/lib/markdown.types";
 import { formatDate, getSiteNewsTagColor } from "@/lib/utils";
+
+const TweetEmbed = dynamic(
+  () =>
+    import("@/features/shared/components/Elements/Card/TweetEmbed").then(
+      (m) => ({
+        default: m.TweetEmbed,
+      }),
+    ),
+  { ssr: false },
+);
 
 type SiteNewsDetailPagePresenterProps = {
   siteNewsItem: SiteNewsMarkdownItem;

@@ -8,8 +8,18 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import dynamic from "next/dynamic";
 import type * as React from "react";
-import { MarkdownContent } from "@/features/shared/components/Elements/MarkdownContent";
+
+const MarkdownContent = dynamic(
+  () =>
+    import(
+      "@/features/shared/components/Elements/MarkdownContent/MarkdownContent"
+    ).then((m) => ({
+      default: m.MarkdownContent,
+    })),
+  { ssr: false },
+);
 
 type AboutPagePresenterProps = {
   sections: Array<{

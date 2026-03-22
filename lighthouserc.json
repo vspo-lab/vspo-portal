@@ -1,8 +1,9 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "pnpm --filter vspo-schedule-v2-web exec next start -p 3333",
+      "startServerCommand": "npx next start -p 3333",
       "startServerReadyPattern": "Ready in",
+      "startServerReadyTimeout": 30000,
       "url": [
         "http://localhost:3333/privacy-policy",
         "http://localhost:3333/terms",

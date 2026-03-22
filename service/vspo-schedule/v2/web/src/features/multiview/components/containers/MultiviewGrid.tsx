@@ -2,9 +2,17 @@
 
 import { Livestream } from "@/features/shared/domain";
 import { useMediaQuery, useTheme } from "@mui/material";
+import dynamic from "next/dynamic";
 import React from "react";
 import { LayoutType, useMultiviewLayout } from "../../hooks/useMultiviewLayout";
-import { MultiviewGridPresenter } from "../presenters";
+
+const MultiviewGridPresenter = dynamic(
+  () =>
+    import("../presenters/MultiviewGridPresenter").then((m) => ({
+      default: m.MultiviewGridPresenter,
+    })),
+  { ssr: false },
+);
 
 const EMPTY_SET = new Set<string>();
 
