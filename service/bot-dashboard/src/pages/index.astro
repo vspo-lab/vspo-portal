@@ -18,7 +18,11 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
   : null;
 ---
 
-<Base title={t(locale, "login.title")}>
+<Base
+  title={t(locale, "login.title")}
+  description={t(locale, "login.description")}
+  canonicalPath="/"
+>
   <main
     class="relative flex min-h-screen flex-col items-center justify-center gap-8 p-4"
   >

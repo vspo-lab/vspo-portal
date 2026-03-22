@@ -4,10 +4,21 @@ import { t } from "~/i18n/dict";
 
 interface Props {
   title: string;
+  description?: string;
+  canonicalPath?: string;
+  noindex?: boolean;
 }
 
-const { title } = Astro.props;
+const { title, description, canonicalPath, noindex } = Astro.props;
 const { locale } = Astro.locals;
+
+const siteUrl = "https://discord.vspo-schedule.com";
+const pageTitle = `${title} | ${t(locale, "app.title")}`;
+const canonicalUrl = canonicalPath ? `${siteUrl}${canonicalPath}` : undefined;
+const altLocale = locale === "ja" ? "en" : "ja";
+const altPath = canonicalPath
+  ? `${siteUrl}/${altLocale}${canonicalPath}`
+  : undefined;
 ---
 
 <!doctype html>
@@ -15,6 +26,38 @@ const { locale } = Astro.locals;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    {canonicalUrl && (
+      <link rel="alternate" hreflang={locale} href={canonicalUrl} />
+    )}
+    {altPath && <link rel="alternate" hreflang={altLocale} href={altPath} />}
+    {canonicalUrl && (
+      <link rel="alternate" hreflang="x-default" href={`${siteUrl}${canonicalPath}`} />
+    )}
+
+    {/* OGP */}
+    {description && (
+      <>
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        <meta property="og:site_name" content={t(locale, "app.title")} />
+        <meta property="og:locale" content={locale === "ja" ? "ja_JP" : "en_US"} />
+      </>
+    )}
+
+    {/* Twitter Card */}
+    {description && (
+      <>
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+      </>
+    )}
+
     <script is:inline>
       (function () {
         var stored = localStorage.getItem("theme");
@@ -38,7 +81,7 @@ const { locale } = Astro.locals;
         rel="stylesheet"
       />
     </noscript>
-    <title>{title} | {t(locale, "app.title")}</title>
+    <title>{pageTitle}</title>
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
     <slot />
