@@ -60,6 +60,7 @@ describe("LoginUsecase", () => {
       username: "testuser",
       global_name: "Test User",
       avatar: "abc123",
+      locale: "ja",
     };
 
     it("returns LoginResult on success", async () => {
