@@ -35,6 +35,16 @@ async headers() {
 },
 ```
 
+## Service Worker Headers (/sw.js)
+
+The service worker file has dedicated security headers per [Next.js PWA best practices](https://nextjs.org/docs/app/guides/progressive-web-apps):
+
+| Header | Value | Purpose |
+|--------|-------|---------|
+| `Content-Type` | `application/javascript; charset=utf-8` | Ensure correct MIME type interpretation |
+| `Cache-Control` | `no-cache, no-store, must-revalidate` | Prevent stale service worker caching |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self'` | Restrict service worker to same-origin scripts only |
+
 ## Static Asset Caching (public/_headers)
 
 `public/_headers` configures Cloudflare-managed caching for static assets (Cloudflare Workers do not run for static asset requests):
