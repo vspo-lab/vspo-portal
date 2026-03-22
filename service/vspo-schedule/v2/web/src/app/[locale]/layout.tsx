@@ -4,7 +4,7 @@ import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AppProviders } from "@/components/AppProviders";
-import { GoogleAnalytics } from "@/features/shared/components/Elements";
+import { GoogleAnalytics } from "@/features/shared/components/Elements/Google/GoogleAnalytics";
 import { routing } from "@/i18n/routing";
 
 export default async function LocaleLayout({
