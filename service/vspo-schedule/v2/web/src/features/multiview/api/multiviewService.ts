@@ -1,7 +1,6 @@
 import "server-only";
 import { fetchLivestreams } from "@/features/shared/api/livestream";
 import { Livestream } from "@/features/shared/domain";
-import { AppError } from "@vspo-lab/error";
 
 export type MultiviewServiceResponse = {
   livestreams: Livestream[];
@@ -32,78 +31,65 @@ export const fetchMultiviewService = async ({
   memberType = "vspo_all",
   platform,
 }: FetchMultiviewServiceParams): Promise<MultiviewServiceResponse> => {
-  try {
-    // Fetch live and upcoming in parallel
-    const [livestreamResult, upcomingResult] = await Promise.all([
-      fetchLivestreams({
-        limit,
-        lang: locale,
-        status: "live",
-        order: "desc",
-        timezone,
-        sessionId,
-        memberType,
-        platform,
-      }),
-      includeUpcoming
-        ? fetchLivestreams({
-            limit: 10,
-            lang: locale,
-            status: "upcoming",
-            order: "desc",
-            timezone,
-            sessionId,
-            memberType,
-            platform,
-          })
-        : null,
-    ]);
+  // Fetch live and upcoming in parallel
+  const [livestreamResult, upcomingResult] = await Promise.all([
+    fetchLivestreams({
+      limit,
+      lang: locale,
+      status: "live",
+      order: "desc",
+      timezone,
+      sessionId,
+      memberType,
+      platform,
+    }),
+    includeUpcoming
+      ? fetchLivestreams({
+          limit: 10,
+          lang: locale,
+          status: "upcoming",
+          order: "desc",
+          timezone,
+          sessionId,
+          memberType,
+          platform,
+        })
+      : null,
+  ]);
 
-    if (livestreamResult.err) {
-      throw livestreamResult.err;
-    }
-
-    // Degrade gracefully: show live streams even if upcoming fetch fails
-    // Deduplicate by id to prevent duplicate key errors in React
-    const allStreams = [
-      ...livestreamResult.val.livestreams,
-      ...(upcomingResult?.val?.livestreams ?? []),
-    ];
-    const seen = new Set<string>();
-    const livestreams = allStreams.filter((s) => {
-      if (seen.has(s.id)) return false;
-      seen.add(s.id);
-      return true;
+  if (livestreamResult.err) {
+    console.error("Multiview API Error:", {
+      message: livestreamResult.err.message,
+      context: livestreamResult.err.context,
     });
-
-    // Sort: live first (most recent), then upcoming (soonest first)
-    const sortedLivestreams = [...livestreams].sort((a, b) => {
-      if (a.status === "live" && b.status !== "live") return -1;
-      if (b.status === "live" && a.status !== "live") return 1;
-
-      const aTime = new Date(a.scheduledStartTime || 0).getTime();
-      const bTime = new Date(b.scheduledStartTime || 0).getTime();
-
-      return a.status === "live" ? bTime - aTime : aTime - bTime;
-    });
-
-    return {
-      livestreams: sortedLivestreams,
-    };
-  } catch (error) {
-    console.error("Failed to fetch multiview service data:", error);
-
-    // Log the error with more context
-    if (error instanceof AppError) {
-      console.error("Multiview API Error:", {
-        message: error.message,
-        code: error.code,
-        context: error.context,
-      });
-    }
-
-    return {
-      livestreams: [],
-    };
+    return { livestreams: [] };
   }
+
+  // Degrade gracefully: show live streams even if upcoming fetch fails
+  // Deduplicate by id to prevent duplicate key errors in React
+  const allStreams = [
+    ...livestreamResult.val.livestreams,
+    ...(upcomingResult?.val?.livestreams ?? []),
+  ];
+  const seen = new Set<string>();
+  const livestreams = allStreams.filter((s) => {
+    if (seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
+  });
+
+  // Sort: live first (most recent), then upcoming (soonest first)
+  const sortedLivestreams = [...livestreams].sort((a, b) => {
+    if (a.status === "live" && b.status !== "live") return -1;
+    if (b.status === "live" && a.status !== "live") return 1;
+
+    const aTime = new Date(a.scheduledStartTime || 0).getTime();
+    const bTime = new Date(b.scheduledStartTime || 0).getTime();
+
+    return a.status === "live" ? bTime - aTime : aTime - bTime;
+  });
+
+  return {
+    livestreams: sortedLivestreams,
+  };
 };
