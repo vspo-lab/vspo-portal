@@ -3,13 +3,15 @@
   "vspo": "VSPO",
   "search": "搜索",
   "cancel": "取消",
+  "close": "关闭",
+  "save": "保存",
   "back": "返回",
   "liveStatus": {
     "live": "直播",
     "upcoming": "即将直播"
   },
   "footer": {
-    "lastUpdated": "最后更新日期: {{date}}",
+    "lastUpdated": "最后更新日期: {date}",
     "pages": {
       "home": "主页",
       "terms": "服务条款",
@@ -67,7 +69,7 @@
     }
   },
   "pagination": {
-    "goToPage": "跳转到第{{page}}页",
+    "goToPage": "跳转到第{page}页",
     "firstPage": "跳转到第一页",
     "lastPage": "跳转到最后一页",
     "nextPage": "跳转到下一页",

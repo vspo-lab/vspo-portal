@@ -2,43 +2,56 @@
 
 ## Overview
 
-The app is a Progressive Web App via [next-pwa](https://github.com/shadowwalker/next-pwa). Users can install it to their home screen for a native-like experience.
+The app is a Progressive Web App via [`@serwist/next`](https://serwist.pages.dev/). Users can install it to their home screen for a native-like experience.
 
 ## Configuration
 
-Defined in `next.config.js`:
+`@serwist/next` wraps the Next.js config in `next.config.js`:
 
 ```javascript
-const withPWA = nextPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
+import withSerwistInit from "@serwist/next";
+
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
   disable: process.env.NODE_ENV === "development",
-  runtimeCaching: [/* ... */],
 });
+
+export default withSerwist(withNextIntl(nextConfig));
 ```
 
 | Setting | Value | Description |
 |---------|-------|-------------|
-| `dest` | `"public"` | Service worker output directory |
-| `register` | `true` | Auto-register service worker |
-| `skipWaiting` | `true` | Activate new SW immediately (no reload needed) |
+| `swSrc` | `src/app/sw.ts` | Service worker source file |
+| `swDest` | `public/sw.js` | Compiled service worker output |
 | `disable` | dev only | Disabled in development mode |
 
-## Caching Strategy
+## Service Worker
 
-Runtime caching uses **StaleWhileRevalidate** for the production domain:
+`src/app/sw.ts` configures the Serwist service worker:
 
-| Setting | Value |
-|---------|-------|
-| URL pattern | `https://www.vspo-schedule.com/*` |
-| Strategy | StaleWhileRevalidate |
-| Cache name | `vspo-schedule` |
-| Max entries | 30 |
-| Max age | 60 seconds |
-| Cacheable statuses | 0, 200 |
+```typescript
+import { defaultCache } from "@serwist/next/worker";
+import { Serwist } from "serwist";
 
-This serves cached responses immediately while revalidating in the background. The 60-second max age keeps content fresh for a schedule-focused app.
+const serwist = new Serwist({
+  precacheEntries: self.__SW_MANIFEST,
+  skipWaiting: true,
+  clientsClaim: true,
+  navigationPreload: true,
+  runtimeCaching: defaultCache,
+});
+
+serwist.addEventListeners();
+```
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+| `precacheEntries` | `self.__SW_MANIFEST` | Auto-generated precache manifest |
+| `skipWaiting` | `true` | Activate new SW immediately |
+| `clientsClaim` | `true` | Take control of all clients on activation |
+| `navigationPreload` | `true` | Preload navigation requests |
+| `runtimeCaching` | `defaultCache` | Default caching strategies from `@serwist/next/worker` |
 
 ## Manifest
 
@@ -56,8 +69,17 @@ This serves cached responses immediately while revalidating in the background. T
 
 ## HTML Integration
 
-`_document.tsx` includes:
+The root layout (`app/layout.tsx`) includes manifest, icon, and viewport metadata:
 
-- `<link rel="manifest" href="/manifest.json">`
-- `<link rel="apple-touch-icon" href="/icon.png">`
-- `<meta name="theme-color" content="#fff">`
+```typescript
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#fff",
+};
+
+export const metadata: Metadata = {
+  manifest: "/manifest.json",
+  icons: { apple: "/icon.png" },
+};
+```

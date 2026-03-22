@@ -2,7 +2,7 @@
   "streamSchedule": "스트리밍 일정",
   "noLiveStreams": "이용 가능한 라이브 스트림이 없습니다.\n사이드바에서 지난 스트림이나 클립을 확인해 보세요.",
   "events": "이벤트",
-  "streamsOnDate": "{{date}}의 라이브 스트림",
+  "streamsOnDate": "{date}의 라이브 스트림",
   "loading": "로딩 중...",
   "status": {
     "live": "라이브",
@@ -10,12 +10,12 @@
     "all": "전체"
   },
   "titles": {
-    "streamSchedule": "$t(common:vspo) 스트리밍 일정",
-    "live": "$t(common:vspo) 라이브 스트림",
-    "upcoming": "$t(common:vspo) 예정된 스트림",
-    "archive": "$t(common:vspo) 보관된 스트림",
-    "dateStatus": "스트리밍 일정 / {{date}}"
+    "streamSchedule": "VSPO! 스트리밍 일정",
+    "live": "VSPO! 라이브 스트림",
+    "upcoming": "VSPO! 예정된 스트림",
+    "archive": "VSPO! 보관된 스트림",
+    "dateStatus": "스트리밍 일정 / {date}"
   },
-  "description": "$t(common:vspo) 멤버들의 스트리밍 일정을 한눈에 확인하세요. YouTube, Twitch, TwitCasting, Niconico의 스트림을 포함합니다.",
+  "description": "VSPO! 멤버들의 스트리밍 일정을 한눈에 확인하세요. YouTube, Twitch, TwitCasting, Niconico의 스트림을 포함합니다.",
   "membersOnlyStreamsHidden": "참고: 멤버 전용 스트림은 목록에 표시되지 않습니다."
 }

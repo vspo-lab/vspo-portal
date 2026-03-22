@@ -30,15 +30,6 @@ vi.mock("@/features/shared/components/Elements/Card/VideoCard", () => ({
   },
 }));
 
-vi.mock("next/router", () => ({
-  useRouter: () => ({
-    query: {},
-    push: vi.fn(),
-    pathname: "/schedule/all",
-    events: { on: vi.fn(), off: vi.fn() },
-  }),
-}));
-
 vi.mock("@/lib/utils", () => ({
   formatDate: (_date: unknown, _fmt: string) => "19:00",
 }));

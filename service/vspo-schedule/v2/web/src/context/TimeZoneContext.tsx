@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import { createContext } from "react";
 import { useCookie } from "@/hooks";

@@ -1,15 +1,12 @@
-import type { TFunction } from "next-i18next";
+"use client";
+
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { AgreementDocument } from "@/features/shared/components/Templates";
 import { QA_LINK } from "@/lib/Const";
 
-type PrivacyPolicyPagePresenterProps = {
-  t: TFunction;
-};
-
-export const PrivacyPolicyPagePresenter: React.FC<
-  PrivacyPolicyPagePresenterProps
-> = ({ t }) => {
+export const PrivacyPolicyPagePresenter: React.FC = () => {
+  const t = useTranslations("privacy");
   return (
     <AgreementDocument>
       <h1>{t("pageTitle")}</h1>
@@ -25,11 +22,9 @@ export const PrivacyPolicyPagePresenter: React.FC<
       <h2>{t("article3.title")}</h2>
       <p>{t("article3.intro")}</p>
       <ol>
-        {(t("article3.purposes", { returnObjects: true }) as string[]).map(
-          (purpose) => (
-            <li key={purpose}>{purpose}</li>
-          ),
-        )}
+        {(t.raw("article3.purposes") as string[]).map((purpose) => (
+          <li key={purpose}>{purpose}</li>
+        ))}
       </ol>
 
       <h2>{t("article4.title")}</h2>
@@ -40,7 +35,7 @@ export const PrivacyPolicyPagePresenter: React.FC<
       <p>{t("article5.paragraph2")}</p>
       <ol>
         {(
-          t("article5.links", { returnObjects: true }) as Array<{
+          t.raw("article5.links") as Array<{
             text: string;
             url: string;
           }>
@@ -55,11 +50,9 @@ export const PrivacyPolicyPagePresenter: React.FC<
 
       <h2>{t("article6.title")}</h2>
       <ol>
-        {(t("article6.items", { returnObjects: true }) as string[]).map(
-          (item) => (
-            <li key={item}>{item}</li>
-          ),
-        )}
+        {(t.raw("article6.items") as string[]).map((item) => (
+          <li key={item}>{item}</li>
+        ))}
       </ol>
 
       <h2>{t("article7.title")}</h2>

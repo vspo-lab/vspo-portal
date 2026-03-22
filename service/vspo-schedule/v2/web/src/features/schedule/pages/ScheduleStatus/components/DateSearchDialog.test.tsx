@@ -4,10 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { ThemeModeProvider } from "@/context/Theme";
 import { DateSearchDialog } from "./DateSearchDialog";
 
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
-  }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 const defaultProps = {
@@ -39,19 +37,19 @@ const renderWithTheme = (ui: React.ReactElement) =>
 describe("DateSearchDialog", () => {
   it("renders dialog when open", () => {
     renderWithTheme(<DateSearchDialog {...defaultProps} />);
-    expect(screen.getByText("Date Search")).toBeInTheDocument();
+    expect(screen.getByText("search.title")).toBeInTheDocument();
   });
 
   it("does not render dialog content when closed", () => {
     renderWithTheme(<DateSearchDialog {...defaultProps} open={false} />);
-    expect(screen.queryByText("Date Search")).not.toBeInTheDocument();
+    expect(screen.queryByText("search.title")).not.toBeInTheDocument();
   });
 
   it("disables search button when isSearchEnabled is false", () => {
     renderWithTheme(
       <DateSearchDialog {...defaultProps} isSearchEnabled={false} />,
     );
-    const searchButton = screen.getByRole("button", { name: "Search" });
+    const searchButton = screen.getByRole("button", { name: "search.search" });
     expect(searchButton).toBeDisabled();
   });
 
@@ -59,14 +57,14 @@ describe("DateSearchDialog", () => {
     renderWithTheme(
       <DateSearchDialog {...defaultProps} isSearchEnabled={true} />,
     );
-    const searchButton = screen.getByRole("button", { name: "Search" });
+    const searchButton = screen.getByRole("button", { name: "search.search" });
     expect(searchButton).toBeEnabled();
   });
 
   it("calls onSubmit when search button is clicked", async () => {
     const onSubmit = vi.fn();
     renderWithTheme(<DateSearchDialog {...defaultProps} onSubmit={onSubmit} />);
-    const searchButton = screen.getByRole("button", { name: "Search" });
+    const searchButton = screen.getByRole("button", { name: "search.search" });
     await userEvent.click(searchButton);
     expect(onSubmit).toHaveBeenCalledOnce();
   });
@@ -74,7 +72,7 @@ describe("DateSearchDialog", () => {
   it("calls onClear when clear button is clicked", async () => {
     const onClear = vi.fn();
     renderWithTheme(<DateSearchDialog {...defaultProps} onClear={onClear} />);
-    const clearButton = screen.getByRole("button", { name: "Clear" });
+    const clearButton = screen.getByRole("button", { name: "search.clear" });
     await userEvent.click(clearButton);
     expect(onClear).toHaveBeenCalledOnce();
   });
@@ -82,7 +80,7 @@ describe("DateSearchDialog", () => {
   it("calls onClose when cancel button is clicked", async () => {
     const onClose = vi.fn();
     renderWithTheme(<DateSearchDialog {...defaultProps} onClose={onClose} />);
-    const cancelButton = screen.getByRole("button", { name: "Cancel" });
+    const cancelButton = screen.getByRole("button", { name: "search.cancel" });
     await userEvent.click(cancelButton);
     expect(onClose).toHaveBeenCalledOnce();
   });
@@ -99,13 +97,13 @@ describe("DateSearchDialog", () => {
         }}
       />,
     );
-    expect(screen.getByText("Saved Conditions")).toBeInTheDocument();
+    expect(screen.getByText("search.favorites.saved")).toBeInTheDocument();
   });
 
   it("shows save button when hasFavorite is false", () => {
     renderWithTheme(<DateSearchDialog {...defaultProps} hasFavorite={false} />);
     expect(
-      screen.getByRole("button", { name: "Save Current Conditions" }),
+      screen.getByRole("button", { name: "search.favorites.saveButton" }),
     ).toBeInTheDocument();
   });
 
@@ -121,9 +119,11 @@ describe("DateSearchDialog", () => {
         }}
       />,
     );
-    // vspo_all → key "search.memberType.all", fallback "vspo_all" → mock returns "vspo_all"
-    // platform is falsy → t("search.platform.all", "All Platforms") → mock returns "All Platforms"
-    expect(screen.getByText("vspo_all | All Platforms")).toBeInTheDocument();
+    // vspo_all → key "search.memberType.all" → mock returns "search.memberType.all"
+    // platform is falsy → t("search.platform.all") → mock returns "search.platform.all"
+    expect(
+      screen.getByText("search.memberType.all | search.platform.all"),
+    ).toBeInTheDocument();
   });
 
   it("renders favorite with non-vspo_all memberType and truthy platform", () => {
@@ -138,12 +138,14 @@ describe("DateSearchDialog", () => {
         }}
       />,
     );
-    // vspo_jp → key "search.memberType.jp", fallback "vspo_jp" → mock returns "vspo_jp"
-    // platform = "youtube" → t("search.platform.youtube", "youtube") → mock returns "youtube"
-    expect(screen.getByText("vspo_jp | youtube")).toBeInTheDocument();
+    // vspo_jp → key "search.memberType.jp" → mock returns "search.memberType.jp"
+    // platform = "youtube" → t("search.platform.youtube") → mock returns "search.platform.youtube"
+    expect(
+      screen.getByText("search.memberType.jp | search.platform.youtube"),
+    ).toBeInTheDocument();
   });
 
-  it("renders favorite with null memberType using empty fallback", () => {
+  it("renders favorite with null memberType using key-based fallback", () => {
     renderWithTheme(
       <DateSearchDialog
         {...defaultProps}
@@ -155,12 +157,14 @@ describe("DateSearchDialog", () => {
         }}
       />,
     );
-    // memberType undefined → fallback "" → mock returns ""
-    // platform falsy → "All Platforms"
-    // Result: " | All Platforms"
+    // memberType undefined → key "search.memberType.undefined" → mock returns "search.memberType.undefined"
+    // platform falsy → "search.platform.all"
     expect(
       screen.getByText((_content, element) => {
-        return element?.textContent === " | All Platforms";
+        return (
+          element?.textContent ===
+          "search.memberType.undefined | search.platform.all"
+        );
       }),
     ).toBeInTheDocument();
   });
@@ -177,8 +181,10 @@ describe("DateSearchDialog", () => {
         }}
       />,
     );
-    // vspo_en → key "search.memberType.en", fallback "vspo_en" → mock returns "vspo_en"
-    // platform = "twitch" → t("search.platform.twitch", "twitch") → mock returns "twitch"
-    expect(screen.getByText("vspo_en | twitch")).toBeInTheDocument();
+    // vspo_en → key "search.memberType.en" → mock returns "search.memberType.en"
+    // platform = "twitch" → t("search.platform.twitch") → mock returns "search.platform.twitch"
+    expect(
+      screen.getByText("search.memberType.en | search.platform.twitch"),
+    ).toBeInTheDocument();
   });
 });

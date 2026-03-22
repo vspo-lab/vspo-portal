@@ -2,7 +2,7 @@
   "streamSchedule": "直播日程",
   "noLiveStreams": "目前没有直播信息。\n请查看存档或剪辑。",
   "events": "活动列表",
-  "streamsOnDate": "{{date}}的直播列表",
+  "streamsOnDate": "{date}的直播列表",
   "loading": "加载中...",
   "status": {
     "live": "直播中",
@@ -10,12 +10,12 @@
     "all": "全部"
   },
   "titles": {
-    "streamSchedule": "$t(common:vspo) 直播日程",
-    "live": "$t(common:vspo) 直播中",
-    "upcoming": "$t(common:vspo) 即将直播",
-    "archive": "$t(common:vspo) 存档",
-    "dateStatus": "直播日程 / {{date}}"
+    "streamSchedule": "VSPO 直播日程",
+    "live": "VSPO 直播中",
+    "upcoming": "VSPO 即将直播",
+    "archive": "VSPO 存档",
+    "dateStatus": "直播日程 / {date}"
   },
-  "description": "可以一目了然地查看$t(common:vspo)成员的直播日程（YouTube/Twitch/ツイキャス/Niconico）。",
+  "description": "可以一目了然地查看VSPO成员的直播日程（YouTube/Twitch/ツイキャス/Niconico）。",
   "membersOnlyStreamsHidden": "※会员限定的直播未列出。"
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Badge,
   Box,
@@ -13,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React from "react";
 import {
   getNavigationRouteInfo,
@@ -95,7 +97,7 @@ const NavSectionHeading: React.FC<{ text: string }> = ({ text }) => (
 );
 
 const NavLink: React.FC<NavLinkProps> = ({ id, isBeta, supplementaryIcon }) => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
 
   const { link, isExternalLink } = getNavigationRouteInfo(id);
   const buttonProps = isExternalLink

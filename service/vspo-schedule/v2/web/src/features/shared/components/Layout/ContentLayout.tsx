@@ -1,3 +1,5 @@
+"use client";
+
 import {
   type Breakpoint,
   Container,
@@ -9,7 +11,6 @@ import { styled } from "@mui/material/styles";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { AlertSnackbar } from "../Elements";
-import { CustomHead } from "../Head/Head";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { CustomBottomNavigation } from "./Navigation";
@@ -38,11 +39,8 @@ type ContentLayoutProps = {
   children: React.ReactNode;
   title: string;
   lastUpdateTimestamp?: number;
-  description?: string;
   path?: string;
-  canonicalPath?: string;
   footerMessage?: string;
-  headTitle?: string;
   maxPageWidth?: Breakpoint | false;
   padTop?: boolean;
 };
@@ -71,11 +69,8 @@ export const ContentLayout = ({
   children,
   title,
   lastUpdateTimestamp,
-  description,
   path,
-  canonicalPath,
   footerMessage,
-  headTitle,
   maxPageWidth,
   padTop,
 }: ContentLayoutProps) => {
@@ -97,12 +92,6 @@ export const ContentLayout = ({
   return (
     <>
       {immersiveStyles}
-      <CustomHead
-        title={headTitle || title}
-        description={description}
-        path={path}
-        canonicalPath={canonicalPath}
-      />
       <div data-layout-header>
         <Header title={title} />
       </div>

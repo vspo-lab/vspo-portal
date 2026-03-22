@@ -1,5 +1,7 @@
+"use client";
+
 import { Box, Card, CardContent, Typography } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { VideoCard } from "@/features/shared/components/Elements/Card/VideoCard";
 import type { Clip } from "../../../shared/domain/clip";
@@ -11,7 +13,7 @@ type ClipCardPresenterProps = {
 export const ClipCardPresenter: React.FC<ClipCardPresenterProps> = ({
   clip,
 }) => {
-  const { t } = useTranslation("clips");
+  const t = useTranslations("clips");
   return (
     <VideoCard video={clip}>
       <Card sx={{ maxWidth: 345, height: "100%" }}>

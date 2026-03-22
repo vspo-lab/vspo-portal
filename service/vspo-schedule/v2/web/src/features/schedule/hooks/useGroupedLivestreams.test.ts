@@ -5,11 +5,9 @@ import { useGroupedLivestreams } from "./useGroupedLivestreams";
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, opts?: Record<string, string>) =>
-      opts?.date ? `すべて (${opts.date}~)` : key,
-  }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, opts?: Record<string, string>) =>
+    opts?.date ? `すべて (${opts.date}~)` : key,
 }));
 
 vi.mock("@/lib/utils", () => ({

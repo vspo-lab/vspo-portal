@@ -1,7 +1,8 @@
+"use client";
+
 import { Box, Typography } from "@mui/material";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import NextLink from "next/link";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useTimeZoneContext } from "@/hooks";
 import { formatDate } from "@/lib/utils";
@@ -15,7 +16,7 @@ export const Footer: React.FC<Props> = ({
   lastUpdateTimestamp,
   description,
 }) => {
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
   const { timeZone } = useTimeZoneContext();
 
   return (
@@ -56,10 +57,8 @@ export const Footer: React.FC<Props> = ({
         >
           {t("footer.pages.home")}
         </Link>{" "}
-        / <NextLink href={"/terms"}>{t("footer.pages.terms")}</NextLink> /{" "}
-        <NextLink href={"/privacy-policy"}>
-          {t("footer.pages.privacy")}
-        </NextLink>
+        / <Link href={"/terms"}>{t("footer.pages.terms")}</Link> /{" "}
+        <Link href={"/privacy-policy"}>{t("footer.pages.privacy")}</Link>
       </Typography>
       <Typography
         variant="body2"

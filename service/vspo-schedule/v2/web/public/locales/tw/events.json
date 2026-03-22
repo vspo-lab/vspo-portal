@@ -1,7 +1,7 @@
 {
-  "title": "$t(common:vspo) 活動列表",
-  "description": "彙整與$t(common:vspo)相關的活動。",
+  "title": "VSPO 活動列表",
+  "description": "彙整與VSPO相關的活動。",
   "prevMonth": "上個月",
   "nextMonth": "下個月",
-  "currMonth": "{{val, datetime(year: numeric; month: long; timeZone: UTC)}}"
+  "currMonth": "{val, datetime(year: numeric; month: long; timeZone: UTC)}"
 }

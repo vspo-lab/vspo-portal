@@ -1,7 +1,10 @@
+"use client";
+
 import type { SelectChangeEvent } from "@mui/material";
 import { format, isValid, parse } from "date-fns";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 import React from "react";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useFavoriteSearchCondition } from "../../../hooks/useFavoriteSearchConditions";
 import type { FavoriteSearchCondition } from "../../../types/favorite";
 import { DateSearchDialog, type DateSearchFormData } from "./DateSearchDialog";
@@ -15,6 +18,8 @@ export const DateSearchDialogContainer: React.FC<
   DateSearchDialogContainerProps
 > = ({ open, onClose }) => {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = React.useState<DateSearchFormData>({
     selectedDate: null,
     memberType: "vspo_all",
@@ -30,8 +35,9 @@ export const DateSearchDialogContainer: React.FC<
     const updateFormData: Partial<DateSearchFormData> = {};
     let hasUpdate = false;
 
-    if (router.query.date && typeof router.query.date === "string") {
-      const dateFromQuery = new Date(router.query.date);
+    const dateParam = searchParams.get("date");
+    if (dateParam) {
+      const dateFromQuery = new Date(dateParam);
       if (!Number.isNaN(dateFromQuery.getTime())) {
         updateFormData.selectedDate = dateFromQuery;
         setDateInputValue(format(dateFromQuery, "yyyy-MM-dd"));
@@ -39,16 +45,15 @@ export const DateSearchDialogContainer: React.FC<
       }
     }
 
-    if (
-      router.query.memberType &&
-      typeof router.query.memberType === "string"
-    ) {
-      updateFormData.memberType = router.query.memberType;
+    const memberTypeParam = searchParams.get("memberType");
+    if (memberTypeParam) {
+      updateFormData.memberType = memberTypeParam;
       hasUpdate = true;
     }
 
-    if (router.query.platform && typeof router.query.platform === "string") {
-      updateFormData.platform = router.query.platform;
+    const platformParam = searchParams.get("platform");
+    if (platformParam) {
+      updateFormData.platform = platformParam;
       hasUpdate = true;
     }
 
@@ -58,7 +63,7 @@ export const DateSearchDialogContainer: React.FC<
         ...updateFormData,
       }));
     }
-  }, [router.query.date, router.query.memberType, router.query.platform]);
+  }, [searchParams]);
 
   // Update date input value when selectedDate changes
   React.useEffect(() => {
@@ -111,36 +116,28 @@ export const DateSearchDialogContainer: React.FC<
   );
 
   const handleSubmit = () => {
-    // Create a new query object
-    const query = { ...router.query };
+    const params = new URLSearchParams(searchParams.toString());
 
     if (formData.selectedDate) {
-      query.date = format(formData.selectedDate, "yyyy-MM-dd");
+      params.set("date", format(formData.selectedDate, "yyyy-MM-dd"));
     } else {
-      query.date = undefined;
+      params.delete("date");
     }
 
     if (formData.memberType && formData.memberType !== "vspo_all") {
-      query.memberType = formData.memberType;
+      params.set("memberType", formData.memberType);
     } else {
-      query.memberType = undefined;
+      params.delete("memberType");
     }
 
     if (formData.platform) {
-      query.platform = formData.platform;
+      params.set("platform", formData.platform);
     } else {
-      query.platform = undefined;
+      params.delete("platform");
     }
 
-    // Navigate to the same page with updated query parameters to trigger SSR
-    router.push(
-      {
-        pathname: router.pathname,
-        query,
-      },
-      undefined,
-      { shallow: false },
-    ); // Use shallow: false to trigger full SSR
+    const queryString = params.toString();
+    router.push(queryString ? `${pathname}?${queryString}` : pathname);
 
     onClose();
   };
@@ -153,20 +150,14 @@ export const DateSearchDialogContainer: React.FC<
     });
     setDateInputValue("");
 
-    // Remove all search parameters and navigate to trigger SSR
-    const query = { ...router.query };
-    query.date = undefined;
-    query.memberType = undefined;
-    query.platform = undefined;
+    // Remove all search parameters and navigate
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("date");
+    params.delete("memberType");
+    params.delete("platform");
 
-    router.push(
-      {
-        pathname: router.pathname,
-        query,
-      },
-      undefined,
-      { shallow: false },
-    ); // Use shallow: false to trigger full SSR
+    const queryString = params.toString();
+    router.push(queryString ? `${pathname}?${queryString}` : pathname);
 
     onClose();
   };
@@ -184,19 +175,13 @@ export const DateSearchDialogContainer: React.FC<
     if (!favorite) return;
 
     // Navigate without query parameters to apply server-side favorite filtering
-    const query = { ...router.query };
-    query.date = undefined;
-    query.memberType = undefined;
-    query.platform = undefined;
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("date");
+    params.delete("memberType");
+    params.delete("platform");
 
-    router.push(
-      {
-        pathname: router.pathname,
-        query,
-      },
-      undefined,
-      { shallow: false },
-    );
+    const queryString = params.toString();
+    router.push(queryString ? `${pathname}?${queryString}` : pathname);
 
     onClose();
   };

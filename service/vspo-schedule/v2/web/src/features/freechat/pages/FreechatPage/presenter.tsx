@@ -1,3 +1,5 @@
+"use client";
+
 import { Grid } from "@mui/material";
 import type React from "react";
 import type { Freechat } from "../../../shared/domain/freechat";

@@ -161,10 +161,10 @@ function useTaskData(taskId: string) {
 
 ## React 19 Hooks
 
-> **Status: Not yet used in this codebase.** The hooks below are available in React 19
-> but are not currently adopted in this project. The codebase uses the Pages Router
-> without Server Components or Server Actions (`"use server"`). These examples are
-> kept as reference for future adoption.
+> **Status: Partially adopted.** The codebase uses the App Router with Server Components.
+> `use()` is available for promise resolution in Client Components. Server Actions
+> (`"use server"`) are not yet used (read-only application). These examples are
+> kept as reference.
 
 ### use (Server Components)
 

@@ -1,6 +1,6 @@
 {
-  "title": "About $t(common:spodule)",
-  "description": "Information about $t(common:spodule), its contents, and site features.",
+  "title": "About Spodule",
+  "description": "Information about Spodule, its contents, and site features.",
   "sections": {
     "siteOverview": {
       "title": "Site Overview",

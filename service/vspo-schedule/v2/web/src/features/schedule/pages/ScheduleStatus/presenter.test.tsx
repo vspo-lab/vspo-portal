@@ -4,10 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { ThemeModeProvider } from "@/context/Theme";
 import { ScheduleStatusPresenter } from "./presenter";
 
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
-  }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 vi.mock("./components", () => ({
@@ -90,7 +88,7 @@ describe("ScheduleStatusPresenter", () => {
         onSearchDialogOpen={onSearchDialogOpen}
       />,
     );
-    const fab = screen.getByRole("button", { name: /Search by Date/i });
+    const fab = screen.getByRole("button", { name: /search\.dateSearch/i });
     await userEvent.click(fab);
     expect(onSearchDialogOpen).toHaveBeenCalledOnce();
   });

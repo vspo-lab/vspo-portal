@@ -6,21 +6,21 @@ import { DateSearchDialogContainer } from "./DateSearchDialogContainer";
 // Mocks
 // ---------------------------------------------------------------------------
 const mockPush = vi.fn();
-let mockQuery: Record<string, string | undefined> = {};
+let mockSearchParams = new URLSearchParams();
 
-vi.mock("next/router", () => ({
+vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({
     push: mockPush,
-    query: mockQuery,
-    pathname: "/ja/schedule/all",
   }),
+  usePathname: () => "/schedule/all",
 }));
 
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) =>
-      typeof fallback === "string" ? fallback : key,
-  }),
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => mockSearchParams,
+}));
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 const mockSaveFavorite = vi.fn();
@@ -102,9 +102,10 @@ const mockOnClose = vi.fn();
 // ---------------------------------------------------------------------------
 describe("DateSearchDialogContainer", () => {
   beforeEach(() => {
-    mockQuery = {};
+    mockSearchParams = new URLSearchParams();
     capturedDialogProps = {};
     mockOnClose.mockClear();
+    mockPush.mockClear();
     mockFavorite = null;
     mockHasFavorite = false;
   });
@@ -136,13 +137,7 @@ describe("DateSearchDialogContainer", () => {
     });
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        pathname: "/ja/schedule/all",
-      }),
-      undefined,
-      { shallow: false },
-    );
+    expect(mockPush).toHaveBeenCalledWith("/schedule/all");
   });
 
   it("passes onClose through to dialog", () => {
@@ -156,11 +151,9 @@ describe("DateSearchDialogContainer", () => {
   });
 
   it("initializes form data from query parameters", () => {
-    mockQuery = {
-      date: "2024-06-15",
-      memberType: "vspo_jp",
-      platform: "youtube",
-    };
+    mockSearchParams = new URLSearchParams(
+      "date=2024-06-15&memberType=vspo_jp&platform=youtube",
+    );
 
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -175,7 +168,7 @@ describe("DateSearchDialogContainer", () => {
   });
 
   it("enables search when date query param is present", () => {
-    mockQuery = { date: "2024-06-15" };
+    mockSearchParams = new URLSearchParams("date=2024-06-15");
 
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -224,7 +217,7 @@ describe("DateSearchDialogContainer", () => {
   });
 
   it("clears selectedDate when date input is emptied", () => {
-    mockQuery = { date: "2024-06-15" };
+    mockSearchParams = new URLSearchParams("date=2024-06-15");
 
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -244,7 +237,7 @@ describe("DateSearchDialogContainer", () => {
   });
 
   it("submit navigates with query params and calls onClose", () => {
-    mockQuery = { date: "2024-06-15" };
+    mockSearchParams = new URLSearchParams("date=2024-06-15");
 
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -253,20 +246,15 @@ describe("DateSearchDialogContainer", () => {
     });
 
     expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        pathname: "/ja/schedule/all",
-        query: expect.objectContaining({
-          date: "2024-06-15",
-        }),
-      }),
-      undefined,
-      { shallow: false },
+      expect.stringContaining("/schedule/all?date=2024-06-15"),
     );
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   it("submit includes memberType in query when not vspo_all", () => {
-    mockQuery = { date: "2024-06-15", memberType: "vspo_jp" };
+    mockSearchParams = new URLSearchParams(
+      "date=2024-06-15&memberType=vspo_jp",
+    );
 
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -275,18 +263,12 @@ describe("DateSearchDialogContainer", () => {
     });
 
     expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        query: expect.objectContaining({
-          memberType: "vspo_jp",
-        }),
-      }),
-      undefined,
-      { shallow: false },
+      expect.stringContaining("memberType=vspo_jp"),
     );
   });
 
   it("submit includes platform in query when set", () => {
-    mockQuery = { date: "2024-06-15", platform: "youtube" };
+    mockSearchParams = new URLSearchParams("date=2024-06-15&platform=youtube");
 
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -295,13 +277,7 @@ describe("DateSearchDialogContainer", () => {
     });
 
     expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        query: expect.objectContaining({
-          platform: "youtube",
-        }),
-      }),
-      undefined,
-      { shallow: false },
+      expect.stringContaining("platform=youtube"),
     );
   });
 
@@ -319,13 +295,7 @@ describe("DateSearchDialogContainer", () => {
       screen.getByTestId("load-favorite-btn").click();
     });
 
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        pathname: "/ja/schedule/all",
-      }),
-      undefined,
-      { shallow: false },
-    );
+    expect(mockPush).toHaveBeenCalledWith("/schedule/all");
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
@@ -376,7 +346,7 @@ describe("DateSearchDialogContainer", () => {
   });
 
   it("ignores invalid date query param (NaN branch)", () => {
-    mockQuery = { date: "invalid-date-string" };
+    mockSearchParams = new URLSearchParams("date=invalid-date-string");
 
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -403,7 +373,7 @@ describe("DateSearchDialogContainer", () => {
     expect(capturedDialogProps.isSearchEnabled).toBe(false);
   });
 
-  it("submit without selectedDate sets query.date to undefined", () => {
+  it("submit without selectedDate omits date from query", () => {
     // No date query param, but set memberType via handler
     render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
 
@@ -421,16 +391,9 @@ describe("DateSearchDialogContainer", () => {
       screen.getByTestId("submit-btn").click();
     });
 
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.objectContaining({
-        query: expect.objectContaining({
-          date: undefined,
-          memberType: "vspo_jp",
-        }),
-      }),
-      undefined,
-      { shallow: false },
-    );
+    const calledUrl = mockPush.mock.calls[0][0] as string;
+    expect(calledUrl).toContain("memberType=vspo_jp");
+    expect(calledUrl).not.toContain("date=");
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 });

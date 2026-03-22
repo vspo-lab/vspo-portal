@@ -1,13 +1,15 @@
+"use client";
+
 // components/Elements/Breadcrumb.tsx
 import { Breadcrumbs, Typography } from "@mui/material";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import { Link } from "./Link";
 
 export const Breadcrumb = () => {
-  const router = useRouter();
-  const pathnames = router.asPath.split("/").slice(1);
-  const { t } = useTranslation("common");
+  const pathname = usePathname();
+  const pathnames = pathname.split("/").slice(1);
+  const t = useTranslations("common");
 
   return (
     <Breadcrumbs aria-label="breadcrumb">
@@ -15,7 +17,8 @@ export const Breadcrumb = () => {
       {pathnames.map((value, index) => {
         const last = index === pathnames.length - 1;
         const to = `/${pathnames.slice(0, index + 1).join("/")}`;
-        const name = t(`breadcrumbs.pages.${value}`, value);
+        const key = `breadcrumbs.pages.${value}` as const;
+        const name = t.has(key) ? t(key) : value;
 
         return last ? (
           <Typography key={to} sx={{ color: "text.primary" }}>

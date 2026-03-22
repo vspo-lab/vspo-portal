@@ -22,7 +22,7 @@ features/multiview/
 ├── components/
 │   ├── containers/               # MultiviewGrid, VideoPlayer, ChatCell, LayoutSelector, StreamSelector, UrlInput, MultiviewErrorBoundary
 │   └── presenters/               # UI for each container
-└── pages/MultiviewPage/          # container, presenter, serverSideProps
+└── pages/MultiviewPage/          # container, presenter (page at app/[locale]/(standalone)/multiview/page.tsx)
 ```
 
 ## Layouts
@@ -48,7 +48,7 @@ Shortcuts are disabled when focus is in an input field, textarea, or contentEdit
 
 ## Grid
 
-- `react-grid-layout` (120 columns, rowHeight=10px for fine resize control)
+- `react-grid-layout` v2 (120 columns, rowHeight=10px for fine resize control)
 - `allowOverlap={true}`, `compactType={null}` for free-form placement
 - Drag swap: real-time position swap during drag (50% overlap threshold, RAF-throttled via `computeSwapDuringDrag`)
 - Post-drop: `resolveOverlaps` on ALL paths that modify layout: drag stop, resize stop, stream add/remove, and saved layout restore
@@ -179,6 +179,7 @@ Hides header/footer/nav for distraction-free viewing. Exit via Escape or `I` key
 - Safe area insets (`env(safe-area-inset-*)`) for notched devices
 - `100dvh` for iOS Safari address bar compatibility
 - React Compiler enabled — automatic memoization
+- `MultiviewGridPresenter` is dynamically imported via `next/dynamic` with `ssr: false` for code splitting (~50KB react-grid-layout savings)
 
 ## Error Handling
 

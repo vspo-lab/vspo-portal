@@ -1,4 +1,4 @@
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { formatDate, groupBy } from "@/lib/utils";
 import type { Livestream } from "../../shared/domain/livestream";
@@ -27,7 +27,7 @@ export const useGroupedLivestreams = ({
   currentStatusFilter,
   liveStatus,
 }: UseGroupedLivestreamsParams): UseGroupedLivestreamsReturn => {
-  const { t } = useTranslation("schedule");
+  const t = useTranslations("schedule");
   // Group livestreams by date on the client side
   const livestreamsByDate = useMemo(() => {
     // Ensure livestreams is an array before grouping

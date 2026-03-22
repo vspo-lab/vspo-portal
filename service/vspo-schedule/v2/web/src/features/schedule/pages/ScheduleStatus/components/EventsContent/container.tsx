@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import type { Event } from "@/features/shared/domain";
 import { EventsContentPresenter } from "./presenter";

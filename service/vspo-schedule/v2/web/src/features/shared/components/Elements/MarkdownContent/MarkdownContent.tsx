@@ -1,3 +1,5 @@
+"use client";
+
 import { Box } from "@mui/material";
 import type React from "react";
 import ReactMarkdown, { type Components } from "react-markdown";

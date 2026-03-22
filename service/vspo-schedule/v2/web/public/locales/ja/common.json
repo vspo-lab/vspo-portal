@@ -3,13 +3,15 @@
   "vspo": "ぶいすぽっ！",
   "search": "検索",
   "cancel": "キャンセル",
+  "close": "閉じる",
+  "save": "保存",
   "back": "戻る",
   "liveStatus": {
     "live": "Live",
     "upcoming": "配信予定"
   },
   "footer": {
-    "lastUpdated": "最終更新日時: {{date}}",
+    "lastUpdated": "最終更新日時: {date}",
     "pages": {
       "home": "ホーム",
       "terms": "利用規約",
@@ -64,7 +66,7 @@
     }
   },
   "pagination": {
-    "goToPage": "{{page}}ページ目に移動",
+    "goToPage": "{page}ページ目に移動",
     "firstPage": "最初のページに移動",
     "lastPage": "最後のページに移動",
     "nextPage": "次のページに移動",

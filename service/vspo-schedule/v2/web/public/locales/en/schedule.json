@@ -2,17 +2,21 @@
   "search": {
     "title": "Search Options",
     "selectDate": "Select Date",
-    "memberType": "Member Type",
-    "memberType.all": "All Members",
-    "memberType.jp": "VSPO JP",
-    "memberType.en": "VSPO EN",
-    "memberType.ch": "VSPO CH",
-    "platform": "Platform",
-    "platform.all": "All Platforms",
-    "platform.youtube": "YouTube",
-    "platform.twitch": "Twitch",
-    "platform.twitcasting": "TwitCasting",
-    "platform.niconico": "Niconico",
+    "memberTypeLabel": "Member Type",
+    "memberType": {
+      "all": "All Members",
+      "jp": "VSPO JP",
+      "en": "VSPO EN",
+      "ch": "VSPO CH"
+    },
+    "platformLabel": "Platform",
+    "platform": {
+      "all": "All Platforms",
+      "youtube": "YouTube",
+      "twitch": "Twitch",
+      "twitcasting": "TwitCasting",
+      "niconico": "Niconico"
+    },
     "clear": "Clear",
     "cancel": "Cancel",
     "search": "Search",
@@ -34,7 +38,7 @@
   },
   "tabs": {
     "all": "All",
-    "allWithDate": "All ({{date}})"
+    "allWithDate": "All ({date})"
   },
   "noLivestreams": "No scheduled streams. Please check the previous day's schedule."
 }

@@ -115,7 +115,7 @@ implement `getDerivedStateFromError` and `componentDidCatch`.
 
 | Approach | Use When |
 |----------|----------|
-| **Result type (`wrap`, `Ok`, `Err`)** | Handling async operations: API calls, data fetching, file reads. Used in `serverSideProps`, API services, and data orchestration layers. |
+| **Result type (`wrap`, `Ok`, `Err`)** | Handling async operations: API calls, data fetching, file reads. Used in async Server Components, API services, and data orchestration layers. |
 | **React Error Boundary** | Catching unexpected render errors in a React component subtree. Provides a fallback UI instead of crashing the entire page. |
 
 ### Existing Error Boundary

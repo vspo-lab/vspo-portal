@@ -2,7 +2,7 @@
   "streamSchedule": "配信日スケジュール",
   "noLiveStreams": "配信情報はありません。\nアーカイブ・切り抜きを御覧ください。",
   "events": "イベント一覧",
-  "streamsOnDate": "{{date}}の配信一覧",
+  "streamsOnDate": "{date}の配信一覧",
   "loading": "読み込み中...",
   "status": {
     "live": "配信中",
@@ -10,12 +10,12 @@
     "all": "すべて"
   },
   "titles": {
-    "streamSchedule": "$t(common:vspo)配信スケジュール",
-    "live": "$t(common:vspo)配信中",
-    "upcoming": "$t(common:vspo)配信予定",
-    "archive": "$t(common:vspo)アーカイブ",
-    "dateStatus": "配信スケジュール/{{date}}"
+    "streamSchedule": "ぶいすぽっ！配信スケジュール",
+    "live": "ぶいすぽっ！配信中",
+    "upcoming": "ぶいすぽっ！配信予定",
+    "archive": "ぶいすぽっ！アーカイブ",
+    "dateStatus": "配信スケジュール/{date}"
   },
-  "description": "$t(common:vspo)メンバーの配信スケジュール(Youtube/Twitch/ツイキャス/ニコニコ)を確認できます。",
+  "description": "ぶいすぽっ！メンバーの配信スケジュール(Youtube/Twitch/ツイキャス/ニコニコ)を確認できます。",
   "membersOnlyStreamsHidden": "※メン限の配信は掲載しておりません。"
 }

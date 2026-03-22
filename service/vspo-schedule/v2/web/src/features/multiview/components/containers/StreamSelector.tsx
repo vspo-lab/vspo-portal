@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import React, { useState, useMemo } from "react";
 import { StreamSelectorPresenter } from "../presenters";

@@ -89,3 +89,5 @@ jobs:
           workingDirectory: service/vspo-schedule/v2/web
           command: deploy --config wrangler.storybook.jsonc
           quiet: true
+        env:
+          OPEN_NEXT_DEPLOY: 'true'

@@ -26,9 +26,9 @@ Technical documentation for the vspo-portal monorepo.
 | Document | Description |
 |----------|-------------|
 | [Architecture](./web-frontend/architecture.md) | Feature modules, Container/Presenter pattern, dependency direction |
-| [Routing](./web-frontend/routing.md) | Pages Router, route map, layout system |
+| [Routing](./web-frontend/routing.md) | App Router, route map, layout system |
 | [Middleware](./web-frontend/middleware.md) | Locale routing, timezone, session tracking |
-| [Data Fetching](./web-frontend/data-fetching.md) | serverSideProps, dual API support, Result pattern |
+| [Data Fetching](./web-frontend/data-fetching.md) | Async Server Components, dual API support, Result pattern |
 | [State Management](./web-frontend/state-management.md) | Context providers, cookies, LocalStorage |
 | [i18n](./web-frontend/i18n.md) | Internationalization setup and locale resolution |
 | [Styling](./web-frontend/styling.md) | MUI v7 + Emotion theming and component patterns |

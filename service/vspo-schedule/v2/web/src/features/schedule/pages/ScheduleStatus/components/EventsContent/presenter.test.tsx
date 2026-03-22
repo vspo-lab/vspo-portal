@@ -4,10 +4,8 @@ import { ThemeModeProvider } from "@/context/Theme";
 import type { Event } from "@/features/shared/domain";
 import { EventsContentPresenter } from "./presenter";
 
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
-  }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 const makeEvent = (overrides: Partial<Event> = {}): Event => ({

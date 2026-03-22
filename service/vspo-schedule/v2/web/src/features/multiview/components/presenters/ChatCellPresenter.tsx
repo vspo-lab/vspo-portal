@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
@@ -10,7 +12,7 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { convertChatPlayerLink } from "@/features/shared/utils";
 import { useColorScheme } from "@mui/material/styles";
@@ -152,7 +154,7 @@ export type ChatCellPresenterProps = {
  */
 export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
   ({ stream, onRemove }) => {
-    const { t } = useTranslation("multiview");
+    const t = useTranslations("multiview");
     const { colorScheme } = useColorScheme();
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
@@ -178,10 +180,9 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
       <ChatContainer>
         <ChatHeader
           className="chat-header drag-handle"
-          aria-label={t(
-            "chat.dragHandle.ariaLabel",
-            `${stream.channelTitle}のチャットをドラッグして移動`,
-          )}
+          aria-label={t("chat.dragHandle.ariaLabel", {
+            channelTitle: stream.channelTitle,
+          })}
         >
           <StreamInfo>
             <Typography
@@ -197,7 +198,7 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
               }}
             >
               <ChatIcon sx={{ fontSize: "0.85rem" }} />
-              {t("chat.header.title", "チャット")}
+              {t("chat.header.title")}
             </Typography>
             <Typography
               variant="caption"
@@ -216,8 +217,8 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
             <DragHandle
               size="small"
               className="drag-handle"
-              aria-label={t("chat.dragHandle.tooltip", "チャットを移動")}
-              title={t("chat.dragHandle.tooltip", "チャットを移動")}
+              aria-label={t("chat.dragHandle.tooltip")}
+              title={t("chat.dragHandle.tooltip")}
             >
               <DragIndicatorIcon fontSize="small" />
             </DragHandle>
@@ -225,7 +226,7 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
               className="no-drag"
               size="small"
               onClick={onRemove}
-              aria-label={t("chat.close.ariaLabel", "チャットを閉じる")}
+              aria-label={t("chat.close.ariaLabel")}
             >
               <CloseIcon fontSize="small" />
             </CloseButton>
@@ -236,25 +237,22 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
           <ErrorContainer role="alert">
             <ErrorOutlineIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
-              {t("chat.error.title", "チャットの読み込みに失敗しました")}
+              {t("chat.error.title")}
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              {t(
-                "chat.error.description",
-                "しばらくしてからもう一度お試しください",
-              )}
+              {t("chat.error.description")}
             </Typography>
           </ErrorContainer>
         ) : chatEmbedUrl ? (
           <>
             {isLoading && (
-              <LoadingContainer role="status" aria-label={t("chat.loading", "チャットを読み込み中")}>
+              <LoadingContainer role="status" aria-label={t("chat.loading")}>
                 <CircularProgress size={40} />
               </LoadingContainer>
             )}
             <ChatFrame
               src={chatEmbedUrl}
-              title={`${stream.channelTitle} - ${t("chat.header.title", "チャット")}`}
+              title={`${stream.channelTitle} - ${t("chat.header.title")}`}
               onLoad={handleLoad}
               onError={handleError}
               style={{
@@ -266,13 +264,10 @@ export const ChatCellPresenter: React.FC<ChatCellPresenterProps> = React.memo(
           <NoChatContainer role="status">
             <ChatIcon sx={{ fontSize: 48, mb: 2, opacity: 0.7 }} />
             <Typography variant="body2" sx={{ mb: 1 }}>
-              {t("chat.noChat.title", "チャットが利用できません")}
+              {t("chat.noChat.title")}
             </Typography>
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              {t(
-                "chat.noChat.description",
-                "この配信ではチャットの埋め込みがサポートされていません",
-              )}
+              {t("chat.noChat.description")}
             </Typography>
           </NoChatContainer>
         )}

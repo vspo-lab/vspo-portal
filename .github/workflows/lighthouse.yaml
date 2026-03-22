@@ -18,17 +18,18 @@ jobs:
         uses: ./.github/actions/setup-pnpm
 
       - name: Build web app
-        run: pnpm --filter vspo-schedule-v2-web exec next build
+        working-directory: service/vspo-schedule/v2/web
+        run: npx next build
         env:
           NEXT_PUBLIC_SITE_URL: "http://localhost:3333"
 
       - name: Run Lighthouse CI
-        # TODO: Remove continue-on-error once env vars and server startup are tuned
         continue-on-error: true
         uses: treosh/lighthouse-ci-action@v12
         with:
           configPath: ./lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
+          workingDir: service/vspo-schedule/v2/web
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

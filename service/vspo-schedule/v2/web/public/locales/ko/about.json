@@ -1,6 +1,6 @@
 {
-  "title": "$t(common:spodule)에 대한 정보",
-  "description": "$t(common:spodule), 그 내용 및 사이트 기능에 대한 정보입니다.",
+  "title": "Spodule에 대한 정보",
+  "description": "Spodule, 그 내용 및 사이트 기능에 대한 정보입니다.",
   "sections": {
     "siteOverview": {
       "title": "사이트 개요",

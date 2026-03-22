@@ -1,3 +1,5 @@
+"use client";
+
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
@@ -11,7 +13,7 @@ import {
 } from "@mui/material";
 import { styled, type Theme } from "@mui/material/styles";
 import Image from "next/image";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import type { Clip } from "@/features/shared/domain";
 import { useVideoModalContext } from "@/hooks/video-modal";
@@ -119,7 +121,7 @@ export const ClipSectionPresenter: React.FC<ClipSectionPresenterProps> = ({
   singleRow = false,
 }) => {
   const { pushVideo } = useVideoModalContext();
-  const { t } = useTranslation("clips");
+  const t = useTranslations("clips");
 
   const renderShortsInSingleRow = () => {
     return (
@@ -323,7 +325,7 @@ export const ClipSectionPresenter: React.FC<ClipSectionPresenterProps> = ({
             onClick={onViewMore}
             color="primary"
           >
-            {t("home.viewMore", "View More")}
+            {t("home.viewMore")}
           </ViewMoreButton>
         )}
       </Box>

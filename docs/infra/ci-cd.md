@@ -436,7 +436,7 @@ on:
 
 1. Checkout code (`actions/checkout@v6`)
 2. Setup pnpm (via composite action `.github/actions/setup-pnpm`)
-3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.6.0)
+3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.76.0)
    - The action runs from the env-specific wrangler config directory
    - Build (`pnpm cf:build`) is triggered by the wrangler config's `build.command`
    - Secrets are injected as Wrangler secrets via the action's `secrets` input
@@ -489,7 +489,7 @@ on:
 | Security | CodeQL, filesystem scan, secret detection | CodeQL, Trivy, gitleaks |
 | Performance | Lighthouse audit, bundle size tracking | Lighthouse CI, nextjs-bundle-analysis |
 | Autofix | Auto-fix lint/format on PRs | Biome, git-auto-commit |
-| Web Deploy | Build and deploy to Cloudflare Workers | OpenNextJS, Wrangler v4.6.0 |
+| Web Deploy | Build and deploy to Cloudflare Workers | OpenNextJS, Wrangler v4.76.0 |
 | Bot Dashboard Deploy | Build and deploy to Cloudflare Workers | Turbo, Wrangler v4.76.0 |
 | CI (Plan) | Change detection, lint, scan, plan (planned) | tfaction, tflint, trivy |
 | CD (Apply) | Apply, follow-up PR (planned) | tfaction |

@@ -3,10 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { ThemeModeProvider } from "@/context/Theme";
 import { EventsContentContainer } from "./container";
 
-vi.mock("next-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 const renderWithTheme = (ui: React.ReactElement) =>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type GridLayout from "react-grid-layout";
+import type { LayoutItem } from "react-grid-layout";
 import {
   GRID_COLS,
   resolveOverlaps,
@@ -9,11 +9,11 @@ import {
 
 /** Helper to create a minimal layout item. */
 const makeItem = (
-  overrides: Partial<GridLayout.Layout> & { i: string; x: number; y: number; w: number; h: number },
-): GridLayout.Layout => overrides as GridLayout.Layout;
+  overrides: Partial<LayoutItem> & { i: string; x: number; y: number; w: number; h: number },
+): LayoutItem => overrides as LayoutItem;
 
 /** Check that no pair of items overlaps. */
-const assertNoOverlaps = (items: GridLayout.Layout[]) => {
+const assertNoOverlaps = (items: LayoutItem[]) => {
   for (let i = 0; i < items.length; i++) {
     for (let j = i + 1; j < items.length; j++) {
       expect(
@@ -25,7 +25,7 @@ const assertNoOverlaps = (items: GridLayout.Layout[]) => {
 };
 
 /** Check all items are within grid boundaries. */
-const assertWithinBounds = (items: GridLayout.Layout[]) => {
+const assertWithinBounds = (items: LayoutItem[]) => {
   for (const item of items) {
     expect(item.x, `"${item.i}" x=${item.x} < 0`).toBeGreaterThanOrEqual(0);
     expect(item.y, `"${item.i}" y=${item.y} < 0`).toBeGreaterThanOrEqual(0);
@@ -219,8 +219,8 @@ describe("resolveOverlaps", () => {
 
   it("preserves extra layout properties (minW, minH, static)", () => {
     const layout = [
-      makeItem({ i: "a", x: 0, y: 0, w: 30, h: 10, minW: 5, minH: 3, static: true } as GridLayout.Layout),
-      makeItem({ i: "b", x: 20, y: 0, w: 30, h: 10, minW: 2, minH: 2 } as GridLayout.Layout),
+      makeItem({ i: "a", x: 0, y: 0, w: 30, h: 10, minW: 5, minH: 3, static: true } as LayoutItem),
+      makeItem({ i: "b", x: 20, y: 0, w: 30, h: 10, minW: 2, minH: 2 } as LayoutItem),
     ];
     const result = resolveOverlaps(layout);
     assertNoOverlaps(result);

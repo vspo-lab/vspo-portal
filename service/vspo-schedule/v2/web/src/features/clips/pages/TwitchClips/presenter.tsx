@@ -1,3 +1,5 @@
+"use client";
+
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import {
@@ -11,12 +13,13 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useState } from "react";
 import { Loading } from "@/features/shared/components/Elements";
 import type { Clip, Pagination } from "@/features/shared/domain/clip";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { ClipTabsAndList } from "../../components";
 
 // Styled container for filter section
@@ -114,8 +117,11 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
   isProcessing,
   currentPeriod = "week",
 }) => {
-  const { t } = useTranslation(["clips", "common"]);
+  const t = useTranslations("clips");
+  const tCommon = useTranslations("common");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [activePeriod, setActivePeriod] = useState<string>(currentPeriod);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -124,29 +130,27 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
   const getDateFilterOptions = (): DateFilterOption[] => {
     return [
       {
-        label: isMobile
-          ? t("common:all", "全て")
-          : t("searchDialog.timeframes.all", "すべて"),
+        label: isMobile ? tCommon("all") : t("searchDialog.timeframes.all"),
         value: "all",
         showIcon: false,
       },
       {
-        label: isMobile ? "24h" : t("searchDialog.timeframes.1day", "24時間"),
+        label: isMobile ? "24h" : t("searchDialog.timeframes.1day"),
         value: "day",
         showIcon: true,
       },
       {
-        label: isMobile ? "1週" : t("searchDialog.timeframes.1week", "1週間"),
+        label: isMobile ? "1週" : t("searchDialog.timeframes.1week"),
         value: "week",
         showIcon: true,
       },
       {
-        label: isMobile ? "1月" : t("searchDialog.timeframes.1month", "1ヶ月"),
+        label: isMobile ? "1月" : t("searchDialog.timeframes.1month"),
         value: "month",
         showIcon: true,
       },
       {
-        label: isMobile ? "1年" : t("searchDialog.timeframes.year", "1年"),
+        label: isMobile ? "1年" : t("searchDialog.timeframes.year"),
         value: "year",
         showIcon: true,
       },
@@ -159,14 +163,9 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
     setActivePeriod(periodValue);
 
     // Navigate to the same page with a different period query parameter
-    router.push(
-      {
-        pathname: router.pathname,
-        query: { ...router.query, period: periodValue },
-      },
-      undefined,
-      { scroll: false },
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("period", periodValue);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
@@ -180,7 +179,7 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
             fontWeight={600}
             fontSize={isMobile ? "1.1rem" : "1.25rem"}
           >
-            {t("searchDialog.timeframe", "期間でフィルタ")}
+            {t("searchDialog.timeframe")}
           </Typography>
         </FilterTitle>
 

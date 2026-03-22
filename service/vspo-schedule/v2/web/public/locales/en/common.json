@@ -3,13 +3,15 @@
   "vspo": "VSPO!",
   "search": "Search",
   "cancel": "Cancel",
+  "close": "Close",
+  "save": "Save",
   "back": "Back",
   "liveStatus": {
     "live": "Live",
     "upcoming": "Upcoming"
   },
   "footer": {
-    "lastUpdated": "Page last updated: {{date}}",
+    "lastUpdated": "Page last updated: {date}",
     "pages": {
       "home": "Home",
       "terms": "Terms",
@@ -66,7 +68,7 @@
     }
   },
   "pagination": {
-    "goToPage": "Go to page {{page}}",
+    "goToPage": "Go to page {page}",
     "firstPage": "Go to first page",
     "lastPage": "Go to last page",
     "nextPage": "Go to next page",
