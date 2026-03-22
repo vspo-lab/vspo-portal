@@ -504,8 +504,6 @@ function extractStringArray(value: unknown): string[] {
  */
 import type { SiteNewsMarkdownItem } from "./markdown.types";
 
-export type { SiteNewsMarkdownItem } from "./markdown.types";
-
 /**
  * Get all site news items from markdown (works in both Cloudflare and Node.js environments)
  */
