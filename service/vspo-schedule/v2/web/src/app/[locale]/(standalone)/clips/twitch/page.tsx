@@ -6,6 +6,7 @@ import { fetchSingleClipService } from "@/features/clips/api/clipService";
 import { TwitchClips } from "@/features/clips/pages/TwitchClips/container";
 import { paginateClips } from "@/features/clips/utils/clipUtils";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
+import { generateAlternates } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,7 @@ export async function generateMetadata({
   return {
     title: t("twitchClips.title"),
     description: t("twitchClips.description"),
+    alternates: generateAlternates("/clips/twitch"),
   };
 }
 

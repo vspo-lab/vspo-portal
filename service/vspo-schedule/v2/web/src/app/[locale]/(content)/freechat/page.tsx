@@ -7,6 +7,7 @@ import { FreechatPageContainer } from "@/features/freechat/pages/FreechatPage/co
 import { fetchFreechats } from "@/features/shared/api/freechat";
 import { FreechatSkeleton } from "@/features/shared/components/Elements/Loading/FreechatSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
+import { generateAlternates } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export async function generateMetadata({
   return {
     title: `${tCommon("spodule")} | ${t("title")}`,
     description: t("description"),
+    alternates: generateAlternates("/freechat"),
   };
 }
 

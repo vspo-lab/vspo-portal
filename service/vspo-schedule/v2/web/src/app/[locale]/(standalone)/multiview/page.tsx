@@ -7,6 +7,7 @@ import { fetchMultiviewService } from "@/features/multiview/api/multiviewService
 import { MultiviewPageContainer } from "@/features/multiview/pages/MultiviewPage/container";
 import { MultiviewSkeleton } from "@/features/shared/components/Elements/Loading/MultiviewSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
+import { generateAlternates } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export async function generateMetadata({
   return {
     title: t("meta.title"),
     description: t("meta.description"),
+    alternates: generateAlternates("/multiview"),
   };
 }
 

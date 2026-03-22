@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import { SiteNewsDetailPageContainer } from "@/features/site-news/pages/SiteNewsDetailPage/container";
 import { getSiteNewsItem } from "@/lib/markdown";
+import { generateAlternates } from "@/lib/metadata";
 
 export const revalidate = 3600;
 
@@ -19,6 +20,7 @@ export async function generateMetadata({
   return {
     title: `${tCommon("spodule")} | ${siteNewsItem.title}`,
     description: siteNewsItem.content?.slice(0, 160),
+    alternates: generateAlternates(`/site-news/${id}`),
   };
 }
 

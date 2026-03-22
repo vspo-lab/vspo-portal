@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { fetchSingleClipService } from "@/features/clips/api/clipService";
 import { YouTubeClips } from "@/features/clips/pages/YouTubeClips/container";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
+import { generateAlternates } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export async function generateMetadata({
   return {
     title: t("youtubeClips.title"),
     description: t("youtubeClips.description"),
+    alternates: generateAlternates("/clips/youtube"),
   };
 }
 

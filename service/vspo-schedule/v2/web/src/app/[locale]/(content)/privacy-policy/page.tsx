@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PrivacyPolicyPagePresenter } from "@/features/legal-documents/pages/PrivacyPolicyPage/presenter";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
+import { generateAlternates } from "@/lib/metadata";
 
 export async function generateStaticParams() {
   return [
@@ -24,6 +25,7 @@ export async function generateMetadata({
   return {
     title: `${tCommon("spodule")} | ${t("title")}`,
     description: t("description"),
+    alternates: generateAlternates("/privacy-policy"),
   };
 }
 

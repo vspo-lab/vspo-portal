@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import { SiteNewsPageContainer } from "@/features/site-news/pages/SiteNewsPage/container";
 import { getAllSiteNewsItems } from "@/lib/markdown";
+import { generateAlternates } from "@/lib/metadata";
 
 export async function generateStaticParams() {
   return [
@@ -25,6 +26,7 @@ export async function generateMetadata({
   return {
     title: `${tCommon("spodule")} | ${t("title")}`,
     description: t("description"),
+    alternates: generateAlternates("/site-news"),
   };
 }
 

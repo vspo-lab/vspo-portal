@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { AboutPageContainer } from "@/features/about/pages/AboutPage/container";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import { getAllMarkdownSlugs, getMarkdownContent } from "@/lib/markdown";
+import { generateAlternates } from "@/lib/metadata";
 
 export async function generateStaticParams() {
   return [
@@ -25,6 +26,7 @@ export async function generateMetadata({
   return {
     title: `${tCommon("spodule")} | ${t("title")}`,
     description: t("description"),
+    alternates: generateAlternates("/about"),
   };
 }
 

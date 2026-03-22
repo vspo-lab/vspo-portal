@@ -7,6 +7,7 @@ import { fetchClipService } from "@/features/clips/api/clipService";
 import { ClipsHome } from "@/features/clips/pages/ClipsHome/container";
 import { ClipsSkeleton } from "@/features/shared/components/Elements/Loading/ClipsSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
+import { generateAlternates } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export async function generateMetadata({
   return {
     title: t("home.meta.title"),
     description: t("home.meta.description"),
+    alternates: generateAlternates("/clips"),
   };
 }
 

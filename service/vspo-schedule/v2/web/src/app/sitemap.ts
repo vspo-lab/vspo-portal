@@ -26,6 +26,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily" as const,
       priority: 0.8,
     },
+    {
+      path: "/freechat",
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    },
+    {
+      path: "/multiview",
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    },
+    {
+      path: "/about",
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    },
+    {
+      path: "/privacy-policy",
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    },
+    {
+      path: "/terms",
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    },
+    {
+      path: "/site-news",
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    },
   ];
 
   return pages.flatMap((page) => [

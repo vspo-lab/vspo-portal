@@ -14,6 +14,7 @@ import {
   SESSION_ID_COOKIE,
   TIME_ZONE_COOKIE,
 } from "@/lib/Const";
+import { generateAlternates } from "@/lib/metadata";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export async function generateMetadata({
   return {
     title: `${tCommon("spodule")} | ${title}`,
     description: t("description"),
+    alternates: generateAlternates(`/schedule/${status}`),
   };
 }
 
