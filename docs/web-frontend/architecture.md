@@ -2,14 +2,14 @@
 
 ## Overview
 
-Next.js 15 application using the **Pages Router**, deployed to Cloudflare Workers via OpenNextJS. UI is built with **MUI v7 + Emotion**. Code is organized into feature modules following the **Container/Presenter** pattern.
+Next.js 15 application using the **Pages Router**, deployed to Cloudflare Workers via OpenNextJS. UI is built with **MUI v7 (Material UI) + Emotion**, integrated via `@mui/material-nextjs/v14-pagesRouter` (the `v14` in the import path refers to the Next.js Pages Router integration, not the MUI version). Code is organized into feature modules following the **Container/Presenter** pattern.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
 | Framework | Next.js 15 (Pages Router) |
-| UI Library | MUI v7 (Material UI) + Emotion CSS-in-JS |
+| UI Library | MUI v7 (Material UI) + Emotion CSS-in-JS, integrated via `@mui/material-nextjs/v14-pagesRouter` |
 | Language | TypeScript 5.9 (strict mode, Zod Schema First) |
 | i18n | next-i18next (ja, en, cn, tw, ko) |
 | Error Handling | Result type (`@vspo-lab/error`) |

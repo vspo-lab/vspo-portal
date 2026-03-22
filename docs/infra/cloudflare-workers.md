@@ -74,7 +74,7 @@ Defined in `.github/workflows/deploy-web-workers.yaml`.
 
 1. Checkout code
 2. Setup pnpm (via composite action `.github/actions/setup-pnpm`)
-3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.6.0)
+3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.76.0)
    - `workingDirectory` is set to the env-specific wrangler config dir (`config/wrangler/{env}`)
    - `preCommands` copies config files to the web root so the build can find sources
 

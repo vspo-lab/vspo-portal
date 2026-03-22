@@ -1,90 +1,67 @@
 # Design Tokens
 
-## Token Architecture
+## Token Architecture (vspo-schedule)
 
-3-layer structure: `Base Palette -> Semantic Tokens -> Component Tokens`
+The main application (`service/vspo-schedule/v2/web`) uses MUI's `createTheme` with the `cssVariables` option. Colors, shadows, and shape values are defined in the MUI theme object and accessed via `theme.*` or MUI's `sx` prop -- there is no separate CSS custom-property layer or OKLch color format.
 
-1. **Base Palette** (`--palette-*`): Raw color values in [OKLch format](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch) -- `oklch(L C H / A)`
-2. **Semantic Tokens** (`--token-*`): Intent-based aliases
-3. **Component Tokens** (`--color-*`): Final values consumed by MUI/Emotion
+### Theme Definition
 
-## Color Tokens
+Source: `service/vspo-schedule/v2/web/src/context/Theme.tsx`
 
-### Base Palette
-
-```css
-/* Neutral */
---palette-ink-900: oklch(...);     /* Dark text */
---palette-ink-800: oklch(...);     /* Soft text */
---palette-ink-500: oklch(...);     /* Muted text */
---palette-cream-50: oklch(...);    /* Background */
---palette-white: oklch(1 0 0);
-
-/* Accent & Status */
---palette-accent-100: oklch(...);
---palette-info-100: oklch(...);
---palette-warning-100: oklch(...);
---palette-success-100: oklch(...);
---palette-line: oklch(... / 0.3);
+```tsx
+const theme = createTheme({
+  cssVariables: { colorSchemeSelector: "class" },
+  colorSchemes: {
+    light: { palette: { customColors: { vspoPurple: "#7266cf", /* ... */ } } },
+    dark:  { palette: { customColors: { vspoPurple: "#7266cf", /* ... */ } } },
+  },
+  // mixins, component overrides, etc.
+});
 ```
 
-### Semantic -> Component mapping
+Key points:
 
-```css
-/* Semantic                          Component */
---token-canvas: var(--palette-cream-50);    --color-background: var(--token-canvas);
---token-surface: var(--palette-white);      --color-card: var(--token-surface);
---token-text: var(--palette-ink-900);       --color-foreground: var(--token-text);
---token-text-soft: var(--palette-ink-800);  --color-foreground-soft: var(--token-text-soft);
---token-text-muted: var(--palette-ink-500); --color-muted-foreground: var(--token-text-muted);
---token-accent: var(--palette-accent-100);  --color-accent: var(--token-accent);
---token-border: var(--palette-line);        --color-border: var(--token-border);
---token-info: var(--palette-info-100);      --color-info: var(--token-info);
---token-warning: var(--palette-warning-100);--color-warning: var(--token-warning);
---token-success: var(--palette-success-100);--color-success: var(--token-success);
-```
+- Light/dark mode is toggled via a CSS class selector (`colorSchemeSelector: "class"`).
+- Custom brand colors are placed under `palette.customColors`.
+- Component-level overrides (e.g., `MuiDrawer` scrollbar) live in `theme.components`.
 
-## Other Tokens
+### Color Tokens
 
-| Category | Tokens |
-|----------|--------|
-| **Radius** | `--radius-sm` (8px), `--radius-md` (14px), `--radius-lg` (20px), `--radius-xl` (24px), `--radius-2xl` (32px) |
-| **Shadow** | `--shadow-card`, `--shadow-action`, `--shadow-hero`, `--shadow-focus` |
-| **Motion** | `--duration-fast` (150ms), `--duration-md` (300ms), `--ease-standard` (cubic-bezier(0.2,0.7,0.2,1)) |
-| **Typography** | `--font-body` (body text), `--font-display` (headings) |
+Colors are provided by MUI's default palette plus the `customColors` extension:
+
+| Token path | Value | Purpose |
+|---|---|---|
+| `palette.customColors.vspoPurple` | `#7266cf` | Brand accent |
+| `palette.customColors.darkBlue` | `rgb(45, 75, 112)` | Secondary accent |
+| `palette.customColors.gray` | `#353535` | Neutral |
+| `palette.customColors.darkGray` | `#212121` | Dark neutral |
+| `palette.customColors.videoHighlight.live` | `red` | Live stream indicator |
+| `palette.customColors.videoHighlight.upcoming` | `rgb(45, 75, 112)` | Upcoming stream indicator |
+
+All other colors (background, text, divider, etc.) come from MUI's built-in light/dark palettes.
 
 ## Usage
 
 ```tsx
-// MUI sx prop (using theme.vars for light/dark mode compatibility)
+// MUI sx prop
 <Box sx={{ bgcolor: "background.default", color: "text.primary" }} />
 
 // Emotion styled() with theme access
 const Card = styled("div")(({ theme }) => ({
   backgroundColor: theme.vars.palette.background.paper,
   border: `1px solid ${theme.vars.palette.divider}`,
-  borderRadius: theme.shape.borderRadius * 2.5, // ~20px
+  borderRadius: theme.shape.borderRadius * 2.5,
   boxShadow: theme.shadows[1],
 }));
 ```
 
-## Naming Convention
-
-```text
---{layer}-{category}-{variant}
---palette-ink-900      (Base)
---token-text-soft      (Semantic)
---color-foreground     (Component)
-```
-
 ## Adding New Tokens
 
-1. Add value to `--palette-*`
-2. Create semantic alias `--token-*`
-3. Expose as `--color-*` if needed
-4. Document here
+1. Add the value to the MUI theme object in `Theme.tsx` (under `palette`, `shape`, `mixins`, etc.)
+2. For custom brand values, add under `palette.customColors`
+3. Document here
 
-**Prohibited**: hardcoded values, overriding existing tokens, raw color values in components.
+**Prohibited**: hardcoded color values in components -- always reference `theme.*` or MUI palette paths.
 
 ## References
 
@@ -104,7 +81,7 @@ The bot-dashboard (`service/bot-dashboard/src/app.css`) uses a simplified 2-laye
 1. **Semantic variables (`--sem-*`):** Light/dark mode values defined in `:root` and `.dark` CSS blocks
 2. **Utility binding (`--color-*`):** Tailwind CSS 4 `@theme inline` maps utility class names to `var(--sem-*)` references
 
-This differs from the 3-layer pattern (palette → semantic → component) described above. The simplification is intentional: the bot-dashboard has a smaller design surface and Tailwind CSS 4's `@theme inline` directive requires this indirection pattern.
+This differs from the MUI theme approach used in vspo-schedule. The bot-dashboard has a smaller design surface and uses Tailwind CSS 4's `@theme inline` directive, which requires this indirection pattern.
 
 ### Example
 

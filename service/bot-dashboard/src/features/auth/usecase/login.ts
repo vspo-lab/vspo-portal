@@ -1,3 +1,4 @@
+import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
 import { z } from "zod";
@@ -35,8 +36,13 @@ const AuthorizationUrlResultSchema = z.object({
 type AuthorizationUrlResult = z.infer<typeof AuthorizationUrlResultSchema>;
 
 /**
- * Generate a Discord OAuth2 Authorization URL
- * @postcondition Returns a valid Discord OAuth2 URL and a state value for CSRF protection
+ * Generates a Discord OAuth2 authorization URL.
+ *
+ * @param env - Discord OAuth2 client settings used to build the authorization URL
+ * @returns Authorization URL parameters containing the redirect target and a CSRF protection state
+ * @precondition env.DISCORD_CLIENT_ID !== "" && env.DISCORD_REDIRECT_URI !== ""
+ * @postcondition return.url contains return.state as the `state` query parameter for Discord OAuth2
+ * @idempotent false - A new random `state` value is generated on every invocation
  */
 const buildAuthorizationUrl = (env: AuthUrlEnv): AuthorizationUrlResult => {
   const state = crypto.randomUUID();
@@ -54,9 +60,14 @@ const buildAuthorizationUrl = (env: AuthUrlEnv): AuthorizationUrlResult => {
 };
 
 /**
- * Handle the OAuth2 callback
- * @precondition A valid authorization code is required
- * @postcondition Returns user information and tokens. Session persistence is the caller's responsibility.
+ * Exchanges a Discord OAuth2 callback code for authenticated user data and tokens.
+ *
+ * @param code - Authorization code received from the Discord OAuth2 callback
+ * @param env - Discord OAuth2 client credentials and redirect URI used for token exchange
+ * @returns Parsed Discord user information together with access and refresh tokens, or an AppError
+ * @precondition code !== "" && env.DISCORD_CLIENT_ID !== "" && env.DISCORD_CLIENT_SECRET !== "" && env.DISCORD_REDIRECT_URI !== ""
+ * @postcondition On Ok, return.val.user is parsed from the Discord API response and return.val.expiresAt is later than the invocation time
+ * @idempotent false - Discord authorization codes are single-use and repeated calls can fail or yield different tokens
  */
 const handleCallback = async (
   code: string,
@@ -82,7 +93,8 @@ const handleCallback = async (
     user: parsedUser.val,
     accessToken: tokenResult.val.access_token,
     refreshToken: tokenResult.val.refresh_token,
-    expiresAt: Date.now() + tokenResult.val.expires_in * 1000,
+    expiresAt:
+      getCurrentUTCDate().getTime() + tokenResult.val.expires_in * 1000,
     locale: userResult.val.locale,
   });
 };

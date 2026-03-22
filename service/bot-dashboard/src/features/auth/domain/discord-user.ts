@@ -22,6 +22,14 @@ type DiscordUser = z.infer<typeof DiscordUserSchema>;
 const DiscordUser = {
   schema: DiscordUserSchema,
 
+  /**
+   * Parses a Discord API user payload into the domain user shape.
+   *
+   * @param raw - Unknown Discord API payload to validate and normalize
+   * @returns Parsed Discord user, or an AppError when validation fails
+   * @precondition raw matches the expected Discord user response shape or the caller handles Err
+   * @postcondition On Ok, return.val.displayName is `global_name` when present, otherwise `username`
+   */
   fromApiResponse: (raw: unknown): Result<DiscordUser, AppError> => {
     const apiResult = parseResult(DiscordApiUserSchema, raw);
     if (apiResult.err) return apiResult;
@@ -34,6 +42,7 @@ const DiscordUser = {
     });
   },
 
+  /** Resolves the Discord CDN avatar URL for a user, or null if no avatar is set. */
   avatarUrl: (user: DiscordUser): string | null =>
     user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`

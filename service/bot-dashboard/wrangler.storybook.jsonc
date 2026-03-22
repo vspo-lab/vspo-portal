@@ -9,5 +9,11 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  "routes": [
+    {
+      "pattern": "storybook-bot.vspo-schedule.com",
+      "custom_domain": true
+    }
+  ]
 }
