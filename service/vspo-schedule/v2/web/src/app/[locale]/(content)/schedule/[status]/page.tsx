@@ -3,9 +3,11 @@ import { AppError, wrap } from "@vspo-lab/error";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { fetchSchedule } from "@/features/schedule/api/scheduleService";
 import { ScheduleStatusContainer } from "@/features/schedule/pages/ScheduleStatus/container";
 import type { FavoriteSearchCondition } from "@/features/schedule/types/favorite";
+import { ScheduleSkeleton } from "@/features/shared/components/Elements/Loading/ScheduleSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import {
   DEFAULT_TIME_ZONE,
@@ -50,20 +52,27 @@ export async function generateMetadata({
   };
 }
 
-export default async function SchedulePage({
-  params,
-  searchParams,
+/**
+ * Async Server Component that performs all data fetching for the schedule page.
+ * Rendered inside Suspense to enable streaming.
+ * @precondition locale and status are valid route params.
+ * @postcondition Returns the ScheduleStatusContainer with fetched data.
+ * @idempotent Yes - given the same params and cookies, produces the same output.
+ */
+async function ScheduleContent({
+  locale,
+  status,
+  query,
 }: {
-  params: Promise<{ locale: string; status: string }>;
-  searchParams: Promise<{
+  locale: string;
+  status: string;
+  query: {
     limit?: string;
     date?: string;
     memberType?: string;
     platform?: string;
-  }>;
+  };
 }) {
-  const { locale, status } = await params;
-  const query = await searchParams;
   const cookieStore = await cookies();
   const timeZone =
     cookieStore.get(TIME_ZONE_COOKIE)?.value ?? DEFAULT_TIME_ZONE;
@@ -127,7 +136,33 @@ export default async function SchedulePage({
     sessionId,
   });
 
-  const lastUpdateTimestamp = Date.now();
+  return (
+    <ScheduleStatusContainer
+      livestreams={schedule.livestreams || []}
+      events={schedule.events}
+      timeZone={timeZone}
+      locale={locale}
+      liveStatus={status}
+      isArchivePage={status === "archive"}
+    />
+  );
+}
+
+export default async function SchedulePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string; status: string }>;
+  searchParams: Promise<{
+    limit?: string;
+    date?: string;
+    memberType?: string;
+    platform?: string;
+  }>;
+}) {
+  const { locale, status } = await params;
+  const query = await searchParams;
+
   const t = await getTranslations({ locale, namespace: "streams" });
   const footerMessage = t("membersOnlyStreamsHidden");
 
@@ -154,17 +189,12 @@ export default async function SchedulePage({
     <ContentLayout
       title={title}
       path={`/schedule/${status}`}
-      lastUpdateTimestamp={lastUpdateTimestamp}
+      lastUpdateTimestamp={Date.now()}
       footerMessage={footerMessage}
     >
-      <ScheduleStatusContainer
-        livestreams={schedule.livestreams || []}
-        events={schedule.events}
-        timeZone={timeZone}
-        locale={locale}
-        liveStatus={status}
-        isArchivePage={status === "archive"}
-      />
+      <Suspense fallback={<ScheduleSkeleton />}>
+        <ScheduleContent locale={locale} status={status} query={query} />
+      </Suspense>
     </ContentLayout>
   );
 }

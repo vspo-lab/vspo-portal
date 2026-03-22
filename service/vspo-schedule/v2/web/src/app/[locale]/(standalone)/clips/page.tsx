@@ -2,8 +2,10 @@ import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { fetchClipService } from "@/features/clips/api/clipService";
 import { ClipsHome } from "@/features/clips/pages/ClipsHome/container";
+import { ClipsSkeleton } from "@/features/shared/components/Elements/Loading/ClipsSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 
 export const dynamic = "force-dynamic";
@@ -33,18 +35,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function ClipsHomePage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const { locale } = await params;
-  const resolvedSearchParams = await searchParams;
-
-  const period = (resolvedSearchParams.period as string) || "week";
-
+/**
+ * Async Server Component that performs all data fetching for the clips page.
+ * Rendered inside Suspense to enable streaming.
+ * @precondition period is a valid period filter.
+ * @postcondition Returns the ClipsHome container with fetched clip data.
+ * @idempotent Yes - given the same params and cookies, produces the same output.
+ */
+async function ClipsContent({ period }: { period: string }) {
   // Set date filters based on period
   let afterDate: string | undefined;
   switch (period) {
@@ -75,6 +73,31 @@ export default async function ClipsHomePage({
 
   const lastUpdateTimestamp = getCurrentUTCDate().getTime();
 
+  return (
+    <ClipsHome
+      popularYoutubeClips={clipService.popularYoutubeClips}
+      popularShortsClips={clipService.popularShortsClips}
+      popularTwitchClips={clipService.popularTwitchClips}
+      vspoMembers={clipService.vspoMembers}
+      lastUpdateTimestamp={lastUpdateTimestamp}
+      currentPeriod={period || "week"}
+    />
+  );
+}
+
+export default async function ClipsHomePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { locale } = await params;
+  const resolvedSearchParams = await searchParams;
+  const period = (resolvedSearchParams.period as string) || "week";
+
+  const lastUpdateTimestamp = getCurrentUTCDate().getTime();
+
   const t = await getTranslations({ locale, namespace: "clips" });
   const title = t("home.meta.title");
 
@@ -84,14 +107,9 @@ export default async function ClipsHomePage({
       path="/clips"
       lastUpdateTimestamp={lastUpdateTimestamp}
     >
-      <ClipsHome
-        popularYoutubeClips={clipService.popularYoutubeClips}
-        popularShortsClips={clipService.popularShortsClips}
-        popularTwitchClips={clipService.popularTwitchClips}
-        vspoMembers={clipService.vspoMembers}
-        lastUpdateTimestamp={lastUpdateTimestamp}
-        currentPeriod={period || "week"}
-      />
+      <Suspense fallback={<ClipsSkeleton />}>
+        <ClipsContent period={period} />
+      </Suspense>
     </ContentLayout>
   );
 }
