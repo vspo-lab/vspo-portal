@@ -8,6 +8,5 @@ export * from "./Google";
 export * from "./Icon";
 export * from "./Link";
 export * from "./Loading";
-export * from "./MarkdownContent";
 export * from "./Modal";
 export * from "./Snackbar";
