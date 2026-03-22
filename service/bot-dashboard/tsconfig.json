@@ -6,5 +6,5 @@
       "~/*": ["src/*"]
     }
   },
-  "exclude": ["**/*.test.ts", "**/*.test.tsx", "vitest.config.ts", "vitest.setup.ts"]
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.ts", "vitest.config.ts", "vitest.setup.ts", ".storybook"]
 }
