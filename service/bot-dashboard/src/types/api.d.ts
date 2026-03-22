@@ -1,0 +1,1 @@
+../../../vspo-schedule/v2/web/src/features/shared/types/api.d.ts

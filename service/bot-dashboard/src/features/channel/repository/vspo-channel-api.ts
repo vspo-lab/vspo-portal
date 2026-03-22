@@ -1,6 +1,7 @@
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
+import type { ApplicationService } from "~/types/api";
 
 /**
  * Channel configuration API access layer for vspo-server
@@ -9,7 +10,7 @@ import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 const VspoChannelApiRepository = {
   /** Retrieve the Bot configuration for a server */
   getGuildConfig: async (
-    _appWorker: Fetcher,
+    _appWorker: ApplicationService,
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
     // TODO: Connect to vspo-server API in Phase 5
@@ -47,7 +48,7 @@ const VspoChannelApiRepository = {
 
   /** Update a channel's configuration */
   updateChannel: async (
-    _appWorker: Fetcher,
+    _appWorker: ApplicationService,
     _guildId: string,
     _channelId: string,
     _data: {
@@ -62,7 +63,7 @@ const VspoChannelApiRepository = {
 
   /** Enable the Bot */
   enableChannel: async (
-    _appWorker: Fetcher,
+    _appWorker: ApplicationService,
     _guildId: string,
     _channelId: string,
   ): Promise<Result<void, AppError>> => {
@@ -72,7 +73,7 @@ const VspoChannelApiRepository = {
 
   /** Disable the Bot */
   disableChannel: async (
-    _appWorker: Fetcher,
+    _appWorker: ApplicationService,
     _guildId: string,
     _channelId: string,
   ): Promise<Result<void, AppError>> => {
@@ -86,7 +87,7 @@ const VspoChannelApiRepository = {
    * @postcondition The channel entry is permanently removed; idempotent on repeated calls
    */
   deleteChannel: async (
-    _appWorker: Fetcher,
+    _appWorker: ApplicationService,
     _guildId: string,
     _channelId: string,
   ): Promise<Result<void, AppError>> => {

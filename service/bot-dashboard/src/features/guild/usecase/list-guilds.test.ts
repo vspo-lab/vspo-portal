@@ -1,5 +1,6 @@
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import type { ApplicationService } from "~/types/api";
 import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
 import { ListGuildsUsecase } from "./list-guilds";
 
@@ -15,7 +16,7 @@ vi.mock("../repository/vspo-guild-api", () => ({
   },
 }));
 
-const appWorker = {} as Fetcher;
+const appWorker = {} as ApplicationService;
 
 const adminGuild = {
   id: "1",

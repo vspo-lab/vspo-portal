@@ -175,7 +175,7 @@ Each feature follows the domain/repository/usecase pattern:
 ```text
 features/<name>/
 ├── domain/       # Zod schemas + companion objects
-├── repository/   # API access (currently mocked, Phase 5: vspo-server)
+├── repository/   # API access via vspo-server RPC (guild: implemented, channel: mocked)
 └── usecase/      # Business logic orchestration
 ```
 
@@ -195,4 +195,4 @@ Server-side form handlers defined in `src/actions/index.ts`. Each action:
 
 ### Service Binding
 
-The bot-dashboard connects to `vspo-server` via Cloudflare Workers Service Binding (`APP_WORKER`). All channel/guild API calls go through this binding. Currently mocked pending Phase 5 integration.
+The bot-dashboard connects to `vspo-server` via Cloudflare Workers Service Binding (`APP_WORKER`), typed as `ApplicationService` from the shared `api.d.ts` (symlinked from vspo-schedule). Guild membership detection (`getBotGuildIds`) is implemented via `DiscordService.listBotGuildIds()` RPC. Channel configuration APIs remain mocked pending Phase 5 integration.

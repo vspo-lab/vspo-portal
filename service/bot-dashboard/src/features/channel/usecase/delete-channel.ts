@@ -1,8 +1,9 @@
 import type { AppError, Result } from "@vspo-lab/error";
+import type { ApplicationService } from "~/types/api";
 import { VspoChannelApiRepository } from "../repository/vspo-channel-api";
 
 type DeleteChannelParams = {
-  appWorker: Fetcher;
+  appWorker: ApplicationService;
   guildId: string;
   channelId: string;
 };
@@ -12,7 +13,7 @@ type DeleteChannelParams = {
  *
  * @param params - App worker binding and the guild/channel identifiers to delete
  * @returns Ok(undefined) after delegating the deletion, or an AppError
- * @precondition params.guildId !== "" && params.channelId !== "" && params.appWorker is a configured Fetcher
+ * @precondition params.guildId !== "" && params.channelId !== "" && params.appWorker is a configured ApplicationService
  * @postcondition On Ok, the channel identified by params.channelId is absent from the guild configuration
  * @idempotent Delegates to repository; idempotency depends on repository implementation
  */

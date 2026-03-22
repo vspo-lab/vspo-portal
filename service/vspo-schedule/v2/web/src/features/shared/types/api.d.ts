@@ -2502,6 +2502,9 @@ declare class DiscordService extends RpcTarget {
     >
   >;
   deleteMessageInChannelEnqueue(channelId: string): Promise<void>;
+  listBotGuildIds(): Promise<
+    _vspo_lab_error.Result<string[], _vspo_lab_error.AppError>
+  >;
 }
 declare class EventService extends RpcTarget {
   #private;
