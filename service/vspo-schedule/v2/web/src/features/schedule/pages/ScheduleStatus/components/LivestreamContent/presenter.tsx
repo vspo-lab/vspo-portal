@@ -5,7 +5,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { format } from "date-fns";
-import { utcToZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type React from "react";
@@ -90,11 +90,11 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
   const hasLivestreams = Object.keys(livestreamsByTimeBlock).length > 0;
   const selectedDate =
     searchParams.get("date") ??
-    format(utcToZonedTime(new Date(), timeZone), "yyyy-MM-dd");
+    format(toZonedTime(new Date(), timeZone), "yyyy-MM-dd");
 
   const navigateToDate = (date: string, daysToAdd: number) => {
     const currentDate = new Date(date);
-    const zonedDate = utcToZonedTime(currentDate, timeZone);
+    const zonedDate = toZonedTime(currentDate, timeZone);
     const newDate = new Date(zonedDate);
     newDate.setDate(newDate.getDate() + daysToAdd);
 

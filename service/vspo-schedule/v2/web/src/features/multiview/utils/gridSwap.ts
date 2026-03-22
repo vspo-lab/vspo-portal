@@ -1,4 +1,4 @@
-import GridLayout from "react-grid-layout";
+import type { LayoutItem } from "react-grid-layout";
 import { Rectangle, removeOverlaps as colaRemoveOverlaps } from "webcola";
 
 /** Number of grid columns for the desktop multiview layout. */
@@ -17,8 +17,8 @@ export const GRID_COLS = 120;
  * @returns Layout with no overlaps, positions adjusted minimally from originals
  */
 export const resolveOverlaps = (
-  layout: GridLayout.Layout[],
-): GridLayout.Layout[] => {
+  layout: LayoutItem[],
+): LayoutItem[] => {
   if (layout.length <= 1) {
     return layout.map((item) => ({
       ...item,
@@ -63,7 +63,7 @@ export const resolveOverlaps = (
  * Mutates items' x/y in place.
  * @postcondition No pairwise overlaps remain
  */
-const ensureNoOverlaps = (items: GridLayout.Layout[]): void => {
+const ensureNoOverlaps = (items: LayoutItem[]): void => {
   // Upper bound: each iteration resolves at least one pair, at most n*(n-1)/2 pairs
   const maxIter = (items.length * (items.length - 1)) / 2 + items.length;
 
@@ -143,15 +143,15 @@ const ensureNoOverlaps = (items: GridLayout.Layout[]): void => {
  * Secondary collisions are resolved via resolveOverlaps.
  */
 export const computeSwapDuringDrag = (
-  currentLayout: GridLayout.Layout[],
+  currentLayout: LayoutItem[],
   draggedId: string,
   dragOrigin: { x: number; y: number },
   lastSwappedId: string | null,
-): { layout: GridLayout.Layout[]; swappedId: string | null } => {
+): { layout: LayoutItem[]; swappedId: string | null } => {
   const draggedItem = currentLayout.find((item) => item.i === draggedId);
   if (!draggedItem) return { layout: currentLayout, swappedId: null };
 
-  let bestTarget: GridLayout.Layout | null = null;
+  let bestTarget: LayoutItem | null = null;
   let bestOverlap = 0;
 
   for (const item of currentLayout) {
@@ -200,8 +200,8 @@ export const computeSwapDuringDrag = (
  * Calculate the overlap area of two layout items.
  */
 export const getOverlapArea = (
-  a: GridLayout.Layout,
-  b: GridLayout.Layout,
+  a: LayoutItem,
+  b: LayoutItem,
 ): number => {
   const xOverlap = Math.max(
     0,

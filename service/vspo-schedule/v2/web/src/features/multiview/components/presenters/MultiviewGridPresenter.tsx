@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useTranslations } from "next-intl";
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import GridLayout from "react-grid-layout";
+import GridLayout, { type Layout, type LayoutItem, noCompactor } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
@@ -256,9 +256,9 @@ const MemoizedChat = React.memo(
  * RGL sometimes resets w/h to 1 — this preserves our intended sizes.
  */
 const mergeLayoutSizes = (
-  rglLayout: GridLayout.Layout[],
-  internal: GridLayout.Layout[],
-): GridLayout.Layout[] => {
+  rglLayout: LayoutItem[],
+  internal: LayoutItem[],
+): LayoutItem[] => {
   const internalMap = new Map(internal.map((item) => [item.i, item]));
   return rglLayout.map((rglItem) => {
     const ours = internalMap.get(rglItem.i);
@@ -278,7 +278,7 @@ const buildGridLayout = (
   cols: number,
   cellsPerRow: number,
   isMobile: boolean,
-): GridLayout.Layout[] => {
+): LayoutItem[] => {
   return itemIds.map((id, index) => {
     if (isMobile) {
       return {
@@ -326,7 +326,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   const dragRafRef = useRef(0);
 
   // Internal layout state — only reset when layout button is pressed
-  const [internalLayout, setInternalLayout] = useState<GridLayout.Layout[]>([]);
+  const [internalLayout, setInternalLayout] = useState<LayoutItem[]>([]);
   // Ref mirror for accessing latest layout inside RAF callbacks without stale closures
   const internalLayoutRef = useRef(internalLayout);
   internalLayoutRef.current = internalLayout;
@@ -525,9 +525,10 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   }, [internalLayout, onGridPositionsChange]);
 
   const handleDragStart = (
-    _rglLayout: GridLayout.Layout[],
-    oldItem: GridLayout.Layout,
+    _rglLayout: Layout,
+    oldItem: LayoutItem | null,
   ) => {
+    if (!oldItem) return;
     isDraggingRef.current = true;
     draggedIdRef.current = oldItem.i;
     dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
@@ -536,15 +537,15 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   };
 
   const handleDrag = (
-    rglLayout: GridLayout.Layout[],
-    _oldItem: GridLayout.Layout,
-    _newItem: GridLayout.Layout,
+    rglLayout: Layout,
+    _oldItem: LayoutItem | null,
+    _newItem: LayoutItem | null,
   ) => {
     if (!draggedIdRef.current || !dragOriginRef.current) return;
 
     cancelAnimationFrame(dragRafRef.current);
     dragRafRef.current = requestAnimationFrame(() => {
-      const merged = mergeLayoutSizes(rglLayout, internalLayoutRef.current);
+      const merged = mergeLayoutSizes([...rglLayout], internalLayoutRef.current);
       const { layout: swapped, swappedId } = computeSwapDuringDrag(
         merged,
         draggedIdRef.current!,
@@ -565,13 +566,13 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   };
 
   const handleDragStop = (
-    rglLayout: GridLayout.Layout[],
-    _oldItem: GridLayout.Layout,
-    _newItem: GridLayout.Layout,
+    rglLayout: Layout,
+    _oldItem: LayoutItem | null,
+    _newItem: LayoutItem | null,
   ) => {
     cancelAnimationFrame(dragRafRef.current);
     containerRef.current?.classList.remove("is-dragging");
-    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayoutRef.current)));
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes([...rglLayout], internalLayoutRef.current)));
     isDraggingRef.current = false;
     draggedIdRef.current = null;
     dragOriginRef.current = null;
@@ -583,11 +584,11 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   };
 
   const handleResizeStop = (
-    rglLayout: GridLayout.Layout[],
-    _oldItem: GridLayout.Layout,
-    _newItem: GridLayout.Layout,
+    rglLayout: Layout,
+    _oldItem: LayoutItem | null,
+    _newItem: LayoutItem | null,
   ) => {
-    setInternalLayout(resolveOverlaps(mergeLayoutSizes(rglLayout, internalLayout)));
+    setInternalLayout(resolveOverlaps(mergeLayoutSizes([...rglLayout], internalLayout)));
     isResizingRef.current = false;
   };
 
@@ -654,25 +655,30 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
       <GridLayout
         className="layout"
         layout={internalLayout}
-        cols={GRID_COLS}
-        rowHeight={rowHeight}
+        gridConfig={{
+          cols: GRID_COLS,
+          rowHeight,
+          margin: [0, 0] as const,
+          containerPadding: [0, 0] as const,
+        }}
         width={containerWidth}
-        isDraggable={!isMobile}
-        isResizable={!isMobile}
-        resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
+        dragConfig={{
+          enabled: !isMobile,
+          bounded: true,
+          handle: ".drag-handle",
+          cancel: ".no-drag",
+        }}
+        resizeConfig={{
+          enabled: !isMobile,
+          handles: ["s", "w", "e", "n", "sw", "nw", "se", "ne"],
+        }}
+        compactor={noCompactor}
         onLayoutChange={handleGridLayoutChange}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragStop={handleDragStop}
         onResizeStart={handleResizeStart}
         onResizeStop={handleResizeStop}
-        draggableHandle=".drag-handle"
-        draggableCancel=".no-drag"
-        compactType={null}
-        allowOverlap={true}
-        isBounded={true}
-        margin={[0, 0]}
-        containerPadding={[0, 0]}
         style={{ minHeight: availableHeight, width: "100%" }}
       >
         {allItemIds.map((itemId, index) => {
