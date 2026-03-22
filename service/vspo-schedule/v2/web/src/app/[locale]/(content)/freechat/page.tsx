@@ -28,6 +28,7 @@ export default async function FreechatPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "freechat" });
 
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("x-session-id")?.value;
@@ -40,7 +41,7 @@ export default async function FreechatPage({
 
   return (
     <ContentLayout
-      title="Freechat"
+      title={t("title")}
       path="/freechat"
       lastUpdateTimestamp={lastUpdateTimestamp}
       maxPageWidth="lg"

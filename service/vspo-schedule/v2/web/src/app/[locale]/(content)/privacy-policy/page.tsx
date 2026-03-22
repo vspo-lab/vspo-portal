@@ -27,10 +27,17 @@ export async function generateMetadata({
   };
 }
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "privacy" });
+
   return (
     <ContentLayout
-      title="プライバシーポリシー"
+      title={t("title")}
       path="/privacy-policy"
       maxPageWidth="lg"
       padTop

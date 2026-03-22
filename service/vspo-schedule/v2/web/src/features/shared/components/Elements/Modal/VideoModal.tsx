@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React, { useEffect } from "react";
 import type { Clip } from "@/features/shared/domain/clip";
@@ -790,12 +791,13 @@ const VideoModalPresenter: React.FC<VideoModalPresenterProps> = ({
 // Container component for the entire VideoModal
 export const VideoModal: React.FC = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { activeVideo, popVideo, clearVideos } = useVideoModalContext();
 
   // Clear video modal on url changes
   useEffect(() => {
     clearVideos();
-  }, [pathname, clearVideos]);
+  }, [pathname, searchParams, clearVideos]);
 
   return (
     <VideoModalPresenter

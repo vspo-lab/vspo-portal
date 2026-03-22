@@ -27,9 +27,16 @@ export async function generateMetadata({
   };
 }
 
-export default function TermsPage() {
+export default async function TermsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "terms" });
+
   return (
-    <ContentLayout title="利用規約" path="/terms" maxPageWidth="lg" padTop>
+    <ContentLayout title={t("title")} path="/terms" maxPageWidth="lg" padTop>
       <TermsPagePresenter />
     </ContentLayout>
   );

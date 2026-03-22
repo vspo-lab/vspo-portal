@@ -34,10 +34,16 @@ export default async function SiteNewsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "site-news" });
   const siteNewsItems = await getAllSiteNewsItems(locale);
 
   return (
-    <ContentLayout title="Site News" path="/site-news" maxPageWidth="md" padTop>
+    <ContentLayout
+      title={t("title")}
+      path="/site-news"
+      maxPageWidth="md"
+      padTop
+    >
       <SiteNewsPageContainer siteNewsItems={siteNewsItems} />
     </ContentLayout>
   );

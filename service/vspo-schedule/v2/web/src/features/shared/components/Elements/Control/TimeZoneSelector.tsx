@@ -1,6 +1,7 @@
 "use client";
 
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React, { useMemo } from "react";
 import { useTimeZoneContext } from "@/hooks";
@@ -10,6 +11,7 @@ import { formatDate } from "@/lib/utils";
 export const TimeZoneSelector = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { timeZone, setTimeZone } = useTimeZoneContext();
   const t = useTranslations("common");
 
@@ -50,7 +52,9 @@ export const TimeZoneSelector = () => {
         if (
           formattedTimeZoneOffsets[value] !== formattedTimeZoneOffsets[timeZone]
         ) {
-          router.replace(pathname, { scroll: false });
+          const search = searchParams.toString();
+          const href = search ? `${pathname}?${search}` : pathname;
+          router.replace(href, { scroll: false });
         }
       }}
       options={timeZones}

@@ -1,4 +1,5 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
+import { AppError, wrap } from "@vspo-lab/error";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
@@ -69,15 +70,22 @@ export default async function SchedulePage({
   const sessionId = cookieStore.get(SESSION_ID_COOKIE)?.value;
 
   // Favorite search conditions from cookie
-  let favoriteCondition: FavoriteSearchCondition | null = null;
   const favoriteCookie = cookieStore.get("favorite-search-condition")?.value;
-  if (favoriteCookie) {
-    try {
-      favoriteCondition = JSON.parse(favoriteCookie) as FavoriteSearchCondition;
-    } catch {
-      /* ignore invalid JSON */
-    }
-  }
+  const parsedResult = favoriteCookie
+    ? await wrap(
+        Promise.resolve().then(
+          () => JSON.parse(favoriteCookie) as FavoriteSearchCondition,
+        ),
+        (error) =>
+          new AppError({
+            message: "Invalid favorite cookie JSON",
+            code: "INTERNAL_SERVER_ERROR",
+            cause: error,
+            context: {},
+          }),
+      )
+    : { val: null, err: undefined };
+  const favoriteCondition = parsedResult.err ? null : parsedResult.val;
 
   const startedDate =
     typeof query.date === "string"

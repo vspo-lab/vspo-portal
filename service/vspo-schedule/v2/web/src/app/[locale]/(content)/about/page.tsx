@@ -34,6 +34,7 @@ export default async function AboutPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "about" });
 
   const slugs = await getAllMarkdownSlugs("about");
   const sectionsResults = await Promise.all(
@@ -58,7 +59,7 @@ export default async function AboutPage({
     .map(({ slug, title, content }) => ({ slug, title, content }));
 
   return (
-    <ContentLayout title="About" path="/about" maxPageWidth="md" padTop>
+    <ContentLayout title={t("title")} path="/about" maxPageWidth="md" padTop>
       <AboutPageContainer sections={sections} locale={locale} />
     </ContentLayout>
   );
