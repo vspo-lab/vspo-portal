@@ -13,11 +13,11 @@
   },
   "home": {
     "meta": {
-      "title": "$t(common:vspo) 클립 모음",
-      "description": "$t(common:vspo) 멤버들의 클립과 하이라이트를 확인하세요."
+      "title": "VSPO! 클립 모음",
+      "description": "VSPO! 멤버들의 클립과 하이라이트를 확인하세요."
     },
     "hero": {
-      "title": "$t(common:vspo) 클립 컬렉션",
+      "title": "VSPO! 클립 컬렉션",
       "subtitle": "YouTube 클립, Shorts, Twitch 클립을 한 곳에서 확인하세요!",
       "exploreClips": "클립 둘러보기"
     },
@@ -42,19 +42,19 @@
     "viewMore": "더 보기"
   },
   "youtubeClips": {
-    "title": "$t(common:vspo) 클립",
-    "description": "$t(common:vspo) 멤버들의 YouTube 클립을 확인하세요."
+    "title": "VSPO! 클립",
+    "description": "VSPO! 멤버들의 YouTube 클립을 확인하세요."
   },
   "youtubeShorts": {
-    "title": "$t(common:vspo) 쇼츠",
-    "description": "$t(common:vspo) 멤버들의 YouTube 쇼츠 영상을 확인하세요."
+    "title": "VSPO! 쇼츠",
+    "description": "VSPO! 멤버들의 YouTube 쇼츠 영상을 확인하세요."
   },
   "twitchClips": {
-    "title": "$t(common:vspo) Twitch 클립",
-    "description": "$t(common:vspo) 멤버들의 Twitch 클립을 확인하세요."
+    "title": "VSPO! Twitch 클립",
+    "description": "VSPO! 멤버들의 Twitch 클립을 확인하세요."
   },
-  "viewCount": "조회수 {{views, number}}회",
-  "viewCountLabel": "조회수 {{views, number}}+",
+  "viewCount": "조회수 {views, number}회",
+  "viewCountLabel": "조회수 {views, number}+",
   "searchDialog": {
     "title": "클립 검색",
     "alertMessage": "한 달 이내의 클립만 검색이 가능합니다.",
@@ -72,7 +72,7 @@
       "Apex",
       "Valorant"
     ],
-    "cancel": "$t(common:cancel)",
-    "search": "$t(common:search)"
+    "cancel": "취소",
+    "search": "검색"
   }
 }

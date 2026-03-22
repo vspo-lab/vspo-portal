@@ -7,9 +7,13 @@
   "description": "Watch multiple streams simultaneously. You can select up to 9 streams.",
   "player": {
     "dragHandle": {
-      "ariaLabel": "Drag to move {{channelTitle}}'s stream",
+      "ariaLabel": "Drag to move {channelTitle}'s stream",
       "tooltip": "Move stream"
     },
+    "close": {
+      "ariaLabel": "Close stream"
+    },
+    "loading": "Loading...",
     "error": {
       "title": "Loading Error",
       "description": "Failed to load stream"
@@ -17,6 +21,26 @@
     "warnings": {
       "unsupportedPlatform": "Unsupported platform",
       "autoplayNotSupported": "Autoplay not supported"
+    }
+  },
+  "chat": {
+    "header": {
+      "title": "Chat"
+    },
+    "dragHandle": {
+      "tooltip": "Drag to move chat"
+    },
+    "close": {
+      "ariaLabel": "Close chat"
+    },
+    "loading": "Loading chat...",
+    "error": {
+      "title": "Chat Error",
+      "description": "Failed to load chat"
+    },
+    "noChat": {
+      "title": "No Chat",
+      "description": "Chat embedding is not supported on this platform"
     }
   },
   "viewer": {
@@ -27,12 +51,28 @@
     }
   },
   "layout": {
-    "title": "Layout Settings"
+    "title": "Layout Settings",
+    "streams-count": "{count} streams",
+    "keyboard-hint": "Keyboard shortcut: Use number keys to switch layouts",
+    "shortcut": "Shortcut: {key}",
+    "auto": "Auto",
+    "single": "Single",
+    "side-by-side": "Side by Side",
+    "stacked": "Stacked",
+    "quad": "Quad",
+    "nine": "3x3 Grid",
+    "twelve": "4x3 Grid",
+    "pip": "Picture-in-Picture"
   },
   "selector": {
     "title": "Stream Selection",
     "search": {
-      "placeholder": "Search streams..."
+      "placeholder": "Search streams...",
+      "ariaLabel": "Search streams"
+    },
+    "chat": {
+      "open": "Open chat",
+      "close": "Close chat"
     },
     "tabs": {
       "all": "All",
@@ -60,15 +100,16 @@
     "placeholder": "Enter stream URL",
     "add": "Add",
     "adding": "Adding...",
-    "maxStreamsReached": "You can select up to {{count}} streams",
-    "streamCount": "{{current}}/{{max}} streams selected",
+    "addedStreams": "Added Streams",
+    "maxStreamsReached": "You can select up to {count} streams",
+    "streamCount": "{current}/{max} streams selected",
     "supportedPlatforms": {
       "title": "Supported Platforms:",
       "list": "YouTube, Twitch"
     },
     "error": {
       "emptyUrl": "Please enter a URL",
-      "maxStreams": "You can select up to {{max}} streams",
+      "maxStreams": "You can select up to {max} streams",
       "unsupportedUrl": "Unsupported URL",
       "alreadyAdded": "This stream has already been added",
       "parseFailed": "Failed to parse URL"
@@ -77,17 +118,25 @@
   "controls": {
     "globalVolume": "Global Volume",
     "individualVolume": "Individual Volume",
-    "streamVolume": "{{title}}'s volume",
+    "streamVolume": "{title}'s volume",
     "syncMode": "Sync Mode",
+    "play": "Play",
+    "pause": "Pause",
+    "playAll": "Play All",
+    "pauseAll": "Pause All",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "syncToLive": "Sync to Live",
+    "listenOnlyThis": "Listen only this stream",
     "twitchNote": "※ Twitch streams must be controlled manually",
     "twitchManual": "Twitch must be controlled manually",
     "global": {
-      "playPause": "{{status}} all",
-      "mute": "{{status}} all"
+      "playPause": "{status} all",
+      "mute": "{status} all"
     },
     "stream": {
-      "playPause": "{{status}}",
-      "mute": "{{status}}",
+      "playPause": "{status}",
+      "mute": "{status}",
       "setPrimary": "Set as primary",
       "fullscreen": "Fullscreen",
       "pip": "Picture-in-Picture"
@@ -107,12 +156,12 @@
       "exit": "Exit PiP"
     },
     "sync": {
-      "toggle": "{{status}} sync mode",
+      "toggle": "{status} sync mode",
       "enable": "Sync Mode",
       "syncAll": "Sync all"
     },
     "audioMix": {
-      "toggle": "{{status}} mix mode",
+      "toggle": "{status} mix mode",
       "enable": "Audio Mix",
       "primary": "Primary Audio"
     },
@@ -144,5 +193,25 @@
     "button": "Share Layout",
     "copied": "Share URL copied to clipboard",
     "copyFailed": "Failed to copy URL"
+  },
+  "immersive": {
+    "enter": "Immersive Mode",
+    "exit": "Exit Immersive Mode"
+  },
+  "expand": "Expand",
+  "collapse": "Collapse",
+  "customLayout": {
+    "save": "Save Layout",
+    "savedLayouts": "Saved Layouts",
+    "noStreamsHint": "Select streams to save a layout",
+    "dialogTitle": "Save Layout",
+    "nameLabel": "Layout Name",
+    "maxHint": "Up to 10 layouts can be saved",
+    "saved": "Layout saved",
+    "deleted": "Layout deleted"
+  },
+  "status": {
+    "streamCount": "{count} streams selected",
+    "noStreams": "No streams selected"
   }
 }

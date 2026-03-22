@@ -1,5 +1,3 @@
-// src/middleware.ts
-
 import type { NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
@@ -11,7 +9,7 @@ import {
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const response = intlMiddleware(request);
   setTimeZone(request, response);
   setSessionId(request, response);

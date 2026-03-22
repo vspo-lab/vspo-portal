@@ -38,7 +38,7 @@
   },
   "tabs": {
     "all": "All",
-    "allWithDate": "All ({{date}})"
+    "allWithDate": "All ({date})"
   },
   "noLivestreams": "No scheduled streams. Please check the previous day's schedule."
 }

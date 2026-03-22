@@ -64,8 +64,9 @@ export const resolveOverlaps = (
  * @postcondition No pairwise overlaps remain
  */
 const ensureNoOverlaps = (items: LayoutItem[]): void => {
-  // Upper bound: each iteration resolves at least one pair, at most n*(n-1)/2 pairs
-  const maxIter = (items.length * (items.length - 1)) / 2 + items.length;
+  // Y-push makes monotonic progress, so n^2*2 iterations is sufficient
+  // even for cascading overlaps where fixing one pair creates new overlaps
+  const maxIter = items.length * items.length * 2;
 
   for (let iter = 0; iter < maxIter; iter++) {
     let worstI = -1;

@@ -52,8 +52,13 @@ export const CustomBottomNavigation: React.FC = () => {
       <Box sx={{ width: "100%", position: "fixed", bottom: 0, zIndex: 1000 }}>
         <BottomNavigation
           value={value}
-          showLabels
-          sx={{ height: bottomNavigationHeight }}
+          sx={{
+            height: bottomNavigationHeight,
+            "& .MuiBottomNavigationAction-label": {
+              opacity: "1 !important",
+              fontSize: "0.75rem !important",
+            },
+          }}
         >
           {bottomNavigationRoutes.map((id) => (
             <BottomNavigationAction

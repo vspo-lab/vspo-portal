@@ -13,11 +13,11 @@
   },
   "home": {
     "meta": {
-      "title": "$t(common:vspo) 影片剪輯集",
-      "description": "查看 $t(common:vspo) 成員的影片剪輯和精彩片段。"
+      "title": "VSPO 影片剪輯集",
+      "description": "查看 VSPO 成員的影片剪輯和精彩片段。"
     },
     "hero": {
-      "title": "$t(common:vspo) 影片剪輯集",
+      "title": "VSPO 影片剪輯集",
       "subtitle": "一站式欣賞 YouTube 剪輯、Shorts 和 Twitch 剪輯！",
       "exploreClips": "瀏覽剪輯"
     },
@@ -42,19 +42,19 @@
     "viewMore": "查看更多"
   },
   "youtubeClips": {
-    "title": "$t(common:vspo) 剪輯",
-    "description": "查看 $t(common:vspo) 成員的 YouTube 剪輯影片。"
+    "title": "VSPO 剪輯",
+    "description": "查看 VSPO 成員的 YouTube 剪輯影片。"
   },
   "youtubeShorts": {
-    "title": "$t(common:vspo) 短影片",
-    "description": "查看 $t(common:vspo) 成員的 YouTube Shorts 短影片。"
+    "title": "VSPO 短影片",
+    "description": "查看 VSPO 成員的 YouTube Shorts 短影片。"
   },
   "twitchClips": {
-    "title":"$t(common:vspo) Twitch 剪輯",
-    "description": "查看 $t(common:vspo) 成員的 Twitch 剪輯影片。"
+    "title":"VSPO Twitch 剪輯",
+    "description": "查看 VSPO 成員的 Twitch 剪輯影片。"
   },
-  "viewCount": "{{views, number}} 次觀看",
-  "viewCountLabel": "{{views, number}}+ 次觀看",
+  "viewCount": "{views, number} 次觀看",
+  "viewCountLabel": "{views, number}+ 次觀看",
   "searchDialog": {
     "title": "剪輯搜尋",
     "alertMessage": "只能搜尋一個月內的剪輯。",
@@ -72,7 +72,7 @@
       "Apex",
       "Valorant"
     ],
-    "cancel": "$t(common:cancel)",
-    "search": "$t(common:search)"
+    "cancel": "取消",
+    "search": "搜尋"
   }
 }

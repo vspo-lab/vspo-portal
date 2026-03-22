@@ -2,7 +2,7 @@
   "streamSchedule": "Stream schedule",
   "noLiveStreams": "No livestreams available.\nTry browsing past streams or clips from the sidebar.",
   "events": "Events",
-  "streamsOnDate": "Livestreams on {{date}}",
+  "streamsOnDate": "Livestreams on {date}",
   "loading": "Loading...",
   "status": {
     "live": "Live",
@@ -10,12 +10,12 @@
     "all": "All"
   },
   "titles": {
-    "streamSchedule": "$t(common:vspo) Stream Schedule",
-    "live": "$t(common:vspo) Live Streams",
-    "upcoming": "$t(common:vspo) Upcoming Streams",
-    "archive": "$t(common:vspo) Archived Streams",
-    "dateStatus": "Stream Schedule / {{date}}"
+    "streamSchedule": "VSPO! Stream Schedule",
+    "live": "VSPO! Live Streams",
+    "upcoming": "VSPO! Upcoming Streams",
+    "archive": "VSPO! Archived Streams",
+    "dateStatus": "Stream Schedule / {date}"
   },
-  "description": "Check the streaming schedule of $t(common:vspo) members at a glance, with streams from YouTube, Twitch, TwitCasting, and Niconico.",
+  "description": "Check the streaming schedule of VSPO! members at a glance, with streams from YouTube, Twitch, TwitCasting, and Niconico.",
   "membersOnlyStreamsHidden": "Note: Members-only streams are not listed."
 }

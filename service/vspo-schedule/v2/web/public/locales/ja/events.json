@@ -1,7 +1,7 @@
 {
-  "title": "$t(common:vspo)イベント一覧",
-  "description": "$t(common:vspo)が関係するイベントをまとめています。",
+  "title": "ぶいすぽっ！イベント一覧",
+  "description": "ぶいすぽっ！が関係するイベントをまとめています。",
   "prevMonth": "前の月へ",
   "nextMonth": "次の月へ",
-  "currMonth": "{{val, datetime(year: numeric; month: long; timeZone: UTC)}}"
+  "currMonth": "{val, datetime(year: numeric; month: long; timeZone: UTC)}"
 }

@@ -1,22 +1,18 @@
 import withSerwistInit from "@serwist/next";
 import createNextIntlPlugin from "next-intl/plugin";
-import pkgJson from "./package.json" with { type: "json" };
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
-  disable: process.env.NODE_ENV === "development",
+  disable: process.env.NODE_ENV !== "production",
 });
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-const emotionPackages = Object.keys(pkgJson.dependencies).filter((pkg) =>
-  pkg.startsWith("@emotion/"),
-);
-
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["react-tweet"],
+  reactCompiler: true,
   compiler: {
     emotion: {
       sourceMap: process.env.NODE_ENV !== "production",
@@ -25,7 +21,6 @@ const nextConfig = {
     },
   },
   experimental: {
-    reactCompiler: true,
     // @mui/material and date-fns are auto-optimized by Next.js
     optimizePackageImports: [
       "@mui/icons-material",
@@ -38,7 +33,6 @@ const nextConfig = {
       static: 180,
     },
   },
-  serverExternalPackages: emotionPackages,
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 3600,
@@ -72,7 +66,7 @@ const nextConfig = {
       })),
     ],
   },
-  skipMiddlewareUrlNormalize: true,
+  skipProxyUrlNormalize: true,
   async headers() {
     return [
       {

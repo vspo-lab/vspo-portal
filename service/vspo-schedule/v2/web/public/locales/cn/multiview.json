@@ -7,12 +7,40 @@
   "description": "同时观看多个直播。最多可选择9个直播。",
   "player": {
     "dragHandle": {
-      "ariaLabel": "拖拽移动{{channelTitle}}的直播",
+      "ariaLabel": "拖拽移动{channelTitle}的直播",
       "tooltip": "移动直播"
     },
+    "close": {
+      "ariaLabel": "关闭直播"
+    },
+    "loading": "加载中...",
     "error": {
       "title": "加载错误",
       "description": "直播加载失败"
+    },
+    "warnings": {
+      "unsupportedPlatform": "不支持的平台",
+      "autoplayNotSupported": "不支持自动播放"
+    }
+  },
+  "chat": {
+    "header": {
+      "title": "聊天"
+    },
+    "dragHandle": {
+      "tooltip": "拖拽移动聊天"
+    },
+    "close": {
+      "ariaLabel": "关闭聊天"
+    },
+    "loading": "聊天加载中...",
+    "error": {
+      "title": "聊天错误",
+      "description": "聊天加载失败"
+    },
+    "noChat": {
+      "title": "无聊天",
+      "description": "此平台不支持聊天嵌入"
     }
   },
   "viewer": {
@@ -23,11 +51,37 @@
     }
   },
   "layout": {
-    "title": "布局设置"
+    "title": "布局设置",
+    "streams-count": "{count}个直播",
+    "keyboard-hint": "键盘快捷键：按数字键切换布局",
+    "shortcut": "快捷键：{key}",
+    "auto": "自动",
+    "single": "单个",
+    "side-by-side": "并排",
+    "stacked": "上下排列",
+    "quad": "四分割",
+    "nine": "九分割",
+    "twelve": "十二分割",
+    "pip": "画中画"
   },
   "selector": {
     "title": "直播选择",
+    "search": {
+      "placeholder": "搜索直播...",
+      "ariaLabel": "搜索直播"
+    },
+    "chat": {
+      "open": "打开聊天",
+      "close": "关闭聊天"
+    },
+    "tabs": {
+      "all": "全部",
+      "live": "直播中",
+      "upcoming": "预定"
+    },
+    "noResults": "没有找到匹配的直播",
     "status": {
+      "live": "LIVE",
       "upcoming": "预定"
     }
   },
@@ -46,15 +100,16 @@
     "placeholder": "输入直播URL",
     "add": "添加",
     "adding": "添加中...",
-    "maxStreamsReached": "最多可选择{{count}}个直播",
-    "streamCount": "已选择{{current}}/{{max}}个直播",
+    "addedStreams": "已添加的直播",
+    "maxStreamsReached": "最多可选择{count}个直播",
+    "streamCount": "已选择{current}/{max}个直播",
     "supportedPlatforms": {
       "title": "支持的平台：",
       "list": "YouTube, Twitch"
     },
     "error": {
       "emptyUrl": "请输入URL",
-      "maxStreams": "最多可选择{{max}}个直播",
+      "maxStreams": "最多可选择{max}个直播",
       "unsupportedUrl": "不支持的URL",
       "alreadyAdded": "该直播已经添加",
       "parseFailed": "URL解析失败"
@@ -63,17 +118,25 @@
   "controls": {
     "globalVolume": "整体音量",
     "individualVolume": "单独音量",
-    "streamVolume": "{{title}}的音量",
+    "streamVolume": "{title}的音量",
     "syncMode": "同步模式",
+    "play": "播放",
+    "pause": "暂停",
+    "playAll": "全部播放",
+    "pauseAll": "全部暂停",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "syncToLive": "同步到直播",
+    "listenOnlyThis": "仅播放此直播的声音",
     "twitchNote": "※ Twitch直播必须手动控制",
     "twitchManual": "Twitch必须手动控制",
     "global": {
-      "playPause": "全部{{status}}",
-      "mute": "全部{{status}}"
+      "playPause": "全部{status}",
+      "mute": "全部{status}"
     },
     "stream": {
-      "playPause": "{{status}}",
-      "mute": "{{status}}",
+      "playPause": "{status}",
+      "mute": "{status}",
       "setPrimary": "设为主直播",
       "fullscreen": "全屏",
       "pip": "画中画"
@@ -93,12 +156,12 @@
       "exit": "退出画中画"
     },
     "sync": {
-      "toggle": "同步模式{{status}}",
+      "toggle": "同步模式{status}",
       "enable": "同步模式",
       "syncAll": "全部同步"
     },
     "audioMix": {
-      "toggle": "混音模式{{status}}",
+      "toggle": "混音模式{status}",
       "enable": "音频混合",
       "primary": "主音频"
     },
@@ -125,5 +188,30 @@
   "controlPanel": {
     "show": "显示布局设置",
     "hide": "隐藏布局设置"
+  },
+  "share": {
+    "button": "分享布局",
+    "copied": "分享链接已复制",
+    "copyFailed": "链接复制失败"
+  },
+  "immersive": {
+    "enter": "沉浸模式",
+    "exit": "退出沉浸模式"
+  },
+  "expand": "展开",
+  "collapse": "折叠",
+  "customLayout": {
+    "save": "保存布局",
+    "savedLayouts": "已保存的布局",
+    "noStreamsHint": "请先选择直播再保存布局",
+    "dialogTitle": "保存布局",
+    "nameLabel": "布局名称",
+    "maxHint": "最多可保存10个布局",
+    "saved": "布局已保存",
+    "deleted": "布局已删除"
+  },
+  "status": {
+    "streamCount": "已选择{count}个直播",
+    "noStreams": "未选择直播"
   }
 }

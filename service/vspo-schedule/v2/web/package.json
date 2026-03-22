@@ -2,6 +2,7 @@
   "name": "vspo-schedule-v2-web",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev -p 4000",
     "build": "next build",

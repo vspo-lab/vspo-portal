@@ -7,7 +7,7 @@ import { VideoModalContextProvider } from "@/context/VideoModalContext";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <AppRouterCacheProvider options={{ key: "mui", enableCssLayer: true }}>
+    <AppRouterCacheProvider options={{ key: "mui" }}>
       <ThemeModeProvider>
         <TimeZoneContextProvider>
           <VideoModalContextProvider>{children}</VideoModalContextProvider>

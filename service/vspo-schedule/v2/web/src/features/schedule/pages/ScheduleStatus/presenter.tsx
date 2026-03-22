@@ -81,6 +81,7 @@ export const ScheduleStatusPresenter: React.FC<PresenterProps> = ({
   isArchivePage = false,
 }) => {
   const t = useTranslations("streams");
+  const tSchedule = useTranslations("schedule");
 
   return (
     <Container maxWidth="lg" sx={{ position: "relative", pb: 4, pl: 0, pr: 0 }}>
@@ -128,7 +129,7 @@ export const ScheduleStatusPresenter: React.FC<PresenterProps> = ({
       {/* Floating search button */}
       <Fab
         color="primary"
-        aria-label={t("search.dateSearch")}
+        aria-label={tSchedule("search.title")}
         onClick={onSearchDialogOpen}
         sx={{
           position: "fixed",

@@ -3,6 +3,9 @@
 # generated docs (not tracked)
 docs/plan/
 
+# Astro auto-generated types
+**/.astro/
+
 # dependencies
 **/node_modules
 **/.pnp

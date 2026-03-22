@@ -1,7 +1,7 @@
 {
-  "title": "$t(common:vspo) 이벤트",
-  "description": "$t(common:vspo)와 관련된 최근 및 예정된 이벤트를 확인하세요.",
+  "title": "VSPO! 이벤트",
+  "description": "VSPO!와 관련된 최근 및 예정된 이벤트를 확인하세요.",
   "prevMonth": "이전 달",
   "nextMonth": "다음 달",
-  "currMonth": "{{val, datetime(year: numeric; month: long; timeZone: UTC)}}"
+  "currMonth": "{val, datetime(year: numeric; month: long; timeZone: UTC)}"
 }

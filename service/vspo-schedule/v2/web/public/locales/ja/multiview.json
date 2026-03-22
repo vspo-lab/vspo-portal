@@ -7,9 +7,13 @@
   "description": "複数の配信を同時に視聴できます。最大9つまで選択可能です。",
   "player": {
     "dragHandle": {
-      "ariaLabel": "{{channelTitle}}の配信をドラッグして移動",
+      "ariaLabel": "{channelTitle}の配信をドラッグして移動",
       "tooltip": "配信を移動"
     },
+    "close": {
+      "ariaLabel": "配信を閉じる"
+    },
+    "loading": "読み込み中...",
     "error": {
       "title": "読み込みエラー",
       "description": "配信の読み込みに失敗しました"
@@ -17,6 +21,26 @@
     "warnings": {
       "unsupportedPlatform": "サポートされていないプラットフォームです",
       "autoplayNotSupported": "自動再生はサポートされていません"
+    }
+  },
+  "chat": {
+    "header": {
+      "title": "チャット"
+    },
+    "dragHandle": {
+      "tooltip": "チャットをドラッグして移動"
+    },
+    "close": {
+      "ariaLabel": "チャットを閉じる"
+    },
+    "loading": "チャットを読み込み中...",
+    "error": {
+      "title": "チャットエラー",
+      "description": "チャットの読み込みに失敗しました"
+    },
+    "noChat": {
+      "title": "チャットなし",
+      "description": "このプラットフォームではチャット埋め込みに対応していません"
     }
   },
   "viewer": {
@@ -27,12 +51,28 @@
     }
   },
   "layout": {
-    "title": "レイアウト設定"
+    "title": "レイアウト設定",
+    "streams-count": "{count}配信",
+    "keyboard-hint": "キーボードショートカット: 数字キーでレイアウト切替",
+    "shortcut": "ショートカット: {key}",
+    "auto": "自動",
+    "single": "シングル",
+    "side-by-side": "横並び",
+    "stacked": "縦並び",
+    "quad": "4分割",
+    "nine": "9分割",
+    "twelve": "12分割",
+    "pip": "ピクチャーインピクチャー"
   },
   "selector": {
     "title": "配信選択",
     "search": {
-      "placeholder": "配信を検索..."
+      "placeholder": "配信を検索...",
+      "ariaLabel": "配信を検索"
+    },
+    "chat": {
+      "open": "チャットを開く",
+      "close": "チャットを閉じる"
     },
     "tabs": {
       "all": "すべて",
@@ -60,15 +100,16 @@
     "placeholder": "配信URLを入力してください",
     "add": "追加",
     "adding": "追加中...",
-    "maxStreamsReached": "最大{{count}}つまでの配信を選択できます",
-    "streamCount": "{{current}}/{{max}} 配信選択中",
+    "addedStreams": "追加済み配信",
+    "maxStreamsReached": "最大{count}つまでの配信を選択できます",
+    "streamCount": "{current}/{max} 配信選択中",
     "supportedPlatforms": {
       "title": "対応プラットフォーム:",
       "list": "YouTube, Twitch"
     },
     "error": {
       "emptyUrl": "URLを入力してください",
-      "maxStreams": "最大{{max}}つまでの配信を選択できます",
+      "maxStreams": "最大{max}つまでの配信を選択できます",
       "unsupportedUrl": "サポートされていないURLです",
       "alreadyAdded": "この配信は既に追加されています",
       "parseFailed": "URLの解析に失敗しました"
@@ -76,18 +117,26 @@
   },
   "controls": {
     "globalVolume": "全体音量",
-    "individualVolume": "個別音量", 
-    "streamVolume": "{{title}}の音量",
+    "individualVolume": "個別音量",
+    "streamVolume": "{title}の音量",
     "syncMode": "同期モード",
+    "play": "再生",
+    "pause": "一時停止",
+    "playAll": "すべて再生",
+    "pauseAll": "すべて一時停止",
+    "mute": "ミュート",
+    "unmute": "ミュート解除",
+    "syncToLive": "ライブに同期",
+    "listenOnlyThis": "この配信のみ音声ON",
     "twitchNote": "※ Twitchの配信は手動で操作してください",
     "twitchManual": "Twitchは手動で操作してください",
     "global": {
-      "playPause": "すべて{{status}}",
-      "mute": "すべて{{status}}"
+      "playPause": "すべて{status}",
+      "mute": "すべて{status}"
     },
     "stream": {
-      "playPause": "{{status}}",
-      "mute": "{{status}}",
+      "playPause": "{status}",
+      "mute": "{status}",
       "setPrimary": "メインに設定",
       "fullscreen": "フルスクリーン",
       "pip": "ピクチャーインピクチャー"
@@ -107,12 +156,12 @@
       "exit": "PiP終了"
     },
     "sync": {
-      "toggle": "同期モード{{status}}",
+      "toggle": "同期モード{status}",
       "enable": "同期モード",
       "syncAll": "すべて同期"
     },
     "audioMix": {
-      "toggle": "ミックスモード{{status}}",
+      "toggle": "ミックスモード{status}",
       "enable": "オーディオミックス",
       "primary": "メイン音声"
     },
@@ -144,5 +193,25 @@
     "button": "レイアウトを共有",
     "copied": "共有URLをコピーしました",
     "copyFailed": "URLのコピーに失敗しました"
+  },
+  "immersive": {
+    "enter": "没入モード",
+    "exit": "没入モード終了"
+  },
+  "expand": "展開",
+  "collapse": "折りたたむ",
+  "customLayout": {
+    "save": "レイアウトを保存",
+    "savedLayouts": "保存済みレイアウト",
+    "noStreamsHint": "配信を選択してからレイアウトを保存できます",
+    "dialogTitle": "レイアウトを保存",
+    "nameLabel": "レイアウト名",
+    "maxHint": "最大10件まで保存できます",
+    "saved": "レイアウトを保存しました",
+    "deleted": "レイアウトを削除しました"
+  },
+  "status": {
+    "streamCount": "{count}件の配信を選択中",
+    "noStreams": "配信が選択されていません"
   }
 }

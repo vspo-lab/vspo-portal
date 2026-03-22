@@ -4,7 +4,6 @@ export * from "./ChatEmbed";
 export * from "./Chip";
 export * from "./Control";
 export * from "./Drawer";
-export * from "./Google";
 export * from "./Icon";
 export * from "./Link";
 export * from "./Loading";
