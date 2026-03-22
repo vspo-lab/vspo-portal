@@ -11,7 +11,9 @@
     "typecheck": "astro check && tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "storybook": "storybook dev -p 6007",
+    "storybook:build": "storybook build"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
@@ -31,6 +33,8 @@
     "tailwindcss": "^4.1.8",
     "typescript": "catalog:",
     "vitest": "^4.1.0",
+    "@storybook/html-vite": "^10.3.1",
+    "storybook": "^10.3.1",
     "wrangler": "catalog:"
   }
 }
