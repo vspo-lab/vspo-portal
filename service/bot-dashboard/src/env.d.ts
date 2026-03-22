@@ -24,6 +24,7 @@ declare namespace App {
     refreshToken: string;
     expiresAt: number;
     oauth_state: string;
+    locale: import("~/i18n/dict").Locale;
   }
   interface Locals {
     user: SessionData["user"] | null;

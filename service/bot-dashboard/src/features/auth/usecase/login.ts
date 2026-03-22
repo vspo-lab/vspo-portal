@@ -22,6 +22,7 @@ const LoginResultSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
   expiresAt: z.number(),
+  locale: z.string().optional(),
 });
 
 type LoginResult = z.infer<typeof LoginResultSchema>;
@@ -82,6 +83,7 @@ const handleCallback = async (
     accessToken: tokenResult.val.access_token,
     refreshToken: tokenResult.val.refresh_token,
     expiresAt: Date.now() + tokenResult.val.expires_in * 1000,
+    locale: userResult.val.locale,
   });
 };
 
