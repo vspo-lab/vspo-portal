@@ -6,7 +6,7 @@ Known barriers for App Router on Cloudflare Workers via `@opennextjs/cloudflare`
 
 - Next.js **15.5.14** (pinned via pnpm catalog)
 - `@opennextjs/cloudflare@^1.17.1` (latest as of 2026-03)
-- Wrangler compatibility date: `2025-03-01`
+- Wrangler compatibility date: `2025-05-05`
 - Compatibility flags: `nodejs_compat`, `global_fetch_strictly_public`
 - Smart Placement: enabled
 - Service bindings: `APP_WORKER` (worker-to-worker RPC), `WORKER_SELF_REFERENCE` (self-reference for cache revalidation)
@@ -62,6 +62,11 @@ export default config;
 ```
 
 ### Wrangler Bindings (dev/prd)
+
+Config files:
+
+- `service/vspo-schedule/v2/web/config/wrangler/dev/wrangler.jsonc`
+- `service/vspo-schedule/v2/web/config/wrangler/prd/wrangler.jsonc`
 
 ```jsonc
 {

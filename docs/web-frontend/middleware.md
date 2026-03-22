@@ -8,8 +8,8 @@
 
 ```text
 Request
-  → Skip if static file / _next / api
-  → setLocale(): resolve and set NEXT_LOCALE cookie
+  → Skip if static file / _next / api (matcher config)
+  → createIntlMiddleware(routing): resolve locale, redirect if needed
   → setTimeZone(): initialize time-zone cookie
   → setSessionId(): generate x-session-id if missing
   → NextResponse (with cookies set)
@@ -32,7 +32,7 @@ Supported locales: `en`, `ja`, `cn`, `tw`, `ko`.
 
 Sets `time-zone` cookie if not present. Default: `Asia/Tokyo`.
 
-The cookie is read by `getServerSideProps` to format dates in the user's timezone. Users can change it via the `TimeZoneSelector` component, which updates the cookie and triggers a page refresh.
+The cookie is read by Server Components via `cookies()` from `next/headers` to format dates in the user's timezone. Users can change it via the `TimeZoneSelector` component, which updates the cookie and triggers a page refresh.
 
 ## Session ID
 

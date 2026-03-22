@@ -457,33 +457,41 @@ html {
 #### Skip Links
 
 ```tsx
-// pages/_app.tsx (Pages Router)
-import type { AppProps } from "next/app";
+// app/[locale]/layout.tsx (App Router)
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
 
-export default function App({ Component, pageProps }: AppProps) {
   return (
-    <>
-      <a
-        href="#main-content"
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          zIndex: 50,
-        }}
-        onFocus={(e) => {
-          e.currentTarget.style.left = "0";
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.left = "-9999px";
-        }}
-      >
-        Skip to main content
-      </a>
-      <Header />
-      <main id="main-content" tabIndex={-1}>
-        <Component {...pageProps} />
-      </main>
-    </>
+    <html lang={locale}>
+      <body>
+        <a
+          href="#main-content"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            zIndex: 50,
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.left = "0";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.left = "-9999px";
+          }}
+        >
+          Skip to main content
+        </a>
+        <Header />
+        <main id="main-content" tabIndex={-1}>
+          {children}
+        </main>
+      </body>
+    </html>
   );
 }
 ```

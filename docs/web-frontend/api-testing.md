@@ -11,10 +11,10 @@ pnpm --filter vspo-schedule-v2-web test:run  # Run all tests including API tests
 
 ## Architecture
 
-This repo is a frontend-only Next.js (Pages Router) application. There is no backend server in this codebase. API interactions are handled through the `@vspo-lab/api` package, which provides:
+This repo is a frontend-only Next.js (App Router) application. There is no backend server in this codebase. API interactions are handled through the `@vspo-lab/api` package, which provides:
 
 ```text
-Next.js Page (SSR)
+App Router Server Component (page.tsx)
     └── features/**/api/*Service.ts
             └── VSPOApi client (@vspo-lab/api)
                     ├── Production: HTTP requests to external API
