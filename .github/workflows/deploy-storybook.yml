@@ -54,7 +54,7 @@ jobs:
 
       - name: Get deployed URL
         id: get-url
-        run: echo "url=https://dev-bot-dashboard-storybook.$(echo ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} | head -c 8).workers.dev" >> "$GITHUB_OUTPUT"
+        run: echo "url=https://storybook-bot.vspo-schedule.com" >> "$GITHUB_OUTPUT"
 
   deploy-vspo-schedule-storybook:
     name: Build & Deploy vspo-schedule Storybook
