@@ -1,4 +1,5 @@
 import { AppError, Err, Ok } from "@vspo-lab/error";
+import type { ApplicationService } from "~/types/api";
 import { VspoChannelApiRepository } from "../repository/vspo-channel-api";
 import { ToggleChannelUsecase } from "./toggle-channel";
 
@@ -11,7 +12,7 @@ vi.mock("../repository/vspo-channel-api", () => ({
 
 describe("ToggleChannelUsecase", () => {
   const params = {
-    appWorker: {} as Fetcher,
+    appWorker: {} as ApplicationService,
     guildId: "guild-1",
     channelId: "ch-1",
   };

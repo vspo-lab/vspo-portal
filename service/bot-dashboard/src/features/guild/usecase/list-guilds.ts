@@ -2,13 +2,14 @@ import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
+import type { ApplicationService } from "~/types/api";
 import type { GuildSummaryType } from "../domain/guild";
 import { GuildSummary } from "../domain/guild";
 import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
 
 type ListGuildsParams = {
   accessToken: string;
-  appWorker: Fetcher;
+  appWorker: ApplicationService;
 };
 
 type ListGuildsResult = {
@@ -22,7 +23,7 @@ type ListGuildsResult = {
  *
  * @param params - Discord access token and app worker binding used to query guild data
  * @returns Installed guilds, not-installed guilds, and sidebar guild metadata, or an AppError
- * @precondition params.accessToken !== "" && params.appWorker is a configured Fetcher
+ * @precondition params.accessToken !== "" && params.appWorker is a configured ApplicationService
  * @postcondition On Ok, every guild in return.val.installed has botInstalled === true and return.val.sidebarGuilds is derived from return.val.installed
  * @idempotent true - The use case is read-only and repeated calls against unchanged upstream data yield the same categorization
  */

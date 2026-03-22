@@ -3,7 +3,7 @@
 
 declare namespace Cloudflare {
   interface Env {
-    APP_WORKER: Fetcher;
+    APP_WORKER: import("~/types/api").ApplicationService;
     DISCORD_CLIENT_ID: string;
     DISCORD_BOT_CLIENT_ID: string;
     DISCORD_CLIENT_SECRET: string;
