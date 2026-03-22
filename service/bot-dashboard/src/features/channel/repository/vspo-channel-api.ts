@@ -79,6 +79,20 @@ const VspoChannelApiRepository = {
     // TODO: Connect to vspo-server API in Phase 5
     return Ok(undefined);
   },
+
+  /**
+   * Remove a channel from Bot configuration for a guild.
+   * @precondition guildId and channelId must refer to an existing configuration
+   * @postcondition The channel entry is permanently removed; idempotent on repeated calls
+   */
+  deleteChannel: async (
+    _appWorker: Fetcher,
+    _guildId: string,
+    _channelId: string,
+  ): Promise<Result<void, AppError>> => {
+    // TODO: Connect to vspo-server API in Phase 5
+    return Ok(undefined);
+  },
 } as const;
 
 export { VspoChannelApiRepository };

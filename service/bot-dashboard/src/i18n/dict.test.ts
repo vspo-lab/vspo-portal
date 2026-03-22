@@ -4,9 +4,9 @@ describe("t (translation)", () => {
   it.each([
     ["ja", "app.name", "Spodule Bot"],
     ["en", "app.name", "Spodule Bot"],
-    ["ja", "login.title", "Login"],
+    ["ja", "login.title", "ログイン"],
     ["en", "guild.active", "Active"],
-    ["ja", "guild.active", "Installed"],
+    ["ja", "guild.active", "導入済み"],
   ] as const)("t(%s, %s) → %s", (locale, key, expected) => {
     expect(t(locale, key)).toBe(expected);
   });
@@ -24,7 +24,7 @@ describe("t (translation)", () => {
       enabled: "2",
       total: "10",
     });
-    expect(result).toBe("2/10 channels enabled");
+    expect(result).toBe("2/10 チャンネル有効");
   });
 
   it("interpolates channelName param", () => {

@@ -59,4 +59,42 @@ describe("UserMenu", () => {
     const avatar = getByRole(body, "img", { name: "Zach" });
     expect(avatar.textContent).toBe("Z");
   });
+
+  it("renders as a details/summary dropdown", async () => {
+    const html = await container.renderToString(UserMenu, {
+      props: { displayName: "User", avatarUrl: null },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    const details = body.querySelector("details#user-menu");
+    expect(details).toBeTruthy();
+    const summary = details?.querySelector("summary");
+    expect(summary).toBeTruthy();
+  });
+
+  it("contains a language selector", async () => {
+    const html = await container.renderToString(UserMenu, {
+      props: { displayName: "User", avatarUrl: null },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    // The language section label
+    expect(getByText(body, "Language")).toBeTruthy();
+    // Language selector buttons
+    const jaButton = getByRole(body, "button", { name: /Japanese/i });
+    expect(jaButton).toBeTruthy();
+    const enButton = getByRole(body, "button", { name: /English/i });
+    expect(enButton).toBeTruthy();
+  });
+
+  it("contains a theme toggle button", async () => {
+    const html = await container.renderToString(UserMenu, {
+      props: { displayName: "User", avatarUrl: null },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    const themeBtn = body.querySelector("#dropdown-theme-toggle");
+    expect(themeBtn).toBeTruthy();
+    expect(getByText(body, "Theme")).toBeTruthy();
+  });
 });

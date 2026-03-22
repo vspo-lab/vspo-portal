@@ -3,6 +3,7 @@ import { actions } from "astro:actions";
 import { env } from "cloudflare:workers";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
 import ChannelTable from "~/components/channel/ChannelTable.astro";
+import DeleteChannelDialog from "~/components/channel/DeleteChannelDialog.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
@@ -38,12 +39,19 @@ const enabledCount = channels.filter((c) => c.enabled).length;
 // Handle action results
 const updateResult = Astro.getActionResult(actions.updateChannel);
 const toggleResult = Astro.getActionResult(actions.toggleChannel);
-const actionError = updateResult?.error ?? toggleResult?.error;
+const deleteResult = Astro.getActionResult(actions.deleteChannel);
+const actionError = updateResult?.error ?? toggleResult?.error ?? deleteResult?.error;
 
 // Editing state via query param
 const editChannelId = Astro.url.searchParams.get("edit");
 const editingChannel = editChannelId
   ? channels.find((c) => c.channelId === editChannelId)
+  : null;
+
+// Deleting state via query param
+const deleteChannelId = Astro.url.searchParams.get("delete");
+const deletingChannel = deleteChannelId
+  ? channels.find((c) => c.channelId === deleteChannelId)
   : null;
 ---
 
@@ -86,6 +94,15 @@ const editingChannel = editChannelId
         <ChannelConfigForm
           channel={editingChannel}
           creators={[]}
+          guildId={guildId}
+        />
+      )
+    }
+
+    {
+      deletingChannel && (
+        <DeleteChannelDialog
+          channel={deletingChannel}
           guildId={guildId}
         />
       )

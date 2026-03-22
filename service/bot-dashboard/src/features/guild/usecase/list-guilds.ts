@@ -1,6 +1,7 @@
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import type { GuildSummaryType } from "../domain/guild";
 import { GuildSummary } from "../domain/guild";
 import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
@@ -38,10 +39,23 @@ const execute = async (
   const manageable = GuildSummary.filterManageable(guilds);
   const { installed, notInstalled } = GuildSummary.partition(manageable);
 
+  // Fetch channel configs for all installed guilds in parallel.
+  // Per-guild failures are swallowed so a single bad guild does not block the page.
+  const installedWithSummaries = await Promise.all(
+    installed.map(async (guild) => {
+      const channelResult = await VspoChannelApiRepository.getGuildConfig(
+        params.appWorker,
+        guild.id,
+      );
+      if (channelResult.err) return guild;
+      return GuildSummary.withChannelSummary(guild, channelResult.val.channels);
+    }),
+  );
+
   return Ok({
-    installed,
+    installed: installedWithSummaries,
     notInstalled,
-    sidebarGuilds: installed.map((g) => ({
+    sidebarGuilds: installedWithSummaries.map((g) => ({
       id: g.id,
       name: g.name,
       iconUrl: GuildSummary.iconUrl(g),

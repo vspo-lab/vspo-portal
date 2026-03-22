@@ -19,6 +19,11 @@ describe("GuildCard", () => {
     icon: "icon_hash",
     isAdmin: true,
     botInstalled: true,
+    channelSummary: {
+      enabledCount: 2,
+      totalCount: 3,
+      previewNames: ["general", "notifications"],
+    },
   };
 
   const notInstalledGuild: GuildSummaryType = {
@@ -74,14 +79,35 @@ describe("GuildCard", () => {
     expect(getByText(body, /Active/)).toBeTruthy();
   });
 
-  it("shows 'Installed' badge when bot is installed (ja locale)", async () => {
+  it("shows '導入済み' badge when bot is installed (ja locale)", async () => {
     const html = await container.renderToString(GuildCard, {
       props: { guild: installedGuild, botClientId },
       locals: { locale: "ja" },
     });
     const body = parseHtml(html);
-    // ja locale: guild.active = "Installed"
-    expect(getByText(body, /Installed/)).toBeTruthy();
+    // ja locale: guild.active = "導入済み"
+    expect(getByText(body, /導入済み/)).toBeTruthy();
+  });
+
+  it("shows channel summary when bot is installed with channelSummary", async () => {
+    const html = await container.renderToString(GuildCard, {
+      props: { guild: installedGuild, botClientId },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    // en locale: guild.channelSummary = "{enabled}/{total} channels active"
+    expect(body.textContent).toContain("2/3 channels active");
+    expect(getByText(body, "#general")).toBeTruthy();
+    expect(getByText(body, "#notifications")).toBeTruthy();
+  });
+
+  it("does not show channel summary when bot is not installed", async () => {
+    const html = await container.renderToString(GuildCard, {
+      props: { guild: notInstalledGuild, botClientId },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    expect(body.textContent).not.toContain("channels active");
   });
 
   it("does not show active badge when bot is not installed", async () => {

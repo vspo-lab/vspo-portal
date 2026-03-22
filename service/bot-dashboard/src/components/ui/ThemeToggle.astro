@@ -1,0 +1,76 @@
+---
+interface Props {
+  variant?: "header" | "page";
+}
+const { variant = "header" } = Astro.props;
+
+const buttonClass = variant === "header"
+  ? "text-white/80 hover:bg-white/20 focus-visible:ring-white/50"
+  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring";
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  aria-label="Toggle theme"
+  class={`flex h-9 w-9 items-center justify-center rounded-[--radius-sm] transition-colors duration-[--duration-fast] ease-[--ease-standard] focus-visible:outline-none focus-visible:ring-2 ${buttonClass}`}
+>
+  <!-- Sun icon: shown in dark mode -->
+  <svg
+    id="theme-icon-sun"
+    class="hidden h-5 w-5"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="5" />
+    <path stroke-linecap="round" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+  </svg>
+  <!-- Moon icon: shown in light mode -->
+  <svg
+    id="theme-icon-moon"
+    class="hidden h-5 w-5"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
+  </svg>
+</button>
+
+<script is:inline>
+  (function () {
+    var btn = document.getElementById("theme-toggle");
+    var iconSun = document.getElementById("theme-icon-sun");
+    var iconMoon = document.getElementById("theme-icon-moon");
+
+    function applyIcons(isDark) {
+      if (isDark) {
+        iconSun.classList.remove("hidden");
+        iconMoon.classList.add("hidden");
+      } else {
+        iconSun.classList.add("hidden");
+        iconMoon.classList.remove("hidden");
+      }
+    }
+
+    // Initialise from current state (already set by FOUC script in Base.astro)
+    applyIcons(document.documentElement.classList.contains("dark"));
+
+    btn.addEventListener("click", function () {
+      var nowDark = document.documentElement.classList.contains("dark");
+      var next = !nowDark;
+      localStorage.setItem("theme", next ? "dark" : "light");
+      if (next) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      applyIcons(next);
+    });
+  })();
+</script>

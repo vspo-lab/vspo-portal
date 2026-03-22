@@ -2,6 +2,7 @@ import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro:schema";
 import { env } from "cloudflare:workers";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
+import { DeleteChannelUsecase } from "~/features/channel/usecase/delete-channel";
 import { ToggleChannelUsecase } from "~/features/channel/usecase/toggle-channel";
 
 /** Throws UNAUTHORIZED if user is not authenticated */
@@ -34,6 +35,30 @@ export const server = {
           customMembers: input.customMemberIds,
         },
       );
+
+      if (result.err) {
+        throw new ActionError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: result.err.message,
+        });
+      }
+    },
+  }),
+
+  deleteChannel: defineAction({
+    accept: "form",
+    input: z.object({
+      guildId: z.string(),
+      channelId: z.string(),
+    }),
+    handler: async (input, context) => {
+      requireAuth(context);
+
+      const result = await DeleteChannelUsecase.execute({
+        appWorker: env.APP_WORKER,
+        guildId: input.guildId,
+        channelId: input.channelId,
+      });
 
       if (result.err) {
         throw new ActionError({

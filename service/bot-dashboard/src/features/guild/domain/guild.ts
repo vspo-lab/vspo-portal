@@ -1,7 +1,18 @@
 import { z } from "zod";
-import { ChannelConfig } from "~/features/channel/domain/channel-config";
+import {
+  ChannelConfig,
+  type ChannelConfigType,
+} from "~/features/channel/domain/channel-config";
 
 const MANAGE_GUILD = 0x20;
+
+const ChannelSummarySchema = z.object({
+  enabledCount: z.number().int().nonnegative(),
+  totalCount: z.number().int().nonnegative(),
+  previewNames: z.array(z.string()).max(3),
+});
+
+type ChannelSummary = z.infer<typeof ChannelSummarySchema>;
 
 const GuildSummarySchema = z.object({
   id: z.string(),
@@ -9,6 +20,7 @@ const GuildSummarySchema = z.object({
   icon: z.string().nullable(),
   isAdmin: z.boolean(),
   botInstalled: z.boolean(),
+  channelSummary: ChannelSummarySchema.optional(),
 });
 
 type GuildSummary = z.infer<typeof GuildSummarySchema>;
@@ -52,6 +64,26 @@ const GuildSummary = {
 
   inviteUrl: (guild: GuildSummary, botClientId: string): string =>
     `https://discord.com/oauth2/authorize?client_id=${botClientId}&guild_id=${guild.id}&permissions=2048&scope=bot%20applications.commands`,
+
+  /**
+   * Attach a channel summary to an existing GuildSummary.
+   * @precondition guild must already be constructed via fromDiscordGuild
+   * @postcondition Returns a new object; does not mutate the input
+   */
+  withChannelSummary: (
+    guild: GuildSummary,
+    channels: ChannelConfigType[],
+  ): GuildSummary => {
+    const enabled = channels.filter((c) => c.enabled);
+    return {
+      ...guild,
+      channelSummary: {
+        enabledCount: enabled.length,
+        totalCount: channels.length,
+        previewNames: enabled.slice(0, 3).map((c) => c.channelName),
+      },
+    };
+  },
 } as const;
 
 const GuildBotConfigSchema = z.object({
@@ -66,6 +98,7 @@ const GuildBotConfig = {
 } as const;
 
 export {
+  type ChannelSummary as ChannelSummaryType,
   GuildBotConfig,
   type GuildBotConfig as GuildBotConfigType,
   GuildSummary,

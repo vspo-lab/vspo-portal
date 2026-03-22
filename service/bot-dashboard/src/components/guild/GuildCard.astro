@@ -30,6 +30,25 @@ const iconUrl = GuildSummary.iconUrl(guild);
       )}
     </div>
   </div>
+  {guild.botInstalled && guild.channelSummary && (
+    <div class="px-4 pb-2 sm:px-6">
+      <p class="text-xs text-muted-foreground">
+        {t(locale, "guild.channelSummary", {
+          enabled: String(guild.channelSummary.enabledCount),
+          total: String(guild.channelSummary.totalCount),
+        })}
+      </p>
+      {guild.channelSummary.previewNames.length > 0 && (
+        <div class="mt-1 flex flex-wrap gap-1">
+          {guild.channelSummary.previewNames.map((name) => (
+            <span class="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              #{name}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
   <div class="p-4 pt-2 sm:p-6 sm:pt-2">
     {
       guild.botInstalled ? (
