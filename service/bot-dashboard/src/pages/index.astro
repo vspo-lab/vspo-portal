@@ -2,6 +2,8 @@
 import Base from "~/layouts/Base.astro";
 import Button from "~/components/ui/Button.astro";
 import Card from "~/components/ui/Card.astro";
+import LanguageSelector from "~/components/ui/LanguageSelector.astro";
+import ThemeToggle from "~/components/ui/ThemeToggle.astro";
 import { t } from "~/i18n/dict";
 
 if (Astro.locals.user) {
@@ -16,10 +18,18 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
   : null;
 ---
 
-<Base title={t(locale, "login.title")}>
+<Base
+  title={t(locale, "login.title")}
+  description={t(locale, "login.description")}
+  canonicalPath="/"
+>
   <main
-    class="flex min-h-screen flex-col items-center justify-center gap-8 p-4"
+    class="relative flex min-h-screen flex-col items-center justify-center gap-8 p-4"
   >
+    <div class="absolute right-4 top-4 flex items-center gap-2">
+      <LanguageSelector currentLocale={locale} returnTo="/" variant="dropdown" />
+      <ThemeToggle variant="page" />
+    </div>
     <div class="flex flex-col items-center gap-4 text-center">
       <h1 class="font-heading text-4xl font-bold tracking-tight sm:text-5xl">
         {t(locale, "app.title")}

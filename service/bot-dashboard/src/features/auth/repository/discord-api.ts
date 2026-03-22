@@ -23,6 +23,7 @@ const DiscordApiUserSchema = z.object({
   username: z.string(),
   global_name: z.string().nullable().optional(),
   avatar: z.string().nullable(),
+  locale: z.string().optional(),
 });
 
 type DiscordApiUser = z.infer<typeof DiscordApiUserSchema>;
@@ -121,6 +122,7 @@ const DiscordApiRepository = {
         username: "dev-user",
         global_name: "Dev User",
         avatar: null,
+        locale: "ja",
       });
     }
 

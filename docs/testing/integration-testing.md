@@ -31,8 +31,12 @@
 
 ## Execution Commands
 
-- All: `pnpm test:integration`
-- Web: `pnpm --filter vspo-schedule-v2-web test:integration`
+There are no root-level test scripts. Tests are run per-package using the service-level scripts (`test`, `test:run`, `test:coverage`).
+
+- Watch mode: `pnpm --filter vspo-schedule-v2-web test`
+- Single run: `pnpm --filter vspo-schedule-v2-web test:run`
+- Coverage: `pnpm --filter vspo-schedule-v2-web test:coverage`
+- Bot dashboard: `pnpm --filter bot-dashboard test:run`
 
 ## References (Primary Sources)
 

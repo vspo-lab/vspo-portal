@@ -1,44 +1,99 @@
 @import "tailwindcss";
 
+/*
+ * Teach Tailwind that "dark:" means `.dark` ancestor, not prefers-color-scheme.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * === Brand Colors (constant across modes) ===
+ */
 @theme {
-  /* === Brand Colors (from vspo-schedule) === */
   --color-vspo-purple: #7266cf;
   --color-discord: #5865f2;
 
-  /* === Semantic Colors (dark mode, matching MUI dark defaults + vspo-schedule) === */
-  --color-background: #121212;
-  --color-foreground: rgba(255, 255, 255, 0.87);
-  --color-card: #242424;
-  --color-card-foreground: rgba(255, 255, 255, 0.87);
-  --color-primary: #7266cf;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #2d2d2d;
-  --color-secondary-foreground: rgba(255, 255, 255, 0.87);
-  --color-muted: #2d2d2d;
-  --color-muted-foreground: rgba(255, 255, 255, 0.7);
-  --color-accent: #363636;
-  --color-accent-foreground: rgba(255, 255, 255, 0.87);
-  --color-destructive: #e53935;
-  --color-destructive-foreground: #ffffff;
-  --color-border: rgba(255, 255, 255, 0.2);
-  --color-input: rgba(255, 255, 255, 0.12);
-  --color-ring: #7266cf;
-
-  /* === Border Radius (from vspo-schedule component values) === */
+  /* === Border Radius === */
   --radius: 12px;
   --radius-sm: 8px;
 
-  /* === Shadows (from vspo-schedule VideoCard) === */
+  /* === Shadows === */
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-action: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.12);
   --shadow-focus: 0 0 0 3px rgba(114, 102, 207, 0.6);
 
-  /* === Typography (from vspo-schedule Theme.tsx) === */
+  /* === Typography === */
   --font-sans: "Noto Sans JP", "Hiragino Kaku Gothic Pro", system-ui, sans-serif;
   --font-heading: "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
 
-  /* === Motion (from vspo-schedule) === */
+  /* === Motion === */
   --duration-fast: 150ms;
   --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/*
+ * === Semantic Color Tokens ===
+ * @theme inline binds Tailwind utility names to CSS custom properties.
+ * Actual values are in :root (light) and .dark (dark) below.
+ */
+@theme inline {
+  --color-background:           var(--sem-background);
+  --color-foreground:           var(--sem-foreground);
+  --color-card:                 var(--sem-card);
+  --color-card-foreground:      var(--sem-card-foreground);
+  --color-primary:              var(--sem-primary);
+  --color-primary-foreground:   var(--sem-primary-foreground);
+  --color-secondary:            var(--sem-secondary);
+  --color-secondary-foreground: var(--sem-secondary-foreground);
+  --color-muted:                var(--sem-muted);
+  --color-muted-foreground:     var(--sem-muted-foreground);
+  --color-accent:               var(--sem-accent);
+  --color-accent-foreground:    var(--sem-accent-foreground);
+  --color-destructive:          var(--sem-destructive);
+  --color-destructive-foreground: var(--sem-destructive-foreground);
+  --color-border:               var(--sem-border);
+  --color-input:                var(--sem-input);
+  --color-ring:                 var(--sem-ring);
+}
+
+/* ===== Light mode (default) ===== */
+:root {
+  --sem-background:            #ffffff;
+  --sem-foreground:            rgba(0, 0, 0, 0.87);
+  --sem-card:                  #f5f5f5;
+  --sem-card-foreground:       rgba(0, 0, 0, 0.87);
+  --sem-primary:               #7266cf;
+  --sem-primary-foreground:    #ffffff;
+  --sem-secondary:             #e8e8e8;
+  --sem-secondary-foreground:  rgba(0, 0, 0, 0.87);
+  --sem-muted:                 #e8e8e8;
+  --sem-muted-foreground:      rgba(0, 0, 0, 0.6);
+  --sem-accent:                #ebebeb;
+  --sem-accent-foreground:     rgba(0, 0, 0, 0.87);
+  --sem-destructive:           #e53935;
+  --sem-destructive-foreground: #ffffff;
+  --sem-border:                rgba(0, 0, 0, 0.15);
+  --sem-input:                 rgba(0, 0, 0, 0.08);
+  --sem-ring:                  #7266cf;
+}
+
+/* ===== Dark mode ===== */
+.dark {
+  --sem-background:            #121212;
+  --sem-foreground:            rgba(255, 255, 255, 0.87);
+  --sem-card:                  #242424;
+  --sem-card-foreground:       rgba(255, 255, 255, 0.87);
+  --sem-primary:               #7266cf;
+  --sem-primary-foreground:    #ffffff;
+  --sem-secondary:             #2d2d2d;
+  --sem-secondary-foreground:  rgba(255, 255, 255, 0.87);
+  --sem-muted:                 #2d2d2d;
+  --sem-muted-foreground:      rgba(255, 255, 255, 0.7);
+  --sem-accent:                #363636;
+  --sem-accent-foreground:     rgba(255, 255, 255, 0.87);
+  --sem-destructive:           #e53935;
+  --sem-destructive-foreground: #ffffff;
+  --sem-border:                rgba(255, 255, 255, 0.2);
+  --sem-input:                 rgba(255, 255, 255, 0.12);
+  --sem-ring:                  #7266cf;
 }

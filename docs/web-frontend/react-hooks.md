@@ -161,6 +161,11 @@ function useTaskData(taskId: string) {
 
 ## React 19 Hooks
 
+> **Status: Not yet used in this codebase.** The hooks below are available in React 19
+> but are not currently adopted in this project. The codebase uses the Pages Router
+> without Server Components or Server Actions (`"use server"`). These examples are
+> kept as reference for future adoption.
+
 ### use (Server Components)
 
 ```tsx

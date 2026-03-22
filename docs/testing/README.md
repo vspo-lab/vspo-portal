@@ -37,7 +37,7 @@ This directory is the Single Source of Truth for implementation guidelines per t
 | Service | Framework | UI Testing | Storybook | Config |
 | --- | --- | --- | --- | --- |
 | vspo-schedule/v2/web | Vitest + jsdom | @testing-library/react | Yes (@storybook/nextjs) | `vitest.config.ts` |
-| bot-dashboard | Vitest + Astro Container API | @testing-library/dom | No (Astro SSR) | `vitest.config.ts` |
+| bot-dashboard | Vitest + Astro Container API | @testing-library/dom | Yes (@storybook/html-vite) | `vitest.config.ts` |
 
 ### Test Commands
 

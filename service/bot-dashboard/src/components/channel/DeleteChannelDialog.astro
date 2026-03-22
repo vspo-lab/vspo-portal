@@ -1,0 +1,71 @@
+---
+import { actions } from "astro:actions";
+import Button from "~/components/ui/Button.astro";
+import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
+import { t } from "~/i18n/dict";
+
+interface Props {
+  channel: ChannelConfigType;
+  guildId: string;
+}
+
+const { channel, guildId } = Astro.props;
+const { locale } = Astro.locals;
+---
+
+<dialog
+  open
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  id="delete-channel-modal"
+  aria-labelledby="delete-channel-heading"
+  aria-modal="true"
+>
+  <div
+    class="mx-4 w-full max-w-md rounded-[--radius] border border-border bg-card p-6 shadow-action"
+  >
+    <div class="mb-4 flex items-start gap-3">
+      <span
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10"
+        aria-hidden="true"
+      >
+        <svg
+          class="h-5 w-5 text-destructive"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+          />
+        </svg>
+      </span>
+      <div class="min-w-0 flex-1">
+        <h2
+          id="delete-channel-heading"
+          class="text-base font-semibold leading-snug"
+        >
+          {t(locale, "channel.deleteConfirm", { channelName: channel.channelName })}
+        </h2>
+        <p class="mt-1 text-sm text-muted-foreground">
+          {t(locale, "channel.deleteConfirm.desc")}
+        </p>
+      </div>
+    </div>
+
+    <form method="post" action={actions.deleteChannel} class="flex justify-end gap-2 pt-2">
+      <input type="hidden" name="guildId" value={guildId} />
+      <input type="hidden" name="channelId" value={channel.channelId} />
+
+      <Button as="a" href={`/dashboard/${guildId}`} variant="ghost" size="sm">
+        {t(locale, "channel.deleteConfirm.cancel")}
+      </Button>
+      <Button type="submit" variant="destructive" size="sm">
+        {t(locale, "channel.deleteConfirm.submit")}
+      </Button>
+    </form>
+  </div>
+</dialog>

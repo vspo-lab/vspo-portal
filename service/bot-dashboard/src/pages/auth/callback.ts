@@ -32,7 +32,7 @@ export const GET: APIRoute = async (context) => {
     return context.redirect("/?error=auth_failed");
   }
 
-  const { user, accessToken, refreshToken, expiresAt } = result.val;
+  const { user, accessToken, refreshToken, expiresAt, locale } = result.val;
   context.session?.set("user", {
     id: user.id,
     username: user.username,
@@ -42,6 +42,7 @@ export const GET: APIRoute = async (context) => {
   context.session?.set("accessToken", accessToken);
   context.session?.set("refreshToken", refreshToken);
   context.session?.set("expiresAt", expiresAt);
+  context.session?.set("locale", locale?.startsWith("en") ? "en" : "ja");
 
   return context.redirect("/dashboard");
 };

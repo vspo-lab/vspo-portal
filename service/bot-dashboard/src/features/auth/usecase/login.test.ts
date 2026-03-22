@@ -1,3 +1,4 @@
+import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import { DiscordApiRepository } from "../repository/discord-api";
 import { LoginUsecase } from "./login";
@@ -60,6 +61,7 @@ describe("LoginUsecase", () => {
       username: "testuser",
       global_name: "Test User",
       avatar: "abc123",
+      locale: "ja",
     };
 
     it("returns LoginResult on success", async () => {
@@ -70,9 +72,9 @@ describe("LoginUsecase", () => {
         Ok(apiUser),
       );
 
-      const before = Date.now();
+      const before = getCurrentUTCDate().getTime();
       const result = await LoginUsecase.handleCallback("auth-code", env);
-      const after = Date.now();
+      const after = getCurrentUTCDate().getTime();
 
       expect(result.err).toBeUndefined();
       expect(result.val).toBeDefined();

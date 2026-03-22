@@ -1,6 +1,7 @@
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import type { GuildSummaryType } from "../domain/guild";
 import { GuildSummary } from "../domain/guild";
 import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
@@ -17,9 +18,13 @@ type ListGuildsResult = {
 };
 
 /**
- * Retrieve the list of servers the user can manage
- * @precondition Valid accessToken and appWorker are required
- * @postcondition Returns results categorized into installed / notInstalled / sidebarGuilds
+ * Retrieves the guilds the current user can manage and categorizes them for the dashboard.
+ *
+ * @param params - Discord access token and app worker binding used to query guild data
+ * @returns Installed guilds, not-installed guilds, and sidebar guild metadata, or an AppError
+ * @precondition params.accessToken !== "" && params.appWorker is a configured Fetcher
+ * @postcondition On Ok, every guild in return.val.installed has botInstalled === true and return.val.sidebarGuilds is derived from return.val.installed
+ * @idempotent true - The use case is read-only and repeated calls against unchanged upstream data yield the same categorization
  */
 const execute = async (
   params: ListGuildsParams,
@@ -38,10 +43,23 @@ const execute = async (
   const manageable = GuildSummary.filterManageable(guilds);
   const { installed, notInstalled } = GuildSummary.partition(manageable);
 
+  // Fetch channel configs for all installed guilds in parallel.
+  // Per-guild failures are swallowed so a single bad guild does not block the page.
+  const installedWithSummaries = await Promise.all(
+    installed.map(async (guild) => {
+      const channelResult = await VspoChannelApiRepository.getGuildConfig(
+        params.appWorker,
+        guild.id,
+      );
+      if (channelResult.err) return guild;
+      return GuildSummary.withChannelSummary(guild, channelResult.val.channels);
+    }),
+  );
+
   return Ok({
-    installed,
+    installed: installedWithSummaries,
     notInstalled,
-    sidebarGuilds: installed.map((g) => ({
+    sidebarGuilds: installedWithSummaries.map((g) => ({
       id: g.id,
       name: g.name,
       iconUrl: GuildSummary.iconUrl(g),
