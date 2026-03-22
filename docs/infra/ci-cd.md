@@ -435,7 +435,7 @@ on:
 
 1. Checkout code (`actions/checkout@v6`)
 2. Setup pnpm (via composite action `.github/actions/setup-pnpm`)
-3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.6.0)
+3. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.76.0)
    - The action runs from the env-specific wrangler config directory
    - Build (`pnpm cf:build`) is triggered by the wrangler config's `build.command`
    - Secrets are injected as Wrangler secrets via the action's `secrets` input
