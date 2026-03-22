@@ -2,9 +2,15 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import "@/styles/globals.css";
 import "@/styles/normalize.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 config.autoAddCss = false;
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#fff",
+};
 
 export const metadata: Metadata = {
   keywords:
@@ -20,7 +26,6 @@ export const metadata: Metadata = {
   robots: "all",
   manifest: "/manifest.json",
   icons: { apple: "/icon.png" },
-  other: { "theme-color": "#fff" },
 };
 
 export default function RootLayout({

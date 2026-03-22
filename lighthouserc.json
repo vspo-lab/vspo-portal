@@ -1,9 +1,13 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "npx next start -p 3333",
+      "startServerCommand": "pnpm --filter vspo-schedule-v2-web exec next start -p 3333",
       "startServerReadyPattern": "Ready in",
-      "url": ["http://localhost:3333/", "http://localhost:3333/schedule"],
+      "url": [
+        "http://localhost:3333/privacy-policy",
+        "http://localhost:3333/terms",
+        "http://localhost:3333/about"
+      ],
       "numberOfRuns": 1,
       "settings": {
         "chromeFlags": "--no-sandbox --headless --disable-gpu",

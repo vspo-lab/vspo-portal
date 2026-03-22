@@ -31,6 +31,9 @@ export default async function LocaleLayout({
           crossOrigin="anonymous"
         />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://yt3.ggpht.com" />
+        <link rel="dns-prefetch" href="https://i.ytimg.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
       <body>
         <InitColorSchemeScript attribute="class" />
