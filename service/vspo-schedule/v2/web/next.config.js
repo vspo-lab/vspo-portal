@@ -26,6 +26,18 @@ const nextConfig = {
   },
   experimental: {
     reactCompiler: true,
+    optimizePackageImports: [
+      "@mui/material",
+      "@mui/icons-material",
+      "date-fns",
+      "date-fns-tz",
+      "@fortawesome/free-solid-svg-icons",
+      "@fortawesome/free-brands-svg-icons",
+    ],
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
   },
   serverExternalPackages: emotionPackages,
   images: {
@@ -62,6 +74,22 @@ const nextConfig = {
     ],
   },
   skipMiddlewareUrlNormalize: true,
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
