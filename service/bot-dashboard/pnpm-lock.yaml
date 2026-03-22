@@ -32,6 +32,9 @@ importers:
       '@astrojs/cloudflare':
         specifier: ^13.1.3
         version: 13.1.3(@types/node@22.19.15)(astro@6.0.4(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(typescript@5.9.3)(yaml@2.8.2))(jiti@2.6.1)(lightningcss@1.32.0)(workerd@1.20260312.1)(wrangler@4.73.0(@cloudflare/workers-types@4.20260313.1))(yaml@2.8.2)
+      '@vspo-lab/dayjs':
+        specifier: workspace:^
+        version: link:../../packages/dayjs
       '@vspo-lab/error':
         specifier: workspace:^
         version: link:../../packages/errors

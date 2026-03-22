@@ -105,6 +105,42 @@ Available codes: `BAD_REQUEST`, `FORBIDDEN`, `INTERNAL_SERVER_ERROR`, `USAGE_EXC
 
 ---
 
+## React Error Boundaries
+
+In addition to the Result type, the codebase uses **React Error Boundaries** to catch
+render-time exceptions in component trees. Error Boundaries are class components that
+implement `getDerivedStateFromError` and `componentDidCatch`.
+
+### When to Use Each Approach
+
+| Approach | Use When |
+|----------|----------|
+| **Result type (`wrap`, `Ok`, `Err`)** | Handling async operations: API calls, data fetching, file reads. Used in `serverSideProps`, API services, and data orchestration layers. |
+| **React Error Boundary** | Catching unexpected render errors in a React component subtree. Provides a fallback UI instead of crashing the entire page. |
+
+### Existing Error Boundary
+
+`MultiviewErrorBoundary` (`features/multiview/components/containers/MultiviewErrorBoundary.tsx`)
+wraps the multiview page's component tree. On error it renders a recoverable fallback with
+a retry button, preventing the entire page from crashing due to an unexpected render error.
+
+```tsx
+// Usage in multiview page container
+<MultiviewErrorBoundary>
+  <PlaybackProvider>
+    <Presenter ... />
+  </PlaybackProvider>
+</MultiviewErrorBoundary>
+```
+
+**Guidelines:**
+
+- Use Error Boundaries around feature subtrees that are complex or may fail at render time.
+- Keep Result types for all async/data operations; Error Boundaries are not a substitute.
+- Error Boundaries do not catch errors in event handlers, async code, or server-side rendering.
+
+---
+
 ## Planned: Domain Error Codes
 
 > **Status: Not yet implemented.** The files referenced below — `domain-code.ts`,

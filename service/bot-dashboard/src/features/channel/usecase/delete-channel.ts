@@ -8,9 +8,13 @@ type DeleteChannelParams = {
 };
 
 /**
- * Remove a channel's Bot configuration entry for a given guild.
- * @precondition Valid appWorker, guildId, and channelId are required
- * @postcondition The channel is removed from the Bot configuration; idempotent
+ * Removes a channel configuration entry from a guild.
+ *
+ * @param params - App worker binding and the guild/channel identifiers to delete
+ * @returns Ok(undefined) after delegating the deletion, or an AppError
+ * @precondition params.guildId !== "" && params.channelId !== "" && params.appWorker is a configured Fetcher
+ * @postcondition On Ok, the channel identified by params.channelId is absent from the guild configuration
+ * @idempotent Delegates to repository; idempotency depends on repository implementation
  */
 const execute = async (
   params: DeleteChannelParams,

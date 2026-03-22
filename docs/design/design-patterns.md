@@ -74,10 +74,8 @@ Core: passive recognition, proximity display, screen reader support.
 
 | Pattern | Component | When |
 |---------|-----------|------|
-| Modal dialog | Dialog | Small-medium forms |
-| Full-page | FloatArea | Large information |
-| Drawer | Drawer | Maintain context |
-| Step-based | StepFormDialog | Multi-step operations |
+| Modal dialog | MUI `Dialog` | Small-medium forms (e.g., `DateSearchDialog`) |
+| Drawer | MUI `Drawer` | Side panels, navigation, maintaining context |
 
 **Avoid disabling submit buttons** -- let users press the button, then show error feedback.
 
