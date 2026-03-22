@@ -26,10 +26,9 @@ const nextConfig = {
   },
   experimental: {
     reactCompiler: true,
+    // @mui/material and date-fns are auto-optimized by Next.js
     optimizePackageImports: [
-      "@mui/material",
       "@mui/icons-material",
-      "date-fns",
       "date-fns-tz",
       "@fortawesome/free-solid-svg-icons",
       "@fortawesome/free-brands-svg-icons",
@@ -85,6 +84,23 @@ const nextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+      {
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/javascript; charset=utf-8",
+          },
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self'",
           },
         ],
       },
