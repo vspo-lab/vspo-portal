@@ -39,7 +39,6 @@ type ContentLayoutProps = {
   children: React.ReactNode;
   title: string;
   lastUpdateTimestamp?: number;
-  description?: string;
   path?: string;
   footerMessage?: string;
   maxPageWidth?: Breakpoint | false;
@@ -70,7 +69,6 @@ export const ContentLayout = ({
   children,
   title,
   lastUpdateTimestamp,
-  description,
   path,
   footerMessage,
   maxPageWidth,

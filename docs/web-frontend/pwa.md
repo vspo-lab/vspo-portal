@@ -69,12 +69,17 @@ serwist.addEventListeners();
 
 ## HTML Integration
 
-The root layout (`app/layout.tsx`) includes manifest and icon metadata:
+The root layout (`app/layout.tsx`) includes manifest, icon, and viewport metadata:
 
 ```typescript
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#fff",
+};
+
 export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: { apple: "/icon.png" },
-  other: { "theme-color": "#fff" },
 };
 ```

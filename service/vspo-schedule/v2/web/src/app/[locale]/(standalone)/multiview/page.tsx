@@ -40,12 +40,10 @@ export default async function MultiviewPage({
 
   const t = await getTranslations({ locale, namespace: "multiview" });
   const title = t("meta.title");
-  const description = t("meta.description");
 
   return (
     <ContentLayout
       title={title}
-      description={description}
       lastUpdateTimestamp={lastUpdateTimestamp}
       path="/multiview"
       padTop={false}
