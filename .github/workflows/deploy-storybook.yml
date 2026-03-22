@@ -5,7 +5,8 @@ on:
     branches: [develop]
     paths:
       - 'service/vspo-schedule/v2/web/.storybook/**'
-      - 'service/vspo-schedule/v2/web/src/**/*.stories.@(ts|tsx)'
+      - 'service/vspo-schedule/v2/web/src/**/*.stories.ts'
+      - 'service/vspo-schedule/v2/web/src/**/*.stories.tsx'
       - 'service/vspo-schedule/v2/web/src/**/components/**'
       - 'service/vspo-schedule/v2/web/wrangler.storybook.jsonc'
       - 'packages/**'
@@ -23,6 +24,11 @@ jobs:
 
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+
+      - name: Build packages
+        run: pnpm turbo build --filter='./packages/*'
 
       - name: Build Storybook
         working-directory: service/vspo-schedule/v2/web
