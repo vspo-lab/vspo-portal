@@ -32,7 +32,7 @@ App Router ではコンポーネントはデフォルトで Server Component。`
 
 サーバーモジュールから型だけを Client Component で使いたい場合、型定義を別ファイルに分離する:
 
-```
+```txt
 src/lib/markdown.ts        ← server-only (fs, Cloudflare)
 src/lib/markdown.types.ts  ← 型のみ (client-safe)
 ```
@@ -45,7 +45,7 @@ import type { SiteNewsMarkdownItem } from "@/lib/markdown.types";
 
 ## コンポーネント配置の原則
 
-```
+```txt
 Server Components (default)
 ├── app/[locale]/*/page.tsx       ← データ取得, cookies(), generateMetadata
 ├── app/[locale]/*/layout.tsx     ← NextIntlClientProvider, html/body
