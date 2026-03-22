@@ -161,3 +161,37 @@ For frontend directory structure and feature modules, see [Frontend Architecture
 | Retry | Exponential backoff (default 3 attempts) |
 | Local Development | MockHandler returns mock data when `isLocalEnv()` is true |
 | Code Organization | Feature-based structure under `src/features/` |
+
+---
+
+## Bot Dashboard Backend (Astro SSR)
+
+The bot-dashboard (`service/bot-dashboard/`) uses Astro 6 SSR as its backend, not the Hono-based server described above. It follows the same Clean Architecture principles but with Astro-specific patterns.
+
+### Feature Module Structure
+
+Each feature follows the domain/repository/usecase pattern:
+
+```
+features/<name>/
+├── domain/       # Zod schemas + companion objects
+├── repository/   # API access (currently mocked, Phase 5: vspo-server)
+└── usecase/      # Business logic orchestration
+```
+
+### Astro Actions
+
+Server-side form handlers defined in `src/actions/index.ts`. Each action:
+1. Calls `requireAuth(context)` for authentication
+2. Delegates to a usecase
+3. Maps `Result.err` to `ActionError`
+
+### Session & Middleware
+
+- **Session backend:** Cloudflare Workers KV via Astro.session API
+- **Middleware** (`src/middleware.ts`): Sets locale from session, injects user/accessToken into `Astro.locals`, protects `/dashboard/*` routes
+- **Auth flow:** Discord OAuth2 (authorize → callback → session creation)
+
+### Service Binding
+
+The bot-dashboard connects to `vspo-server` via Cloudflare Workers Service Binding (`APP_WORKER`). All channel/guild API calls go through this binding. Currently mocked pending Phase 5 integration.

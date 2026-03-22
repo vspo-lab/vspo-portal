@@ -73,8 +73,8 @@ const ja = {
   "nav.menu": "メニュー",
 
   // Member types
-  "memberType.vspo_jp": "ぶいすぽっ! JP",
-  "memberType.vspo_en": "ぶいすぽっ! EN",
+  "memberType.vspo_jp": "VSPO JP",
+  "memberType.vspo_en": "VSPO EN",
   "memberType.all": "全メンバー",
   "memberType.custom": "カスタム",
 

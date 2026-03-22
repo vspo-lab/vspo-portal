@@ -92,3 +92,34 @@ const Card = styled("div")(({ theme }) => ({
 - [Color Guidelines](./colors.md)
 - [Typography Guidelines](./typography.md)
 - [Utility Classes](./utilities.md)
+
+---
+
+## Bot Dashboard Token Architecture
+
+The bot-dashboard (`service/bot-dashboard/src/app.css`) uses a simplified 2-layer token architecture adapted for Tailwind CSS 4:
+
+### Layer Structure
+
+1. **Semantic variables (`--sem-*`):** Light/dark mode values defined in `:root` and `.dark` CSS blocks
+2. **Utility binding (`--color-*`):** Tailwind CSS 4 `@theme inline` maps utility class names to `var(--sem-*)` references
+
+This differs from the 3-layer pattern (palette → semantic → component) described above. The simplification is intentional: the bot-dashboard has a smaller design surface and Tailwind CSS 4's `@theme inline` directive requires this indirection pattern.
+
+### Example
+
+```css
+@theme inline {
+  --color-background: var(--sem-background);
+}
+
+:root {
+  --sem-background: #ffffff;  /* light */
+}
+
+.dark {
+  --sem-background: #121212;  /* dark */
+}
+```
+
+Brand colors (`--color-vspo-purple`, `--color-discord`) are constant across modes and defined directly in `@theme`.
