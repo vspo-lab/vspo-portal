@@ -48,7 +48,7 @@ Shortcuts are disabled when focus is in an input field, textarea, or contentEdit
 
 ## Grid
 
-- `react-grid-layout` (120 columns, rowHeight=10px for fine resize control)
+- `react-grid-layout` v2 (120 columns, rowHeight=10px for fine resize control)
 - `allowOverlap={true}`, `compactType={null}` for free-form placement
 - Drag swap: real-time position swap during drag (50% overlap threshold, RAF-throttled via `computeSwapDuringDrag`)
 - Post-drop: `resolveOverlaps` on ALL paths that modify layout: drag stop, resize stop, stream add/remove, and saved layout restore

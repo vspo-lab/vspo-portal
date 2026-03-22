@@ -15,6 +15,7 @@ Next.js 15 application using the **App Router**, deployed to Cloudflare Workers 
 | Error Handling | Result type (`@vspo-lab/error`) |
 | Date | date-fns + date-fns-tz (display), `@vspo-lab/dayjs` (UTC ops) |
 | Runtime | Cloudflare Workers |
+| Grid Layout | react-grid-layout v2 |
 
 ## Related Documents
 

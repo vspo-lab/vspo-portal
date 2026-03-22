@@ -17,6 +17,7 @@ App Router ではコンポーネントはデフォルトで Server Component。`
 | `src/features/schedule/api/scheduleService.ts` | 同上 |
 | `src/features/clips/api/clipService.ts` | 同上 |
 | `src/features/multiview/api/multiviewService.ts` | 同上 |
+| `src/lib/metadata.ts` | `generateAlternates` (server-only helper for SEO metadata) |
 
 ### Client Component (`"use client"`)
 

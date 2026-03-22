@@ -107,7 +107,7 @@ No more `NextPageWithLayout` or `getLayout` pattern.
 | `/multiview` | `(standalone)/multiview/page.tsx` | multiview | Dynamic |
 | `/about` | `(content)/about/page.tsx` | about | SSG |
 | `/site-news` | `(content)/site-news/page.tsx` | site-news | SSG |
-| `/site-news/[id]` | `(content)/site-news/[id]/page.tsx` | site-news | SSG |
+| `/site-news/[id]` | `(content)/site-news/[id]/page.tsx` | site-news | ISR (3600s) |
 | `/privacy-policy` | `(content)/privacy-policy/page.tsx` | legal | SSG |
 | `/terms` | `(content)/terms/page.tsx` | legal | SSG |
 
