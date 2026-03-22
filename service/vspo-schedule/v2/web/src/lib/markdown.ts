@@ -503,6 +503,7 @@ function extractStringArray(value: unknown): string[] {
  * Site news item type from markdown
  */
 import type { SiteNewsMarkdownItem } from "./markdown.types";
+
 export type { SiteNewsMarkdownItem } from "./markdown.types";
 
 /**
