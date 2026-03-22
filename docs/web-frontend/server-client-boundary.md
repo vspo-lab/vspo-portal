@@ -70,6 +70,18 @@ Client Components ("use client")
 | 型定義の分離 (`*.types.ts`) | `import type` でもモジュール解決は発生するため、安全側に分離 |
 | API 層を全て `server-only` | Cloudflare service binding はサーバーでのみ利用可能 |
 
+### Lazy-Loaded Components (next/dynamic)
+
+以下のコンポーネントは `next/dynamic` (`ssr: false`) で遅延読み込みし、初期 JS バンドルを削減する:
+
+| Component | Library | Savings |
+|-----------|---------|---------|
+| `MultiviewGridPresenter` | react-grid-layout | ~50KB |
+| `MarkdownContent` | react-markdown | ~30KB |
+| `TweetEmbed` | react-tweet | ~20KB |
+
+これらはユーザー操作またはルート遷移時にオンデマンドで読み込まれる。SSR を無効にすることで、サーバーバンドル（Cloudflare Workers 10MiB 制限）にも含まれない。
+
 ## 参照
 
 - [Server and Client Components - Next.js](https://nextjs.org/docs/app/getting-started/server-and-client-components)

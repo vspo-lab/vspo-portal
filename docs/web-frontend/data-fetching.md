@@ -164,6 +164,38 @@ API responses are validated against Zod schemas before returning:
 API Response -> Zod schema.parse() -> Domain type -> Result<T, AppError>
 ```
 
+## Suspense Streaming
+
+Dynamic pages extract data fetching into a dedicated async Server Component and wrap it in `<Suspense>` so the page shell renders immediately while API data streams in.
+
+```typescript
+// app/[locale]/(content)/schedule/[status]/page.tsx
+export default async function SchedulePage({ params }: { params: Promise<{ locale: string; status: string }> }) {
+  const { locale, status } = await params;
+  const t = await getTranslations({ locale, namespace: "streams" });
+
+  return (
+    <ContentLayout title={t("titles.streamSchedule")} path={`/schedule/${status}`}>
+      <Suspense fallback={<LivestreamCardsSkeleton />}>
+        <ScheduleContent locale={locale} status={status} />
+      </Suspense>
+    </ContentLayout>
+  );
+}
+
+// ScheduleContent — async Server Component that fetches data
+async function ScheduleContent({ locale, status }: { locale: string; status: string }) {
+  const schedule = await fetchSchedule({ locale, status, /* ... */ });
+  return <ScheduleStatusContainer livestreams={schedule.livestreams || []} />;
+}
+```
+
+Key points:
+
+- `ContentLayout` shell and navigation render on first byte; the data-dependent subtree streams in when the fetch completes.
+- Applied to: schedule, clips home, freechat, multiview.
+- Skeleton components live in `src/features/shared/components/Elements/Loading/` (e.g., `LivestreamCardsSkeleton`, `ClipCardsSkeleton`).
+
 ## Feature-Level Service Orchestration
 
 Each feature has a `*Service.ts` that composes multiple shared API calls using `Promise.allSettled`. This handles partial failures gracefully -- if one API call fails, the page still renders with available data:

@@ -488,7 +488,7 @@ on:
 | Security | CodeQL, filesystem scan, secret detection | CodeQL, Trivy, gitleaks |
 | Performance | Lighthouse audit, bundle size tracking | Lighthouse CI, nextjs-bundle-analysis |
 | Autofix | Auto-fix lint/format on PRs | Biome, git-auto-commit |
-| Web Deploy | Build and deploy to Cloudflare Workers | OpenNextJS, Wrangler v4.6.0 |
+| Web Deploy | Build and deploy to Cloudflare Workers | OpenNextJS, Wrangler v4.76.0 |
 | Bot Dashboard Deploy | Build and deploy to Cloudflare Workers | Turbo, Wrangler v4.76.0 |
 | CI (Plan) | Change detection, lint, scan, plan (planned) | tfaction, tflint, trivy |
 | CD (Apply) | Apply, follow-up PR (planned) | tfaction |

@@ -179,6 +179,7 @@ Hides header/footer/nav for distraction-free viewing. Exit via Escape or `I` key
 - Safe area insets (`env(safe-area-inset-*)`) for notched devices
 - `100dvh` for iOS Safari address bar compatibility
 - React Compiler enabled — automatic memoization
+- `MultiviewGridPresenter` is dynamically imported via `next/dynamic` with `ssr: false` for code splitting (~50KB react-grid-layout savings)
 
 ## Error Handling
 
