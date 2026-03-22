@@ -2,17 +2,21 @@
   "search": {
     "title": "検索条件",
     "selectDate": "日付を選択",
-    "memberType": "メンバータイプ",
-    "memberType.all": "すべてのメンバー",
-    "memberType.jp": "ぶいすぽ JP",
-    "memberType.en": "ぶいすぽ EN",
-    "memberType.ch": "ぶいすぽ CH",
-    "platform": "プラットフォーム",
-    "platform.all": "すべてのプラットフォーム",
-    "platform.youtube": "YouTube",
-    "platform.twitch": "Twitch",
-    "platform.twitcasting": "ツイキャス",
-    "platform.niconico": "ニコニコ",
+    "memberTypeLabel": "メンバータイプ",
+    "memberType": {
+      "all": "すべてのメンバー",
+      "jp": "ぶいすぽ JP",
+      "en": "ぶいすぽ EN",
+      "ch": "ぶいすぽ CH"
+    },
+    "platformLabel": "プラットフォーム",
+    "platform": {
+      "all": "すべてのプラットフォーム",
+      "youtube": "YouTube",
+      "twitch": "Twitch",
+      "twitcasting": "ツイキャス",
+      "niconico": "ニコニコ"
+    },
     "clear": "クリア",
     "cancel": "キャンセル",
     "search": "検索",

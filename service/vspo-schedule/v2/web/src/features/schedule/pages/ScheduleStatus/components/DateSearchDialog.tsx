@@ -92,13 +92,13 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
 
           <FormControl fullWidth margin="normal">
             <InputLabel id="member-type-select-label">
-              {t("search.memberType")}
+              {t("search.memberTypeLabel")}
             </InputLabel>
             <Select
               labelId="member-type-select-label"
               id="member-type-select"
               value={formData.memberType}
-              label={t("search.memberType")}
+              label={t("search.memberTypeLabel")}
               onChange={onMemberTypeChange}
             >
               <MenuItem value="vspo_all">{t("search.memberType.all")}</MenuItem>
@@ -110,13 +110,13 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
 
           <FormControl fullWidth margin="normal">
             <InputLabel id="platform-select-label">
-              {t("search.platform")}
+              {t("search.platformLabel")}
             </InputLabel>
             <Select
               labelId="platform-select-label"
               id="platform-select"
               value={formData.platform}
-              label={t("search.platform")}
+              label={t("search.platformLabel")}
               onChange={onPlatformChange}
             >
               <MenuItem value="">{t("search.platform.all")}</MenuItem>
