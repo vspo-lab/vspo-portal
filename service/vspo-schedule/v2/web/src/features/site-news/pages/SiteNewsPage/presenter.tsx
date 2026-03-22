@@ -16,7 +16,7 @@ import type { useTranslations } from "next-intl";
 import type * as React from "react";
 import { Breadcrumb } from "@/features/shared/components/Elements";
 import { Link } from "@/i18n/navigation";
-import type { SiteNewsMarkdownItem } from "@/lib/markdown";
+import type { SiteNewsMarkdownItem } from "@/lib/markdown.types";
 import { formatDate, getSiteNewsTagColor } from "@/lib/utils";
 import type { SiteNewsTag } from "@/types/site-news";
 

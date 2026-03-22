@@ -1,3 +1,4 @@
+import "server-only";
 import {
   type ListStreams200StreamsItem,
   type ListStreamsMemberType,

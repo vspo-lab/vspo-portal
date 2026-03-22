@@ -83,6 +83,9 @@ importers:
       '@vspo-lab/error':
         specifier: workspace:^
         version: link:../../../../packages/errors
+      client-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
@@ -119,6 +122,9 @@ importers:
       remark-html:
         specifier: ^16.0.1
         version: 16.0.1
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       serwist:
         specifier: ^9.5.7
         version: 9.5.7(browserslist@4.28.1)(typescript@5.9.3)
@@ -5323,6 +5329,9 @@ packages:
   serve-static@2.2.1:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
+
+  server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
 
   serwist@9.5.7:
     resolution: {integrity: sha512-4R3kezBK0YAwkU6kIKbJc1I7QmbDV+wauV6Rf2+PdEHN5tBFK+3S92JPgj+XAa1ZCtg55qJGyyzAQ+d0G5AjDg==}
@@ -12290,6 +12299,8 @@ snapshots:
       send: 1.2.1
     transitivePeerDependencies:
       - supports-color
+
+  server-only@0.0.1: {}
 
   serwist@9.5.7(browserslist@4.28.1)(typescript@5.9.3):
     dependencies:

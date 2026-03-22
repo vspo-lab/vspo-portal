@@ -1,3 +1,4 @@
+import "server-only";
 import { fetchLivestreams } from "@/features/shared/api/livestream";
 import { Livestream } from "@/features/shared/domain";
 import { AppError } from "@vspo-lab/error";

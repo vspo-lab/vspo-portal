@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import type * as React from "react";
-import type { SiteNewsMarkdownItem } from "@/lib/markdown";
+import type { SiteNewsMarkdownItem } from "@/lib/markdown.types";
 import { SiteNewsPagePresenter } from "./presenter";
 
 type SiteNewsPageContainerProps = {

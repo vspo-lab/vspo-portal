@@ -1,3 +1,4 @@
+import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
@@ -501,15 +502,7 @@ function extractStringArray(value: unknown): string[] {
 /**
  * Site news item type from markdown
  */
-export type SiteNewsMarkdownItem = {
-  id: number;
-  title: string;
-  content: string;
-  html?: string | null;
-  updated: string;
-  tags: string[];
-  tweetLink?: string | null;
-};
+export type { SiteNewsMarkdownItem } from "./markdown.types";
 
 /**
  * Get all site news items from markdown (works in both Cloudflare and Node.js environments)

@@ -4,7 +4,7 @@ import { Box, Chip, Toolbar, Typography } from "@mui/material";
 import type { useTranslations } from "next-intl";
 import type * as React from "react";
 import { Breadcrumb, TweetEmbed } from "@/features/shared/components/Elements";
-import type { SiteNewsMarkdownItem } from "@/lib/markdown";
+import type { SiteNewsMarkdownItem } from "@/lib/markdown.types";
 import { formatDate, getSiteNewsTagColor } from "@/lib/utils";
 
 type SiteNewsDetailPagePresenterProps = {

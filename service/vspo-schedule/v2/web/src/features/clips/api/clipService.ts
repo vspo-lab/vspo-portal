@@ -1,3 +1,4 @@
+import "server-only";
 import type { Channel, Clip, Pagination } from "@/features/shared/domain";
 import { fetchVspoMembers } from "../../shared/api/channel";
 import { fetchClips } from "../../shared/api/clip";

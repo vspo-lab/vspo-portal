@@ -1,3 +1,4 @@
+import "server-only";
 import { getPreviousDay } from "@vspo-lab/dayjs";
 import { fetchEvents } from "@/features/shared/api/event";
 import { fetchLivestreams } from "@/features/shared/api/livestream";

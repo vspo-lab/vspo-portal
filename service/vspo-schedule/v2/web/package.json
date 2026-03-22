@@ -33,6 +33,7 @@
     "@vspo-lab/api": "workspace:^",
     "@vspo-lab/dayjs": "workspace:^",
     "@vspo-lab/error": "workspace:^",
+    "client-only": "^0.0.1",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.1",
     "next": "catalog:",
@@ -45,6 +46,7 @@
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.1",
     "remark-html": "^16.0.1",
+    "server-only": "^0.0.1",
     "serwist": "^9.5.7",
     "webcola": "^3.4.0",
     "zod": "catalog:"
