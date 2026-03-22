@@ -58,7 +58,7 @@ const buttonClass = variant === "header"
       }
     }
 
-    // Initialise from current state (already set by FOUC script in Base.astro)
+    // Initialize from current state (already set by FOUC-prevention script in Base.astro)
     applyIcons(document.documentElement.classList.contains("dark"));
 
     btn.addEventListener("click", function () {
