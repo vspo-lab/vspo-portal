@@ -5,7 +5,7 @@ import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout
 import { SiteNewsDetailPageContainer } from "@/features/site-news/pages/SiteNewsDetailPage/container";
 import { getSiteNewsItem } from "@/lib/markdown";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
