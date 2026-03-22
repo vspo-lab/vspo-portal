@@ -1,5 +1,9 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import withSerwistInit from "@serwist/next";
 import createNextIntlPlugin from "next-intl/plugin";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
@@ -10,6 +14,9 @@ const withSerwist = withSerwistInit({
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig = {
+  output: "standalone",
+  // Trace files up to monorepo root for standalone build (required by @opennextjs/cloudflare)
+  outputFileTracingRoot: resolve(__dirname, "../../../../"),
   reactStrictMode: true,
   transpilePackages: ["react-tweet"],
   reactCompiler: true,

@@ -14,4 +14,4 @@ catalog:
   wrangler: ^4.76.0
   zod: ^4.0.0
 
-sharedWorkspaceLockfile: false
+sharedWorkspaceLockfile: true

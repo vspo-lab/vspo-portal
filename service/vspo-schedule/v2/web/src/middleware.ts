@@ -9,7 +9,7 @@ import {
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-export default function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const response = intlMiddleware(request);
   setTimeZone(request, response);
   setSessionId(request, response);

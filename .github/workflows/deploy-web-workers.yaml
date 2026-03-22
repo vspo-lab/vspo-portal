@@ -23,12 +23,15 @@ jobs:
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
       - name: Ensure R2 cache bucket exists
+        continue-on-error: true
         uses: cloudflare/wrangler-action@v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
           wranglerVersion: "4.76.0"
-          command: r2 bucket create ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}-vspo-schedule-web-cache || true
+          workingDirectory: service/vspo-schedule/v2/web
+          command: r2 bucket create ${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}-vspo-schedule-web-cache
       - name: Web Deploy Worker
         uses: cloudflare/wrangler-action@v3.14.1
         with:
@@ -36,10 +39,11 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
           wranglerVersion: "4.76.0"
-          workingDirectory: service/vspo-schedule/v2/web/config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}
-          command: deploy
+          workingDirectory: service/vspo-schedule/v2/web
           preCommands: |
-            cp -R ./ ../../..
+            cp config/wrangler/${{ github.ref == 'refs/heads/main' && 'prd' || 'dev' }}/wrangler.jsonc ./wrangler.jsonc
+            sed -i 's/"pnpm cf:build"/"pnpm cf:build --skipNextBuild"/' wrangler.jsonc
+          command: deploy
           quiet: true
           secrets: |
             ENV
@@ -54,6 +58,7 @@ jobs:
             NEXT_PUBLIC_FORM
             NEXT_PUBLIC_DISCORD_LINK
         env:
+          OPEN_NEXT_DEPLOY: 'true'
           ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
           API_KEY_V2: ${{ secrets.API_KEY_V2 }}
           API_URL_V2: ${{ secrets.API_URL_V2 }}
