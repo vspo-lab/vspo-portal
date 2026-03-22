@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dev-bot-dashboard-storybook",
+  "compatibility_date": "2025-05-05",
+  "assets": {
+    "directory": "./storybook-static",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

@@ -36,6 +36,7 @@ All infrastructure changes are reviewed through Pull Requests and automatically 
 |---------|---------|------|
 | `deploy-web-workers.yaml` | Push to `main`/`develop`, paths `service/vspo-schedule/v2/web/**` | Build and deploy web frontend to Cloudflare Workers |
 | `deploy-bot-dashboard.yaml` | Push to `main`/`develop`, paths `service/bot-dashboard/**` | Build and deploy bot dashboard to Cloudflare Workers |
+| `deploy-storybook.yml` | Push to `develop`, paths `.storybook/**`, `*.stories.*`, `components/**` | Build and deploy Storybook (bot-dashboard + vspo-schedule) to Cloudflare Workers via Composition (`storybook.vspo-schedule.com`) |
 | `pr-check.yaml` | PR with web/packages/docs changes | Biome, TypeScript, Knip, Textlint, Markdownlint, cspell, and bundle size checks |
 | `security-scan.yaml` | PR, push to `main`/`develop`, weekly (Mon 00:00 UTC) | CodeQL, Trivy filesystem scan, gitleaks secret detection |
 | `lighthouse.yaml` | PR with web/packages changes | Lighthouse performance audits |

@@ -201,3 +201,58 @@ The domain entity "Stream" is called `Livestream` in frontend code. The entity "
 
 **Platform enum**: `youtube`, `twitch`, `twitcasting`, `niconico`, `unknown`.
 **Status enum**: `live`, `upcoming`, `ended`, `unknown`.
+
+---
+
+## Bot Dashboard (Astro v6)
+
+The bot-dashboard (`service/bot-dashboard/`) is a separate Astro 6 SSR application for managing the Spodule Discord Bot. It does NOT use React, MUI, or the Container/Presenter pattern described above.
+
+### Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Astro 6 (server-side rendering) |
+| Runtime | Cloudflare Workers |
+| Styling | Tailwind CSS 4 with custom theme |
+| Type Safety | TypeScript + Zod Schema First |
+| Error Handling | `@vspo-lab/error` Result type |
+| Session | Astro.session + Cloudflare KV |
+| Auth | Discord OAuth2 |
+| i18n | Custom `dict.ts` (not next-i18next) |
+
+### Architecture
+
+The bot-dashboard follows Clean Architecture with feature-based modules:
+
+```text
+src/
+├── pages/              # Astro file-based routing (SSR)
+├── layouts/            # Page layout wrappers (Base, Dashboard)
+├── components/         # Astro components (.astro, no React)
+│   ├── ui/             # Shared UI (Button, Card, ThemeToggle, etc.)
+│   ├── auth/           # Auth components (UserMenu)
+│   ├── guild/          # Guild components (GuildCard)
+│   └── channel/        # Channel components (ChannelTable, etc.)
+├── features/           # Clean Architecture layers
+│   ├── auth/           # Discord OAuth2 (domain/repository/usecase)
+│   ├── guild/          # Server management (domain/repository/usecase)
+│   ├── channel/        # Channel config (domain/repository/usecase)
+│   └── shared/         # Shared domain (Creator)
+├── actions/            # Astro Actions (form handlers for channel ops)
+├── i18n/               # Custom i18n (dict.ts)
+├── middleware.ts       # Session + auth middleware
+└── pages/api/          # Plain API routes (e.g., change-locale)
+```
+
+### Key Differences from vspo-schedule
+
+| Aspect | vspo-schedule | bot-dashboard |
+|---|---|---|
+| Framework | Next.js 15 | Astro 6 |
+| UI Library | React + MUI | Astro components (no JS framework) |
+| Routing | Pages Router | Astro file-based routing |
+| State | React hooks | Server-side only (no client state) |
+| Forms | React state + fetch | HTML forms + Astro Actions |
+| i18n | next-i18next | Custom dict.ts |
+| Interactivity | Client-side React | Inline `<script>` (minimal JS) |

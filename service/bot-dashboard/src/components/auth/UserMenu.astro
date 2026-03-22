@@ -1,6 +1,6 @@
 ---
 import AvatarFallback from "~/components/ui/AvatarFallback.astro";
-import Button from "~/components/ui/Button.astro";
+import LanguageSelector from "~/components/ui/LanguageSelector.astro";
 import { t } from "~/i18n/dict";
 
 interface Props {
@@ -10,14 +10,121 @@ interface Props {
 
 const { displayName, avatarUrl } = Astro.props;
 const { locale } = Astro.locals;
+const returnTo = Astro.url.pathname + Astro.url.search;
 ---
 
-<div class="flex items-center gap-3">
-  <AvatarFallback src={avatarUrl} name={displayName} size="sm" />
-  <span class="text-sm font-medium">{displayName}</span>
-  <form method="post" action="/auth/logout">
-    <Button variant="ghost" size="sm" type="submit">
-      {t(locale, "auth.logout")}
-    </Button>
-  </form>
-</div>
+<details class="group relative" id="user-menu">
+  <summary
+    class="flex cursor-pointer list-none items-center gap-2 rounded-[--radius-sm] p-1.5 transition-colors hover:bg-white/10 [&::-webkit-details-marker]:hidden"
+  >
+    <AvatarFallback src={avatarUrl} name={displayName} size="sm" />
+    <span class="hidden text-sm font-medium sm:block">{displayName}</span>
+    <svg
+      class="h-4 w-4 opacity-60 transition-transform group-open:rotate-180"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </summary>
+
+  <div
+    class="absolute right-0 top-full z-50 mt-2 w-56 rounded-[--radius] border border-border bg-card p-2 shadow-action"
+  >
+    {/* Language */}
+    <div class="px-3 py-2">
+      <p class="text-xs font-medium text-muted-foreground">{t(locale, "settings.language")}</p>
+      <div class="mt-1">
+        <LanguageSelector currentLocale={locale} returnTo={returnTo} variant="dropdown" />
+      </div>
+    </div>
+
+    <div class="my-1 border-t border-border" />
+
+    {/* Theme */}
+    <button
+      id="dropdown-theme-toggle"
+      type="button"
+      class="flex w-full items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+    >
+      <svg id="dropdown-theme-icon-sun" class="hidden h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="5" />
+        <path stroke-linecap="round" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+      </svg>
+      <svg id="dropdown-theme-icon-moon" class="hidden h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
+      </svg>
+      <span id="dropdown-theme-label">{t(locale, "settings.theme")}</span>
+    </button>
+
+    <div class="my-1 border-t border-border" />
+
+    {/* Logout */}
+    <form method="post" action="/auth/logout">
+      <button
+        type="submit"
+        class="flex w-full items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        {t(locale, "auth.logout")}
+      </button>
+    </form>
+  </div>
+</details>
+
+<script is:inline>
+  (function () {
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (e) {
+      var menu = document.getElementById("user-menu");
+      if (menu && menu.open && !menu.contains(e.target)) {
+        menu.open = false;
+      }
+    });
+
+    // Theme toggle inside dropdown
+    var btn = document.getElementById("dropdown-theme-toggle");
+    var iconSun = document.getElementById("dropdown-theme-icon-sun");
+    var iconMoon = document.getElementById("dropdown-theme-icon-moon");
+
+    function updateDropdownIcons(isDark) {
+      if (isDark) {
+        iconSun.classList.remove("hidden");
+        iconMoon.classList.add("hidden");
+      } else {
+        iconSun.classList.add("hidden");
+        iconMoon.classList.remove("hidden");
+      }
+    }
+
+    updateDropdownIcons(document.documentElement.classList.contains("dark"));
+
+    btn.addEventListener("click", function () {
+      var nowDark = document.documentElement.classList.contains("dark");
+      var next = !nowDark;
+      localStorage.setItem("theme", next ? "dark" : "light");
+      if (next) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      updateDropdownIcons(next);
+      // Also sync the header ThemeToggle icons if present
+      var headerSun = document.getElementById("theme-icon-sun");
+      var headerMoon = document.getElementById("theme-icon-moon");
+      if (headerSun && headerMoon) {
+        if (next) {
+          headerSun.classList.remove("hidden");
+          headerMoon.classList.add("hidden");
+        } else {
+          headerSun.classList.add("hidden");
+          headerMoon.classList.remove("hidden");
+        }
+      }
+    });
+  })();
+</script>

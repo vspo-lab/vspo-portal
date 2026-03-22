@@ -36,7 +36,26 @@ Next.js 15 application deployed to Cloudflare Workers via OpenNextJS. See [Front
 
 ## Service: bot-dashboard
 
-Astro 6 server-rendered application for managing the Spodule Discord Bot. Deployed to Cloudflare Workers. Uses Clean Architecture (domain/repository/usecase), Tailwind CSS, and Zod-based type definitions. No client-side JavaScript — 100% server-side rendering.
+Astro 6 server-rendered application for managing the Spodule Discord Bot. Deployed to Cloudflare Workers. Uses Clean Architecture (domain/repository/usecase), Tailwind CSS, and Zod-based type definitions. Minimal client-side JavaScript (inline scripts for theme toggle) — primarily server-side rendering. Authentication via Discord OAuth2. Form handling via Astro Actions. Custom i18n system (`dict.ts`) for ja/en localization. Light/dark mode support with CSS variables.
+
+```text
+service/bot-dashboard/
+├── src/
+│   ├── pages/           # File-based routing (SSR)
+│   │   ├── index.astro  # Login page
+│   │   ├── dashboard/   # Protected dashboard pages
+│   │   ├── auth/        # OAuth endpoints (discord, callback, logout)
+│   │   └── api/         # API routes (change-locale)
+│   ├── layouts/         # Base + Dashboard layouts
+│   ├── components/      # UI, auth, guild, channel components
+│   ├── features/        # Clean Architecture (auth, guild, channel, shared)
+│   ├── actions/         # Astro Actions (form handlers)
+│   ├── i18n/            # Custom i18n (dict.ts)
+│   ├── middleware.ts    # Session + auth middleware
+│   └── app.css          # Tailwind CSS theme (light/dark)
+├── astro.config.ts
+└── wrangler.jsonc       # Cloudflare Workers config
+```
 
 ## Root Tooling
 

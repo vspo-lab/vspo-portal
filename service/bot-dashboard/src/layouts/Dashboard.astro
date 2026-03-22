@@ -1,6 +1,7 @@
 ---
 import Base from "./Base.astro";
 import UserMenu from "~/components/auth/UserMenu.astro";
+import ThemeToggle from "~/components/ui/ThemeToggle.astro";
 import AvatarFallback from "~/components/ui/AvatarFallback.astro";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
 import { t } from "~/i18n/dict";
@@ -61,10 +62,13 @@ const navLinkClass = (path: string) =>
         </details>
         <a href="/dashboard" class="font-heading text-lg font-bold">{t(locale, "app.name")}</a>
       </div>
-      <UserMenu
-        displayName={user.displayName}
-        avatarUrl={avatarUrl}
-      />
+      <div class="flex items-center gap-2">
+        <ThemeToggle />
+        <UserMenu
+          displayName={user.displayName}
+          avatarUrl={avatarUrl}
+        />
+      </div>
     </header>
     <div class="flex flex-1">
       <aside class="hidden w-64 shrink-0 border-r border-border p-4 lg:block">

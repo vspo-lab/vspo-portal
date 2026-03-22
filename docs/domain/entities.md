@@ -10,6 +10,9 @@
 | Event | Event | External API | A scheduled event such as a tournament, collab, or special broadcast |
 | FreeChat | FreeChat | External API | A standing free-chat room on YouTube (always-open chat space) |
 | SiteNews | SiteNews | Local | Announcement or changelog entry for the vspo-portal application itself |
+| GuildSummary | Guild | Discord API + vspo-server | A Discord server summary with bot installation status and channel configuration overview |
+| ChannelConfig | Guild | vspo-server | Bot notification settings for a specific Discord channel within a guild |
+| DiscordUser | Auth | Discord API | An authenticated Discord user with profile information |
 
 ## Relationships
 
@@ -30,6 +33,8 @@ erDiagram
 - **FreeChat** is structurally identical to Stream but represents a persistent chat room rather than a broadcast.
 - **Event** is independent of Creator/Stream and represents scheduled occurrences.
 - **SiteNews** is application-local and has no relationship to API entities.
+- **GuildSummary** has many **ChannelConfig** entries (via channelSummary).
+- **DiscordUser** manages many **GuildSummary** entries (via MANAGE_GUILD permission).
 
 ---
 
@@ -166,3 +171,66 @@ Application-local announcement or changelog entry. Stored as markdown files unde
 - `tags` categorize the news entry as a feature announcement (`feat`) or bug fix notice (`fix`).
 - SiteNews is stored as locale-specific markdown files and parsed at build/request time via `lib/markdown.ts`.
 - The `SiteNewsMarkdownItem` type in code corresponds to this entity.
+
+---
+
+### 7. GuildSummary (Bot Dashboard)
+
+A Discord server summary used in the bot management dashboard.
+
+| Attribute | Type | Required | Description |
+| --- | --- | --- | --- |
+| id | string | yes | Discord guild ID |
+| name | string | yes | Guild display name |
+| icon | string or null | yes | Icon hash for Discord CDN URL generation |
+| isAdmin | boolean | yes | Whether the user has MANAGE_GUILD permission |
+| botInstalled | boolean | yes | Whether the Spodule Bot is installed |
+| channelSummary | object or undefined | no | Summary of channel configurations |
+| channelSummary.enabledCount | number | conditional | Number of channels with notifications enabled |
+| channelSummary.totalCount | number | conditional | Total number of configured channels |
+| channelSummary.previewNames | string[] | conditional | Up to 3 enabled channel names for preview |
+
+#### Business Rules
+
+- `isAdmin` is derived from Discord permissions bitmask (0x20 = MANAGE_GUILD).
+- `channelSummary` is attached by `ListGuildsUsecase` for installed guilds; it may be absent if the channel config fetch fails (fail-open).
+- `previewNames` is capped at 3 entries for UI display purposes.
+
+---
+
+### 8. ChannelConfig (Bot Dashboard)
+
+Bot notification configuration for a specific Discord channel.
+
+| Attribute | Type | Required | Description |
+| --- | --- | --- | --- |
+| channelId | string | yes | Discord channel ID |
+| channelName | string | yes | Channel display name |
+| enabled | boolean | yes | Whether notifications are active |
+| language | string | yes | Notification language ("ja" or "en") |
+| memberType | enum | yes | One of: "vspo_jp", "vspo_en", "all", "custom" |
+| customMembers | string[] or undefined | no | Creator IDs when memberType is "custom" |
+
+#### Business Rules
+
+- `memberType` determines which creators' streams trigger notifications.
+- `customMembers` is only used when `memberType` is "custom".
+- `language` controls the language of notification messages sent by the bot.
+
+---
+
+### 9. DiscordUser (Bot Dashboard)
+
+An authenticated Discord user for the bot dashboard.
+
+| Attribute | Type | Required | Description |
+| --- | --- | --- | --- |
+| id | string | yes | Discord user ID |
+| username | string | yes | Discord username |
+| displayName | string | yes | Display name (global_name or username fallback) |
+| avatar | string or null | yes | Avatar hash for CDN URL generation |
+
+#### Business Rules
+
+- `displayName` falls back to `username` when `global_name` is not set.
+- Avatar URL is generated via `https://cdn.discordapp.com/avatars/{id}/{avatar}.png`.

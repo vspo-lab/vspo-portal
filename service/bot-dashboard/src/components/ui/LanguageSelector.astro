@@ -1,0 +1,50 @@
+---
+import type { Locale } from "~/i18n/dict";
+import { t } from "~/i18n/dict";
+
+interface Props {
+  currentLocale: Locale;
+  returnTo: string;
+  /** When true, style for header (white text on purple bg). When false, style for card/dropdown. */
+  variant?: "header" | "dropdown";
+}
+
+const { currentLocale, returnTo, variant = "header" } = Astro.props;
+
+const activeClass = variant === "header"
+  ? "bg-white/20 text-white"
+  : "bg-primary/10 text-primary";
+const inactiveClass = variant === "header"
+  ? "text-white/60 hover:text-white"
+  : "text-muted-foreground hover:text-foreground";
+const dividerClass = variant === "header"
+  ? "text-white/40"
+  : "text-muted-foreground/40";
+---
+
+<form method="post" action="/api/change-locale" class="flex items-center gap-1">
+  <input type="hidden" name="_returnTo" value={returnTo} />
+  <button
+    type="submit"
+    name="locale"
+    value="ja"
+    class={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+      currentLocale === "ja" ? activeClass : inactiveClass
+    }`}
+    aria-pressed={currentLocale === "ja" ? "true" : "false"}
+  >
+    {t(currentLocale, "settings.language.ja")}
+  </button>
+  <span class={dividerClass} aria-hidden="true">/</span>
+  <button
+    type="submit"
+    name="locale"
+    value="en"
+    class={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+      currentLocale === "en" ? activeClass : inactiveClass
+    }`}
+    aria-pressed={currentLocale === "en" ? "true" : "false"}
+  >
+    {t(currentLocale, "settings.language.en")}
+  </button>
+</form>
