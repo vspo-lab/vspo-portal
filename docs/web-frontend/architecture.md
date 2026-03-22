@@ -225,7 +225,7 @@ The bot-dashboard (`service/bot-dashboard/`) is a separate Astro 6 SSR applicati
 
 The bot-dashboard follows Clean Architecture with feature-based modules:
 
-```
+```text
 src/
 ├── pages/              # Astro file-based routing (SSR)
 ├── layouts/            # Page layout wrappers (Base, Dashboard)

@@ -65,6 +65,7 @@ const html = await container.renderToString(MyComponent, {
 ```
 
 Key patterns:
+
 - **`renderToString`** renders components to HTML strings for assertion
 - **`locals`** injects `Astro.locals` (locale, user, etc.) for testing
 - **`parseHtml`** (via `testing-library/dom`) parses HTML for DOM queries

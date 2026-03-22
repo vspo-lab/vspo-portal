@@ -172,7 +172,7 @@ The bot-dashboard (`service/bot-dashboard/`) uses Astro 6 SSR as its backend, no
 
 Each feature follows the domain/repository/usecase pattern:
 
-```
+```text
 features/<name>/
 ├── domain/       # Zod schemas + companion objects
 ├── repository/   # API access (currently mocked, Phase 5: vspo-server)
@@ -182,6 +182,7 @@ features/<name>/
 ### Astro Actions
 
 Server-side form handlers defined in `src/actions/index.ts`. Each action:
+
 1. Calls `requireAuth(context)` for authentication
 2. Delegates to a usecase
 3. Maps `Result.err` to `ActionError`
