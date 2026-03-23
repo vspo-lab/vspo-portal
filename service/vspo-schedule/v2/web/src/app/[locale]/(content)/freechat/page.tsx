@@ -30,7 +30,7 @@ export async function generateMetadata({
  * Rendered inside Suspense to enable streaming.
  * @precondition locale is a valid locale string.
  * @postcondition Returns the FreechatPagePresenter with fetched freechat data.
- * @idempotent Yes - given the same params and cookies, produces the same output.
+ * @idempotent Yes - given the same locale and unchanged backend data, produces the same output.
  */
 async function FreechatContent({ locale }: { locale: string }) {
   const result = await fetchFreechats({ lang: locale });

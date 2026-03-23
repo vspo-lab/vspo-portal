@@ -33,7 +33,7 @@ export async function generateMetadata({
  * Rendered inside Suspense to enable streaming.
  * @precondition period is a valid period filter.
  * @postcondition Returns the ClipsHome container with fetched clip data.
- * @idempotent Yes - given the same params and cookies, produces the same output.
+ * @idempotent No - output includes a current timestamp, so repeated calls with the same period may produce different results.
  */
 async function ClipsContent({ period }: { period: string }) {
   const afterDate = getPeriodStartDate(period);

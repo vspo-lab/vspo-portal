@@ -29,7 +29,7 @@ export async function generateMetadata({
  * Rendered inside Suspense to enable streaming.
  * @precondition locale is a valid locale string.
  * @postcondition Returns the MultiviewPageContainer with fetched livestream data.
- * @idempotent Yes - given the same params and cookies, produces the same output.
+ * @idempotent No - output depends on current UTC time and external multiview service data.
  */
 async function MultiviewContent({ locale }: { locale: string }) {
   const multiviewService = await fetchMultiviewService({

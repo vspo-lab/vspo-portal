@@ -6,7 +6,7 @@ Next.js 16 + Cloudflare Workers でのキャッシュ戦略ガイド。
 
 ### インフラ構成
 
-```
+```text
 @opennextjs/cloudflare 1.17.1
 ├── incrementalCache: R2 + Regional Cache (long-lived)
 ├── tagCache: DO Sharded (baseShardSize: 12)
@@ -101,9 +101,9 @@ export const fetchClipsCached = async (
 
 ### `'use cache'` 内の制約
 
-- **返り値はシリアライズ可能であること** — クラスインスタンス (AppError, Date) は不可
-- **Result型は返せない** — `Err(AppError)` がシリアライズ不可。throw ベースを使う
-- **副作用禁止** — 読み取り専用関数のみ
+- **返り値をシリアライズ可能にすること**: クラスインスタンス (AppError, Date) は不可
+- **Result型は返せない**: `Err(AppError)` がシリアライズ不可。throw ベースを使う
+- **副作用禁止**: 読み取り専用関数のみ
 - **呼び出し側で `wrap` を使ってフォールバック**
 
 ```typescript
