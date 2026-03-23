@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import type { Livestream } from "../../shared/domain/livestream";
+import { makeLivestream } from "../__testutils__/fixtures";
 import { useGroupedLivestreams } from "./useGroupedLivestreams";
 
 // ---------------------------------------------------------------------------
@@ -36,31 +36,25 @@ vi.mock("@/lib/utils", () => ({
   },
 }));
 
+vi.mock("../utils/groupLivestreamsByDate", () => ({
+  groupLivestreamsByDate: (
+    livestreams: Array<{ scheduledStartTime: string }>,
+    _timeZone: string,
+  ) => {
+    const safeStreams = Array.isArray(livestreams) ? livestreams : [];
+    const result: Record<string, Array<{ scheduledStartTime: string }>> = {};
+    for (const item of safeStreams) {
+      const key = item.scheduledStartTime.slice(0, 10);
+      if (!result[key]) result[key] = [];
+      result[key].push(item);
+    }
+    return result;
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-let nextId = 0;
-
-const makeLivestream = (
-  overrides: Partial<Livestream> & { scheduledStartTime: string },
-): Livestream => ({
-  id: `id-${nextId++}`,
-  type: "livestream",
-  title: "Test Stream",
-  description: "",
-  platform: "youtube",
-  thumbnailUrl: "https://example.com/thumb.jpg",
-  viewCount: 0,
-  channelId: "ch1",
-  channelTitle: "Channel",
-  channelThumbnailUrl: "https://example.com/ch.jpg",
-  link: "https://example.com",
-  tags: [],
-  status: "upcoming",
-  scheduledEndTime: null,
-  ...overrides,
-});
-
 const defaultParams = {
   timeZone: "Asia/Tokyo",
   locale: "ja",

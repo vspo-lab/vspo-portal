@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeModeProvider } from "@/context/Theme";
+import { makeLivestream } from "@/features/schedule/__testutils__/fixtures";
 import type { Livestream } from "@/features/shared/domain/livestream";
 import { LivestreamContentPresenter } from "./presenter";
 
@@ -37,25 +38,6 @@ vi.mock("@/lib/utils", () => ({
     return `${month}/${day} (Mon)`;
   },
 }));
-
-const makeLivestream = (overrides: Partial<Livestream> = {}): Livestream => ({
-  id: "ls-1",
-  type: "livestream",
-  title: "Test Stream",
-  description: "",
-  platform: "youtube",
-  thumbnailUrl: "https://example.com/thumb.jpg",
-  viewCount: 0,
-  channelId: "ch-1",
-  channelTitle: "Test Channel",
-  channelThumbnailUrl: "https://example.com/icon.jpg",
-  link: "https://example.com",
-  tags: [],
-  status: "live",
-  scheduledStartTime: "2024-01-15T10:00:00Z",
-  scheduledEndTime: null,
-  ...overrides,
-});
 
 const renderWithTheme = (ui: React.ReactElement) =>
   render(<ThemeModeProvider>{ui}</ThemeModeProvider>);

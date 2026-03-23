@@ -64,7 +64,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
         />
       );
     default:
-      return <></>;
+      return null;
   }
 };
 
@@ -95,6 +95,6 @@ export const DrawerIcon: React.FC<DrawerIconProps> = ({ id }) => {
     case "multiview":
       return <GridViewIcon />;
     default:
-      return <></>;
+      return null;
   }
 };

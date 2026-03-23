@@ -1,15 +1,14 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import { FreechatPageContainer } from "@/features/freechat/pages/FreechatPage/container";
+import { FreechatPagePresenter } from "@/features/freechat/pages/FreechatPage/presenter";
 import { fetchFreechats } from "@/features/shared/api/freechat";
 import { FreechatSkeleton } from "@/features/shared/components/Elements/Loading/FreechatSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import { generateAlternates } from "@/lib/metadata";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 1800;
 
 export async function generateMetadata({
   params,
@@ -30,17 +29,14 @@ export async function generateMetadata({
  * Async Server Component that performs all data fetching for the freechat page.
  * Rendered inside Suspense to enable streaming.
  * @precondition locale is a valid locale string.
- * @postcondition Returns the FreechatPageContainer with fetched freechat data.
- * @idempotent Yes - given the same params and cookies, produces the same output.
+ * @postcondition Returns the FreechatPagePresenter with fetched freechat data.
+ * @idempotent Yes - given the same locale and unchanged backend data, produces the same output.
  */
 async function FreechatContent({ locale }: { locale: string }) {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get("x-session-id")?.value;
-
-  const result = await fetchFreechats({ lang: locale, sessionId });
+  const result = await fetchFreechats({ lang: locale });
   const freechats = !result.err && result.val ? result.val.freechats : [];
 
-  return <FreechatPageContainer freechats={freechats} />;
+  return <FreechatPagePresenter freechats={freechats} />;
 }
 
 export default async function FreechatPage({

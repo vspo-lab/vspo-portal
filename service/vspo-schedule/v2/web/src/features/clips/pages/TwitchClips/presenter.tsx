@@ -17,7 +17,6 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type React from "react";
 import { useState } from "react";
-import { Loading } from "@/features/shared/components/Elements";
 import type { Clip, Pagination } from "@/features/shared/domain/clip";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ClipTabsAndList } from "../../components";
@@ -105,8 +104,6 @@ type TwitchClipsPresenterProps = {
   clips: Clip[];
   pagination: Pagination;
   order: string;
-  isProcessing: boolean;
-  setIsProcessing: (isProcessing: boolean) => void;
   currentPeriod?: string;
 };
 
@@ -114,7 +111,6 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
   clips,
   pagination,
   order,
-  isProcessing,
   currentPeriod = "week",
 }) => {
   const t = useTranslations("clips");
@@ -203,9 +199,7 @@ export const Presenter: React.FC<TwitchClipsPresenterProps> = ({
         </Grid>
       </FilterContainer>
 
-      {isProcessing ? (
-        <Loading />
-      ) : clips.length === 0 ? (
+      {clips.length === 0 ? (
         <Box
           sx={{
             mt: 2,

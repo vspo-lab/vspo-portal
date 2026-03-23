@@ -11,6 +11,8 @@ import { ScheduleStatusPresenter } from "./presenter";
 // Props received from the App Router server component
 type ScheduleStatusContainerProps = {
   livestreams: Livestream[];
+  /** Pre-computed date-grouped livestreams from the server component. */
+  groupedByDate?: Record<string, Livestream[]>;
   events: Event[];
   timeZone: string;
   locale: string;
@@ -22,6 +24,7 @@ export const ScheduleStatusContainer: React.FC<
   ScheduleStatusContainerProps
 > = ({
   livestreams,
+  groupedByDate,
   events,
   timeZone = "Asia/Tokyo",
   locale = "ja-JP",
@@ -40,13 +43,14 @@ export const ScheduleStatusContainer: React.FC<
   const [isLoading, startTransition] = useTransition();
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
 
-  // Use the custom hook for grouping and filtering logic
+  // Use the custom hook for filtering logic; grouping is pre-computed server-side
   const { livestreamsByDate, allTabLabel } = useGroupedLivestreams({
     livestreams,
     timeZone,
     locale,
     currentStatusFilter,
     liveStatus,
+    groupedByDate,
   });
 
   const handleStatusFilterChange = (status: "live" | "upcoming" | "all") => {

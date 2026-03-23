@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ThemeModeProvider } from "@/context/Theme";
-import type { Livestream } from "@/features/shared/domain/livestream";
+import { makeLivestream } from "@/features/schedule/__testutils__/fixtures";
 import { LivestreamCard } from "./LivestreamCard";
 
 const mockUseMediaQuery = vi.fn().mockReturnValue(false);
@@ -34,24 +34,15 @@ vi.mock("@/lib/utils", () => ({
   formatDate: (_date: unknown, _fmt: string) => "19:00",
 }));
 
-const makeLivestream = (overrides: Partial<Livestream> = {}): Livestream => ({
-  id: "ls-1",
-  type: "livestream",
+const cardDefaults = {
   title: "Test Stream Title",
-  description: "",
-  platform: "youtube",
-  thumbnailUrl: "https://example.com/thumb.jpg",
-  viewCount: 100,
-  channelId: "ch-1",
   channelTitle: "Test Channel Name",
-  channelThumbnailUrl: "https://example.com/icon.jpg",
-  link: "https://example.com",
-  tags: [],
-  status: "live",
-  scheduledStartTime: "2024-01-15T10:00:00Z",
-  scheduledEndTime: null,
-  ...overrides,
-});
+  viewCount: 100,
+} as const;
+
+const makeCardLivestream = (
+  overrides: Parameters<typeof makeLivestream>[0] = {},
+) => makeLivestream({ ...cardDefaults, ...overrides });
 
 const renderWithTheme = (ui: React.ReactElement) =>
   render(<ThemeModeProvider>{ui}</ThemeModeProvider>);
@@ -60,7 +51,7 @@ describe("LivestreamCard", () => {
   it("renders title, channel name, and formatted time", () => {
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream()}
+        livestream={makeCardLivestream()}
         isFreechat={false}
         timeZone="Asia/Tokyo"
       />,
@@ -73,7 +64,7 @@ describe("LivestreamCard", () => {
   it("wraps content in VideoCard", () => {
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream()}
+        livestream={makeCardLivestream()}
         isFreechat={false}
         timeZone="Asia/Tokyo"
       />,
@@ -83,7 +74,7 @@ describe("LivestreamCard", () => {
 
   it("does not show time for freechat cards", () => {
     renderWithTheme(
-      <LivestreamCard livestream={makeLivestream()} isFreechat={true} />,
+      <LivestreamCard livestream={makeCardLivestream()} isFreechat={true} />,
     );
     expect(screen.queryByText("19:00~")).not.toBeInTheDocument();
   });
@@ -91,7 +82,7 @@ describe("LivestreamCard", () => {
   it("renders without highlight for ended/archive status", () => {
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream({ status: "ended" })}
+        livestream={makeCardLivestream({ status: "ended" })}
         isFreechat={false}
         timeZone="Asia/Tokyo"
       />,
@@ -108,7 +99,7 @@ describe("LivestreamCard", () => {
     ];
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream()}
+        livestream={makeCardLivestream()}
         isFreechat={false}
         timeZone="Asia/Tokyo"
         additionalMembers={additionalMembers}
@@ -122,7 +113,7 @@ describe("LivestreamCard", () => {
   it("renders upcoming highlight when status is upcoming", () => {
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream({ status: "upcoming" })}
+        livestream={makeCardLivestream({ status: "upcoming" })}
         isFreechat={false}
         timeZone="Asia/Tokyo"
       />,
@@ -137,7 +128,7 @@ describe("LivestreamCard", () => {
   it("falls back to empty string when channelThumbnailUrl is falsy", () => {
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream({ channelThumbnailUrl: "" })}
+        livestream={makeCardLivestream({ channelThumbnailUrl: "" })}
         isFreechat={false}
         timeZone="Asia/Tokyo"
       />,
@@ -150,7 +141,7 @@ describe("LivestreamCard", () => {
   it("does not show time for freechat cards (isFreechat=true)", () => {
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream({ status: "upcoming" })}
+        livestream={makeCardLivestream({ status: "upcoming" })}
         isFreechat={true}
       />,
     );
@@ -168,7 +159,7 @@ describe("LivestreamCard", () => {
     ];
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream()}
+        livestream={makeCardLivestream()}
         isFreechat={false}
         timeZone="Asia/Tokyo"
         additionalMembers={additionalMembers}
@@ -181,7 +172,7 @@ describe("LivestreamCard", () => {
   it("handles falsy title, channelTitle, and scheduledStartTime", () => {
     renderWithTheme(
       <LivestreamCard
-        livestream={makeLivestream({
+        livestream={makeCardLivestream({
           title: "" as string,
           channelTitle: "" as string,
           scheduledStartTime: "" as string,

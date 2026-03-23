@@ -63,7 +63,7 @@ export const DateSearchDialog: React.FC<DateSearchDialogProps> = ({
   onSubmit,
   onClear,
   onSaveFavorite,
-  onLoadFavorite,
+  onLoadFavorite: _onLoadFavorite,
   onDeleteFavorite,
 }) => {
   const t = useTranslations("schedule");

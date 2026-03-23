@@ -12,8 +12,10 @@ export const useCookie = (key: string, initialValue?: string) => {
 
   const setCookie = (newValue: string | undefined) => {
     if (newValue === undefined) {
+      // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API lacks Firefox support
       document.cookie = `${key}=; expires=${new Date(0).toUTCString()}; path=/;`;
     } else {
+      // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API lacks Firefox support
       document.cookie = `${key}=${encodeURIComponent(newValue)}; max-age=34560000; path=/;`;
     }
     setValue(newValue);

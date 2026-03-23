@@ -50,6 +50,6 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
         />
       );
     default:
-      return <></>;
+      return null;
   }
 };

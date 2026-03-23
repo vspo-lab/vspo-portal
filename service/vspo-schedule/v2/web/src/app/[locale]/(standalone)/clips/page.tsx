@@ -1,27 +1,18 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { fetchClipService } from "@/features/clips/api/clipService";
 import { ClipsHome } from "@/features/clips/pages/ClipsHome/container";
+import {
+  getPeriodStartDate,
+  getSearchParam,
+} from "@/features/clips/utils/params";
 import { ClipsSkeleton } from "@/features/shared/components/Elements/Loading/ClipsSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import { generateAlternates } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
-
-/**
- * Get the ISO date string for N days ago.
- * @precondition days >= 0
- * @postcondition Returns a valid ISO date string.
- * @idempotent Yes - pure computation based on current time.
- */
-const getDaysAgoISO = (days: number): string => {
-  const date = getCurrentUTCDate();
-  date.setDate(date.getDate() - days);
-  return date.toISOString();
-};
 
 export async function generateMetadata({
   params,
@@ -42,35 +33,13 @@ export async function generateMetadata({
  * Rendered inside Suspense to enable streaming.
  * @precondition period is a valid period filter.
  * @postcondition Returns the ClipsHome container with fetched clip data.
- * @idempotent Yes - given the same params and cookies, produces the same output.
+ * @idempotent No - output includes a current timestamp, so repeated calls with the same period may produce different results.
  */
 async function ClipsContent({ period }: { period: string }) {
-  // Set date filters based on period
-  let afterDate: string | undefined;
-  switch (period) {
-    case "day":
-      afterDate = getDaysAgoISO(1);
-      break;
-    case "week":
-      afterDate = getDaysAgoISO(7);
-      break;
-    case "month":
-      afterDate = getDaysAgoISO(30);
-      break;
-    case "year":
-      afterDate = getDaysAgoISO(365);
-      break;
-    default:
-      afterDate = undefined;
-      break;
-  }
-
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get("x-session-id")?.value;
+  const afterDate = getPeriodStartDate(period);
 
   const clipService = await fetchClipService({
     afterPublishedAtDate: afterDate,
-    sessionId,
   });
 
   const lastUpdateTimestamp = getCurrentUTCDate().getTime();
@@ -96,7 +65,7 @@ export default async function ClipsHomePage({
 }) {
   const { locale } = await params;
   const resolvedSearchParams = await searchParams;
-  const period = (resolvedSearchParams.period as string) || "week";
+  const period = getSearchParam(resolvedSearchParams, "period", "week");
 
   const lastUpdateTimestamp = getCurrentUTCDate().getTime();
 
