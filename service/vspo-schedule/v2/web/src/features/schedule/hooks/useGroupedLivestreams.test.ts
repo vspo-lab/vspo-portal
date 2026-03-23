@@ -36,6 +36,22 @@ vi.mock("@/lib/utils", () => ({
   },
 }));
 
+vi.mock("../utils/groupLivestreamsByDate", () => ({
+  groupLivestreamsByDate: (
+    livestreams: Array<{ scheduledStartTime: string }>,
+    _timeZone: string,
+  ) => {
+    const safeStreams = Array.isArray(livestreams) ? livestreams : [];
+    const result: Record<string, Array<{ scheduledStartTime: string }>> = {};
+    for (const item of safeStreams) {
+      const key = item.scheduledStartTime.slice(0, 10);
+      if (!result[key]) result[key] = [];
+      result[key].push(item);
+    }
+    return result;
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

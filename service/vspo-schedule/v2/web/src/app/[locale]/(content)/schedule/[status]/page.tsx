@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { fetchSchedule } from "@/features/schedule/api/scheduleService";
 import { ScheduleStatusContainer } from "@/features/schedule/pages/ScheduleStatus/container";
 import type { FavoriteSearchCondition } from "@/features/schedule/types/favorite";
+import { groupLivestreamsByDate } from "@/features/schedule/utils/groupLivestreamsByDate";
 import { ScheduleSkeleton } from "@/features/shared/components/Elements/Loading/ScheduleSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
 import {
@@ -138,9 +139,13 @@ async function ScheduleContent({
     sessionId,
   });
 
+  const livestreams = schedule.livestreams || [];
+  const groupedByDate = groupLivestreamsByDate(livestreams, timeZone);
+
   return (
     <ScheduleStatusContainer
-      livestreams={schedule.livestreams || []}
+      livestreams={livestreams}
+      groupedByDate={groupedByDate}
       events={schedule.events}
       timeZone={timeZone}
       locale={locale}

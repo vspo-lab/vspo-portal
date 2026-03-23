@@ -1,16 +1,20 @@
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
-import { formatDate, groupBy } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import type { Livestream } from "../../shared/domain/livestream";
+import { groupLivestreamsByDate } from "../utils/groupLivestreamsByDate";
 
 type StatusFilter = "live" | "upcoming" | "all";
 
 interface UseGroupedLivestreamsParams {
+  /** Raw livestreams array. Used as fallback when groupedByDate is not provided. */
   livestreams: Livestream[];
   timeZone: string;
   locale: string;
   currentStatusFilter: StatusFilter;
   liveStatus: string;
+  /** Pre-computed grouped livestreams from the server. When provided, skips client-side grouping. */
+  groupedByDate?: Record<string, Livestream[]>;
 }
 
 interface UseGroupedLivestreamsReturn {
@@ -26,16 +30,14 @@ export const useGroupedLivestreams = ({
   locale,
   currentStatusFilter,
   liveStatus,
+  groupedByDate,
 }: UseGroupedLivestreamsParams): UseGroupedLivestreamsReturn => {
   const t = useTranslations("schedule");
-  // Group livestreams by date on the client side
+  // Use server-precomputed groups when available; otherwise fall back to client-side grouping
   const livestreamsByDate = useMemo(() => {
-    // Ensure livestreams is an array before grouping
-    const safeStreams = Array.isArray(livestreams) ? livestreams : [];
-    return groupBy(safeStreams, (livestream) =>
-      formatDate(livestream.scheduledStartTime, "yyyy-MM-dd", { timeZone }),
-    );
-  }, [livestreams, timeZone]);
+    if (groupedByDate) return groupedByDate;
+    return groupLivestreamsByDate(livestreams, timeZone);
+  }, [livestreams, timeZone, groupedByDate]);
 
   // Process filtering, sorting, and metadata in a single useMemo
   const processedData = useMemo(() => {

@@ -17,7 +17,6 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type React from "react";
 import { useState } from "react";
-import { Loading } from "@/features/shared/components/Elements";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { Clip, Pagination } from "../../../shared/domain/clip";
 import { ClipTabsAndList } from "../../components";
@@ -105,7 +104,6 @@ type YouTubeClipsPresenterProps = {
   clips: Clip[];
   pagination: Pagination;
   orderKey: string;
-  isProcessing: boolean;
   currentPeriod?: string;
 };
 
@@ -113,7 +111,6 @@ export const Presenter: React.FC<YouTubeClipsPresenterProps> = ({
   clips,
   pagination,
   orderKey,
-  isProcessing,
   currentPeriod = "week",
 }) => {
   const t = useTranslations("clips");
@@ -215,15 +212,11 @@ export const Presenter: React.FC<YouTubeClipsPresenterProps> = ({
         </Grid>
       </FilterContainer>
 
-      {isProcessing ? (
-        <Loading />
-      ) : (
-        <ClipTabsAndList
-          clips={clips}
-          pagination={pagination}
-          initialOrderKey={orderKey}
-        />
-      )}
+      <ClipTabsAndList
+        clips={clips}
+        pagination={pagination}
+        initialOrderKey={orderKey}
+      />
     </Container>
   );
 };

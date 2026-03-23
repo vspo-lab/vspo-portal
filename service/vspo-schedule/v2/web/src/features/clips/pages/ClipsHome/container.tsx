@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { Channel, Clip } from "@/features/shared/domain";
 import { Presenter } from "./presenter";
 
@@ -15,12 +14,6 @@ type ClipsHomeProps = {
 
 // Container component (page logic)
 export const ClipsHome: React.FC<ClipsHomeProps> = (props) => {
-  const [isProcessing, setIsProcessing] = useState<boolean>(true);
-
-  useEffect(() => {
-    setIsProcessing(false);
-  }, []);
-
   // Use the presenter component
   return (
     <Presenter
@@ -28,7 +21,6 @@ export const ClipsHome: React.FC<ClipsHomeProps> = (props) => {
       popularShortsClips={props.popularShortsClips}
       popularTwitchClips={props.popularTwitchClips}
       // vspoMembers={props.vspoMembers}
-      isProcessing={isProcessing}
       currentPeriod={props.currentPeriod}
     />
   );

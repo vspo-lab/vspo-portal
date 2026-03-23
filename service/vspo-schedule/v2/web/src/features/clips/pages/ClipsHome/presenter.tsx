@@ -17,7 +17,6 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { Loading } from "@/features/shared/components/Elements";
 import type { Clip } from "@/features/shared/domain";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { ClipCarousel, ClipSection } from "../../components/containers";
@@ -119,7 +118,6 @@ type ClipsHomePresenterProps = {
   popularShortsClips: Clip[];
   popularTwitchClips: Clip[];
   // vspoMembers: Channel[];
-  isProcessing: boolean;
   currentPeriod: string;
 };
 
@@ -128,7 +126,6 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
   popularShortsClips,
   popularTwitchClips,
   // vspoMembers,
-  isProcessing,
   currentPeriod,
 }) => {
   const t = useTranslations("clips");
@@ -201,10 +198,6 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
     }
     return arr;
   });
-
-  if (isProcessing) {
-    return <Loading />;
-  }
 
   const navigateToClips = (platform?: string, type?: string) => {
     const query: Record<string, string> = {};
