@@ -26,7 +26,7 @@ const { locale } = Astro.locals;
     <tbody>
       {
         channels.map((ch) => (
-          <tr class="border-b border-border last:border-0">
+          <tr class="border-b border-border transition-colors duration-[--duration-fast] last:border-0 hover:bg-accent/50">
             <td class="px-4 py-3 font-medium">#{ch.channelName}</td>
             <td class="px-4 py-3">
               <form
@@ -40,11 +40,12 @@ const { locale } = Astro.locals;
                   type="submit"
                   role="switch"
                   aria-checked={ch.enabled ? "true" : "false"}
-                  class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
+                  class={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-colors duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
+                  style="min-height:44px;min-width:44px;padding:8px 0;"
                   aria-label={t(locale, ch.enabled ? "channel.disable" : "channel.enable")}
                 >
                   <span
-                    class={`inline-block h-4 w-4 rounded-full bg-white transition-transform duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "translate-x-6" : "translate-x-1"}`}
+                    class={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "translate-x-6" : "translate-x-1"}`}
                   />
                 </button>
               </form>
@@ -59,18 +60,18 @@ const { locale } = Astro.locals;
               <div class="flex items-center justify-end gap-2">
                 <a
                   href={`?edit=${ch.channelId}`}
-                  class="inline-flex items-center gap-1 rounded-[--radius-sm] border border-border px-3 py-1 text-sm text-muted-foreground transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-accent hover:text-accent-foreground"
+                  class="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-[--radius-sm] border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-accent hover:text-accent-foreground"
                   aria-label={`${t(locale, "channel.edit")} #${ch.channelName}`}
                 >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                   {t(locale, "channel.edit")}
                 </a>
                 <a
                   href={`?delete=${ch.channelId}`}
-                  class="inline-flex items-center gap-1 rounded-[--radius-sm] border border-destructive/40 px-3 py-1 text-sm text-destructive transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-destructive/10"
+                  class="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-[--radius-sm] border border-destructive/40 px-3 py-1.5 text-sm text-destructive transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-destructive/10"
                   aria-label={`${t(locale, "channel.delete")} #${ch.channelName}`}
                 >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   {t(locale, "channel.delete")}
                 </a>
               </div>
@@ -82,9 +83,14 @@ const { locale } = Astro.locals;
   </table>
   {
     channels.length === 0 && (
-      <p class="p-6 text-center text-muted-foreground">
-        {t(locale, "channel.empty")}
-      </p>
+      <div class="flex flex-col items-center gap-3 p-8 text-center">
+        <svg class="h-12 w-12 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+        </svg>
+        <p class="text-sm text-muted-foreground">
+          {t(locale, "channel.empty")}
+        </p>
+      </div>
     )
   }
 </div>

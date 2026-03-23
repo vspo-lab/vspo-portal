@@ -5,15 +5,19 @@ const ja = {
 
   // Login page
   "login.title": "ログイン",
+  "login.headline": "配信通知を、ウェブから一括管理",
   "login.description":
-    "Discord Bot の配信通知設定をウェブから簡単に管理できます。チャンネルごとの言語設定やメンバーフィルターを一覧で確認・編集できます。",
+    "チャンネルごとの通知設定をブラウザで確認・変更できます。",
   "login.button": "Discord でログイン",
-  "login.feature.list": "一覧管理",
-  "login.feature.list.desc": "サーバーとチャンネルの設定を一目で確認",
-  "login.feature.filter": "メンバーフィルター",
-  "login.feature.filter.desc": "JP・EN・カスタム設定で通知対象を細かく絞り込み",
-  "login.feature.realtime": "即時反映",
-  "login.feature.realtime.desc": "ウェブからの変更が Bot に即座に反映されます",
+  "login.permissions_note": "サーバー一覧の読み取りのみ許可されます",
+  "login.feature.list": "複数サーバーを一括管理",
+  "login.feature.list.desc": "サーバーを切り替えずにまとめて設定を確認・変更",
+  "login.feature.filter": "通知メンバーを細かく指定",
+  "login.feature.filter.desc":
+    "チャンネルごとに JP・EN・カスタムで通知対象を絞り込み",
+  "login.feature.realtime": "コマンド不要",
+  "login.feature.realtime.desc":
+    "ブラウザ操作だけで設定完了、コマンド入力は不要",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -87,6 +91,13 @@ const ja = {
     "ユーザー情報の取得に失敗しました。もう一度お試しください。",
   "error.invalid_state": "無効な認証リクエストです。もう一度お試しください。",
 
+  // Toast / feedback
+  "toast.updateSuccess": "チャンネル設定を更新しました。",
+  "toast.toggleSuccess": "チャンネルの有効/無効を切り替えました。",
+  "toast.deleteSuccess": "チャンネル設定を削除しました。",
+  "toast.dismiss": "閉じる",
+  "toast.retry": "再読み込み",
+
   // Auth
   "auth.logout": "ログアウト",
 } as const;
@@ -98,16 +109,20 @@ const en: Record<keyof typeof ja, string> = {
 
   // Login page
   "login.title": "Login",
+  "login.headline": "Manage stream notifications from one dashboard",
   "login.description":
-    "Easily manage your Discord Bot's stream notification settings from the web. View and update language and member filters per channel at a glance.",
+    "View and update notification settings per channel, right from your browser.",
   "login.button": "Login with Discord",
-  "login.feature.list": "List Management",
-  "login.feature.list.desc": "View server and channel settings at a glance",
-  "login.feature.filter": "Member Filters",
+  "login.permissions_note": "Only requests read access to your server list",
+  "login.feature.list": "Multi-server at once",
+  "login.feature.list.desc":
+    "Switch between servers without leaving the dashboard",
+  "login.feature.filter": "Precise notifications",
   "login.feature.filter.desc":
-    "Fine-tune notification targets with JP, EN, or custom filters",
-  "login.feature.realtime": "Instant Updates",
-  "login.feature.realtime.desc": "Changes take effect immediately on the Bot",
+    "Choose JP, EN, or pick specific members per channel",
+  "login.feature.realtime": "No commands needed",
+  "login.feature.realtime.desc":
+    "Skip slash commands \u2014 click to enable, filter, and go",
 
   // Dashboard
   "dashboard.servers": "Servers",
@@ -180,6 +195,13 @@ const en: Record<keyof typeof ja, string> = {
   "error.no_code": "Authorization code not found. Please try again.",
   "error.fetch_failed": "Failed to fetch user information. Please try again.",
   "error.invalid_state": "Invalid authentication request. Please try again.",
+
+  // Toast / feedback
+  "toast.updateSuccess": "Channel settings updated.",
+  "toast.toggleSuccess": "Channel toggled successfully.",
+  "toast.deleteSuccess": "Channel configuration deleted.",
+  "toast.dismiss": "Dismiss",
+  "toast.retry": "Reload",
 
   // Auth
   "auth.logout": "Logout",

@@ -16,16 +16,20 @@ const { locale } = Astro.locals;
 const iconUrl = GuildSummary.iconUrl(guild);
 ---
 
-<Card class={`transition-all duration-[--duration-fast] ease-[--ease-standard] hover:-translate-y-1 hover:shadow-hover ${guild.botInstalled ? "" : "opacity-75"}`}>
+<Card class={`transition-all duration-[--duration-fast] ease-[--ease-standard] ${guild.botInstalled ? "hover-lift" : "border-dashed opacity-80"}`}>
   <div class="flex flex-row items-center gap-3 p-4 pb-2 sm:p-6 sm:pb-2">
     <AvatarFallback src={iconUrl} name={guild.name} size="md" />
     <div class="min-w-0 flex-1">
       <h3 class="truncate text-base font-semibold leading-none tracking-tight">
         {guild.name}
       </h3>
-      {guild.botInstalled && (
-        <span class="mt-1 inline-block rounded-full bg-vspo-purple/20 px-2 py-0.5 text-xs text-vspo-purple">
+      {guild.botInstalled ? (
+        <span class="mt-1 inline-block rounded-full bg-vspo-purple/20 px-2 py-0.5 text-xs text-foreground">
           Bot {t(locale, "guild.active")}
+        </span>
+      ) : (
+        <span class="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+          {t(locale, "dashboard.notInstalled")}
         </span>
       )}
     </div>

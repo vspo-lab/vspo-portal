@@ -41,6 +41,18 @@ const updateResult = Astro.getActionResult(actions.updateChannel);
 const toggleResult = Astro.getActionResult(actions.toggleChannel);
 const deleteResult = Astro.getActionResult(actions.deleteChannel);
 const actionError = updateResult?.error ?? toggleResult?.error ?? deleteResult?.error;
+const actionSuccess = !actionError && (
+  (updateResult?.data != null ? "update" : null) ??
+  (toggleResult?.data != null ? "toggle" : null) ??
+  (deleteResult?.data != null ? "delete" : null)
+);
+const successMessageKey = actionSuccess === "update"
+  ? "toast.updateSuccess" as const
+  : actionSuccess === "toggle"
+    ? "toast.toggleSuccess" as const
+    : actionSuccess === "delete"
+      ? "toast.deleteSuccess" as const
+      : null;
 
 // Editing state via query param
 const editChannelId = Astro.url.searchParams.get("edit");
@@ -71,9 +83,12 @@ const deletingChannel = deleteChannelId
 
     {
       fetchError && (
-        <div role="alert" class="flex items-gap gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-          <span>{t(locale, "dashboard.error", { message: fetchError.message })}</span>
+        <div role="alert" class="flex items-center gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+          <span class="flex-1">{t(locale, "dashboard.error", { message: fetchError.message })}</span>
+          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-[--radius-sm] border border-destructive/40 px-3 py-1 text-xs font-medium hover:bg-destructive/10">
+            {t(locale, "toast.retry")}
+          </a>
         </div>
       )
     }
@@ -81,8 +96,36 @@ const deletingChannel = deleteChannelId
     {
       actionError && (
         <div role="alert" class="flex items-center gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-          <span>{t(locale, "dashboard.error", { message: actionError.message })}</span>
+          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+          <span class="flex-1">{t(locale, "dashboard.error", { message: actionError.message })}</span>
+          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-[--radius-sm] border border-destructive/40 px-3 py-1 text-xs font-medium hover:bg-destructive/10">
+            {t(locale, "toast.retry")}
+          </a>
+        </div>
+      )
+    }
+
+    {
+      successMessageKey && (
+        <div
+          role="status"
+          aria-live="polite"
+          class="toast-success flex items-center gap-3 rounded-[--radius-sm] border border-vspo-purple/30 bg-vspo-purple/10 p-4 text-sm text-foreground"
+        >
+          <svg class="h-5 w-5 shrink-0 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="flex-1">{t(locale, successMessageKey)}</span>
+          <button
+            type="button"
+            class="shrink-0 rounded-[--radius-sm] p-1 text-muted-foreground hover:text-foreground"
+            aria-label={t(locale, "toast.dismiss")}
+            onclick="this.closest('.toast-success')?.remove()"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       )
     }

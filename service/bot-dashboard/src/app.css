@@ -10,7 +10,7 @@
  */
 @theme {
   --color-vspo-purple: #7266cf;
-  --color-discord: #5865f2;
+  --color-discord: #4752c4;
 
   /* === Border Radius === */
   --radius: 12px;
@@ -54,6 +54,68 @@
   --color-border:               var(--sem-border);
   --color-input:                var(--sem-input);
   --color-ring:                 var(--sem-ring);
+}
+
+/*
+ * === Animations ===
+ */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.toast-success {
+  animation: toast-in 200ms var(--ease-standard), toast-out 300ms var(--ease-standard) 4.7s forwards;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 500ms var(--ease-standard) both;
+}
+
+.bg-grid {
+  background-image: radial-gradient(circle, var(--sem-border) 0.5px, transparent 0.5px);
+  background-size: 32px 32px;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/*
+ * === Hover-only styles (pointer devices) ===
+ */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+/*
+ * === Reduced motion ===
+ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ===== Light mode (default) ===== */
