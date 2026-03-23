@@ -2,13 +2,13 @@
 
 ## Overview
 
-Next.js 15 application using the **App Router**, deployed to Cloudflare Workers via OpenNextJS. UI is built with **MUI v7 + Emotion**. Code is organized into feature modules following the **Container/Presenter** pattern. Components are Server Components by default; client interactivity is opted-in via `"use client"`.
+Next.js 16 application using the **App Router**, deployed to Cloudflare Workers via OpenNextJS. UI is built with **MUI v7 + Emotion**. Code is organized into feature modules following the **Container/Presenter** pattern. Components are Server Components by default; client interactivity is opted-in via `"use client"`.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | UI Library | MUI v7 (Material UI) + Emotion CSS-in-JS |
 | Language | TypeScript 5.9 (strict mode, Zod Schema First) |
 | i18n | next-intl (ja, en, cn, tw, ko) |
@@ -30,6 +30,7 @@ Next.js 15 application using the **App Router**, deployed to Cloudflare Workers 
 | [Multiview](./multiview.md) | Multi-stream viewer, grid layouts, playback controls |
 | [Middleware](./middleware.md) | Locale routing, timezone, session tracking |
 | [PWA](./pwa.md) | Progressive Web App configuration and caching |
+| [Performance](./performance/app-router-improvements.md) | App Router performance and UI/UX improvement plan |
 
 ## Directory Structure
 
@@ -255,9 +256,9 @@ src/
 
 | Aspect | vspo-schedule | bot-dashboard |
 |---|---|---|
-| Framework | Next.js 15 | Astro 6 |
+| Framework | Next.js 16 | Astro 6 |
 | UI Library | React + MUI | Astro components (no JS framework) |
-| Routing | Pages Router | Astro file-based routing |
+| Routing | App Router | Astro file-based routing |
 | State | React hooks | Server-side only (no client state) |
 | Forms | React state + fetch | HTML forms + Astro Actions |
 | i18n | next-i18next | Custom dict.ts |

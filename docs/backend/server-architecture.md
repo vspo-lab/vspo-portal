@@ -2,9 +2,9 @@
 
 ## Overview
 
-vspo-portal is a **Next.js 15 Pages Router frontend** deployed on **Cloudflare Workers** via the OpenNext adapter. There is no backend server in this repository. The application consumes an external REST API through the `@vspo-lab/api` package, which provides an OpenAPI-generated client.
+vspo-portal is a **Next.js 16 App Router frontend** deployed on **Cloudflare Workers** via the OpenNext adapter. There is no backend server in this repository. The application consumes an external REST API through Cloudflare Workers Service Binding (`APP_WORKER`) or the `@vspo-lab/api` client as fallback.
 
-The architecture follows a "frontend-only" model: pages fetch data from the external API at request time via `getServerSideProps`/`getStaticProps`, and the rendered HTML is delivered to the client. All business logic and data persistence reside in the external API service.
+The architecture follows a "frontend-only" model: async Server Components fetch data from the external API at request time, and the rendered HTML is streamed to the client via Suspense. All business logic and data persistence reside in the external API service.
 
 ---
 
@@ -15,11 +15,11 @@ The architecture follows a "frontend-only" model: pages fetch data from the exte
 │                    Cloudflare Workers                       │
 │                                                             │
 │  ┌───────────────────────────────────────────────────────┐ │
-│  │              Next.js 15 Pages Router                    │ │
+│  │              Next.js 16 App Router                      │ │
 │  │                                                       │ │
-│  │  getServerSideProps ─── @vspo-lab/api ──── External   │ │
-│  │  Page Components        (Axios + Retry)    REST API  │ │
-│  │  API Routes                                           │ │
+│  │  Async Server Components ── APP_WORKER ── External    │ │
+│  │  Suspense Streaming         (Service Binding)  API   │ │
+│  │  ISR / force-dynamic        @vspo-lab/api (fallback) │ │
 │  └───────────────────────────────────────────────────────┘ │
 └───────────────────────────────────────────────────────────┘
 ```
@@ -27,7 +27,7 @@ The architecture follows a "frontend-only" model: pages fetch data from the exte
 Key points:
 
 - **No backend logic** lives in this repository. No database, no ORM, no DI container.
-- **Server-side rendering** (`getServerSideProps` / `getStaticProps`) calls the external API via `VSPOApi`.
+- **Async Server Components** fetch data via Cloudflare Workers Service Binding (`APP_WORKER`) or `VSPOApi` REST client as fallback.
 - **Cloudflare Access** headers authenticate requests to the external API.
 - **OpenNext adapter** bridges Next.js to the Cloudflare Workers runtime.
 
@@ -52,36 +52,39 @@ The primary data flow for a page render:
 
 ```text
 1. User requests a page
-2. Cloudflare Workers invokes Next.js Pages Router
-3. getServerSideProps calls VSPOApi method
-4. VSPOApi sends HTTP request to external API
-   - Includes CF-Access headers for authentication
-   - Includes x-session-id header for session tracking
-   - Axios handles the HTTP transport
-5. External API returns JSON response
-6. VSPOApi wraps response in Result<T, AppError>
-7. getServerSideProps checks result.err
-   - If err: returns error props
-   - Otherwise: returns data as props
-8. HTML is returned to the client
+2. Cloudflare Workers invokes Next.js App Router
+3. Async Server Component calls shared API function
+4. API function checks for Cloudflare environment:
+   a. If available: calls APP_WORKER service binding (worker-to-worker RPC)
+   b. If not: calls external API via VSPOApi REST client
+5. External API returns response
+6. Result is wrapped in Result<T, AppError>
+7. Server Component checks result.err
+   - If err: returns fallback UI
+   - Otherwise: passes data to Client Component as props
+8. HTML is streamed to the client via Suspense
 ```
 
-Example in a page with `getServerSideProps`:
+Example in an async Server Component:
 
 ```typescript
-// pages/schedule/index.tsx
-import { createApi } from "@/lib/api";
+// app/[locale]/(content)/schedule/[status]/page.tsx
+export const dynamic = "force-dynamic";
 
-export const getServerSideProps = async () => {
-  const api = createApi();
-  const result = await api.streams.list({ status: "scheduled" });
+async function ScheduleContent({ locale, status }: Props) {
+  const schedule = await fetchSchedule({ locale, status });
+  return <ScheduleStatusContainer livestreams={schedule.livestreams || []} />;
+}
 
-  if (result.err) {
-    return { props: { error: result.err } };
-  }
-
-  return { props: { streams: result.val } };
-};
+export default async function SchedulePage({ params }: { params: Promise<...> }) {
+  return (
+    <ContentLayout title={title} path={`/schedule/${status}`}>
+      <Suspense fallback={<ScheduleSkeleton />}>
+        <ScheduleContent locale={locale} status={status} />
+      </Suspense>
+    </ContentLayout>
+  );
+}
 ```
 
 ---
@@ -154,7 +157,7 @@ For frontend directory structure and feature modules, see [Frontend Architecture
 | Aspect | Approach |
 |--------|----------|
 | Runtime | Cloudflare Workers via OpenNext |
-| Framework | Next.js 15 Pages Router |
+| Framework | Next.js 16 App Router |
 | API Communication | `@vspo-lab/api` (Orval-generated, Axios-based) |
 | Error Handling | `Result<T, AppError>` -- no try-catch |
 | Authentication | Cloudflare Access headers + API key |
