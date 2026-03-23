@@ -25,22 +25,27 @@ const showCustomMembers = MemberType.requiresCustomSelection(
 
 <dialog
   open
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  class="fixed inset-0 z-50 flex items-center justify-center"
   id="config-modal"
   aria-labelledby="config-modal-heading"
+  aria-modal="true"
+  style="animation: backdrop-in 200ms var(--ease-standard); background: rgba(0,0,0,0.5);"
 >
   <div
     class="mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card p-6 shadow-action"
+    style="animation: modal-in 200ms var(--ease-standard);"
   >
     <div class="mb-4 flex items-center justify-between">
       <h2 id="config-modal-heading" class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
       <a
         href={`/dashboard/${guildId}`}
-        class="text-muted-foreground hover:text-foreground"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-[--radius-sm] text-muted-foreground transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-accent hover:text-foreground"
         role="button"
         aria-label={t(locale, "channelConfig.close")}
       >
-        ✕
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
       </a>
     </div>
 
@@ -118,3 +123,41 @@ const showCustomMembers = MemberType.requiresCustomSelection(
     </form>
   </div>
 </dialog>
+
+<script>
+  const dialog = document.getElementById("config-modal");
+  if (dialog) {
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableEls = dialog.querySelectorAll(focusableSelector);
+    const firstEl = focusableEls[0] as HTMLElement | undefined;
+    const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement | undefined;
+
+    firstEl?.focus();
+
+    dialog.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        const closeLink = dialog.querySelector<HTMLAnchorElement>('a[aria-label]');
+        closeLink?.click();
+        return;
+      }
+      if (e.key === "Tab" && focusableEls.length > 0) {
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl?.focus();
+        }
+      }
+    });
+
+    dialog.addEventListener("click", (e: MouseEvent) => {
+      if (e.target === dialog) {
+        const closeLink = dialog.querySelector<HTMLAnchorElement>('a[aria-label]');
+        closeLink?.click();
+      }
+    });
+  }
+</script>

@@ -44,9 +44,10 @@ const navLinkClass = (path: string) =>
             <div class="space-y-1">
               <a
                 href="/dashboard"
-                class={`block rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
+                class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
               >
-                {t(locale, "dashboard.allServers")}
+                <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" /></svg>
+                <span>{t(locale, "dashboard.allServers")}</span>
               </a>
               {guilds.map((guild) => (
                 <a
@@ -75,10 +76,11 @@ const navLinkClass = (path: string) =>
         <nav class="space-y-1" aria-label={t(locale, "nav.sidebar")}>
           <a
             href="/dashboard"
-            class={`block rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
+            class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
             {...(isActive("/dashboard") ? { "aria-current": "page" as const } : {})}
           >
-            {t(locale, "dashboard.allServers")}
+            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" /></svg>
+            <span>{t(locale, "dashboard.allServers")}</span>
           </a>
           {
             guilds.map((guild) => (

@@ -1,13 +1,15 @@
 ---
 interface Props {
   class?: string;
+  style?: string;
 }
 
-const { class: className = "" } = Astro.props;
+const { class: className = "", style } = Astro.props;
 ---
 
 <div
   class={`rounded-[--radius] border border-border bg-card text-card-foreground shadow-card ${className}`}
+  style={style}
 >
   <slot />
 </div>

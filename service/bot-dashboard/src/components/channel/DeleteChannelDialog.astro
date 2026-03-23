@@ -15,13 +15,15 @@ const { locale } = Astro.locals;
 
 <dialog
   open
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  class="fixed inset-0 z-50 flex items-center justify-center"
   id="delete-channel-modal"
   aria-labelledby="delete-channel-heading"
   aria-modal="true"
+  style="animation: backdrop-in 200ms var(--ease-standard); background: rgba(0,0,0,0.5);"
 >
   <div
     class="mx-4 w-full max-w-md rounded-[--radius] border border-border bg-card p-6 shadow-action"
+    style="animation: modal-in 200ms var(--ease-standard);"
   >
     <div class="mb-4 flex items-start gap-3">
       <span
@@ -69,3 +71,41 @@ const { locale } = Astro.locals;
     </form>
   </div>
 </dialog>
+
+<script>
+  const dialog = document.getElementById("delete-channel-modal");
+  if (dialog) {
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableEls = dialog.querySelectorAll(focusableSelector);
+    const firstEl = focusableEls[0] as HTMLElement | undefined;
+    const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement | undefined;
+
+    firstEl?.focus();
+
+    dialog.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        const cancelLink = dialog.querySelector<HTMLAnchorElement>('a[href]');
+        cancelLink?.click();
+        return;
+      }
+      if (e.key === "Tab" && focusableEls.length > 0) {
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl?.focus();
+        }
+      }
+    });
+
+    dialog.addEventListener("click", (e: MouseEvent) => {
+      if (e.target === dialog) {
+        const cancelLink = dialog.querySelector<HTMLAnchorElement>('a[href]');
+        cancelLink?.click();
+      }
+    });
+  }
+</script>
