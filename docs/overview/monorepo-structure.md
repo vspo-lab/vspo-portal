@@ -12,7 +12,7 @@ vspo-portal/
 │   ├── errors/                # Result type + AppError
 │   └── logging/               # Structured async-context logger
 ├── service/
-│   ├── vspo-schedule/v2/web/  # Next.js 15 frontend (Cloudflare Workers)
+│   ├── vspo-schedule/v2/web/  # Next.js 16 frontend (Cloudflare Workers)
 │   └── bot-dashboard/         # Astro 6 Discord bot management UI (Cloudflare Workers)
 ├── docs/                      # Technical documentation
 ├── scripts/                   # Post-edit checks, security scans
@@ -32,7 +32,7 @@ See [Shared Packages](../packages/README.md) for API details and usage examples.
 
 ## Service: vspo-schedule/web
 
-Next.js 15 application deployed to Cloudflare Workers via OpenNextJS. See [Frontend Architecture](../web-frontend/architecture.md) for the full tech stack and patterns.
+Next.js 16 application deployed to Cloudflare Workers via OpenNextJS. See [Frontend Architecture](../web-frontend/architecture.md) for the full tech stack and patterns.
 
 ## Service: bot-dashboard
 

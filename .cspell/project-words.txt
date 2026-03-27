@@ -78,10 +78,12 @@ reduxjs
 rects
 rehype
 remark
+resvg
 rerender
 rerenders
 reviewee
 rgba
+ryte
 scrollbar
 semgrep
 serializable
@@ -102,6 +104,7 @@ tflint
 tfstate
 tfvars
 timestamp
+ttfb
 timestamps
 touchscreen
 treosh
