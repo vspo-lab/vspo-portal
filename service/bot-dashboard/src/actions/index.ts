@@ -2,6 +2,7 @@ import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro:schema";
 import { env } from "cloudflare:workers";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
+import { AddChannelUsecase } from "~/features/channel/usecase/add-channel";
 import { DeleteChannelUsecase } from "~/features/channel/usecase/delete-channel";
 import { ToggleChannelUsecase } from "~/features/channel/usecase/toggle-channel";
 
@@ -13,6 +14,30 @@ const requireAuth = (context: { locals: { user: unknown } }) => {
 };
 
 export const server = {
+  addChannel: defineAction({
+    accept: "form",
+    input: z.object({
+      guildId: z.string(),
+      channelId: z.string(),
+    }),
+    handler: async (input, context) => {
+      requireAuth(context);
+
+      const result = await AddChannelUsecase.execute({
+        appWorker: env.APP_WORKER,
+        guildId: input.guildId,
+        channelId: input.channelId,
+      });
+
+      if (result.err) {
+        throw new ActionError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: result.err.message,
+        });
+      }
+    },
+  }),
+
   updateChannel: defineAction({
     accept: "form",
     input: z.object({
