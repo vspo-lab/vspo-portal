@@ -1,8 +1,8 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
-import type { MemberTypeValue } from "../domain/member-type";
 import type { ApplicationService } from "~/types/api";
+import type { MemberTypeValue } from "../domain/member-type";
 
 /**
  * Maps the vspo-server memberType to the bot-dashboard's MemberType domain value.
