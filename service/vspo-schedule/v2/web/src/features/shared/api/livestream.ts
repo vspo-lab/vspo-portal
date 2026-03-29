@@ -6,7 +6,12 @@ import {
   type ListStreamsPlatform,
   VSPOApi,
 } from "@vspo-lab/api";
-import { convertToUTCTimestamp, getEndOfDayUTC } from "@vspo-lab/dayjs";
+import {
+  convertToUTCDate,
+  convertToUTCTimestamp,
+  getEndOfDayUTC,
+  getNextDay,
+} from "@vspo-lab/dayjs";
 import type { BaseError, Result } from "@vspo-lab/error";
 import { AppError, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
@@ -131,6 +136,17 @@ export const fetchLivestreams = async (
           : undefined;
       }
 
+      // Limit upcoming streams to 1 day ahead of the selected date
+      if (params.status === "upcoming" && params.startedDate) {
+        workerParams.startDateFrom = startDateFrom
+          ? convertToUTCDate(startDateFrom)
+          : undefined;
+        const nextDay = getNextDay(params.startedDate, params.timezone);
+        workerParams.startDateTo = convertToUTCDate(
+          getEndOfDayUTC(nextDay, params.timezone),
+        );
+      }
+
       // Add 30 day limit for ended (archive) streams
       if (params.status === "archive") {
         const thirtyDaysAgo = new Date();
@@ -186,6 +202,13 @@ export const fetchLivestreams = async (
       if (params.status === "all") {
         param.startDateFrom = startDateFrom;
         param.startDateTo = startDateTo;
+      }
+
+      // Limit upcoming streams to 1 day ahead of the selected date
+      if (params.status === "upcoming" && params.startedDate) {
+        param.startDateFrom = startDateFrom;
+        const nextDay = getNextDay(params.startedDate, params.timezone);
+        param.startDateTo = getEndOfDayUTC(nextDay, params.timezone);
       }
 
       // Add 30 day limit for ended (archive) streams
