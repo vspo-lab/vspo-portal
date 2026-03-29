@@ -15,8 +15,7 @@ const ja = {
   "login.permissions_note": "サーバー一覧の読み取り権限のみ使用します",
   "login.footer": "vspo-schedule.com",
   "login.feature.list": "まとめて管理",
-  "login.feature.list.desc":
-    "複数サーバーの設定をひとつの画面で確認・変更",
+  "login.feature.list.desc": "複数サーバーの設定をひとつの画面で確認・変更",
   "login.feature.filter": "通知対象を選べる",
   "login.feature.filter.desc":
     "チャンネルごとに JP / EN メンバーやカスタム選択で絞り込み",
