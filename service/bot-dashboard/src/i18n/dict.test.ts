@@ -60,16 +60,13 @@ describe("new landing page keys", () => {
 });
 
 describe("languageDisplayKey", () => {
-  it("returns ja key for 'ja'", () => {
-    expect(languageDisplayKey("ja")).toBe("channelConfig.language.ja");
-  });
-
-  it("returns en key for 'en'", () => {
-    expect(languageDisplayKey("en")).toBe("channelConfig.language.en");
-  });
-
-  it("returns unknown key for unrecognized code", () => {
-    expect(languageDisplayKey("fr")).toBe("channelConfig.language.unknown");
+  it.each([
+    { langCode: "ja", expectedKey: "channelConfig.language.ja" },
+    { langCode: "en", expectedKey: "channelConfig.language.en" },
+    { langCode: "fr", expectedKey: "channelConfig.language.unknown" },
+    { langCode: "", expectedKey: "channelConfig.language.unknown" },
+  ])("maps $langCode to $expectedKey", ({ langCode, expectedKey }) => {
+    expect(languageDisplayKey(langCode)).toBe(expectedKey);
   });
 });
 

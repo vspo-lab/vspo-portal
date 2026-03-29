@@ -1,7 +1,7 @@
 ---
 import { actions } from "astro:actions";
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
-import { t, memberTypeKey } from "~/i18n/dict";
+import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
 
 interface Props {
   channels: ChannelConfigType[];
@@ -50,7 +50,7 @@ const { locale } = Astro.locals;
               </form>
             </td>
             <td class="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-              {ch.language.toUpperCase()}
+              {t(locale, languageDisplayKey(ch.language))}
             </td>
             <td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
               {t(locale, memberTypeKey(ch.memberType))}
