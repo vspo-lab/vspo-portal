@@ -54,6 +54,10 @@ const getPreviousDay = (
   return dayjs.tz(dateStr, tz).subtract(1, "day").format("YYYY-MM-DD");
 };
 
+const getNextDay = (dateStr: Date | string | number, tz: string): string => {
+  return dayjs.tz(dateStr, tz).add(1, "day").format("YYYY-MM-DD");
+};
+
 /**
  * Returns a date formatted according to the specified language and time zone.
  * @param input Date | string | number (ISO8601, UNIX timestamp, Date object)
@@ -87,5 +91,6 @@ export {
   getCurrentUTCDate,
   getCurrentUTCString,
   getEndOfDayUTC,
+  getNextDay,
   getPreviousDay,
 };
