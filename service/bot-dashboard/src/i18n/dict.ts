@@ -5,21 +5,25 @@ const ja = {
 
   // Login page
   "login.title": "ログイン",
-  "login.headline": "配信通知を、ウェブから一括管理",
+  "login.headline": "すぽじゅーる Bot をサーバーに追加",
   "login.description":
-    "チャンネルごとの通知設定をブラウザで確認・変更できます。",
+    "ぶいすぽっ!メンバーの配信予定を Discord に自動で届けます",
   "login.button": "Discord でログイン",
-  "login.permissions_note": "サーバー一覧の読み取りのみ許可されます",
-  "login.feature.list": "複数サーバーを一括管理",
-  "login.feature.list.desc": "サーバーを切り替えずにまとめて設定を確認・変更",
-  "login.feature.filter": "通知メンバーを細かく指定",
+  "login.addBot": "サーバーに追加する",
+  "login.manageSettings": "通知設定を管理する",
+  "login.previewCaption": "配信予定を、こんな感じで通知します",
+  "login.permissions_note": "サーバー一覧の読み取り権限のみ使用します",
+  "login.feature.list": "まとめて管理",
+  "login.feature.list.desc":
+    "複数サーバーの設定をひとつの画面で確認・変更",
+  "login.feature.filter": "通知対象を選べる",
   "login.feature.filter.desc":
-    "チャンネルごとに JP・EN・カスタムで通知対象を絞り込み",
+    "チャンネルごとに JP / EN メンバーやカスタム選択で絞り込み",
   "login.pageSettings": "ページ設定",
   "login.features": "機能紹介",
-  "login.feature.realtime": "コマンド不要",
+  "login.feature.realtime": "コマンド入力なし",
   "login.feature.realtime.desc":
-    "ブラウザ操作だけで設定完了、コマンド入力は不要",
+    "ブラウザ操作だけで完了。スラッシュコマンドは使いません",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -48,6 +52,11 @@ const ja = {
   "channel.enable": "有効化",
   "channel.edit": "編集",
   "channel.delete": "削除",
+  "channel.add": "チャンネルを追加",
+  "channel.add.search": "チャンネル名で検索",
+  "channel.add.registered": "登録済み",
+  "channel.add.empty": "チャンネルが見つかりません",
+  "channel.add.submit": "追加する",
   "channel.empty": "設定済みのチャンネルがありません。",
   "channel.table": "チャンネル設定",
   "channel.deleteConfirm": "#{channelName} を削除しますか？",
@@ -61,6 +70,7 @@ const ja = {
   "channelConfig.language": "言語",
   "channelConfig.language.ja": "日本語",
   "channelConfig.language.en": "英語",
+  "channelConfig.language.unknown": "未設定",
   "channelConfig.memberType": "メンバータイプ",
   "channelConfig.customMembers": "カスタムメンバー",
   "channelConfig.close": "閉じる",
@@ -112,22 +122,25 @@ const en: Record<keyof typeof ja, string> = {
 
   // Login page
   "login.title": "Login",
-  "login.headline": "Manage stream notifications from one dashboard",
+  "login.headline": "Add Spodule Bot to your server",
   "login.description":
-    "View and update notification settings per channel, right from your browser.",
+    "Get automatic Discord notifications for VSPO member streams",
   "login.button": "Login with Discord",
+  "login.addBot": "Add to Server",
+  "login.manageSettings": "Manage notification settings",
+  "login.previewCaption": "Here's what notifications look like",
   "login.permissions_note": "Only requests read access to your server list",
-  "login.feature.list": "Multi-server at once",
+  "login.feature.list": "All servers, one screen",
   "login.feature.list.desc":
-    "Switch between servers without leaving the dashboard",
-  "login.feature.filter": "Precise notifications",
+    "Check and change settings across servers without switching",
+  "login.feature.filter": "Pick who to notify",
   "login.feature.filter.desc":
-    "Choose JP, EN, or pick specific members per channel",
+    "Filter by JP, EN, or select individual members per channel",
   "login.pageSettings": "Page settings",
   "login.features": "Features",
   "login.feature.realtime": "No commands needed",
   "login.feature.realtime.desc":
-    "Skip slash commands \u2014 click to enable, filter, and go",
+    "Everything works from the browser. No slash commands involved",
 
   // Dashboard
   "dashboard.servers": "Servers",
@@ -157,6 +170,11 @@ const en: Record<keyof typeof ja, string> = {
   "channel.enable": "Enable",
   "channel.edit": "Edit",
   "channel.delete": "Delete",
+  "channel.add": "Add Channel",
+  "channel.add.search": "Search by channel name",
+  "channel.add.registered": "Registered",
+  "channel.add.empty": "No channels found",
+  "channel.add.submit": "Add",
   "channel.empty": "No channels configured.",
   "channel.table": "Channel settings",
   "channel.deleteConfirm": "Delete #{channelName}?",
@@ -170,6 +188,7 @@ const en: Record<keyof typeof ja, string> = {
   "channelConfig.language": "Language",
   "channelConfig.language.ja": "Japanese",
   "channelConfig.language.en": "English",
+  "channelConfig.language.unknown": "Not set",
   "channelConfig.memberType": "Member Type",
   "channelConfig.customMembers": "Custom Members",
   "channelConfig.close": "Close",
@@ -254,3 +273,12 @@ const memberTypeKeys = {
 export const memberTypeKey = (
   value: import("~/features/channel/domain/member-type").MemberTypeValue,
 ): MemberTypeKey => memberTypeKeys[value];
+
+const languageDisplayKeys: Record<string, TranslationKey> = {
+  ja: "channelConfig.language.ja",
+  en: "channelConfig.language.en",
+};
+
+/** Map a language code to its translation key, falling back to "unknown". */
+export const languageDisplayKey = (langCode: string): TranslationKey =>
+  languageDisplayKeys[langCode] ?? "channelConfig.language.unknown";
