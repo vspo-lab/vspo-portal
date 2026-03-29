@@ -37,16 +37,16 @@ const showCustomMembers = MemberType.requiresCustomSelection(
   >
     <div class="mb-4 flex items-center justify-between">
       <h2 id="config-modal-heading" class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
-      <a
-        href={`/dashboard/${guildId}`}
-        class="inline-flex h-9 w-9 items-center justify-center rounded-[--radius-sm] text-muted-foreground transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-accent hover:text-foreground"
-        role="button"
+      <button
+        type="button"
+        class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-[--radius-sm] text-muted-foreground transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-accent hover:text-foreground"
         aria-label={t(locale, "channelConfig.close")}
+        data-close-href={`/dashboard/${guildId}`}
       >
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
-      </a>
+      </button>
     </div>
 
     <form method="post" action={actions.updateChannel} class="space-y-4">
@@ -127,6 +127,15 @@ const showCustomMembers = MemberType.requiresCustomSelection(
 <script>
   const dialog = document.getElementById("config-modal");
   if (dialog) {
+    const closeBtn = dialog.querySelector<HTMLButtonElement>('button[data-close-href]');
+    const closeHref = closeBtn?.dataset.closeHref;
+
+    const navigateClose = () => {
+      if (closeHref) window.location.href = closeHref;
+    };
+
+    closeBtn?.addEventListener("click", navigateClose);
+
     const focusableSelector =
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     const focusableEls = dialog.querySelectorAll(focusableSelector);
@@ -138,8 +147,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
     dialog.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        const closeLink = dialog.querySelector<HTMLAnchorElement>('a[aria-label]');
-        closeLink?.click();
+        navigateClose();
         return;
       }
       if (e.key === "Tab" && focusableEls.length > 0) {
@@ -155,8 +163,7 @@ const showCustomMembers = MemberType.requiresCustomSelection(
 
     dialog.addEventListener("click", (e: MouseEvent) => {
       if (e.target === dialog) {
-        const closeLink = dialog.querySelector<HTMLAnchorElement>('a[aria-label]');
-        closeLink?.click();
+        navigateClose();
       }
     });
   }

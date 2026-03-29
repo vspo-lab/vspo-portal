@@ -40,8 +40,7 @@ const { locale } = Astro.locals;
                   type="submit"
                   role="switch"
                   aria-checked={ch.enabled ? "true" : "false"}
-                  class={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-colors duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
-                  style="min-height:44px;min-width:44px;padding:8px 0;"
+                  class={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full p-[8px_0] box-content transition-colors duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
                   aria-label={t(locale, ch.enabled ? "channel.disable" : "channel.enable")}
                 >
                   <span
