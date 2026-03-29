@@ -76,7 +76,38 @@ const VspoChannelApiRepository = {
   ): Promise<Result<GuildBotConfigType, AppError>> => {
     // Dev-mock fallback: APP_WORKER has no RPC methods in local dev
     if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Ok({ guildId, channels: [] });
+      return Ok({
+        guildId,
+        channels:
+          guildId === "111111111111111111"
+            ? [
+                {
+                  channelId: "ch-001",
+                  channelName: "vspo-notifications",
+                  enabled: true,
+                  language: "ja",
+                  memberType: "all" as const,
+                  customMembers: undefined,
+                },
+                {
+                  channelId: "ch-002",
+                  channelName: "schedule-en",
+                  enabled: true,
+                  language: "en",
+                  memberType: "vspo_en" as const,
+                  customMembers: undefined,
+                },
+                {
+                  channelId: "ch-003",
+                  channelName: "archives",
+                  enabled: false,
+                  language: "ja",
+                  memberType: "vspo_jp" as const,
+                  customMembers: undefined,
+                },
+              ]
+            : [],
+      });
     }
 
     const discord = appWorker.newDiscordUsecase();

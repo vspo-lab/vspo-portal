@@ -23,7 +23,7 @@ const VspoGuildApiRepository = {
   ): Promise<Result<ReadonlySet<string>, AppError>> => {
     // Dev-mock fallback: APP_WORKER has no RPC methods in local dev
     if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Ok(new Set<string>());
+      return Ok(new Set<string>(["111111111111111111"]));
     }
 
     const discord = appWorker.newDiscordUsecase();
