@@ -84,6 +84,12 @@ const altPath = canonicalPath
     <title>{pageTitle}</title>
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[--radius-sm] focus:bg-vspo-purple focus:px-4 focus:py-2 focus:text-white focus:shadow-action"
+    >
+      {t(locale, "nav.skipToContent")}
+    </a>
     <slot />
   </body>
 </html>

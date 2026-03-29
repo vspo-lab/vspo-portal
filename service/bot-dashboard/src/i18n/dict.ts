@@ -13,6 +13,7 @@ const ja = {
   "login.manageSettings": "通知設定を管理する",
   "login.previewCaption": "配信予定を、こんな感じで通知します",
   "login.permissions_note": "サーバー一覧の読み取り権限のみ使用します",
+  "login.footer": "vspo-schedule.com",
   "login.feature.list": "まとめて管理",
   "login.feature.list.desc":
     "複数サーバーの設定をひとつの画面で確認・変更",
@@ -80,6 +81,7 @@ const ja = {
   // Navigation
   "nav.sidebar": "サーバーナビゲーション",
   "nav.menu": "メニュー",
+  "nav.skipToContent": "メインコンテンツへスキップ",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
@@ -130,6 +132,7 @@ const en: Record<keyof typeof ja, string> = {
   "login.manageSettings": "Manage notification settings",
   "login.previewCaption": "Here's what notifications look like",
   "login.permissions_note": "Only requests read access to your server list",
+  "login.footer": "vspo-schedule.com",
   "login.feature.list": "All servers, one screen",
   "login.feature.list.desc":
     "Check and change settings across servers without switching",
@@ -198,6 +201,7 @@ const en: Record<keyof typeof ja, string> = {
   // Navigation
   "nav.sidebar": "Server Navigation",
   "nav.menu": "Menu",
+  "nav.skipToContent": "Skip to main content",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
