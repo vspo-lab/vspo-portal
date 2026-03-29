@@ -16,6 +16,7 @@ import "react-grid-layout/css/styles.css";
 import { MultiviewLayout } from "../../hooks/useMultiviewLayout";
 import {
   GRID_COLS,
+  computeSwapDuringDrag,
   resolveOverlaps,
 } from "../../utils/gridSwap";
 import { scaledBorderRadius } from "../../utils/theme";
@@ -284,6 +285,10 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
   // Drag state
   const isDraggingRef = useRef(false);
   const isResizingRef = useRef(false);
+  // Drag-swap tracking refs
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const lastSwappedIdRef = useRef<string | null>(null);
+  const rafDragRef = useRef<number>(0);
 
   // Internal layout state — only reset when layout button is pressed
   const [internalLayout, setInternalLayout] = useState<LayoutItem[]>([]);
@@ -333,6 +338,7 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     return () => {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(rafId);
+      cancelAnimationFrame(rafDragRef.current);
       clearTimeout(timeoutId);
       clearTimeout(timeoutId2);
       observer.disconnect();
@@ -480,21 +486,62 @@ export const MultiviewGridPresenter: React.FC<MultiviewGridPresenterProps> = ({
     }
   }, [internalLayout, onGridPositionsChange]);
 
-  const handleDragStart = () => {
+  const handleDragStart = (
+    _layout: Layout,
+    oldItem: LayoutItem | null,
+    _newItem: LayoutItem | null,
+  ) => {
     isDraggingRef.current = true;
     containerRef.current?.classList.add("is-dragging");
+    if (oldItem) {
+      dragOriginRef.current = { x: oldItem.x, y: oldItem.y };
+    }
+    lastSwappedIdRef.current = null;
   };
 
-  const handleDrag = () => {};
+  const handleDrag = (
+    rglLayout: Layout,
+    _oldItem: LayoutItem | null,
+    newItem: LayoutItem | null,
+  ) => {
+    cancelAnimationFrame(rafDragRef.current);
+    rafDragRef.current = requestAnimationFrame(() => {
+      const dragOrigin = dragOriginRef.current;
+      if (!dragOrigin || !newItem) return;
+
+      const currentLayout = mergeLayout([...rglLayout], internalLayout, false);
+      const { layout: swappedLayout, swappedId } = computeSwapDuringDrag(
+        currentLayout,
+        newItem.i,
+        dragOrigin,
+        lastSwappedIdRef.current,
+      );
+
+      if (swappedId && swappedId !== lastSwappedIdRef.current) {
+        const swappedTarget = swappedLayout.find(
+          (item) => item.i === swappedId,
+        );
+        if (swappedTarget) {
+          dragOriginRef.current = { x: swappedTarget.x, y: swappedTarget.y };
+        }
+        lastSwappedIdRef.current = swappedId;
+        setInternalLayout(swappedLayout);
+      } else if (swappedId === null && lastSwappedIdRef.current !== null) {
+        lastSwappedIdRef.current = null;
+      }
+    });
+  };
 
   const handleDragStop = (
     rglLayout: Layout,
     _oldItem: LayoutItem | null,
     _newItem: LayoutItem | null,
   ) => {
+    cancelAnimationFrame(rafDragRef.current);
     containerRef.current?.classList.remove("is-dragging");
     isDraggingRef.current = false;
-    // webcola VPSC resolves overlaps after drop
+    dragOriginRef.current = null;
+    lastSwappedIdRef.current = null;
     setInternalLayout(resolveOverlaps(mergeLayout([...rglLayout], internalLayout, false)));
   };
 
