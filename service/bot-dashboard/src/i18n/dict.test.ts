@@ -5,8 +5,8 @@ describe("t (translation)", () => {
     ["ja", "app.name", "Spodule Bot"],
     ["en", "app.name", "Spodule Bot"],
     ["ja", "login.title", "ログイン"],
-    ["en", "guild.active", "Active"],
-    ["ja", "guild.active", "導入済み"],
+    ["en", "dashboard.installed", "Bot Installed"],
+    ["ja", "dashboard.installed", "Bot 導入済み"],
   ] as const)("t(%s, %s) → %s", (locale, key, expected) => {
     expect(t(locale, key)).toBe(expected);
   });
