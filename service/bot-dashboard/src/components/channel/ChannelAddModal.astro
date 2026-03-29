@@ -1,0 +1,166 @@
+---
+import { actions } from "astro:actions";
+import Button from "~/components/ui/Button.astro";
+import { t } from "~/i18n/dict";
+
+interface Props {
+  guildId: string;
+  registeredChannelIds: ReadonlySet<string>;
+  availableChannels: { id: string; name: string }[];
+}
+
+const { guildId, registeredChannelIds, availableChannels } = Astro.props;
+const { locale } = Astro.locals;
+const unregistered = availableChannels.filter(
+  (ch) => !registeredChannelIds.has(ch.id),
+);
+---
+
+<dialog
+  open
+  class="fixed inset-0 z-50 flex items-center justify-center"
+  id="add-channel-modal"
+  aria-labelledby="add-channel-heading"
+  aria-modal="true"
+  style="animation: backdrop-in 200ms var(--ease-standard); background: rgba(0,0,0,0.5);"
+>
+  <div
+    class="mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card p-6 shadow-action"
+    style="animation: modal-in 200ms var(--ease-standard);"
+  >
+    <div class="mb-4 flex items-center justify-between">
+      <h2 id="add-channel-heading" class="text-lg font-semibold">
+        {t(locale, "channel.add")}
+      </h2>
+      <button
+        type="button"
+        class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-[--radius-sm] text-muted-foreground transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-accent hover:text-foreground"
+        aria-label={t(locale, "channelConfig.close")}
+        data-close-href={`/dashboard/${guildId}`}
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="mb-4">
+      <label for="channel-search" class="sr-only">{t(locale, "channel.add.search")}</label>
+      <input
+        id="channel-search"
+        type="search"
+        placeholder={t(locale, "channel.add.search")}
+        class="w-full rounded-[--radius-sm] border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+        data-search-input
+      />
+    </div>
+
+    <div class="max-h-64 space-y-1 overflow-y-auto" role="listbox" aria-label={t(locale, "channel.add")}>
+      {unregistered.length === 0 && (
+        <p class="py-8 text-center text-sm text-muted-foreground">
+          {t(locale, "channel.add.empty")}
+        </p>
+      )}
+      {unregistered.map((ch) => (
+        <form method="post" action={actions.addChannel} data-channel-item>
+          <input type="hidden" name="guildId" value={guildId} />
+          <input type="hidden" name="channelId" value={ch.id} />
+          <button
+            type="submit"
+            role="option"
+            aria-selected="false"
+            class="flex w-full items-center justify-between rounded-[--radius-sm] px-3 py-2 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-accent/50"
+            data-channel-name={ch.name.toLowerCase()}
+          >
+            <span class="flex items-center gap-2">
+              <svg class="h-4 w-4 shrink-0 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+              </svg>
+              <span>{ch.name}</span>
+            </span>
+            <span class="text-xs font-medium text-vspo-purple">{t(locale, "channel.add.submit")}</span>
+          </button>
+        </form>
+      ))}
+      {availableChannels
+        .filter((ch) => registeredChannelIds.has(ch.id))
+        .map((ch) => (
+          <div
+            class="flex items-center justify-between rounded-[--radius-sm] px-3 py-2 text-sm text-muted-foreground opacity-50"
+            data-channel-item
+            data-channel-name={ch.name.toLowerCase()}
+          >
+            <span class="flex items-center gap-2">
+              <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+              </svg>
+              <span>{ch.name}</span>
+            </span>
+            <span class="text-xs">{t(locale, "channel.add.registered")}</span>
+          </div>
+        ))}
+    </div>
+
+    <div class="mt-4 flex justify-end">
+      <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
+        {t(locale, "channel.add.cancel")}
+      </Button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById("add-channel-modal");
+  if (dialog) {
+    const closeBtn = dialog.querySelector<HTMLButtonElement>("button[data-close-href]");
+    const closeHref = closeBtn?.dataset.closeHref;
+    const searchInput = dialog.querySelector<HTMLInputElement>("[data-search-input]");
+    const items = dialog.querySelectorAll("[data-channel-item]");
+
+    const navigateClose = () => {
+      if (closeHref) window.location.href = closeHref;
+    };
+
+    closeBtn?.addEventListener("click", navigateClose);
+
+    // Search filter
+    searchInput?.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      for (const item of items) {
+        const el = item as HTMLElement;
+        const name = el.dataset.channelName ?? el.querySelector("[data-channel-name]")?.getAttribute("data-channel-name") ?? "";
+        el.style.display = name.includes(query) ? "" : "none";
+      }
+    });
+
+    // Focus management
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableEls = dialog.querySelectorAll(focusableSelector);
+    const firstEl = focusableEls[0] as HTMLElement | undefined;
+    const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement | undefined;
+
+    firstEl?.focus();
+
+    dialog.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        navigateClose();
+        return;
+      }
+      if (e.key === "Tab" && focusableEls.length > 0) {
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl?.focus();
+        }
+      }
+    });
+
+    dialog.addEventListener("click", (e: MouseEvent) => {
+      if (e.target === dialog) navigateClose();
+    });
+  }
+</script>

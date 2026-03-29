@@ -58,6 +58,7 @@ const ja = {
   "channel.add.registered": "登録済み",
   "channel.add.empty": "チャンネルが見つかりません",
   "channel.add.submit": "追加する",
+  "channel.add.cancel": "キャンセル",
   "channel.empty": "設定済みのチャンネルがありません。",
   "channel.table": "チャンネル設定",
   "channel.deleteConfirm": "#{channelName} を削除しますか？",
@@ -107,6 +108,7 @@ const ja = {
   "error.invalid_state": "無効な認証リクエストです。もう一度お試しください。",
 
   // Toast / feedback
+  "toast.addSuccess": "チャンネルを追加しました。",
   "toast.updateSuccess": "チャンネル設定を更新しました。",
   "toast.toggleSuccess": "チャンネルの有効/無効を切り替えました。",
   "toast.deleteSuccess": "チャンネル設定を削除しました。",
@@ -178,6 +180,7 @@ const en: Record<keyof typeof ja, string> = {
   "channel.add.registered": "Registered",
   "channel.add.empty": "No channels found",
   "channel.add.submit": "Add",
+  "channel.add.cancel": "Cancel",
   "channel.empty": "No channels configured.",
   "channel.table": "Channel settings",
   "channel.deleteConfirm": "Delete #{channelName}?",
@@ -226,6 +229,7 @@ const en: Record<keyof typeof ja, string> = {
   "error.invalid_state": "Invalid authentication request. Please try again.",
 
   // Toast / feedback
+  "toast.addSuccess": "Channel added successfully.",
   "toast.updateSuccess": "Channel settings updated.",
   "toast.toggleSuccess": "Channel toggled successfully.",
   "toast.deleteSuccess": "Channel configuration deleted.",

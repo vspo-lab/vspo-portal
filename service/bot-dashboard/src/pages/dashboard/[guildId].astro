@@ -1,6 +1,7 @@
 ---
 import { actions } from "astro:actions";
 import { env } from "cloudflare:workers";
+import ChannelAddModal from "~/components/channel/ChannelAddModal.astro";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
 import ChannelTable from "~/components/channel/ChannelTable.astro";
 import DeleteChannelDialog from "~/components/channel/DeleteChannelDialog.astro";
@@ -37,22 +38,26 @@ const fetchError = guildsResult.err ?? channelsResult.err ?? null;
 const enabledCount = channels.filter((c) => c.enabled).length;
 
 // Handle action results
+const addResult = Astro.getActionResult(actions.addChannel);
 const updateResult = Astro.getActionResult(actions.updateChannel);
 const toggleResult = Astro.getActionResult(actions.toggleChannel);
 const deleteResult = Astro.getActionResult(actions.deleteChannel);
-const actionError = updateResult?.error ?? toggleResult?.error ?? deleteResult?.error;
+const actionError = addResult?.error ?? updateResult?.error ?? toggleResult?.error ?? deleteResult?.error;
 const actionSuccess = !actionError && (
+  (addResult?.data != null ? "add" : null) ??
   (updateResult?.data != null ? "update" : null) ??
   (toggleResult?.data != null ? "toggle" : null) ??
   (deleteResult?.data != null ? "delete" : null)
 );
-const successMessageKey = actionSuccess === "update"
-  ? "toast.updateSuccess" as const
-  : actionSuccess === "toggle"
-    ? "toast.toggleSuccess" as const
-    : actionSuccess === "delete"
-      ? "toast.deleteSuccess" as const
-      : null;
+const successMessageKey = actionSuccess === "add"
+  ? "toast.addSuccess" as const
+  : actionSuccess === "update"
+    ? "toast.updateSuccess" as const
+    : actionSuccess === "toggle"
+      ? "toast.toggleSuccess" as const
+      : actionSuccess === "delete"
+        ? "toast.deleteSuccess" as const
+        : null;
 
 // Editing state via query param
 const editChannelId = Astro.url.searchParams.get("edit");
@@ -65,6 +70,9 @@ const deleteChannelId = Astro.url.searchParams.get("delete");
 const deletingChannel = deleteChannelId
   ? channels.find((c) => c.channelId === deleteChannelId)
   : null;
+
+// Add channel modal state via query param
+const showAddModal = Astro.url.searchParams.get("add") === "true";
 ---
 
 <Dashboard title={guildName} guilds={sidebarGuilds}>
@@ -147,6 +155,16 @@ const deletingChannel = deleteChannelId
         <DeleteChannelDialog
           channel={deletingChannel}
           guildId={guildId}
+        />
+      )
+    }
+
+    {
+      showAddModal && (
+        <ChannelAddModal
+          guildId={guildId}
+          registeredChannelIds={new Set(channels.map((c) => c.channelId))}
+          availableChannels={[]}
         />
       )
     }
