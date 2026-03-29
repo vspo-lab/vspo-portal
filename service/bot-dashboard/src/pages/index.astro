@@ -34,7 +34,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
     ></div>
 
     {/* Page settings */}
-    <nav aria-label="Page settings" class="absolute right-4 top-4 flex items-center gap-2">
+    <nav aria-label={t(locale, "login.pageSettings")} class="absolute right-4 top-4 flex items-center gap-2">
       <LanguageSelector currentLocale={locale} returnTo="/" variant="dropdown" />
       <ThemeToggle variant="page" />
     </nav>
@@ -75,7 +75,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
     )}
 
     {/* Feature cards */}
-    <section aria-label="Features" class="grid w-full max-w-2xl gap-3 sm:gap-4 sm:grid-cols-3">
+    <section aria-label={t(locale, "login.features")} class="grid w-full max-w-2xl gap-3 sm:gap-4 sm:grid-cols-3">
       <Card class="animate-fade-in-up border-t-2 border-t-vspo-purple/30">
         <div class="flex items-center gap-3 p-4 sm:flex-col sm:items-start sm:gap-0 sm:space-y-2 sm:p-6 sm:pb-2">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[--radius-sm] bg-vspo-purple/10 ring-1 ring-vspo-purple/20 dark:bg-vspo-purple/20 sm:h-12 sm:w-12">

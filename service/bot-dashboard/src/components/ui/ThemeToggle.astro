@@ -1,8 +1,11 @@
 ---
+import { t } from "~/i18n/dict";
+
 interface Props {
   variant?: "header" | "page";
 }
 const { variant = "header" } = Astro.props;
+const { locale } = Astro.locals;
 
 const buttonClass = variant === "header"
   ? "text-white/80 hover:bg-white/20 focus-visible:ring-white/50"
@@ -12,7 +15,7 @@ const buttonClass = variant === "header"
 <button
   id="theme-toggle"
   type="button"
-  aria-label="Toggle theme"
+  aria-label={t(locale, "settings.theme.toggle")}
   class={`flex h-9 w-9 items-center justify-center rounded-[--radius-sm] transition-colors duration-[--duration-fast] ease-[--ease-standard] focus-visible:outline-none focus-visible:ring-2 ${buttonClass}`}
 >
   <!-- Sun icon: shown in dark mode -->

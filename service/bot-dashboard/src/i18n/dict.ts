@@ -15,6 +15,8 @@ const ja = {
   "login.feature.filter": "通知メンバーを細かく指定",
   "login.feature.filter.desc":
     "チャンネルごとに JP・EN・カスタムで通知対象を絞り込み",
+  "login.pageSettings": "ページ設定",
+  "login.features": "機能紹介",
   "login.feature.realtime": "コマンド不要",
   "login.feature.realtime.desc":
     "ブラウザ操作だけで設定完了、コマンド入力は不要",
@@ -77,6 +79,7 @@ const ja = {
 
   // Settings
   "settings.theme": "テーマ",
+  "settings.theme.toggle": "テーマ切替",
   "settings.theme.light": "ライト",
   "settings.theme.dark": "ダーク",
   "settings.theme.system": "システム",
@@ -120,6 +123,8 @@ const en: Record<keyof typeof ja, string> = {
   "login.feature.filter": "Precise notifications",
   "login.feature.filter.desc":
     "Choose JP, EN, or pick specific members per channel",
+  "login.pageSettings": "Page settings",
+  "login.features": "Features",
   "login.feature.realtime": "No commands needed",
   "login.feature.realtime.desc":
     "Skip slash commands \u2014 click to enable, filter, and go",
@@ -183,6 +188,7 @@ const en: Record<keyof typeof ja, string> = {
 
   // Settings
   "settings.theme": "Theme",
+  "settings.theme.toggle": "Toggle theme",
   "settings.theme.light": "Light",
   "settings.theme.dark": "Dark",
   "settings.theme.system": "System",

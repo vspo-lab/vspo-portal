@@ -25,7 +25,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
       </h3>
       {guild.botInstalled ? (
         <span class="mt-1 inline-block rounded-full bg-vspo-purple/20 px-2 py-0.5 text-xs text-foreground">
-          Bot {t(locale, "guild.active")}
+          {t(locale, "dashboard.installed")}
         </span>
       ) : (
         <span class="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
