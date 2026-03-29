@@ -7,6 +7,7 @@ import {
   VSPOApi,
 } from "@vspo-lab/api";
 import {
+  convertToUTCDate,
   convertToUTCTimestamp,
   getEndOfDayUTC,
   getNextDay,
@@ -138,10 +139,10 @@ export const fetchLivestreams = async (
       // Limit upcoming streams to 1 day ahead of the selected date
       if (params.status === "upcoming" && params.startedDate) {
         workerParams.startDateFrom = startDateFrom
-          ? new Date(startDateFrom)
+          ? convertToUTCDate(startDateFrom)
           : undefined;
         const nextDay = getNextDay(params.startedDate, params.timezone);
-        workerParams.startDateTo = new Date(
+        workerParams.startDateTo = convertToUTCDate(
           getEndOfDayUTC(nextDay, params.timezone),
         );
       }
