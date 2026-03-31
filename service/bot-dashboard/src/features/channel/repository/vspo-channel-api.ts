@@ -213,7 +213,7 @@ const VspoChannelApiRepository = {
    * @param appWorker - APP_WORKER service binding
    * @param guildId - Discord guild ID
    * @returns Array of channel id/name pairs (text channels only, sorted by position)
-   * @precondition appWorker is a valid service binding with DiscordService RPC
+   * @precondition appWorker is a valid service binding (falls back to mock data in dev mode)
    * @idempotent true
    */
   listGuildChannels: async (

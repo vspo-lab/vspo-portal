@@ -1,5 +1,6 @@
 ---
 import { actions } from "astro:actions";
+import { Ok } from "@vspo-lab/error";
 import { env } from "cloudflare:workers";
 import ChannelAddModal from "~/components/channel/ChannelAddModal.astro";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
@@ -32,7 +33,7 @@ const [guildsResult, channelsResult, availableChannelsResult] = await Promise.al
   VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),
   showAddModal
     ? VspoChannelApiRepository.listGuildChannels(env.APP_WORKER, guildId)
-    : Promise.resolve({ err: undefined, val: [] } as { err: undefined; val: { id: string; name: string }[] }),
+    : Promise.resolve(Ok([] as { id: string; name: string }[])),
 ]);
 
 const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
@@ -41,7 +42,7 @@ const currentGuild = allGuilds.find((g) => g.id === guildId);
 const guildName = currentGuild?.name ?? guildId;
 const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const availableChannels = availableChannelsResult.err ? [] : availableChannelsResult.val;
-const fetchError = guildsResult.err ?? channelsResult.err ?? null;
+const fetchError = guildsResult.err ?? channelsResult.err ?? availableChannelsResult.err ?? null;
 
 // Handle action results
 const addResult = Astro.getActionResult(actions.addChannel);
