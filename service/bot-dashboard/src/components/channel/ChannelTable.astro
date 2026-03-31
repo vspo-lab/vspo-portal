@@ -1,5 +1,4 @@
 ---
-import { actions } from "astro:actions";
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
 
@@ -17,7 +16,6 @@ const { locale } = Astro.locals;
     <thead>
       <tr class="border-b border-border bg-muted">
         <th scope="col" class="px-4 py-3 text-left font-semibold">{t(locale, "channel.name")}</th>
-        <th scope="col" class="px-4 py-3 text-left font-semibold">{t(locale, "channel.enabled")}</th>
         <th scope="col" class="hidden px-4 py-3 text-left font-semibold sm:table-cell">{t(locale, "channel.language")}</th>
         <th scope="col" class="hidden px-4 py-3 text-left font-semibold md:table-cell">{t(locale, "channel.members")}</th>
         <th scope="col" class="px-4 py-3 text-right font-semibold">{t(locale, "channel.actions")}</th>
@@ -28,27 +26,6 @@ const { locale } = Astro.locals;
         channels.map((ch) => (
           <tr class="border-b border-border transition-colors duration-[--duration-fast] last:border-0 hover:bg-accent/50">
             <td class="px-4 py-3 font-medium">#{ch.channelName}</td>
-            <td class="px-4 py-3">
-              <form
-                method="post"
-                action={actions.toggleChannel}
-              >
-                <input type="hidden" name="guildId" value={guildId} />
-                <input type="hidden" name="channelId" value={ch.channelId} />
-                <input type="hidden" name="enable" value={ch.enabled ? "false" : "true"} />
-                <button
-                  type="submit"
-                  role="switch"
-                  aria-checked={ch.enabled ? "true" : "false"}
-                  class={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full p-[8px_0] box-content transition-colors duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "bg-vspo-purple" : "bg-muted"}`}
-                  aria-label={t(locale, ch.enabled ? "channel.disable" : "channel.enable")}
-                >
-                  <span
-                    class={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-[--duration-fast] ease-[--ease-standard] ${ch.enabled ? "translate-x-6" : "translate-x-1"}`}
-                  />
-                </button>
-              </form>
-            </td>
             <td class="hidden px-4 py-3 text-muted-foreground sm:table-cell">
               {t(locale, languageDisplayKey(ch.language))}
             </td>

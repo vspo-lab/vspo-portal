@@ -12,19 +12,17 @@ describe("t (translation)", () => {
   });
 
   it("interpolates params", () => {
-    const result = t("en", "dashboard.channelsEnabled", {
-      enabled: "3",
+    const result = t("en", "dashboard.channelsCount", {
       total: "5",
     });
-    expect(result).toBe("3/5 channels enabled");
+    expect(result).toBe("5 channels configured");
   });
 
   it("interpolates multiple params in ja", () => {
-    const result = t("ja", "dashboard.channelsEnabled", {
-      enabled: "2",
+    const result = t("ja", "dashboard.channelsCount", {
       total: "10",
     });
-    expect(result).toBe("2/10 チャンネル有効");
+    expect(result).toBe("10 チャンネル設定済み");
   });
 
   it("interpolates channelName param", () => {

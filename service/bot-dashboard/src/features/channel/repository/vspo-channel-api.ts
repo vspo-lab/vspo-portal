@@ -208,37 +208,42 @@ const VspoChannelApiRepository = {
   },
 
   /**
-   * Disable (unregister) a channel from the Bot for a guild.
-   * Uses adjustBotChannel with type "remove".
+   * Retrieve all text channels in a Discord guild via vspo-server RPC.
    *
    * @param appWorker - APP_WORKER service binding
    * @param guildId - Discord guild ID
-   * @param channelId - Discord channel ID
-   * @postcondition On Ok, the channel is absent from the guild's bot configuration
+   * @returns Array of channel id/name pairs (text channels only, sorted by position)
+   * @precondition appWorker is a valid service binding with DiscordService RPC
+   * @idempotent true
    */
-  disableChannel: async (
+  listGuildChannels: async (
     appWorker: ApplicationService,
     guildId: string,
-    channelId: string,
-  ): Promise<Result<void, AppError>> => {
+  ): Promise<Result<{ id: string; name: string }[], AppError>> => {
     if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Err(
-        new AppError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "APP_WORKER is not available",
-          context: {},
-        }),
+      return Ok(
+        guildId === "111111111111111111"
+          ? [
+              { id: "ch-001", name: "vspo-notifications" },
+              { id: "ch-002", name: "schedule-en" },
+              { id: "ch-003", name: "archives" },
+              { id: "ch-mock-1", name: "general" },
+              { id: "ch-mock-2", name: "random" },
+            ]
+          : [],
       );
     }
 
     const discord = appWorker.newDiscordUsecase();
-    const result = await discord.adjustBotChannel({
-      type: "remove",
-      serverId: guildId,
-      targetChannelId: channelId,
-    });
+    const result = await discord.listGuildChannels(guildId);
     if (result.err) return result;
-    return Ok(undefined);
+
+    const textChannels = result.val
+      .filter((ch) => ch.type === 0)
+      .sort((a, b) => a.position - b.position)
+      .map((ch) => ({ id: ch.id, name: ch.name }));
+
+    return Ok(textChannels);
   },
 
   /**

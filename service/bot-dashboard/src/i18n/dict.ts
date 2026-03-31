@@ -32,7 +32,7 @@ const ja = {
   "dashboard.notInstalled": "Bot 未導入",
   "dashboard.noServers": "管理者権限を持つサーバーがありません。",
   "dashboard.allServers": "すべてのサーバー",
-  "dashboard.channelsEnabled": "{enabled}/{total} チャンネル有効",
+  "dashboard.channelsCount": "{total} チャンネル設定済み",
   "dashboard.error": "エラー: {message}",
 
   // Guild
@@ -40,16 +40,12 @@ const ja = {
   "guild.active": "導入済み",
   "guild.manageSettings": "設定を管理",
   "guild.addBot": "Bot を追加",
-  "guild.channelSummary": "{enabled}/{total} チャンネル有効",
 
   // Channel table
   "channel.name": "チャンネル",
-  "channel.enabled": "有効",
   "channel.language": "言語",
   "channel.members": "メンバー",
   "channel.actions": "操作",
-  "channel.disable": "無効化",
-  "channel.enable": "有効化",
   "channel.edit": "編集",
   "channel.delete": "削除",
   "channel.add": "チャンネルを追加",
@@ -109,7 +105,6 @@ const ja = {
   // Toast / feedback
   "toast.addSuccess": "チャンネルを追加しました。",
   "toast.updateSuccess": "チャンネル設定を更新しました。",
-  "toast.toggleSuccess": "チャンネルの有効/無効を切り替えました。",
   "toast.deleteSuccess": "チャンネル設定を削除しました。",
   "toast.dismiss": "閉じる",
   "toast.retry": "再読み込み",
@@ -154,7 +149,7 @@ const en: Record<keyof typeof ja, string> = {
   "dashboard.notInstalled": "Bot Not Installed",
   "dashboard.noServers": "No servers with admin permissions found.",
   "dashboard.allServers": "All Servers",
-  "dashboard.channelsEnabled": "{enabled}/{total} channels enabled",
+  "dashboard.channelsCount": "{total} channels configured",
   "dashboard.error": "Error: {message}",
 
   // Guild
@@ -162,16 +157,12 @@ const en: Record<keyof typeof ja, string> = {
   "guild.active": "Active",
   "guild.manageSettings": "Manage Settings",
   "guild.addBot": "Add Bot",
-  "guild.channelSummary": "{enabled}/{total} channels active",
 
   // Channel table
   "channel.name": "Channel",
-  "channel.enabled": "Enabled",
   "channel.language": "Language",
   "channel.members": "Members",
   "channel.actions": "Actions",
-  "channel.disable": "Disable",
-  "channel.enable": "Enable",
   "channel.edit": "Edit",
   "channel.delete": "Delete",
   "channel.add": "Add Channel",
@@ -230,7 +221,6 @@ const en: Record<keyof typeof ja, string> = {
   // Toast / feedback
   "toast.addSuccess": "Channel added successfully.",
   "toast.updateSuccess": "Channel settings updated.",
-  "toast.toggleSuccess": "Channel toggled successfully.",
   "toast.deleteSuccess": "Channel configuration deleted.",
   "toast.dismiss": "Dismiss",
   "toast.retry": "Reload",
