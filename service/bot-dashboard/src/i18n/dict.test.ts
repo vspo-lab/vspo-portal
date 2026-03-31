@@ -1,4 +1,4 @@
-import { memberTypeKey, t } from "./dict";
+import { languageDisplayKey, memberTypeKey, t } from "./dict";
 
 describe("t (translation)", () => {
   it.each([
@@ -39,6 +39,34 @@ describe("t (translation)", () => {
     const result = t("en", "nonexistent.key" as Parameters<typeof t>[1]);
     // If key doesn't exist in either dict, falls back to key itself
     expect(result).toBe("nonexistent.key");
+  });
+});
+
+describe("new landing page keys", () => {
+  it.each([
+    "login.addBot",
+    "login.manageSettings",
+    "login.previewCaption",
+    "channel.add",
+    "channel.add.search",
+    "channel.add.registered",
+    "channel.add.empty",
+    "channel.add.submit",
+    "channelConfig.language.unknown",
+  ] as const)("key '%s' exists in both locales", (key) => {
+    expect(t("ja", key)).not.toBe(key);
+    expect(t("en", key)).not.toBe(key);
+  });
+});
+
+describe("languageDisplayKey", () => {
+  it.each([
+    { langCode: "ja", expectedKey: "channelConfig.language.ja" },
+    { langCode: "en", expectedKey: "channelConfig.language.en" },
+    { langCode: "fr", expectedKey: "channelConfig.language.unknown" },
+    { langCode: "", expectedKey: "channelConfig.language.unknown" },
+  ])("maps $langCode to $expectedKey", ({ langCode, expectedKey }) => {
+    expect(languageDisplayKey(langCode)).toBe(expectedKey);
   });
 });
 
