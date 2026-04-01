@@ -266,7 +266,7 @@ importers:
         version: 19.2.4(react@19.2.4)
       react-grid-layout:
         specifier: ^2.2.2
-        version: 2.2.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 2.2.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.14)(react@19.2.4)
@@ -7692,8 +7692,8 @@ packages:
       react: '>= 16.3.0'
       react-dom: '>= 16.3.0'
 
-  react-grid-layout@2.2.2:
-    resolution: {integrity: sha512-yNo9pxQWoxHWRAwHGSVT4DEGELYPyQ7+q9lFclb5jcqeFzva63/2F72CryS/jiTIr/SBIlTaDdyjqH+ODg8oBw==}
+  react-grid-layout@2.2.3:
+    resolution: {integrity: sha512-OAEJHBxmfuxQfVtZwRzmsokijGlBgzYIJ7MUlLk/VSa43SaGzu15w5D0P2RDrfX5EvP9POMbL6bFrai/huDzbQ==}
     peerDependencies:
       react: '>= 16.3.0'
       react-dom: '>= 16.3.0'
@@ -18297,7 +18297,7 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
-  react-grid-layout@2.2.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  react-grid-layout@2.2.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       clsx: 2.1.1
       fast-equals: 4.0.3
