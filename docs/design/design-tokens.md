@@ -114,11 +114,13 @@ Inspired by Material Design 3's tonal surface system. Boundaries between layout 
 | `surface-container-high` | `#292a2e` | `#e8e8e8` | Table header, modal backgrounds |
 | `surface-container-highest` | `#343439` | `#e0e0e0` | Active states, hover, language chips |
 
-Text tokens:
+**Text tokens:**
+
 - `on-surface` — primary text on any surface (`#e3e2e7` dark / `rgba(0,0,0,0.87)` light)
 - `on-surface-variant` — secondary/muted text (`#c6c5d7` dark / `rgba(0,0,0,0.6)` light)
 
-Accent tokens:
+**Accent tokens:**
+
 - `primary-container` (`#5865f2`) — Discord blurple, used for Discord-specific CTAs
 - `tertiary` (`#ffb689` dark / `#e67e22` light) — amber accent for status highlights
 - `outline-variant` (`#454655` dark) — ghost borders at 15-20% opacity
