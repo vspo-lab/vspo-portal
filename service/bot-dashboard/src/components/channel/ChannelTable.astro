@@ -10,8 +10,8 @@ interface Props {
 const { channels, guildId } = Astro.props;
 const { locale } = Astro.locals;
 
-/** Language code to chip label */
-const langChipLabel = (lang: string) => lang === "ja" ? "JA" : lang === "en" ? "EN" : lang.toUpperCase();
+/** Language code to chip label — uppercases any language code */
+const langChipLabel = (lang: string) => lang.toUpperCase();
 ---
 
 {/* Configuration Matrix */}

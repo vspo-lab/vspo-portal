@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import type { CreatorType } from "~/features/shared/domain/creator";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 import type { ApplicationService } from "~/types/api";
 
@@ -59,6 +60,23 @@ export const devMock = {
           { id: "ch-mock-2", name: "random" },
         ]
       : [],
+
+  creators: (): { jp: CreatorType[]; en: CreatorType[] } => ({
+    jp: [
+      { id: "creator-jp-001", name: "花芽すみれ", memberType: "vspo_jp" as const, thumbnailUrl: null },
+      { id: "creator-jp-002", name: "小雀とと", memberType: "vspo_jp" as const, thumbnailUrl: null },
+      { id: "creator-jp-003", name: "一ノ瀬うるは", memberType: "vspo_jp" as const, thumbnailUrl: null },
+      { id: "creator-jp-004", name: "胡桃のあ", memberType: "vspo_jp" as const, thumbnailUrl: null },
+      { id: "creator-jp-005", name: "紫宮るな", memberType: "vspo_jp" as const, thumbnailUrl: null },
+    ],
+    en: [
+      { id: "creator-en-001", name: "Arya Kuroha", memberType: "vspo_en" as const, thumbnailUrl: null },
+      { id: "creator-en-002", name: "Jira Jisaki", memberType: "vspo_en" as const, thumbnailUrl: null },
+      { id: "creator-en-003", name: "Remia Aotsuki", memberType: "vspo_en" as const, thumbnailUrl: null },
+      { id: "creator-en-004", name: "Komori Met", memberType: "vspo_en" as const, thumbnailUrl: null },
+      { id: "creator-en-005", name: "Renka Shinomiya", memberType: "vspo_en" as const, thumbnailUrl: null },
+    ],
+  }),
 
   botGuildIds: new Set<string>([DEV_GUILD_ID]),
 } as const;

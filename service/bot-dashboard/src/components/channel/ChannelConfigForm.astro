@@ -3,8 +3,8 @@ import { actions } from "astro:actions";
 import Button from "~/components/ui/Button.astro";
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { MemberType } from "~/features/channel/domain/member-type";
-import type { CreatorType } from "~/features/shared/domain/creator";
-import { t, memberTypeKey } from "~/i18n/dict";
+import { Creator, type CreatorType } from "~/features/shared/domain/creator";
+import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
 
 interface Props {
   channel: ChannelConfigType;
@@ -21,6 +21,10 @@ const memberTypeOptions = MemberType.schema.options.map((value) => ({
 const showCustomMembers = MemberType.requiresCustomSelection(
   channel.memberType,
 );
+const jpCreators = Creator.filterByType(creators, "vspo_jp");
+const enCreators = Creator.filterByType(creators, "vspo_en");
+const customMemberSet = new Set(channel.customMembers ?? []);
+const selectedCount = customMemberSet.size;
 ---
 
 <dialog
@@ -60,8 +64,11 @@ const showCustomMembers = MemberType.requiresCustomSelection(
           name="language"
           class="w-full rounded-md border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm"
         >
-          <option value="ja" selected={channel.language === "ja"}>{t(locale, "channelConfig.language.ja")}</option>
-          <option value="en" selected={channel.language === "en"}>{t(locale, "channelConfig.language.en")}</option>
+          {["ja", "en", "fr", "de", "es", "cn", "tw", "ko", "default"].map((lang) => (
+            <option value={lang} selected={channel.language === lang}>
+              {t(locale, languageDisplayKey(lang))}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -90,38 +97,159 @@ const showCustomMembers = MemberType.requiresCustomSelection(
 
       {
         showCustomMembers && (
-          <div class="space-y-2">
-            <span class="text-sm font-medium">{t(locale, "channelConfig.customMembers")}</span>
-            <div class="max-h-48 space-y-1 overflow-y-auto rounded-md border border-outline-variant/20 p-2">
-              {creators.map((creator) => (
-                <label class="flex items-center gap-2 rounded px-2 py-1 hover:bg-surface-container-highest/30">
-                  <input
-                    type="checkbox"
-                    name="customMemberIds"
-                    value={creator.id}
-                    checked={channel.customMembers?.includes(creator.id)}
-                    class="accent-vspo-purple"
-                  />
-                  {creator.thumbnailUrl && (
-                    <img
-                      src={creator.thumbnailUrl}
-                      alt=""
-                      class="h-5 w-5 rounded-full"
-                    />
-                  )}
-                  <span class="text-sm">{creator.name}</span>
-                </label>
-              ))}
+          <div class="space-y-2" data-custom-members>
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium">{t(locale, "channelConfig.customMembers")}</span>
+              <span
+                class="text-xs text-on-surface-variant"
+                data-selected-count
+                data-template={t(locale, "channelConfig.members.selected", { count: "{count}" })}
+              >
+                {t(locale, "channelConfig.members.selected", { count: String(selectedCount) })}
+              </span>
+            </div>
+
+            {/* Search bar */}
+            <label for="member-search" class="sr-only">{t(locale, "channelConfig.members.search")}</label>
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                id="member-search"
+                type="search"
+                placeholder={t(locale, "channelConfig.members.search")}
+                class="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low py-2 pl-9 pr-3 text-sm placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+                data-member-search
+              />
+            </div>
+
+            <div class="max-h-56 space-y-3 overflow-y-auto rounded-md border border-outline-variant/20 p-3">
+              {/* JP Group */}
+              {jpCreators.length > 0 && (
+                <div data-member-group="vspo_jp">
+                  <div class="mb-1 flex items-center justify-between">
+                    <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                      {t(locale, "channelConfig.members.jpGroup")}
+                    </h4>
+                    <button
+                      type="button"
+                      class="cursor-pointer text-xs font-medium text-vspo-purple transition-colors hover:text-vspo-purple/80"
+                      data-toggle-group="vspo_jp"
+                      data-label-select={t(locale, "channelConfig.members.selectAll")}
+                      data-label-deselect={t(locale, "channelConfig.members.deselectAll")}
+                    >
+                      {t(locale, "channelConfig.members.selectAll")}
+                    </button>
+                  </div>
+                  <div class="space-y-0.5">
+                    {jpCreators.map((creator) => (
+                      <label
+                        class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-container-highest/40"
+                        data-member-item
+                        data-member-name={creator.name.toLowerCase()}
+                        data-member-group-item="vspo_jp"
+                      >
+                        <input
+                          type="checkbox"
+                          name="customMemberIds"
+                          value={creator.id}
+                          checked={customMemberSet.has(creator.id)}
+                          class="shrink-0 accent-vspo-purple"
+                          data-member-checkbox
+                        />
+                        {creator.thumbnailUrl ? (
+                          <img
+                            src={creator.thumbnailUrl}
+                            alt=""
+                            class="h-6 w-6 shrink-0 rounded-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-xs font-medium text-on-surface-variant">
+                            {creator.name.charAt(0)}
+                          </span>
+                        )}
+                        <span class="truncate text-sm">{creator.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* EN Group */}
+              {enCreators.length > 0 && (
+                <div data-member-group="vspo_en">
+                  <div class="mb-1 flex items-center justify-between">
+                    <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                      {t(locale, "channelConfig.members.enGroup")}
+                    </h4>
+                    <button
+                      type="button"
+                      class="cursor-pointer text-xs font-medium text-vspo-purple transition-colors hover:text-vspo-purple/80"
+                      data-toggle-group="vspo_en"
+                      data-label-select={t(locale, "channelConfig.members.selectAll")}
+                      data-label-deselect={t(locale, "channelConfig.members.deselectAll")}
+                    >
+                      {t(locale, "channelConfig.members.selectAll")}
+                    </button>
+                  </div>
+                  <div class="space-y-0.5">
+                    {enCreators.map((creator) => (
+                      <label
+                        class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-container-highest/40"
+                        data-member-item
+                        data-member-name={creator.name.toLowerCase()}
+                        data-member-group-item="vspo_en"
+                      >
+                        <input
+                          type="checkbox"
+                          name="customMemberIds"
+                          value={creator.id}
+                          checked={customMemberSet.has(creator.id)}
+                          class="shrink-0 accent-vspo-purple"
+                          data-member-checkbox
+                        />
+                        {creator.thumbnailUrl ? (
+                          <img
+                            src={creator.thumbnailUrl}
+                            alt=""
+                            class="h-6 w-6 shrink-0 rounded-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-xs font-medium text-on-surface-variant">
+                            {creator.name.charAt(0)}
+                          </span>
+                        )}
+                        <span class="truncate text-sm">{creator.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty search state */}
+              <p class="hidden py-4 text-center text-sm text-on-surface-variant" data-member-search-empty>
+                {t(locale, "channel.add.empty")}
+              </p>
             </div>
           </div>
         )
       }
 
       <div class="flex justify-end gap-2 pt-2">
+        <form method="post" action={actions.resetChannel} class="mr-auto">
+          <input type="hidden" name="guildId" value={guildId} />
+          <input type="hidden" name="channelId" value={channel.channelId} />
+          <Button type="submit" variant="ghost">
+            {t(locale, "channelConfig.reset")}
+          </Button>
+        </form>
         <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
           {t(locale, "channelConfig.cancel")}
         </Button>
-        <Button type="submit" variant="discord">{t(locale, "channelConfig.save")}</Button>
+        <Button type="submit" variant="discord" data-save-btn>{t(locale, "channelConfig.save")}</Button>
       </div>
     </form>
   </div>
@@ -139,6 +267,117 @@ const showCustomMembers = MemberType.requiresCustomSelection(
 
     closeBtn?.addEventListener("click", navigateClose);
 
+    // --- Custom member selection logic ---
+    const customSection = dialog.querySelector<HTMLElement>("[data-custom-members]");
+    const searchInput = dialog.querySelector<HTMLInputElement>("[data-member-search]");
+    const memberItems = dialog.querySelectorAll<HTMLElement>("[data-member-item]");
+    const checkboxes = dialog.querySelectorAll<HTMLInputElement>("[data-member-checkbox]");
+    const countEl = dialog.querySelector<HTMLElement>("[data-selected-count]");
+    const emptyMsg = dialog.querySelector<HTMLElement>("[data-member-search-empty]");
+    const saveBtn = dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
+    const memberTypeRadios = dialog.querySelectorAll<HTMLInputElement>('input[name="memberType"]');
+
+    /** Update the "X selected" count display and save button state. */
+    const updateSelectedState = () => {
+      if (!countEl) return;
+      const count = dialog.querySelectorAll<HTMLInputElement>("[data-member-checkbox]:checked").length;
+      const template = countEl.dataset.template ?? "{count}";
+      countEl.textContent = template.replace("{count}", String(count));
+
+      // Disable save when custom type is selected but 0 members chosen
+      const isCustom = dialog.querySelector<HTMLInputElement>('input[name="memberType"][value="custom"]')?.checked;
+      if (saveBtn && isCustom) {
+        saveBtn.disabled = count === 0;
+        saveBtn.classList.toggle("opacity-50", count === 0);
+        saveBtn.classList.toggle("pointer-events-none", count === 0);
+      }
+    };
+
+    /** Update the toggle button label based on group checkbox state. */
+    const updateToggleLabel = (groupName: string) => {
+      const toggleBtn = dialog.querySelector<HTMLButtonElement>(`[data-toggle-group="${groupName}"]`);
+      if (!toggleBtn) return;
+      const groupCheckboxes = dialog.querySelectorAll<HTMLInputElement>(
+        `[data-member-group-item="${groupName}"] [data-member-checkbox]`
+      );
+      const allChecked = Array.from(groupCheckboxes).every((cb) => cb.checked);
+      toggleBtn.textContent = allChecked
+        ? (toggleBtn.dataset.labelDeselect ?? "Deselect All")
+        : (toggleBtn.dataset.labelSelect ?? "Select All");
+    };
+
+    // Search filtering
+    searchInput?.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      let visibleCount = 0;
+      for (const item of memberItems) {
+        const name = item.dataset.memberName ?? "";
+        const show = name.includes(query);
+        item.style.display = show ? "" : "none";
+        if (show) visibleCount++;
+      }
+      if (emptyMsg) {
+        emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
+      }
+      // Show/hide group headers when all items in group are hidden
+      for (const groupName of ["vspo_jp", "vspo_en"]) {
+        const group = dialog.querySelector<HTMLElement>(`[data-member-group="${groupName}"]`);
+        if (!group) continue;
+        const groupItems = group.querySelectorAll<HTMLElement>("[data-member-item]");
+        const anyVisible = Array.from(groupItems).some((el) => el.style.display !== "none");
+        group.style.display = anyVisible ? "" : "none";
+      }
+    });
+
+    // Select All / Deselect All per group
+    for (const toggleBtn of dialog.querySelectorAll<HTMLButtonElement>("[data-toggle-group]")) {
+      toggleBtn.addEventListener("click", () => {
+        const groupName = toggleBtn.dataset.toggleGroup;
+        if (!groupName) return;
+        const groupCheckboxes = dialog.querySelectorAll<HTMLInputElement>(
+          `[data-member-group-item="${groupName}"] [data-member-checkbox]`
+        );
+        const allChecked = Array.from(groupCheckboxes).every((cb) => cb.checked);
+        for (const cb of groupCheckboxes) {
+          cb.checked = !allChecked;
+        }
+        updateToggleLabel(groupName);
+        updateSelectedState();
+      });
+    }
+
+    // Individual checkbox changes
+    for (const cb of checkboxes) {
+      cb.addEventListener("change", () => {
+        const groupName = cb.closest<HTMLElement>("[data-member-group-item]")?.dataset.memberGroupItem;
+        if (groupName) updateToggleLabel(groupName);
+        updateSelectedState();
+      });
+    }
+
+    // Re-evaluate save button state when member type radio changes
+    for (const radio of memberTypeRadios) {
+      radio.addEventListener("change", () => {
+        if (saveBtn) {
+          if (radio.value !== "custom") {
+            saveBtn.disabled = false;
+            saveBtn.classList.remove("opacity-50", "pointer-events-none");
+          } else {
+            updateSelectedState();
+          }
+        }
+      });
+    }
+
+    // Initialize toggle labels and save button state
+    if (customSection) {
+      for (const groupName of ["vspo_jp", "vspo_en"]) {
+        updateToggleLabel(groupName);
+      }
+      updateSelectedState();
+    }
+
+    // --- Focus trap and modal close ---
     const focusableSelector =
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     const focusableEls = dialog.querySelectorAll(focusableSelector);
