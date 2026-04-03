@@ -1,7 +1,9 @@
 agentic
 aquaproj
 aquasecurity
+Arya
 astro
+Aotsuki
 bento
 biome
 biomejs
@@ -42,12 +44,16 @@ hotkey
 hotkeys
 idempotency
 imagegw
+Jisaki
 joshi
 jtvnw
 kaku
 katakana
 kirinuki
 knip
+Komori
+Kuroha
+labelledby
 lefthook
 lhci
 lighthouserc
@@ -79,7 +85,9 @@ preconditions
 rects
 reduxjs
 rehype
+Remia
 remark
+Renka
 rerender
 rerenders
 resvg
@@ -90,6 +98,7 @@ scrollbar
 semgrep
 serializable
 shiki
+Shinomiya
 signin
 signup
 spodule

@@ -6,6 +6,12 @@ import type { CreatorType } from "~/features/shared/domain/creator";
 import type { ApplicationService } from "~/types/api";
 import type { MemberTypeValue } from "../domain/member-type";
 
+type AdjustBotChannelRpcParams = Parameters<
+  ReturnType<ApplicationService["newDiscordUsecase"]>["adjustBotChannel"]
+>[0] & {
+  selectedMemberIds?: string[];
+};
+
 /**
  * Maps the vspo-server memberType to the bot-dashboard's MemberType domain value.
  * @precondition serverMemberType is one of the vspo-server API values or undefined
@@ -40,15 +46,15 @@ const toFrontendMemberType = (
  * @postcondition Returns a vspo-server API memberType string
  */
 const toServerMemberType = (
-  frontendMemberType: string,
-): "vspo_jp" | "vspo_en" | "vspo_all" | "general" | "custom" => {
+  frontendMemberType: MemberTypeValue,
+): "vspo_jp" | "vspo_en" | "vspo_all" | "general" => {
   switch (frontendMemberType) {
     case "vspo_jp":
       return "vspo_jp";
     case "vspo_en":
       return "vspo_en";
     case "custom":
-      return "custom";
+      return "vspo_all";
     case "all":
       return "vspo_all";
     default:
@@ -117,7 +123,7 @@ const VspoChannelApiRepository = {
     channelId: string,
     data: {
       language?: string;
-      memberType?: string;
+      memberType?: MemberTypeValue;
       customMembers?: string[] | undefined;
     },
   ): Promise<Result<void, AppError>> => {
@@ -132,7 +138,7 @@ const VspoChannelApiRepository = {
     }
 
     const discord = appWorker.newDiscordUsecase();
-    const result = await discord.adjustBotChannel({
+    const params: AdjustBotChannelRpcParams = {
       type: "add",
       serverId: guildId,
       targetChannelId: channelId,
@@ -141,7 +147,8 @@ const VspoChannelApiRepository = {
         ? toServerMemberType(data.memberType)
         : undefined,
       selectedMemberIds: data.customMembers,
-    });
+    };
+    const result = await discord.adjustBotChannel(params);
     if (result.err) return result;
     return Ok(undefined);
   },
@@ -169,14 +176,17 @@ const VspoChannelApiRepository = {
     if (jpResult.err) return jpResult;
     if (enResult.err) return enResult;
 
-    const mapCreator = (c: any): CreatorType => ({
-      id: c.id,
-      name: c.name ?? c.channel?.youtube?.name ?? "Unknown",
+    type RpcCreator = (typeof jpResult.val.creators)[number];
+
+    const mapCreator = (creator: RpcCreator): CreatorType => ({
+      id: creator.id,
+      name: creator.name ?? creator.channel?.youtube?.name ?? "Unknown",
       memberType:
-        c.memberType === "vspo_en"
+        creator.memberType === "vspo_en"
           ? ("vspo_en" as const)
           : ("vspo_jp" as const),
-      thumbnailUrl: c.thumbnailURL || c.channel?.youtube?.thumbnailURL || null,
+      thumbnailUrl:
+        creator.thumbnailURL || creator.channel?.youtube?.thumbnailURL || null,
     });
 
     return Ok({
