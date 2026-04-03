@@ -6,7 +6,7 @@ import LanguageSelector from "~/components/ui/LanguageSelector.astro";
 import ThemeToggle from "~/components/ui/ThemeToggle.astro";
 import { t } from "~/i18n/dict";
 
-if (Astro.locals.user) {
+if (Astro.locals.user && !Astro.url.searchParams.has("preview")) {
   return Astro.redirect("/dashboard");
 }
 

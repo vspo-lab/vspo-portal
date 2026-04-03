@@ -36,7 +36,7 @@ const renderStatus = (enabled: boolean) =>
     ? `<div class="flex items-center gap-2">
         <div class="relative flex h-2 w-2">
           <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
         </div>
         <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active</span>
       </div>`
