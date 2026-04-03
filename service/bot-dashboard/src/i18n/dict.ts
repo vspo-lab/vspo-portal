@@ -109,8 +109,14 @@ const ja = {
   "nav.menu": "メニュー",
   "nav.skipToContent": "メインコンテンツへスキップ",
   "nav.channels": "チャンネル設定",
-  "nav.notifications": "通知ログ",
+  "nav.notifications": "お知らせ",
+  "nav.announcements": "お知らせ",
   "nav.comingSoon": "準備中",
+  "announcements.title": "お知らせ",
+  "announcements.empty": "お知らせはありません",
+  "announcements.type.info": "お知らせ",
+  "announcements.type.update": "アップデート",
+  "announcements.type.maintenance": "メンテナンス",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
@@ -276,8 +282,14 @@ const en: Record<keyof typeof ja, string> = {
   "nav.menu": "Menu",
   "nav.skipToContent": "Skip to main content",
   "nav.channels": "Channel Settings",
-  "nav.notifications": "Notification Log",
+  "nav.notifications": "Announcements",
+  "nav.announcements": "Announcements",
   "nav.comingSoon": "Coming Soon",
+  "announcements.title": "Announcements",
+  "announcements.empty": "No announcements",
+  "announcements.type.info": "Info",
+  "announcements.type.update": "Update",
+  "announcements.type.maintenance": "Maintenance",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",

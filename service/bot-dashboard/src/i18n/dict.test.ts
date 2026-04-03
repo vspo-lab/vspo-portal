@@ -89,7 +89,13 @@ describe("redesign keys", () => {
   it.each([
     "nav.channels",
     "nav.notifications",
+    "nav.announcements",
     "nav.comingSoon",
+    "announcements.title",
+    "announcements.empty",
+    "announcements.type.info",
+    "announcements.type.update",
+    "announcements.type.maintenance",
     "channel.status",
     "channel.status.active",
     "channel.status.paused",
