@@ -21,7 +21,8 @@ const ja = {
     "チャンネルごとに JP / EN メンバーやカスタム選択で絞り込み",
   "login.pageSettings": "ページ設定",
   "login.features": "機能紹介",
-  "login.features.desc": "コマンド不要。ブラウザだけで権限・言語・メンバーを管理。",
+  "login.features.desc":
+    "コマンド不要。ブラウザだけで権限・言語・メンバーを管理。",
   "login.cta.headline": "はじめよう",
   "login.cta.description": "無料で今すぐ始められます。スラッシュコマンド不要。",
   "login.feature.realtime": "コマンド入力なし",
@@ -159,8 +160,7 @@ const en: Record<keyof typeof ja, string> = {
   "login.features.desc":
     "No commands required. Manage permissions, language, and members from your browser.",
   "login.cta.headline": "Get Started",
-  "login.cta.description":
-    "Free to use. No slash commands needed.",
+  "login.cta.description": "Free to use. No slash commands needed.",
   "login.feature.realtime": "No commands needed",
   "login.feature.realtime.desc":
     "Everything works from the browser. No slash commands involved",
