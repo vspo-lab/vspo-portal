@@ -2,8 +2,15 @@ import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 import { devMock, isRpcUnavailable } from "~/features/shared/dev-mock";
+import type { CreatorType } from "~/features/shared/domain/creator";
 import type { ApplicationService } from "~/types/api";
 import type { MemberTypeValue } from "../domain/member-type";
+
+type AdjustBotChannelRpcParams = Parameters<
+  ReturnType<ApplicationService["newDiscordUsecase"]>["adjustBotChannel"]
+>[0] & {
+  selectedMemberIds?: string[];
+};
 
 /**
  * Maps the vspo-server memberType to the bot-dashboard's MemberType domain value.
@@ -39,13 +46,15 @@ const toFrontendMemberType = (
  * @postcondition Returns a vspo-server API memberType string
  */
 const toServerMemberType = (
-  frontendMemberType: string,
+  frontendMemberType: MemberTypeValue,
 ): "vspo_jp" | "vspo_en" | "vspo_all" | "general" => {
   switch (frontendMemberType) {
     case "vspo_jp":
       return "vspo_jp";
     case "vspo_en":
       return "vspo_en";
+    case "custom":
+      return "vspo_all";
     case "all":
       return "vspo_all";
     default:
@@ -114,7 +123,7 @@ const VspoChannelApiRepository = {
     channelId: string,
     data: {
       language?: string;
-      memberType?: string;
+      memberType?: MemberTypeValue;
       customMembers?: string[] | undefined;
     },
   ): Promise<Result<void, AppError>> => {
@@ -129,7 +138,7 @@ const VspoChannelApiRepository = {
     }
 
     const discord = appWorker.newDiscordUsecase();
-    const result = await discord.adjustBotChannel({
+    const params: AdjustBotChannelRpcParams = {
       type: "add",
       serverId: guildId,
       targetChannelId: channelId,
@@ -137,9 +146,53 @@ const VspoChannelApiRepository = {
       memberType: data.memberType
         ? toServerMemberType(data.memberType)
         : undefined,
-    });
+      selectedMemberIds: data.customMembers,
+    };
+    const result = await discord.adjustBotChannel(params);
     if (result.err) return result;
     return Ok(undefined);
+  },
+
+  /**
+   * Retrieve all creators (JP and EN) from vspo-server.
+   *
+   * @param appWorker - APP_WORKER service binding
+   * @returns Object with jp and en creator arrays
+   * @idempotent true
+   */
+  listCreators: async (
+    appWorker: ApplicationService,
+  ): Promise<Result<{ jp: CreatorType[]; en: CreatorType[] }, AppError>> => {
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.creators());
+    }
+
+    const creatorService = appWorker.newCreatorUsecase();
+    const [jpResult, enResult] = await Promise.all([
+      creatorService.list({ limit: 100, page: 1, memberType: "vspo_jp" }),
+      creatorService.list({ limit: 100, page: 1, memberType: "vspo_en" }),
+    ]);
+
+    if (jpResult.err) return jpResult;
+    if (enResult.err) return enResult;
+
+    type RpcCreator = (typeof jpResult.val.creators)[number];
+
+    const mapCreator = (creator: RpcCreator): CreatorType => ({
+      id: creator.id,
+      name: creator.name ?? creator.channel?.youtube?.name ?? "Unknown",
+      memberType:
+        creator.memberType === "vspo_en"
+          ? ("vspo_en" as const)
+          : ("vspo_jp" as const),
+      thumbnailUrl:
+        creator.thumbnailURL || creator.channel?.youtube?.thumbnailURL || null,
+    });
+
+    return Ok({
+      jp: jpResult.val.creators.map(mapCreator),
+      en: enResult.val.creators.map(mapCreator),
+    });
   },
 
   /**

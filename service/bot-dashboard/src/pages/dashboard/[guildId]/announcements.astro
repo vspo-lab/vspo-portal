@@ -1,0 +1,95 @@
+---
+import { env } from "cloudflare:workers";
+import Dashboard from "~/layouts/Dashboard.astro";
+import { t } from "~/i18n/dict";
+import { announcements } from "~/features/announcement/data/announcements";
+import { GuildSummary } from "~/features/guild/domain/guild";
+import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
+
+const { guildId } = Astro.params;
+if (!guildId) return Astro.redirect("/dashboard");
+
+const accessToken = Astro.locals.accessToken;
+if (!accessToken) return Astro.redirect("/");
+
+const locale = Astro.locals.locale;
+
+const guildsResult = await ListGuildsUsecase.execute({
+  accessToken,
+  appWorker: env.APP_WORKER,
+});
+
+const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
+const allGuilds = guildsResult.err
+  ? []
+  : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
+const currentGuild = allGuilds.find((g) => g.id === guildId);
+---
+
+<Dashboard
+  title={t(locale, "announcements.title")}
+  guilds={sidebarGuilds}
+  showSidebar
+  activeGuild={currentGuild
+    ? {
+        id: currentGuild.id,
+        name: currentGuild.name,
+        iconUrl: GuildSummary.iconUrl(currentGuild),
+      }
+    : null}
+>
+  <div class="space-y-6">
+    <div>
+      <h1 class="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
+        {t(locale, "announcements.title")}
+      </h1>
+    </div>
+
+    {announcements.length === 0 ? (
+      <p class="py-12 text-center text-on-surface-variant">
+        {t(locale, "announcements.empty")}
+      </p>
+    ) : (
+      <div class="space-y-4">
+        {announcements.map((item) => {
+          const typeColors = {
+            info: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+            update: "bg-vspo-purple/10 text-vspo-purple",
+            maintenance: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+          };
+          const typeKey = `announcements.type.${item.type}` as const;
+          return (
+            <article class="rounded-xl bg-surface-container-low p-6">
+              <div class="mb-3 flex items-center gap-3">
+                <span
+                  class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${typeColors[item.type]}`}
+                >
+                  {t(locale, typeKey)}
+                </span>
+                <time
+                  class="text-xs text-on-surface-variant"
+                  datetime={item.date}
+                >
+                  {new Date(item.date).toLocaleDateString(
+                    locale === "ja" ? "ja-JP" : "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    },
+                  )}
+                </time>
+              </div>
+              <h2 class="mb-2 font-heading text-lg font-bold text-on-surface">
+                {item.title[locale as keyof typeof item.title] ?? item.title.ja}
+              </h2>
+              <p class="text-sm leading-relaxed text-on-surface-variant">
+                {item.body[locale as keyof typeof item.body] ?? item.body.ja}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    )}
+  </div>
+</Dashboard>

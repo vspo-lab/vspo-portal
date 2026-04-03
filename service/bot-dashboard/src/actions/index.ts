@@ -69,6 +69,31 @@ export const server = {
     },
   }),
 
+  resetChannel: defineAction({
+    accept: "form",
+    input: z.object({
+      guildId: z.string(),
+      channelId: z.string(),
+    }),
+    handler: async (input, context) => {
+      requireAuth(context);
+
+      const result = await VspoChannelApiRepository.updateChannel(
+        env.APP_WORKER,
+        input.guildId,
+        input.channelId,
+        { language: "default", memberType: "all", customMembers: [] },
+      );
+
+      if (result.err) {
+        throw new ActionError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: result.err.message,
+        });
+      }
+    },
+  }),
+
   deleteChannel: defineAction({
     accept: "form",
     input: z.object({

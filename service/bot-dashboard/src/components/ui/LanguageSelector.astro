@@ -12,13 +12,13 @@ interface Props {
 const { currentLocale, returnTo, variant = "header" } = Astro.props;
 
 const activeClass = variant === "header"
-  ? "bg-white/20 text-white"
+  ? "bg-surface-container-highest text-on-surface"
   : "bg-primary/10 text-primary";
 const inactiveClass = variant === "header"
-  ? "text-white/60 hover:text-white"
+  ? "text-on-surface-variant hover:text-on-surface"
   : "text-muted-foreground hover:text-foreground";
 const dividerClass = variant === "header"
-  ? "text-white/40"
+  ? "text-on-surface-variant/40"
   : "text-muted-foreground/40";
 ---
 
@@ -28,23 +28,25 @@ const dividerClass = variant === "header"
     type="submit"
     name="locale"
     value="ja"
-    class={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+    class={`rounded px-2 py-1 text-[10px] font-bold transition-colors ${
       currentLocale === "ja" ? activeClass : inactiveClass
     }`}
     aria-pressed={currentLocale === "ja" ? "true" : "false"}
+    aria-label={t(currentLocale, "settings.language.ja")}
   >
-    {t(currentLocale, "settings.language.ja")}
+    {variant === "header" ? "JA" : t(currentLocale, "settings.language.ja")}
   </button>
   <span class={dividerClass} aria-hidden="true">/</span>
   <button
     type="submit"
     name="locale"
     value="en"
-    class={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+    class={`rounded px-2 py-1 text-[10px] font-bold transition-colors ${
       currentLocale === "en" ? activeClass : inactiveClass
     }`}
     aria-pressed={currentLocale === "en" ? "true" : "false"}
+    aria-label={t(currentLocale, "settings.language.en")}
   >
-    {t(currentLocale, "settings.language.en")}
+    {variant === "header" ? "EN" : t(currentLocale, "settings.language.en")}
   </button>
 </form>

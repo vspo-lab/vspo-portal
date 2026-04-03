@@ -1,7 +1,7 @@
 const ja = {
   // Common
-  "app.name": "Spodule Bot",
-  "app.title": "Spodule Bot ダッシュボード",
+  "app.name": "すぽじゅーる Bot",
+  "app.title": "すぽじゅーる Bot ダッシュボード",
 
   // Login page
   "login.title": "ログイン",
@@ -10,10 +10,14 @@ const ja = {
     "ぶいすぽっ!メンバーの配信予定を Discord に自動で届けます",
   "login.button": "Discord でログイン",
   "login.addBot": "サーバーに追加する",
-  "login.manageSettings": "通知設定を管理する",
   "login.previewCaption": "配信予定を、こんな感じで通知します",
+  "login.previewAlt1": "ぶいすぽっ!公式メンバーの配信通知例",
+  "login.previewAlt2": "個別メンバーの配信通知例",
   "login.permissions_note": "サーバー一覧の読み取り権限のみ使用します",
-  "login.footer": "vspo-schedule.com",
+  "login.footer": "Powered by すぽじゅーる",
+  "login.footer.link": "配信予定を確認する",
+  "login.footer.terms": "利用規約",
+  "login.footer.privacy": "プライバシーポリシー",
   "login.feature.list": "まとめて管理",
   "login.feature.list.desc": "複数サーバーの設定をひとつの画面で確認・変更",
   "login.feature.filter": "通知対象を選べる",
@@ -21,9 +25,16 @@ const ja = {
     "チャンネルごとに JP / EN メンバーやカスタム選択で絞り込み",
   "login.pageSettings": "ページ設定",
   "login.features": "機能紹介",
+  "login.features.desc":
+    "コマンド不要。ブラウザだけで権限・言語・メンバーを管理。",
+  "login.cta.headline": "はじめよう",
+  "login.cta.description": "無料で今すぐ始められます。スラッシュコマンド不要。",
   "login.feature.realtime": "コマンド入力なし",
   "login.feature.realtime.desc":
     "ブラウザ操作だけで完了。スラッシュコマンドは使いません",
+  "login.feature.settings": "ブラウザで設定管理",
+  "login.feature.settings.desc":
+    "Webダッシュボードから通知チャンネルや対象メンバーを変更",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -33,6 +44,7 @@ const ja = {
   "dashboard.noServers": "管理者権限を持つサーバーがありません。",
   "dashboard.allServers": "すべてのサーバー",
   "dashboard.channelsCount": "{total} チャンネル設定済み",
+  "dashboard.stat.channels": "チャンネル数",
   "dashboard.error": "エラー: {message}",
 
   // Guild
@@ -45,6 +57,9 @@ const ja = {
   "channel.name": "チャンネル",
   "channel.language": "言語",
   "channel.members": "メンバー",
+  "channel.status": "ステータス",
+  "channel.status.active": "有効",
+  "channel.status.paused": "停止中",
   "channel.actions": "操作",
   "channel.edit": "編集",
   "channel.delete": "削除",
@@ -67,9 +82,24 @@ const ja = {
   "channelConfig.language": "言語",
   "channelConfig.language.ja": "日本語",
   "channelConfig.language.en": "英語",
+  "channelConfig.language.fr": "フランス語",
+  "channelConfig.language.de": "ドイツ語",
+  "channelConfig.language.es": "スペイン語",
+  "channelConfig.language.cn": "簡体中文",
+  "channelConfig.language.tw": "繁體中文",
+  "channelConfig.language.ko": "韓国語",
+  "channelConfig.language.default": "デフォルト",
   "channelConfig.language.unknown": "未設定",
   "channelConfig.memberType": "メンバータイプ",
   "channelConfig.customMembers": "カスタムメンバー",
+  "channelConfig.reset": "デフォルトに戻す",
+  "channelConfig.reset.confirm": "設定をデフォルトに戻しますか？",
+  "channelConfig.members.search": "メンバーを検索",
+  "channelConfig.members.selectAll": "全選択",
+  "channelConfig.members.deselectAll": "全解除",
+  "channelConfig.members.selected": "{count} 名選択中",
+  "channelConfig.members.jpGroup": "JP メンバー",
+  "channelConfig.members.enGroup": "EN メンバー",
   "channelConfig.close": "閉じる",
   "channelConfig.cancel": "キャンセル",
   "channelConfig.save": "保存",
@@ -78,12 +108,25 @@ const ja = {
   "nav.sidebar": "サーバーナビゲーション",
   "nav.menu": "メニュー",
   "nav.skipToContent": "メインコンテンツへスキップ",
+  "nav.channels": "チャンネル設定",
+  "nav.notifications": "お知らせ",
+  "nav.announcements": "お知らせ",
+  "nav.comingSoon": "準備中",
+  "announcements.title": "お知らせ",
+  "announcements.empty": "お知らせはありません",
+  "announcements.type.info": "お知らせ",
+  "announcements.type.update": "アップデート",
+  "announcements.type.maintenance": "メンテナンス",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
+  "memberType.vspo_jp.desc": "日本語メンバーの配信のみ通知",
   "memberType.vspo_en": "VSPO EN",
+  "memberType.vspo_en.desc": "英語メンバーの配信のみ通知",
   "memberType.all": "全メンバー",
+  "memberType.all.desc": "全メンバーの配信を通知",
   "memberType.custom": "カスタム",
+  "memberType.custom.desc": "個別にメンバーを選択",
 
   // Settings
   "settings.theme": "テーマ",
@@ -94,6 +137,10 @@ const ja = {
   "settings.language": "言語",
   "settings.language.ja": "日本語",
   "settings.language.en": "English",
+
+  // Error (404)
+  "error.notFound.title": "ページが見つかりませんでした",
+  "error.notFound.back": "ホームに戻る",
 
   // Error
   "error.auth_failed": "Discord 認証に失敗しました。もう一度お試しください。",
@@ -106,11 +153,20 @@ const ja = {
   "toast.addSuccess": "チャンネルを追加しました。",
   "toast.updateSuccess": "チャンネル設定を更新しました。",
   "toast.deleteSuccess": "チャンネル設定を削除しました。",
+  "toast.resetSuccess": "チャンネル設定をデフォルトに戻しました。",
   "toast.dismiss": "閉じる",
   "toast.retry": "再読み込み",
 
   // Auth
   "auth.logout": "ログアウト",
+
+  // Meta descriptions
+  "meta.login.description":
+    "ぶいすぽっ!メンバーの配信予定をDiscordに自動で届けます。ブラウザ操作だけで通知設定が完了します。",
+  "meta.dashboard.description":
+    "Botが導入されているDiscordサーバーの通知設定を管理します。",
+  "meta.guildDetail.description":
+    "{guildName} の通知チャンネル設定を管理します。",
 } as const;
 
 const en: Record<keyof typeof ja, string> = {
@@ -125,10 +181,14 @@ const en: Record<keyof typeof ja, string> = {
     "Get automatic Discord notifications for VSPO member streams",
   "login.button": "Login with Discord",
   "login.addBot": "Add to Server",
-  "login.manageSettings": "Manage notification settings",
   "login.previewCaption": "Here's what notifications look like",
+  "login.previewAlt1": "Example notification for official VSPO member streams",
+  "login.previewAlt2": "Example notification for individual member streams",
   "login.permissions_note": "Only requests read access to your server list",
-  "login.footer": "vspo-schedule.com",
+  "login.footer": "Powered by Spodule",
+  "login.footer.link": "View stream schedules",
+  "login.footer.terms": "Terms of Service",
+  "login.footer.privacy": "Privacy Policy",
   "login.feature.list": "All servers, one screen",
   "login.feature.list.desc":
     "Check and change settings across servers without switching",
@@ -137,9 +197,16 @@ const en: Record<keyof typeof ja, string> = {
     "Filter by JP, EN, or select individual members per channel",
   "login.pageSettings": "Page settings",
   "login.features": "Features",
+  "login.features.desc":
+    "No commands required. Manage permissions, language, and members from your browser.",
+  "login.cta.headline": "Get Started",
+  "login.cta.description": "Free to use. No slash commands needed.",
   "login.feature.realtime": "No commands needed",
   "login.feature.realtime.desc":
     "Everything works from the browser. No slash commands involved",
+  "login.feature.settings": "Browser-based settings",
+  "login.feature.settings.desc":
+    "Change notification channels and target members from the web dashboard",
 
   // Dashboard
   "dashboard.servers": "Servers",
@@ -150,6 +217,7 @@ const en: Record<keyof typeof ja, string> = {
   "dashboard.noServers": "No servers with admin permissions found.",
   "dashboard.allServers": "All Servers",
   "dashboard.channelsCount": "{total} channels configured",
+  "dashboard.stat.channels": "Channels",
   "dashboard.error": "Error: {message}",
 
   // Guild
@@ -162,6 +230,9 @@ const en: Record<keyof typeof ja, string> = {
   "channel.name": "Channel",
   "channel.language": "Language",
   "channel.members": "Members",
+  "channel.status": "Status",
+  "channel.status.active": "Active",
+  "channel.status.paused": "Paused",
   "channel.actions": "Actions",
   "channel.edit": "Edit",
   "channel.delete": "Delete",
@@ -184,9 +255,24 @@ const en: Record<keyof typeof ja, string> = {
   "channelConfig.language": "Language",
   "channelConfig.language.ja": "Japanese",
   "channelConfig.language.en": "English",
+  "channelConfig.language.fr": "French",
+  "channelConfig.language.de": "German",
+  "channelConfig.language.es": "Spanish",
+  "channelConfig.language.cn": "Simplified Chinese",
+  "channelConfig.language.tw": "Traditional Chinese",
+  "channelConfig.language.ko": "Korean",
+  "channelConfig.language.default": "Default",
   "channelConfig.language.unknown": "Not set",
   "channelConfig.memberType": "Member Type",
   "channelConfig.customMembers": "Custom Members",
+  "channelConfig.reset": "Reset to Default",
+  "channelConfig.reset.confirm": "Reset settings to default?",
+  "channelConfig.members.search": "Search members",
+  "channelConfig.members.selectAll": "Select All",
+  "channelConfig.members.deselectAll": "Deselect All",
+  "channelConfig.members.selected": "{count} selected",
+  "channelConfig.members.jpGroup": "JP Members",
+  "channelConfig.members.enGroup": "EN Members",
   "channelConfig.close": "Close",
   "channelConfig.cancel": "Cancel",
   "channelConfig.save": "Save",
@@ -195,12 +281,25 @@ const en: Record<keyof typeof ja, string> = {
   "nav.sidebar": "Server Navigation",
   "nav.menu": "Menu",
   "nav.skipToContent": "Skip to main content",
+  "nav.channels": "Channel Settings",
+  "nav.notifications": "Announcements",
+  "nav.announcements": "Announcements",
+  "nav.comingSoon": "Coming Soon",
+  "announcements.title": "Announcements",
+  "announcements.empty": "No announcements",
+  "announcements.type.info": "Info",
+  "announcements.type.update": "Update",
+  "announcements.type.maintenance": "Maintenance",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
+  "memberType.vspo_jp.desc": "Notify for JP member streams only",
   "memberType.vspo_en": "VSPO EN",
+  "memberType.vspo_en.desc": "Notify for EN member streams only",
   "memberType.all": "All Members",
+  "memberType.all.desc": "Notify for all member streams",
   "memberType.custom": "Custom",
+  "memberType.custom.desc": "Select individual members",
 
   // Settings
   "settings.theme": "Theme",
@@ -212,6 +311,10 @@ const en: Record<keyof typeof ja, string> = {
   "settings.language.ja": "Japanese",
   "settings.language.en": "English",
 
+  // Error (404)
+  "error.notFound.title": "Page not found",
+  "error.notFound.back": "Back to Home",
+
   // Error
   "error.auth_failed": "Discord authentication failed. Please try again.",
   "error.no_code": "Authorization code not found. Please try again.",
@@ -222,11 +325,20 @@ const en: Record<keyof typeof ja, string> = {
   "toast.addSuccess": "Channel added successfully.",
   "toast.updateSuccess": "Channel settings updated.",
   "toast.deleteSuccess": "Channel configuration deleted.",
+  "toast.resetSuccess": "Channel settings have been reset to default.",
   "toast.dismiss": "Dismiss",
   "toast.retry": "Reload",
 
   // Auth
   "auth.logout": "Logout",
+
+  // Meta descriptions
+  "meta.login.description":
+    "Get automatic Discord notifications for VSPO member streams. No commands needed — set up everything from your browser.",
+  "meta.dashboard.description":
+    "Manage notification settings for your Discord servers.",
+  "meta.guildDetail.description":
+    "Manage notification channels for {guildName}.",
 };
 
 export type Locale = "ja" | "en";
@@ -271,9 +383,33 @@ export const memberTypeKey = (
   value: import("~/features/channel/domain/member-type").MemberTypeValue,
 ): MemberTypeKey => memberTypeKeys[value];
 
+/** Type-safe key for member type description lookup */
+type MemberTypeDescKey = Extract<TranslationKey, `memberType.${string}.desc`>;
+
+const memberTypeDescKeys = {
+  vspo_jp: "memberType.vspo_jp.desc",
+  vspo_en: "memberType.vspo_en.desc",
+  all: "memberType.all.desc",
+  custom: "memberType.custom.desc",
+} as const satisfies Record<
+  import("~/features/channel/domain/member-type").MemberTypeValue,
+  MemberTypeDescKey
+>;
+
+export const memberTypeDescKey = (
+  value: import("~/features/channel/domain/member-type").MemberTypeValue,
+): MemberTypeDescKey => memberTypeDescKeys[value];
+
 const languageDisplayKeys: Record<string, TranslationKey> = {
   ja: "channelConfig.language.ja",
   en: "channelConfig.language.en",
+  fr: "channelConfig.language.fr",
+  de: "channelConfig.language.de",
+  es: "channelConfig.language.es",
+  cn: "channelConfig.language.cn",
+  tw: "channelConfig.language.tw",
+  ko: "channelConfig.language.ko",
+  default: "channelConfig.language.default",
 };
 
 /** Map a language code to its translation key, falling back to "unknown". */

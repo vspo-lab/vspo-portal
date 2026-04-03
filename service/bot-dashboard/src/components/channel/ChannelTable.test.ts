@@ -36,14 +36,14 @@ describe("ChannelTable", () => {
     },
   ];
 
-  it("renders channel names with # prefix", async () => {
+  it("renders channel names", async () => {
     const html = await container.renderToString(ChannelTable, {
       props: { channels, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    expect(getByText(body, "#general")).toBeTruthy();
-    expect(getByText(body, "#notifications")).toBeTruthy();
+    expect(getByText(body, "general")).toBeTruthy();
+    expect(getByText(body, "notifications")).toBeTruthy();
   });
 
   it("shows empty message when channels is empty", async () => {
@@ -65,6 +65,24 @@ describe("ChannelTable", () => {
     const editHrefs = editLinks.map((l) => l.getAttribute("href"));
     expect(editHrefs).toContain("?edit=ch-1");
     expect(editHrefs).toContain("?edit=ch-2");
+  });
+
+  it("shows Active status for enabled channels", async () => {
+    const html = await container.renderToString(ChannelTable, {
+      props: { channels, guildId: "guild-1" },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    expect(body.textContent).toContain("Active");
+  });
+
+  it("shows Paused status for disabled channels", async () => {
+    const html = await container.renderToString(ChannelTable, {
+      props: { channels, guildId: "guild-1" },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    expect(body.textContent).toContain("Paused");
   });
 
   it("renders table with accessible label", async () => {

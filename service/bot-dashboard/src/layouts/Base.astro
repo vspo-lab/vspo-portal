@@ -28,6 +28,12 @@ const altPath = canonicalPath
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    {/* Favicon & Icons */}
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#7266cf" />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     {canonicalUrl && (
       <link rel="alternate" hreflang={locale} href={canonicalUrl} />
@@ -46,23 +52,29 @@ const altPath = canonicalPath
         {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
         <meta property="og:site_name" content={t(locale, "app.title")} />
         <meta property="og:locale" content={locale === "ja" ? "ja_JP" : "en_US"} />
+        <meta property="og:image" content={`${siteUrl}/ogp.png`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
       </>
     )}
 
     {/* Twitter Card */}
     {description && (
       <>
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={`${siteUrl}/ogp.png`} />
       </>
     )}
 
     <script is:inline>
       (function () {
         var stored = localStorage.getItem("theme");
-        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        if (stored === "dark" || (!stored && prefersDark)) {
+        var prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        if (stored === "light" || (!stored && prefersLight)) {
+          /* light mode only when explicitly chosen or OS prefers light */
+        } else {
           document.documentElement.classList.add("dark");
         }
       })();
@@ -72,12 +84,12 @@ const altPath = canonicalPath
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap"
       onload="this.rel='stylesheet'"
     />
     <noscript>
       <link
-        href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap"
         rel="stylesheet"
       />
     </noscript>

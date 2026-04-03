@@ -69,22 +69,22 @@ describe("GuildCard", () => {
     expect(link.getAttribute("href")).toContain("guild-456");
   });
 
-  it("shows 'Bot Installed' badge when bot is installed (en locale)", async () => {
+  it("shows 'Active' status when bot is installed (en locale)", async () => {
     const html = await container.renderToString(GuildCard, {
       props: { guild: installedGuild, botClientId },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    expect(getByText(body, /Bot Installed/)).toBeTruthy();
+    expect(getByText(body, /Active/)).toBeTruthy();
   });
 
-  it("shows 'Bot 導入済み' badge when bot is installed (ja locale)", async () => {
+  it("shows '導入済み' status when bot is installed (ja locale)", async () => {
     const html = await container.renderToString(GuildCard, {
       props: { guild: installedGuild, botClientId },
       locals: { locale: "ja" },
     });
     const body = parseHtml(html);
-    expect(getByText(body, /Bot 導入済み/)).toBeTruthy();
+    expect(getByText(body, /導入済み/)).toBeTruthy();
   });
 
   it("shows channel summary when bot is installed with channelSummary", async () => {
@@ -114,6 +114,6 @@ describe("GuildCard", () => {
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    expect(body.textContent).not.toContain("Bot Installed");
+    expect(body.textContent).not.toContain("Active");
   });
 });

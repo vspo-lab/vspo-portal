@@ -15,7 +15,7 @@ const returnTo = Astro.url.pathname + Astro.url.search;
 
 <details class="group relative" id="user-menu">
   <summary
-    class="flex cursor-pointer list-none items-center gap-2 rounded-[--radius-sm] p-1.5 transition-colors hover:bg-white/10 [&::-webkit-details-marker]:hidden"
+    class="flex cursor-pointer list-none items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-surface-container-highest [&::-webkit-details-marker]:hidden"
   >
     <AvatarFallback src={avatarUrl} name={displayName} size="sm" />
     <span class="hidden text-sm font-medium sm:block">{displayName}</span>
@@ -31,7 +31,7 @@ const returnTo = Astro.url.pathname + Astro.url.search;
   </summary>
 
   <div
-    class="absolute right-0 top-full z-50 mt-2 w-56 rounded-[--radius] border border-border bg-card p-2 shadow-action"
+    class="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl bg-surface-container-high/95 p-2 shadow-hover glass"
   >
     {/* Language */}
     <div class="px-3 py-2">
@@ -41,13 +41,13 @@ const returnTo = Astro.url.pathname + Astro.url.search;
       </div>
     </div>
 
-    <div class="my-1 border-t border-border" />
+    <div class="my-1 h-px bg-outline-variant/20" />
 
     {/* Theme */}
     <button
       id="dropdown-theme-toggle"
       type="button"
-      class="flex w-full items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+      class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface transition-colors hover:bg-surface-container-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
     >
       <svg id="dropdown-theme-icon-sun" class="hidden h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="5" />
@@ -59,13 +59,13 @@ const returnTo = Astro.url.pathname + Astro.url.search;
       <span id="dropdown-theme-label">{t(locale, "settings.theme")}</span>
     </button>
 
-    <div class="my-1 border-t border-border" />
+    <div class="my-1 h-px bg-outline-variant/20" />
 
     {/* Logout */}
     <form method="post" action="/auth/logout">
       <button
         type="submit"
-        class="flex w-full items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+        class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

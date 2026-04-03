@@ -20,15 +20,15 @@ if (result.err) {
   return Astro.redirect("/?error=fetch_failed");
 }
 
-const { installed, notInstalled, sidebarGuilds } = result.val;
+const { installed, notInstalled } = result.val;
 const botClientId = env.DISCORD_BOT_CLIENT_ID;
 ---
 
-<Dashboard title={t(locale, "dashboard.servers")} guilds={sidebarGuilds}>
-  <div class="space-y-8">
-    <div>
-      <h1 class="font-heading text-2xl font-bold tracking-tight">{t(locale, "dashboard.servers")}</h1>
-      <p class="text-muted-foreground">
+<Dashboard title={t(locale, "dashboard.servers")} description={t(locale, "meta.dashboard.description")}>
+  <div class="mx-auto max-w-7xl space-y-10">
+    <div class="space-y-2">
+      <h1 class="font-heading text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">{t(locale, "dashboard.servers")}</h1>
+      <p class="text-on-surface-variant">
         {t(locale, "dashboard.servers.desc")}
       </p>
     </div>
@@ -36,7 +36,7 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
     {
       installed.length > 0 && (
         <section class="space-y-4">
-          <h2 class="text-lg font-semibold">{t(locale, "dashboard.installed")}</h2>
+          <h2 class="font-heading text-lg font-bold text-on-surface">{t(locale, "dashboard.installed")}</h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {installed.map((guild) => (
               <GuildCard guild={guild} botClientId={botClientId} />
@@ -49,7 +49,7 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
     {
       notInstalled.length > 0 && (
         <section class="space-y-4">
-          <h2 class="text-lg font-semibold text-muted-foreground">
+          <h2 class="font-heading text-lg font-bold text-on-surface-variant">
             {t(locale, "dashboard.notInstalled")}
           </h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -63,7 +63,7 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
 
     {
       installed.length === 0 && notInstalled.length === 0 && (
-        <p class="text-muted-foreground">
+        <p class="text-on-surface-variant">
           {t(locale, "dashboard.noServers")}
         </p>
       )

@@ -15,14 +15,14 @@ const { locale } = Astro.locals;
 
 <dialog
   open
-  class="fixed inset-0 z-50 flex items-center justify-center"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
   id="delete-channel-modal"
   aria-labelledby="delete-channel-heading"
   aria-modal="true"
-  style="animation: backdrop-in 200ms var(--ease-standard); background: rgba(0,0,0,0.5);"
+  style="animation: backdrop-in 200ms var(--ease-standard);"
 >
   <div
-    class="mx-4 w-full max-w-md rounded-[--radius] border border-border bg-card p-6 shadow-action"
+    class="glass mx-4 w-full max-w-md rounded-xl bg-surface-container-high/90 p-6 shadow-hover"
     style="animation: modal-in 200ms var(--ease-standard);"
   >
     <div class="mb-4 flex items-start gap-3">
@@ -52,7 +52,7 @@ const { locale } = Astro.locals;
         >
           {t(locale, "channel.deleteConfirm", { channelName: channel.channelName })}
         </h2>
-        <p class="mt-1 text-sm text-muted-foreground">
+        <p class="mt-1 text-sm text-on-surface-variant">
           {t(locale, "channel.deleteConfirm.desc")}
         </p>
       </div>

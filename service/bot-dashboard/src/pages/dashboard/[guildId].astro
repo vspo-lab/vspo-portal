@@ -8,8 +8,9 @@ import ChannelTable from "~/components/channel/ChannelTable.astro";
 import DeleteChannelDialog from "~/components/channel/DeleteChannelDialog.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
+import { GuildSummary } from "~/features/guild/domain/guild";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
-import { t } from "~/i18n/dict";
+import { t, memberTypeKey } from "~/i18n/dict";
 
 const locale = Astro.locals.locale;
 const { guildId } = Astro.params;
@@ -25,7 +26,7 @@ if (!accessToken) {
 // Add channel modal state via query param (read early to conditionally fetch channels)
 const showAddModal = Astro.url.searchParams.get("add") === "true";
 
-const [guildsResult, channelsResult, availableChannelsResult] = await Promise.all([
+const [guildsResult, channelsResult, availableChannelsResult, creatorsResult] = await Promise.all([
   ListGuildsUsecase.execute({
     accessToken,
     appWorker: env.APP_WORKER,
@@ -34,14 +35,15 @@ const [guildsResult, channelsResult, availableChannelsResult] = await Promise.al
   showAddModal
     ? VspoChannelApiRepository.listGuildChannels(env.APP_WORKER, guildId)
     : Promise.resolve(Ok([] as { id: string; name: string }[])),
+  VspoChannelApiRepository.listCreators(env.APP_WORKER),
 ]);
 
-const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
 const allGuilds = guildsResult.err ? [] : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
 const currentGuild = allGuilds.find((g) => g.id === guildId);
 const guildName = currentGuild?.name ?? guildId;
 const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const availableChannels = availableChannelsResult.err ? [] : availableChannelsResult.val;
+const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;
 const fetchError = guildsResult.err ?? channelsResult.err ?? availableChannelsResult.err ?? null;
 
 // Handle action results
@@ -76,26 +78,59 @@ const deletingChannel = deleteChannelId
 
 ---
 
-<Dashboard title={guildName} guilds={sidebarGuilds}>
-  <div class="space-y-6">
-    <div>
-      <nav class="mb-2 text-sm text-muted-foreground">
-        <a href="/dashboard" class="hover:text-foreground">{t(locale, "dashboard.allServers")}</a>
-        <span class="mx-1">/</span>
-        <span>{guildName}</span>
-      </nav>
-      <h1 class="font-heading text-2xl font-bold tracking-tight">{guildName}</h1>
-      <p class="text-muted-foreground">
-        {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
-      </p>
+<Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
+  <div class="mx-auto max-w-7xl space-y-10">
+    {/* Page header */}
+    <div class="flex items-end justify-between">
+      <div class="space-y-2">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "nav.channels")}</p>
+        <h1 class="font-heading text-3xl font-extrabold text-on-surface sm:text-4xl">{guildName}</h1>
+        <p class="max-w-md text-on-surface-variant">
+          {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
+        </p>
+      </div>
+      <a
+        href="?add=true"
+        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-vspo-purple to-vspo-purple-light px-5 py-3 font-heading text-sm font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.03] active:scale-95 sm:hidden"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        {t(locale, "channel.add")}
+      </a>
     </div>
 
+    {/* Stats Bento Grid */}
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+      <div class="rounded-2xl bg-surface-container-low p-6">
+        <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "dashboard.stat.channels")}</p>
+        <span class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
+      </div>
+      <div class="rounded-2xl bg-surface-container-low p-6">
+        <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.language")}</p>
+        <div class="flex gap-2">
+          {[...new Set(channels.map(c => c.language))].map(lang => (
+            <span class="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple">{lang === "ja" ? "JA" : lang === "en" ? "EN" : lang.toUpperCase()}</span>
+          ))}
+          {channels.length === 0 && <span class="text-sm text-on-surface-variant">—</span>}
+        </div>
+      </div>
+      <div class="col-span-2 rounded-2xl bg-surface-container-low p-6">
+        <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.members")}</p>
+        <div class="flex flex-wrap gap-2">
+          {[...new Set(channels.map(c => c.memberType))].map(mt => (
+            <span class="text-sm font-medium text-on-surface">{t(locale, memberTypeKey(mt))}</span>
+          ))}
+          {channels.length === 0 && <span class="text-sm text-on-surface-variant">—</span>}
+        </div>
+      </div>
+    </div>
+
+    {/* Alerts */}
     {
       fetchError && (
-        <div role="alert" class="flex items-center gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+        <div role="alert" class="flex items-center gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface">
+          <svg class="h-5 w-5 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
           <span class="flex-1">{t(locale, "dashboard.error", { message: fetchError.message })}</span>
-          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-[--radius-sm] border border-destructive/40 px-3 py-1 text-xs font-medium hover:bg-destructive/10">
+          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50">
             {t(locale, "toast.retry")}
           </a>
         </div>
@@ -104,10 +139,10 @@ const deletingChannel = deleteChannelId
 
     {
       actionError && (
-        <div role="alert" class="flex items-center gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+        <div role="alert" class="flex items-center gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface">
+          <svg class="h-5 w-5 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
           <span class="flex-1">{t(locale, "dashboard.error", { message: actionError.message })}</span>
-          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-[--radius-sm] border border-destructive/40 px-3 py-1 text-xs font-medium hover:bg-destructive/10">
+          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50">
             {t(locale, "toast.retry")}
           </a>
         </div>
@@ -119,7 +154,7 @@ const deletingChannel = deleteChannelId
         <div
           role="status"
           aria-live="polite"
-          class="toast-success flex items-center gap-3 rounded-[--radius-sm] border border-vspo-purple/30 bg-vspo-purple/10 p-4 text-sm text-foreground"
+          class="toast-success flex items-center gap-3 rounded-xl bg-vspo-purple/10 p-4 text-sm text-on-surface"
         >
           <svg class="h-5 w-5 shrink-0 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -127,7 +162,7 @@ const deletingChannel = deleteChannelId
           <span class="flex-1">{t(locale, successMessageKey)}</span>
           <button
             type="button"
-            class="shrink-0 rounded-[--radius-sm] p-1 text-muted-foreground hover:text-foreground"
+            class="shrink-0 rounded-lg p-2 text-on-surface-variant hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
             aria-label={t(locale, "toast.dismiss")}
             onclick="this.closest('.toast-success')?.remove()"
           >
@@ -139,13 +174,14 @@ const deletingChannel = deleteChannelId
       )
     }
 
-    <ChannelTable channels={channels} guildId={guildId} />
+    {/* Configuration Matrix */}
+    <ChannelTable channels={channels} />
 
     {
       editingChannel && (
         <ChannelConfigForm
           channel={editingChannel}
-          creators={[]}
+          creators={[...creators.jp, ...creators.en]}
           guildId={guildId}
         />
       )
