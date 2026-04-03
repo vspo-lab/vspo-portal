@@ -1,0 +1,28 @@
+{
+  "name": "Spodule Bot Dashboard",
+  "short_name": "Spodule Bot",
+  "description": "Manage Discord bot notification settings for VSPO member streams",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#121317",
+  "theme_color": "#7266cf",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

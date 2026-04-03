@@ -14,7 +14,7 @@ describe("Card", () => {
     const body = parseHtml(html);
     const el = body.firstElementChild;
     expect(el?.className).toContain("rounded-");
-    expect(el?.className).toContain("border");
+    expect(el?.className).toContain("bg-surface-container");
     expect(el?.textContent).toContain("Card content");
   });
 

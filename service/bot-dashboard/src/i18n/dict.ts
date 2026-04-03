@@ -21,6 +21,9 @@ const ja = {
     "チャンネルごとに JP / EN メンバーやカスタム選択で絞り込み",
   "login.pageSettings": "ページ設定",
   "login.features": "機能紹介",
+  "login.features.desc": "コマンド不要。ブラウザだけで権限・言語・メンバーを管理。",
+  "login.cta.headline": "はじめよう",
+  "login.cta.description": "無料で今すぐ始められます。スラッシュコマンド不要。",
   "login.feature.realtime": "コマンド入力なし",
   "login.feature.realtime.desc":
     "ブラウザ操作だけで完了。スラッシュコマンドは使いません",
@@ -45,6 +48,9 @@ const ja = {
   "channel.name": "チャンネル",
   "channel.language": "言語",
   "channel.members": "メンバー",
+  "channel.status": "ステータス",
+  "channel.status.active": "有効",
+  "channel.status.paused": "停止中",
   "channel.actions": "操作",
   "channel.edit": "編集",
   "channel.delete": "削除",
@@ -78,12 +84,17 @@ const ja = {
   "nav.sidebar": "サーバーナビゲーション",
   "nav.menu": "メニュー",
   "nav.skipToContent": "メインコンテンツへスキップ",
+  "nav.channels": "チャンネル設定",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
+  "memberType.vspo_jp.desc": "日本語メンバーの配信のみ通知",
   "memberType.vspo_en": "VSPO EN",
+  "memberType.vspo_en.desc": "英語メンバーの配信のみ通知",
   "memberType.all": "全メンバー",
+  "memberType.all.desc": "全メンバーの配信を通知",
   "memberType.custom": "カスタム",
+  "memberType.custom.desc": "個別にメンバーを選択",
 
   // Settings
   "settings.theme": "テーマ",
@@ -111,6 +122,14 @@ const ja = {
 
   // Auth
   "auth.logout": "ログアウト",
+
+  // Meta descriptions
+  "meta.login.description":
+    "ぶいすぽっ!メンバーの配信予定をDiscordに自動で届けます。ブラウザ操作だけで通知設定が完了します。",
+  "meta.dashboard.description":
+    "Botが導入されているDiscordサーバーの通知設定を管理します。",
+  "meta.guildDetail.description":
+    "{guildName} の通知チャンネル設定を管理します。",
 } as const;
 
 const en: Record<keyof typeof ja, string> = {
@@ -137,6 +156,11 @@ const en: Record<keyof typeof ja, string> = {
     "Filter by JP, EN, or select individual members per channel",
   "login.pageSettings": "Page settings",
   "login.features": "Features",
+  "login.features.desc":
+    "No commands required. Manage permissions, language, and members from your browser.",
+  "login.cta.headline": "Get Started",
+  "login.cta.description":
+    "Free to use. No slash commands needed.",
   "login.feature.realtime": "No commands needed",
   "login.feature.realtime.desc":
     "Everything works from the browser. No slash commands involved",
@@ -162,6 +186,9 @@ const en: Record<keyof typeof ja, string> = {
   "channel.name": "Channel",
   "channel.language": "Language",
   "channel.members": "Members",
+  "channel.status": "Status",
+  "channel.status.active": "Active",
+  "channel.status.paused": "Paused",
   "channel.actions": "Actions",
   "channel.edit": "Edit",
   "channel.delete": "Delete",
@@ -195,12 +222,17 @@ const en: Record<keyof typeof ja, string> = {
   "nav.sidebar": "Server Navigation",
   "nav.menu": "Menu",
   "nav.skipToContent": "Skip to main content",
+  "nav.channels": "Channel Settings",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
+  "memberType.vspo_jp.desc": "Notify for JP member streams only",
   "memberType.vspo_en": "VSPO EN",
+  "memberType.vspo_en.desc": "Notify for EN member streams only",
   "memberType.all": "All Members",
+  "memberType.all.desc": "Notify for all member streams",
   "memberType.custom": "Custom",
+  "memberType.custom.desc": "Select individual members",
 
   // Settings
   "settings.theme": "Theme",
@@ -227,6 +259,14 @@ const en: Record<keyof typeof ja, string> = {
 
   // Auth
   "auth.logout": "Logout",
+
+  // Meta descriptions
+  "meta.login.description":
+    "Get automatic Discord notifications for VSPO member streams. No commands needed — set up everything from your browser.",
+  "meta.dashboard.description":
+    "Manage notification settings for your Discord servers.",
+  "meta.guildDetail.description":
+    "Manage notification channels for {guildName}.",
 };
 
 export type Locale = "ja" | "en";

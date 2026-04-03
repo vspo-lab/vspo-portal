@@ -29,17 +29,17 @@ const showCustomMembers = MemberType.requiresCustomSelection(
   id="config-modal"
   aria-labelledby="config-modal-heading"
   aria-modal="true"
-  style="animation: backdrop-in 200ms var(--ease-standard); background: rgba(0,0,0,0.5);"
+  style="animation: backdrop-in 200ms var(--ease-standard); background: rgba(0,0,0,0.6);"
 >
   <div
-    class="mx-4 w-full max-w-lg rounded-[--radius] border border-border bg-card p-6 shadow-action"
+    class="glass mx-4 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-6 shadow-hover"
     style="animation: modal-in 200ms var(--ease-standard);"
   >
     <div class="mb-4 flex items-center justify-between">
-      <h2 id="config-modal-heading" class="text-lg font-semibold">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
+      <h2 id="config-modal-heading" class="font-heading text-lg font-bold text-on-surface">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
       <button
         type="button"
-        class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-[--radius-sm] text-muted-foreground transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-accent hover:text-foreground"
+        class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
         aria-label={t(locale, "channelConfig.close")}
         data-close-href={`/dashboard/${guildId}`}
       >
@@ -70,15 +70,18 @@ const showCustomMembers = MemberType.requiresCustomSelection(
         <div class="space-y-2">
           {
             memberTypeOptions.map((opt) => (
-              <label class="flex items-center gap-2">
+              <label class="flex items-start gap-2 rounded-lg p-2 transition-colors hover:bg-surface-container-highest/50">
                 <input
                   type="radio"
                   name="memberType"
                   value={opt.value}
                   checked={channel.memberType === opt.value}
-                  class="accent-vspo-purple"
+                  class="mt-0.5 accent-vspo-purple"
                 />
-                <span class="text-sm">{opt.label}</span>
+                <div>
+                  <span class="text-sm font-medium">{opt.label}</span>
+                  <p class="text-xs text-on-surface-variant">{t(locale, `memberType.${opt.value}.desc` as any)}</p>
+                </div>
               </label>
             ))
           }

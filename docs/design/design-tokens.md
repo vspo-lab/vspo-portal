@@ -100,3 +100,41 @@ This differs from the MUI theme approach used in vspo-schedule. The bot-dashboar
 ```
 
 Brand colors (`--color-vspo-purple`, `--color-discord`) are constant across modes and defined directly in `@theme`.
+
+### Surface Hierarchy (6-tier Tonal System)
+
+Inspired by Material Design 3's tonal surface system. Boundaries between layout areas are defined by background color shifts, not borders ("No-Line Rule").
+
+| Token | Dark Mode | Light Mode | Usage |
+|-------|-----------|------------|-------|
+| `surface` | `#121317` | `#fafafa` | Global canvas / main content area |
+| `surface-container-lowest` | `#0d0e12` | `#ffffff` | Sidebar background, deepest layer |
+| `surface-container-low` | `#1a1b20` | `#f5f5f5` | Table containers, secondary areas |
+| `surface-container` | `#1e1f24` | `#efefef` | Header bar, card backgrounds |
+| `surface-container-high` | `#292a2e` | `#e8e8e8` | Table header, modal backgrounds |
+| `surface-container-highest` | `#343439` | `#e0e0e0` | Active states, hover, language chips |
+
+Text tokens:
+- `on-surface` — primary text on any surface (`#e3e2e7` dark / `rgba(0,0,0,0.87)` light)
+- `on-surface-variant` — secondary/muted text (`#c6c5d7` dark / `rgba(0,0,0,0.6)` light)
+
+Accent tokens:
+- `primary-container` (`#5865f2`) — Discord blurple, used for Discord-specific CTAs
+- `tertiary` (`#ffb689` dark / `#e67e22` light) — amber accent for status highlights
+- `outline-variant` (`#454655` dark) — ghost borders at 15-20% opacity
+
+### Glass Effect
+
+Floating elements (modals, dropdowns, tooltips) use `backdrop-filter: blur(20px) saturate(180%)` with semi-transparent `surface-container-high/90` backgrounds. Falls back to solid background on unsupported browsers via `@supports`.
+
+### Typography Scale
+
+Editorial scale using existing fonts (M PLUS Rounded 1c for headings, Noto Sans JP for body):
+
+| Token | Size | Usage |
+|-------|------|-------|
+| `--font-size-display` | 3rem (48px) | Hero headlines |
+| `--font-size-headline` | 2rem (32px) | Page titles |
+| `--font-size-title` | 1.25rem (20px) | Section headings |
+| `--font-size-body` | 0.875rem (14px) | Body text, table data |
+| `--font-size-label` | 0.75rem (12px) | Labels, chips, captions |

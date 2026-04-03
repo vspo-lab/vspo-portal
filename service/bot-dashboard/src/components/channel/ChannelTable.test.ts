@@ -36,14 +36,14 @@ describe("ChannelTable", () => {
     },
   ];
 
-  it("renders channel names with # prefix", async () => {
+  it("renders channel names", async () => {
     const html = await container.renderToString(ChannelTable, {
       props: { channels, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    expect(getByText(body, "#general")).toBeTruthy();
-    expect(getByText(body, "#notifications")).toBeTruthy();
+    expect(getByText(body, "general")).toBeTruthy();
+    expect(getByText(body, "notifications")).toBeTruthy();
   });
 
   it("shows empty message when channels is empty", async () => {

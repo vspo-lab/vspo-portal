@@ -2,109 +2,171 @@
 import Base from "./Base.astro";
 import UserMenu from "~/components/auth/UserMenu.astro";
 import ThemeToggle from "~/components/ui/ThemeToggle.astro";
+import LanguageSelector from "~/components/ui/LanguageSelector.astro";
 import AvatarFallback from "~/components/ui/AvatarFallback.astro";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
 import { t } from "~/i18n/dict";
 
 interface Props {
   title: string;
+  description?: string;
   guilds: { id: string; name: string; iconUrl: string | null }[];
+  /** Show the sidebar navigation (guild detail pages) */
+  showSidebar?: boolean;
+  /** Currently active guild for sidebar context */
+  activeGuild?: { id: string; name: string; iconUrl: string | null } | null;
 }
 
-const { title, guilds } = Astro.props;
+const { title, description, guilds, showSidebar = false, activeGuild = null } = Astro.props;
 const { locale } = Astro.locals;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
 const currentPath = Astro.url.pathname;
 const avatarUrl = DiscordUser.avatarUrl(user);
+const returnTo = Astro.url.pathname + Astro.url.search;
 
 const isActive = (path: string) => currentPath === path || currentPath === `${path}/`;
-const navLinkClass = (path: string) =>
-  isActive(path)
-    ? "bg-vspo-purple/20 text-white font-medium"
-    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground";
+
+/* Sidebar nav items for guild detail pages */
+const sidebarNavItems = activeGuild ? [
+  { href: `/dashboard/${activeGuild.id}`, label: t(locale, "nav.channels"), icon: "channels" },
+] : [];
 ---
 
-<Base title={title} noindex>
-  <div class="flex min-h-screen flex-col">
-    <header
-      class="sticky top-0 z-30 flex h-14 items-center justify-between bg-vspo-purple px-4 text-white sm:px-6"
-    >
-      <div class="flex items-center gap-3">
-        {/* Mobile menu via <details> — no JS needed */}
-        <details class="group relative lg:hidden">
-          <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[--radius-sm] hover:bg-white/20" aria-label={t(locale, "nav.menu")}>
-            <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </summary>
-          <nav
-            class="absolute left-0 top-full mt-1 w-64 rounded-[--radius] border border-border bg-card p-3 shadow-action"
-            aria-label={t(locale, "nav.sidebar")}
-          >
-            <div class="space-y-1">
-              <a
-                href="/dashboard"
-                class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
-                {...(isActive("/dashboard") ? { "aria-current": "page" as const } : {})}
-              >
-                <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" /></svg>
-                <span>{t(locale, "dashboard.allServers")}</span>
-              </a>
-              {guilds.map((guild) => (
-                <a
-                  href={`/dashboard/${guild.id}`}
-                  class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass(`/dashboard/${guild.id}`)}`}
-                  {...(isActive(`/dashboard/${guild.id}`) ? { "aria-current": "page" as const } : {})}
-                >
-                  <AvatarFallback src={guild.iconUrl} name={guild.name} size="xs" />
-                  <span class="truncate">{guild.name}</span>
-                </a>
-              ))}
+<Base title={title} description={description} noindex>
+  <div class="flex min-h-screen flex-col bg-surface">
+    {showSidebar ? (
+      <!-- === Layout WITH sidebar (guild detail) === -->
+      <div class="flex min-h-screen">
+        {/* --- Sidebar (desktop) --- */}
+        <aside class="hidden w-[280px] shrink-0 flex-col bg-surface-container-lowest p-4 lg:flex">
+          {/* Guild identity */}
+          {activeGuild && (
+            <div class="mb-8 flex items-center gap-3 px-2">
+              <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-primary-container">
+                <AvatarFallback src={activeGuild.iconUrl} name={activeGuild.name} size="sm" />
+              </div>
+              <div class="min-w-0">
+                <h2 class="truncate text-sm font-bold font-heading text-on-surface leading-none">{activeGuild.name}</h2>
+              </div>
             </div>
-          </nav>
-        </details>
-        <a href="/dashboard" class="font-heading text-lg font-bold">{t(locale, "app.name")}</a>
-      </div>
-      <div class="flex items-center gap-2">
-        <ThemeToggle />
-        <UserMenu
-          displayName={user.displayName}
-          avatarUrl={avatarUrl}
-        />
-      </div>
-    </header>
-    <div class="flex flex-1">
-      <aside class="hidden w-64 shrink-0 border-r border-border p-4 lg:block">
-        <nav class="space-y-1" aria-label={t(locale, "nav.sidebar")}>
-          <a
-            href="/dashboard"
-            class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
-            {...(isActive("/dashboard") ? { "aria-current": "page" as const } : {})}
-          >
-            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" /></svg>
-            <span>{t(locale, "dashboard.allServers")}</span>
-          </a>
-          {
-            guilds.map((guild) => (
+          )}
+
+          {/* Navigation */}
+          <nav class="flex-1 space-y-1" aria-label={t(locale, "nav.sidebar")}>
+            {sidebarNavItems.map((item) => (
               <a
-                href={`/dashboard/${guild.id}`}
-                class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass(`/dashboard/${guild.id}`)}`}
-                {...(isActive(`/dashboard/${guild.id}`) ? { "aria-current": "page" as const } : {})}
+                href={item.href}
+                class:list={[
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50",
+                  isActive(item.href)
+                    ? "bg-gradient-to-r from-vspo-purple to-[#bec2ff] text-white shadow-lg shadow-vspo-purple/20"
+                    : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface",
+                ]}
+                {...(isActive(item.href) ? { "aria-current": "page" as const } : {})}
               >
-                <AvatarFallback
-                  src={guild.iconUrl}
-                  name={guild.name}
-                  size="xs"
-                />
-                <span class="truncate">{guild.name}</span>
+                {item.icon === "channels" && (
+                  <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+                )}
+                <span>{item.label}</span>
               </a>
-            ))
-          }
-        </nav>
-      </aside>
-      <main id="main-content" class="flex-1 p-4 sm:p-6">
+            ))}
+          </nav>
+
+          {/* Bottom actions */}
+          <div class="mt-auto space-y-1 pt-4">
+            <a
+              href="/dashboard"
+              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
+            >
+              <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" /></svg>
+              <span>{t(locale, "dashboard.allServers")}</span>
+            </a>
+          </div>
+        </aside>
+
+        {/* --- Main area --- */}
+        <div class="flex flex-1 flex-col">
+          {/* Top header bar */}
+          <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
+            <div class="flex items-center gap-4">
+              {/* Mobile sidebar toggle */}
+              <details class="group relative lg:hidden" id="mobile-sidebar">
+                <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" aria-label={t(locale, "nav.menu")}>
+                  <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                  <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </summary>
+                {/* Mobile sidebar dropdown */}
+                <nav class="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl bg-surface-container-high/95 p-3 shadow-hover glass" aria-label={t(locale, "nav.sidebar")}>
+                  {activeGuild && (
+                    <div class="mb-3 flex items-center gap-3 px-2">
+                      <AvatarFallback src={activeGuild.iconUrl} name={activeGuild.name} size="xs" />
+                      <span class="truncate text-sm font-bold text-on-surface">{activeGuild.name}</span>
+                    </div>
+                  )}
+                  <div class="space-y-1">
+                    {sidebarNavItems.map((item) => (
+                      <a
+                        href={item.href}
+                        class:list={[
+                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm",
+                          isActive(item.href)
+                            ? "bg-vspo-purple/20 font-medium text-on-surface"
+                            : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface",
+                        ]}
+                        {...(isActive(item.href) ? { "aria-current": "page" as const } : {})}
+                      >
+                        <span>{item.label}</span>
+                      </a>
+                    ))}
+                    <a
+                      href="/dashboard"
+                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                    >
+                      {t(locale, "dashboard.allServers")}
+                    </a>
+                  </div>
+                </nav>
+              </details>
+
+              <a href="/dashboard" class="font-heading text-lg font-bold text-vspo-purple lg:hidden">{t(locale, "app.name")}</a>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <LanguageSelector currentLocale={locale} returnTo={returnTo} variant="header" />
+              <ThemeToggle />
+              <UserMenu displayName={user.displayName} avatarUrl={avatarUrl} />
+            </div>
+          </header>
+
+          <main id="main-content" class="flex-1 bg-surface p-6 sm:p-10">
+            <slot />
+          </main>
+        </div>
+      </div>
+    ) : (
+      <!-- === Layout WITHOUT sidebar (guild selector) === -->
+      <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
+        <a href="/dashboard" class="font-heading text-lg font-bold text-vspo-purple">{t(locale, "app.name")}</a>
+        <div class="flex items-center gap-2">
+          <LanguageSelector currentLocale={locale} returnTo={returnTo} variant="header" />
+          <ThemeToggle />
+          <UserMenu displayName={user.displayName} avatarUrl={avatarUrl} />
+        </div>
+      </header>
+      <main id="main-content" class="flex-1 bg-surface p-4 sm:p-6">
         <slot />
       </main>
-    </div>
+    )}
   </div>
 </Base>
+
+<script is:inline>
+  /* Close mobile sidebar when clicking outside */
+  document.addEventListener("click", function (e) {
+    var sidebar = document.getElementById("mobile-sidebar");
+    if (sidebar && sidebar.open && !sidebar.contains(e.target)) {
+      sidebar.open = false;
+    }
+  });
+</script>
