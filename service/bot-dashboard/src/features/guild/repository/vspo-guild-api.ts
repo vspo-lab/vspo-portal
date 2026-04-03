@@ -1,5 +1,6 @@
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
+import { devMock, isRpcUnavailable } from "~/features/shared/dev-mock";
 import type { ApplicationService } from "~/types/api";
 
 /**
@@ -21,9 +22,8 @@ const VspoGuildApiRepository = {
   getBotGuildIds: async (
     appWorker: ApplicationService,
   ): Promise<Result<ReadonlySet<string>, AppError>> => {
-    // Dev-mock fallback: APP_WORKER has no RPC methods in local dev
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Ok(new Set<string>(["111111111111111111"]));
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.botGuildIds);
     }
 
     const discord = appWorker.newDiscordUsecase();

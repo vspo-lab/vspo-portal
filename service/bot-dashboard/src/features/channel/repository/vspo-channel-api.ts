@@ -1,6 +1,7 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
+import { devMock, isRpcUnavailable } from "~/features/shared/dev-mock";
 import type { ApplicationService } from "~/types/api";
 import type { MemberTypeValue } from "../domain/member-type";
 
@@ -74,40 +75,8 @@ const VspoChannelApiRepository = {
     appWorker: ApplicationService,
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
-    // Dev-mock fallback: APP_WORKER has no RPC methods in local dev
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Ok({
-        guildId,
-        channels:
-          guildId === "111111111111111111"
-            ? [
-                {
-                  channelId: "ch-001",
-                  channelName: "vspo-notifications",
-                  enabled: true,
-                  language: "ja",
-                  memberType: "all" as const,
-                  customMembers: undefined,
-                },
-                {
-                  channelId: "ch-002",
-                  channelName: "schedule-en",
-                  enabled: true,
-                  language: "en",
-                  memberType: "vspo_en" as const,
-                  customMembers: undefined,
-                },
-                {
-                  channelId: "ch-003",
-                  channelName: "archives",
-                  enabled: false,
-                  language: "ja",
-                  memberType: "vspo_jp" as const,
-                  customMembers: undefined,
-                },
-              ]
-            : [],
-      });
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.guildConfig(guildId));
     }
 
     const discord = appWorker.newDiscordUsecase();
@@ -149,7 +118,7 @@ const VspoChannelApiRepository = {
       customMembers?: string[] | undefined;
     },
   ): Promise<Result<void, AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
+    if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
           code: "INTERNAL_SERVER_ERROR",
@@ -187,7 +156,7 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
+    if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
           code: "INTERNAL_SERVER_ERROR",
@@ -220,18 +189,8 @@ const VspoChannelApiRepository = {
     appWorker: ApplicationService,
     guildId: string,
   ): Promise<Result<{ id: string; name: string }[], AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Ok(
-        guildId === "111111111111111111"
-          ? [
-              { id: "ch-001", name: "vspo-notifications" },
-              { id: "ch-002", name: "schedule-en" },
-              { id: "ch-003", name: "archives" },
-              { id: "ch-mock-1", name: "general" },
-              { id: "ch-mock-2", name: "random" },
-            ]
-          : [],
-      );
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.guildChannels(guildId));
     }
 
     const discord = appWorker.newDiscordUsecase();
@@ -260,7 +219,7 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
+    if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
           code: "INTERNAL_SERVER_ERROR",
