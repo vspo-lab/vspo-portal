@@ -52,4 +52,4 @@ const announcements: readonly AnnouncementType[] = [
   },
 ] as const;
 
-export { announcements, type AnnouncementType };
+export { type AnnouncementType, announcements };
