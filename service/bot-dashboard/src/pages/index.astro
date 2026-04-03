@@ -99,6 +99,37 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
         </div>
       </section>
 
+      {/* Discord notification preview */}
+      <section class="relative px-6 pb-8 sm:pb-16">
+        <div class="mx-auto max-w-5xl">
+          <p class="mb-8 text-center text-sm text-on-surface-variant">{t(locale, "login.previewCaption")}</p>
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="group relative">
+              <div class="absolute inset-0 rounded-2xl bg-vspo-purple/10 blur-2xl transition-opacity group-hover:bg-vspo-purple/20" aria-hidden="true"></div>
+              <img
+                src="/discord-preview-1.png"
+                alt={t(locale, "login.previewCaption")}
+                class="relative rounded-xl shadow-hover"
+                loading="lazy"
+                width="580"
+                height="1024"
+              />
+            </div>
+            <div class="group relative">
+              <div class="absolute inset-0 rounded-2xl bg-vspo-purple/10 blur-2xl transition-opacity group-hover:bg-vspo-purple/20" aria-hidden="true"></div>
+              <img
+                src="/discord-preview-2.png"
+                alt={t(locale, "login.previewCaption")}
+                class="relative rounded-xl shadow-hover"
+                loading="lazy"
+                width="580"
+                height="1024"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Feature Bento Grid */}
       <section class="bg-surface-container-lowest px-6 py-16 sm:py-32">
         <div class="mx-auto max-w-7xl">
