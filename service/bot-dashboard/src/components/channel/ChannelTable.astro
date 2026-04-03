@@ -1,13 +1,12 @@
 ---
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
-import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
+import { t, memberTypeKey } from "~/i18n/dict";
 
 interface Props {
   channels: ChannelConfigType[];
-  guildId: string;
 }
 
-const { channels, guildId } = Astro.props;
+const { channels } = Astro.props;
 const { locale } = Astro.locals;
 
 /** Language code to chip label — uppercases any language code */

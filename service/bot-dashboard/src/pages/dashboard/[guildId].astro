@@ -38,7 +38,6 @@ const [guildsResult, channelsResult, availableChannelsResult, creatorsResult] = 
   VspoChannelApiRepository.listCreators(env.APP_WORKER),
 ]);
 
-const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
 const allGuilds = guildsResult.err ? [] : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
 const currentGuild = allGuilds.find((g) => g.id === guildId);
 const guildName = currentGuild?.name ?? guildId;
@@ -79,7 +78,7 @@ const deletingChannel = deleteChannelId
 
 ---
 
-<Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} guilds={sidebarGuilds} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
+<Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
   <div class="mx-auto max-w-7xl space-y-10">
     {/* Page header */}
     <div class="flex items-end justify-between">
@@ -176,7 +175,7 @@ const deletingChannel = deleteChannelId
     }
 
     {/* Configuration Matrix */}
-    <ChannelTable channels={channels} guildId={guildId} />
+    <ChannelTable channels={channels} />
 
     {
       editingChannel && (

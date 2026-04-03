@@ -4,7 +4,7 @@ import Button from "~/components/ui/Button.astro";
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { MemberType } from "~/features/channel/domain/member-type";
 import { Creator, type CreatorType } from "~/features/shared/domain/creator";
-import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
+import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/dict";
 
 interface Props {
   channel: ChannelConfigType;
@@ -53,7 +53,7 @@ const selectedCount = customMemberSet.size;
       </button>
     </div>
 
-    <form method="post" action={actions.updateChannel} class="space-y-4">
+    <form id="update-channel-form" method="post" action={actions.updateChannel} class="space-y-4">
       <input type="hidden" name="guildId" value={guildId} />
       <input type="hidden" name="channelId" value={channel.channelId} />
 
@@ -87,7 +87,7 @@ const selectedCount = customMemberSet.size;
                 />
                 <div>
                   <span class="text-sm font-medium">{opt.label}</span>
-                  <p class="text-xs text-on-surface-variant">{t(locale, `memberType.${opt.value}.desc` as any)}</p>
+                  <p class="text-xs text-on-surface-variant">{t(locale, memberTypeDescKey(opt.value))}</p>
                 </div>
               </label>
             ))
@@ -238,20 +238,20 @@ const selectedCount = customMemberSet.size;
         )
       }
 
-      <div class="flex justify-end gap-2 pt-2">
-        <form method="post" action={actions.resetChannel} class="mr-auto">
-          <input type="hidden" name="guildId" value={guildId} />
-          <input type="hidden" name="channelId" value={channel.channelId} />
-          <Button type="submit" variant="ghost">
-            {t(locale, "channelConfig.reset")}
-          </Button>
-        </form>
-        <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
-          {t(locale, "channelConfig.cancel")}
-        </Button>
-        <Button type="submit" variant="discord" data-save-btn>{t(locale, "channelConfig.save")}</Button>
-      </div>
     </form>
+    <div class="flex justify-end gap-2 pt-2">
+      <form method="post" action={actions.resetChannel} class="mr-auto">
+        <input type="hidden" name="guildId" value={guildId} />
+        <input type="hidden" name="channelId" value={channel.channelId} />
+        <Button type="submit" variant="ghost">
+          {t(locale, "channelConfig.reset")}
+        </Button>
+      </form>
+      <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
+        {t(locale, "channelConfig.cancel")}
+      </Button>
+      <Button type="submit" form="update-channel-form" variant="discord" data-save-btn>{t(locale, "channelConfig.save")}</Button>
+    </div>
   </div>
 </dialog>
 

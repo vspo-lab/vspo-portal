@@ -7,17 +7,16 @@ import AvatarFallback from "~/components/ui/AvatarFallback.astro";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
 import { t } from "~/i18n/dict";
 
-interface Props {
+type Props = {
   title: string;
   description?: string;
-  guilds: { id: string; name: string; iconUrl: string | null }[];
   /** Show the sidebar navigation (guild detail pages) */
   showSidebar?: boolean;
   /** Currently active guild for sidebar context */
   activeGuild?: { id: string; name: string; iconUrl: string | null } | null;
-}
+};
 
-const { title, description, guilds, showSidebar = false, activeGuild = null } = Astro.props;
+const { title, description, showSidebar = false, activeGuild = null } = Astro.props;
 const { locale } = Astro.locals;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
@@ -39,7 +38,7 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
 <Base title={title} description={description} noindex>
   <div class="flex min-h-screen flex-col bg-surface">
     {showSidebar ? (
-      <!-- === Layout WITH sidebar (guild detail) === -->
+      {/* === Layout WITH sidebar (guild detail) === */}
       <div class="flex min-h-screen">
         {/* --- Sidebar (desktop) --- */}
         <aside class="hidden w-[280px] shrink-0 flex-col bg-surface-container-lowest p-4 lg:flex">
@@ -164,7 +163,7 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
         </div>
       </div>
     ) : (
-      <!-- === Layout WITHOUT sidebar (guild selector) === -->
+      {/* === Layout WITHOUT sidebar (guild selector) === */}
       <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
         <a href="/dashboard" class="font-heading text-lg font-bold text-vspo-purple">{t(locale, "app.name")}</a>
         <div class="flex items-center gap-2">

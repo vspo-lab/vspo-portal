@@ -383,6 +383,23 @@ export const memberTypeKey = (
   value: import("~/features/channel/domain/member-type").MemberTypeValue,
 ): MemberTypeKey => memberTypeKeys[value];
 
+/** Type-safe key for member type description lookup */
+type MemberTypeDescKey = Extract<TranslationKey, `memberType.${string}.desc`>;
+
+const memberTypeDescKeys = {
+  vspo_jp: "memberType.vspo_jp.desc",
+  vspo_en: "memberType.vspo_en.desc",
+  all: "memberType.all.desc",
+  custom: "memberType.custom.desc",
+} as const satisfies Record<
+  import("~/features/channel/domain/member-type").MemberTypeValue,
+  MemberTypeDescKey
+>;
+
+export const memberTypeDescKey = (
+  value: import("~/features/channel/domain/member-type").MemberTypeValue,
+): MemberTypeDescKey => memberTypeDescKeys[value];
+
 const languageDisplayKeys: Record<string, TranslationKey> = {
   ja: "channelConfig.language.ja",
   en: "channelConfig.language.en",
