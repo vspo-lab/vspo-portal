@@ -65,7 +65,7 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
                     ? "bg-gradient-to-r from-vspo-purple to-vspo-purple-light text-white shadow-lg shadow-vspo-purple/20"
                     : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface",
                 ]}
-                {...(isActive(item.href) ? { "aria-current": "page" as const } : {})}
+                aria-current={isActive(item.href) ? "page" : undefined}
               >
                 {item.icon === "channels" && (
                   <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
@@ -132,7 +132,7 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
                             ? "bg-vspo-purple/20 font-medium text-on-surface"
                             : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface",
                         ]}
-                        {...(isActive(item.href) ? { "aria-current": "page" as const } : {})}
+                        aria-current={isActive(item.href) ? "page" : undefined}
                       >
                         <span>{item.label}</span>
                       </a>
