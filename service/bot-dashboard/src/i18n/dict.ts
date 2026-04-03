@@ -1,7 +1,7 @@
 const ja = {
   // Common
-  "app.name": "Spodule Bot",
-  "app.title": "Spodule Bot ダッシュボード",
+  "app.name": "すぽじゅーる Bot",
+  "app.title": "すぽじゅーる Bot ダッシュボード",
 
   // Login page
   "login.title": "ログイン",
@@ -11,8 +11,13 @@ const ja = {
   "login.button": "Discord でログイン",
   "login.addBot": "サーバーに追加する",
   "login.previewCaption": "配信予定を、こんな感じで通知します",
+  "login.previewAlt1": "ぶいすぽっ!公式メンバーの配信通知例",
+  "login.previewAlt2": "個別メンバーの配信通知例",
   "login.permissions_note": "サーバー一覧の読み取り権限のみ使用します",
-  "login.footer": "vspo-schedule.com",
+  "login.footer": "Powered by すぽじゅーる",
+  "login.footer.link": "配信予定を確認する",
+  "login.footer.terms": "利用規約",
+  "login.footer.privacy": "プライバシーポリシー",
   "login.feature.list": "まとめて管理",
   "login.feature.list.desc": "複数サーバーの設定をひとつの画面で確認・変更",
   "login.feature.filter": "通知対象を選べる",
@@ -27,6 +32,9 @@ const ja = {
   "login.feature.realtime": "コマンド入力なし",
   "login.feature.realtime.desc":
     "ブラウザ操作だけで完了。スラッシュコマンドは使いません",
+  "login.feature.settings": "ブラウザで設定管理",
+  "login.feature.settings.desc":
+    "Webダッシュボードから通知チャンネルや対象メンバーを変更",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -147,8 +155,13 @@ const en: Record<keyof typeof ja, string> = {
   "login.button": "Login with Discord",
   "login.addBot": "Add to Server",
   "login.previewCaption": "Here's what notifications look like",
+  "login.previewAlt1": "Example notification for official VSPO member streams",
+  "login.previewAlt2": "Example notification for individual member streams",
   "login.permissions_note": "Only requests read access to your server list",
-  "login.footer": "vspo-schedule.com",
+  "login.footer": "Powered by Spodule",
+  "login.footer.link": "View stream schedules",
+  "login.footer.terms": "Terms of Service",
+  "login.footer.privacy": "Privacy Policy",
   "login.feature.list": "All servers, one screen",
   "login.feature.list.desc":
     "Check and change settings across servers without switching",
@@ -164,6 +177,9 @@ const en: Record<keyof typeof ja, string> = {
   "login.feature.realtime": "No commands needed",
   "login.feature.realtime.desc":
     "Everything works from the browser. No slash commands involved",
+  "login.feature.settings": "Browser-based settings",
+  "login.feature.settings.desc":
+    "Change notification channels and target members from the web dashboard",
 
   // Dashboard
   "dashboard.servers": "Servers",

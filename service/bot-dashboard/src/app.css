@@ -130,15 +130,6 @@
   to { opacity: 1; }
 }
 
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 4px currentColor; }
-  50% { box-shadow: 0 0 12px currentColor; }
-}
-
-.glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
 /*
  * === Glass Effect ===
  * Used for floating modals, dropdowns, and overlay elements.

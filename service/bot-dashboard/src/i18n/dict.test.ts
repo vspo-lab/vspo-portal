@@ -2,7 +2,7 @@ import { languageDisplayKey, memberTypeKey, t } from "./dict";
 
 describe("t (translation)", () => {
   it.each([
-    ["ja", "app.name", "Spodule Bot"],
+    ["ja", "app.name", "すぽじゅーる Bot"],
     ["en", "app.name", "Spodule Bot"],
     ["ja", "login.title", "ログイン"],
     ["en", "dashboard.installed", "Bot Installed"],
@@ -44,9 +44,16 @@ describe("landing page & UI keys", () => {
   it.each([
     "login.addBot",
     "login.previewCaption",
+    "login.previewAlt1",
+    "login.previewAlt2",
+    "login.footer.link",
+    "login.footer.terms",
+    "login.footer.privacy",
     "login.features.desc",
     "login.cta.headline",
     "login.cta.description",
+    "login.feature.settings",
+    "login.feature.settings.desc",
     "channel.add",
     "channel.add.search",
     "channel.add.registered",
