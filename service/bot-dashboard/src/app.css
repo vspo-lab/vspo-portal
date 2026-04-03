@@ -10,6 +10,7 @@
  */
 @theme {
   --color-vspo-purple: #7266cf;
+  --color-vspo-purple-light: #bec2ff;
   --color-discord: #4752c4;
 
   /* === Border Radius === */

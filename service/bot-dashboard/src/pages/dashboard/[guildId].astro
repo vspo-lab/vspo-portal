@@ -90,7 +90,7 @@ const deletingChannel = deleteChannelId
       </div>
       <a
         href="?add=true"
-        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-vspo-purple to-[#bec2ff] px-5 py-3 font-heading text-sm font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.03] active:scale-95 sm:hidden"
+        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-vspo-purple to-vspo-purple-light px-5 py-3 font-heading text-sm font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.03] active:scale-95 sm:hidden"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
         {t(locale, "channel.add")}
@@ -100,7 +100,7 @@ const deletingChannel = deleteChannelId
     {/* Stats Bento Grid */}
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
       <div class="rounded-2xl bg-surface-container-low p-6">
-        <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.name")}</p>
+        <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "dashboard.stat.channels")}</p>
         <span class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
       </div>
       <div class="rounded-2xl bg-surface-container-low p-6">

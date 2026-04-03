@@ -44,6 +44,7 @@ const ja = {
   "dashboard.noServers": "管理者権限を持つサーバーがありません。",
   "dashboard.allServers": "すべてのサーバー",
   "dashboard.channelsCount": "{total} チャンネル設定済み",
+  "dashboard.stat.channels": "チャンネル数",
   "dashboard.error": "エラー: {message}",
 
   // Guild
@@ -115,6 +116,10 @@ const ja = {
   "settings.language": "言語",
   "settings.language.ja": "日本語",
   "settings.language.en": "English",
+
+  // Error (404)
+  "error.notFound.title": "ページが見つかりませんでした",
+  "error.notFound.back": "ホームに戻る",
 
   // Error
   "error.auth_failed": "Discord 認証に失敗しました。もう一度お試しください。",
@@ -190,6 +195,7 @@ const en: Record<keyof typeof ja, string> = {
   "dashboard.noServers": "No servers with admin permissions found.",
   "dashboard.allServers": "All Servers",
   "dashboard.channelsCount": "{total} channels configured",
+  "dashboard.stat.channels": "Channels",
   "dashboard.error": "Error: {message}",
 
   // Guild
@@ -261,6 +267,10 @@ const en: Record<keyof typeof ja, string> = {
   "settings.language": "Language",
   "settings.language.ja": "Japanese",
   "settings.language.en": "English",
+
+  // Error (404)
+  "error.notFound.title": "Page not found",
+  "error.notFound.back": "Back to Home",
 
   // Error
   "error.auth_failed": "Discord authentication failed. Please try again.",

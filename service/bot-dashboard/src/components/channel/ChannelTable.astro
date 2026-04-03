@@ -21,7 +21,7 @@ const langChipLabel = (lang: string) => lang === "ja" ? "JA" : lang === "en" ? "
     <h3 class="font-heading text-lg font-bold text-on-surface">{t(locale, "channel.table")}</h3>
     <a
       href="?add=true"
-      class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-vspo-purple to-[#bec2ff] px-5 py-2.5 font-heading text-sm font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.03] active:scale-95"
+      class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-vspo-purple to-vspo-purple-light px-5 py-2.5 font-heading text-sm font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.03] active:scale-95"
     >
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -86,7 +86,7 @@ const langChipLabel = (lang: string) => lang === "ja" ? "JA" : lang === "en" ? "
                 )}
               </td>
               <td class="px-6 py-4 sm:px-8">
-                <div class="flex items-center justify-end gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                <div class="flex items-center justify-end gap-2 opacity-100 transition-opacity md:opacity-40 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                   <a
                     href={`?edit=${ch.channelId}`}
                     class="rounded-lg p-2 text-on-surface-variant transition-colors hover:text-vspo-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"

@@ -64,7 +64,7 @@ const sidebarFutureItems = activeGuild ? [
                 class:list={[
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50",
                   isActive(item.href)
-                    ? "bg-gradient-to-r from-vspo-purple to-[#bec2ff] text-white shadow-lg shadow-vspo-purple/20"
+                    ? "bg-gradient-to-r from-vspo-purple to-vspo-purple-light text-white shadow-lg shadow-vspo-purple/20"
                     : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface",
                 ]}
                 {...(isActive(item.href) ? { "aria-current": "page" as const } : {})}

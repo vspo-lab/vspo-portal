@@ -54,12 +54,15 @@ describe("landing page & UI keys", () => {
     "login.cta.description",
     "login.feature.settings",
     "login.feature.settings.desc",
+    "dashboard.stat.channels",
     "channel.add",
     "channel.add.search",
     "channel.add.registered",
     "channel.add.empty",
     "channel.add.submit",
     "channelConfig.language.unknown",
+    "error.notFound.title",
+    "error.notFound.back",
   ] as const)("key '%s' exists in both locales", (key) => {
     expect(t("ja", key)).not.toBe(key);
     expect(t("en", key)).not.toBe(key);
