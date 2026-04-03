@@ -1,8 +1,8 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
-import type { CreatorType } from "~/features/shared/domain/creator";
 import { devMock, isRpcUnavailable } from "~/features/shared/dev-mock";
+import type { CreatorType } from "~/features/shared/domain/creator";
 import type { ApplicationService } from "~/types/api";
 import type { MemberTypeValue } from "../domain/member-type";
 
@@ -172,7 +172,10 @@ const VspoChannelApiRepository = {
     const mapCreator = (c: any): CreatorType => ({
       id: c.id,
       name: c.name ?? c.channel?.youtube?.name ?? "Unknown",
-      memberType: c.memberType === "vspo_en" ? "vspo_en" as const : "vspo_jp" as const,
+      memberType:
+        c.memberType === "vspo_en"
+          ? ("vspo_en" as const)
+          : ("vspo_jp" as const),
       thumbnailUrl: c.thumbnailURL || c.channel?.youtube?.thumbnailURL || null,
     });
 
