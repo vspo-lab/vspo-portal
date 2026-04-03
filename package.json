@@ -36,6 +36,12 @@
     "turbo": "^2.8.20",
     "typescript": "^5.9.3"
   },
+  "pnpm": {
+    "overrides": {
+      "path-to-regexp@>=8.0.0 <8.4.0": ">=8.4.0",
+      "picomatch@>=4.0.0 <4.0.4": ">=4.0.4"
+    }
+  },
   "packageManager": "pnpm@10.32.1",
   "engines": {
     "pnpm": ">=9.15.9",

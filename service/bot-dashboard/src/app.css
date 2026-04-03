@@ -98,6 +98,23 @@
 }
 
 /*
+ * === Dialog reset ===
+ * Override browser defaults for <dialog open> so Tailwind positioning works.
+ */
+dialog[open] {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  max-width: none;
+  max-height: none;
+  width: 100%;
+  height: 100%;
+}
+
+/*
  * === Hover-only styles (pointer devices) ===
  */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {

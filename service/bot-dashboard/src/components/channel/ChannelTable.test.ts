@@ -5,7 +5,6 @@ import ChannelTable from "./ChannelTable.astro";
 
 vi.mock("astro:actions", () => ({
   actions: {
-    toggleChannel: "/api/toggle",
     updateChannel: "/api/update",
   },
 }));
@@ -45,18 +44,6 @@ describe("ChannelTable", () => {
     const body = parseHtml(html);
     expect(getByText(body, "#general")).toBeTruthy();
     expect(getByText(body, "#notifications")).toBeTruthy();
-  });
-
-  it("renders toggle switches with correct aria-checked", async () => {
-    const html = await container.renderToString(ChannelTable, {
-      props: { channels, guildId: "guild-1" },
-      locals: { locale: "en" },
-    });
-    const body = parseHtml(html);
-    const switches = getAllByRole(body, "switch");
-    expect(switches).toHaveLength(2);
-    expect(switches[0].getAttribute("aria-checked")).toBe("true");
-    expect(switches[1].getAttribute("aria-checked")).toBe("false");
   });
 
   it("shows empty message when channels is empty", async () => {

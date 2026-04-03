@@ -1,5 +1,6 @@
 ---
 import { actions } from "astro:actions";
+import { Ok } from "@vspo-lab/error";
 import { env } from "cloudflare:workers";
 import ChannelAddModal from "~/components/channel/ChannelAddModal.astro";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
@@ -21,12 +22,18 @@ if (!accessToken) {
   return Astro.redirect("/");
 }
 
-const [guildsResult, channelsResult] = await Promise.all([
+// Add channel modal state via query param (read early to conditionally fetch channels)
+const showAddModal = Astro.url.searchParams.get("add") === "true";
+
+const [guildsResult, channelsResult, availableChannelsResult] = await Promise.all([
   ListGuildsUsecase.execute({
     accessToken,
     appWorker: env.APP_WORKER,
   }),
   VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),
+  showAddModal
+    ? VspoChannelApiRepository.listGuildChannels(env.APP_WORKER, guildId)
+    : Promise.resolve(Ok([] as { id: string; name: string }[])),
 ]);
 
 const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
@@ -34,30 +41,26 @@ const allGuilds = guildsResult.err ? [] : [...guildsResult.val.installed, ...gui
 const currentGuild = allGuilds.find((g) => g.id === guildId);
 const guildName = currentGuild?.name ?? guildId;
 const channels = channelsResult.err ? [] : channelsResult.val.channels;
-const fetchError = guildsResult.err ?? channelsResult.err ?? null;
-const enabledCount = channels.filter((c) => c.enabled).length;
+const availableChannels = availableChannelsResult.err ? [] : availableChannelsResult.val;
+const fetchError = guildsResult.err ?? channelsResult.err ?? availableChannelsResult.err ?? null;
 
 // Handle action results
 const addResult = Astro.getActionResult(actions.addChannel);
 const updateResult = Astro.getActionResult(actions.updateChannel);
-const toggleResult = Astro.getActionResult(actions.toggleChannel);
 const deleteResult = Astro.getActionResult(actions.deleteChannel);
-const actionError = addResult?.error ?? updateResult?.error ?? toggleResult?.error ?? deleteResult?.error;
+const actionError = addResult?.error ?? updateResult?.error ?? deleteResult?.error;
 const actionSuccess = !actionError && (
   (addResult?.data != null ? "add" : null) ??
   (updateResult?.data != null ? "update" : null) ??
-  (toggleResult?.data != null ? "toggle" : null) ??
   (deleteResult?.data != null ? "delete" : null)
 );
 const successMessageKey = actionSuccess === "add"
   ? "toast.addSuccess" as const
   : actionSuccess === "update"
     ? "toast.updateSuccess" as const
-    : actionSuccess === "toggle"
-      ? "toast.toggleSuccess" as const
-      : actionSuccess === "delete"
-        ? "toast.deleteSuccess" as const
-        : null;
+    : actionSuccess === "delete"
+      ? "toast.deleteSuccess" as const
+      : null;
 
 // Editing state via query param
 const editChannelId = Astro.url.searchParams.get("edit");
@@ -71,8 +74,6 @@ const deletingChannel = deleteChannelId
   ? channels.find((c) => c.channelId === deleteChannelId)
   : null;
 
-// Add channel modal state via query param
-const showAddModal = Astro.url.searchParams.get("add") === "true";
 ---
 
 <Dashboard title={guildName} guilds={sidebarGuilds}>
@@ -85,7 +86,7 @@ const showAddModal = Astro.url.searchParams.get("add") === "true";
       </nav>
       <h1 class="font-heading text-2xl font-bold tracking-tight">{guildName}</h1>
       <p class="text-muted-foreground">
-        {t(locale, "dashboard.channelsEnabled", { enabled: String(enabledCount), total: String(channels.length) })}
+        {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
       </p>
     </div>
 
@@ -164,7 +165,7 @@ const showAddModal = Astro.url.searchParams.get("add") === "true";
         <ChannelAddModal
           guildId={guildId}
           registeredChannelIds={new Set(channels.map((c) => c.channelId))}
-          availableChannels={[]}
+          availableChannels={availableChannels}
         />
       )
     }

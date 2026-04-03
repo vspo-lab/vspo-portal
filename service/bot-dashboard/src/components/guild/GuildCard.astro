@@ -37,8 +37,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
   {guild.botInstalled && guild.channelSummary && (
     <div class="px-4 pb-2 sm:px-6">
       <p class="text-xs text-muted-foreground">
-        {t(locale, "guild.channelSummary", {
-          enabled: String(guild.channelSummary.enabledCount),
+        {t(locale, "dashboard.channelsCount", {
           total: String(guild.channelSummary.totalCount),
         })}
       </p>

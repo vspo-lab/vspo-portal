@@ -93,8 +93,8 @@ describe("GuildCard", () => {
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    // en locale: guild.channelSummary = "{enabled}/{total} channels active"
-    expect(body.textContent).toContain("2/3 channels active");
+    // en locale: dashboard.channelsCount = "{total} channels configured"
+    expect(body.textContent).toContain("3 channels configured");
     expect(getByText(body, "#general")).toBeTruthy();
     expect(getByText(body, "#notifications")).toBeTruthy();
   });
@@ -105,7 +105,7 @@ describe("GuildCard", () => {
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    expect(body.textContent).not.toContain("channels active");
+    expect(body.textContent).not.toContain("channels configured");
   });
 
   it("does not show active badge when bot is not installed", async () => {

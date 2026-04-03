@@ -1,6 +1,7 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
+import { devMock, isRpcUnavailable } from "~/features/shared/dev-mock";
 import type { ApplicationService } from "~/types/api";
 import type { MemberTypeValue } from "../domain/member-type";
 
@@ -74,40 +75,8 @@ const VspoChannelApiRepository = {
     appWorker: ApplicationService,
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
-    // Dev-mock fallback: APP_WORKER has no RPC methods in local dev
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Ok({
-        guildId,
-        channels:
-          guildId === "111111111111111111"
-            ? [
-                {
-                  channelId: "ch-001",
-                  channelName: "vspo-notifications",
-                  enabled: true,
-                  language: "ja",
-                  memberType: "all" as const,
-                  customMembers: undefined,
-                },
-                {
-                  channelId: "ch-002",
-                  channelName: "schedule-en",
-                  enabled: true,
-                  language: "en",
-                  memberType: "vspo_en" as const,
-                  customMembers: undefined,
-                },
-                {
-                  channelId: "ch-003",
-                  channelName: "archives",
-                  enabled: false,
-                  language: "ja",
-                  memberType: "vspo_jp" as const,
-                  customMembers: undefined,
-                },
-              ]
-            : [],
-      });
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.guildConfig(guildId));
     }
 
     const discord = appWorker.newDiscordUsecase();
@@ -149,7 +118,7 @@ const VspoChannelApiRepository = {
       customMembers?: string[] | undefined;
     },
   ): Promise<Result<void, AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
+    if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
           code: "INTERNAL_SERVER_ERROR",
@@ -187,7 +156,7 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
+    if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
           code: "INTERNAL_SERVER_ERROR",
@@ -208,37 +177,32 @@ const VspoChannelApiRepository = {
   },
 
   /**
-   * Disable (unregister) a channel from the Bot for a guild.
-   * Uses adjustBotChannel with type "remove".
+   * Retrieve all text channels in a Discord guild via vspo-server RPC.
    *
    * @param appWorker - APP_WORKER service binding
    * @param guildId - Discord guild ID
-   * @param channelId - Discord channel ID
-   * @postcondition On Ok, the channel is absent from the guild's bot configuration
+   * @returns Array of channel id/name pairs (text channels only, sorted by position)
+   * @precondition appWorker is a valid service binding (falls back to mock data in dev mode)
+   * @idempotent true
    */
-  disableChannel: async (
+  listGuildChannels: async (
     appWorker: ApplicationService,
     guildId: string,
-    channelId: string,
-  ): Promise<Result<void, AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
-      return Err(
-        new AppError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "APP_WORKER is not available",
-          context: {},
-        }),
-      );
+  ): Promise<Result<{ id: string; name: string }[], AppError>> => {
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.guildChannels(guildId));
     }
 
     const discord = appWorker.newDiscordUsecase();
-    const result = await discord.adjustBotChannel({
-      type: "remove",
-      serverId: guildId,
-      targetChannelId: channelId,
-    });
+    const result = await discord.listGuildChannels(guildId);
     if (result.err) return result;
-    return Ok(undefined);
+
+    const textChannels = result.val
+      .filter((ch) => ch.type === 0)
+      .sort((a, b) => a.position - b.position)
+      .map((ch) => ({ id: ch.id, name: ch.name }));
+
+    return Ok(textChannels);
   },
 
   /**
@@ -255,7 +219,7 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
-    if (!appWorker || typeof appWorker.newDiscordUsecase !== "function") {
+    if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
           code: "INTERNAL_SERVER_ERROR",
