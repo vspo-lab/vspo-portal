@@ -10,7 +10,6 @@ const ja = {
     "ぶいすぽっ!メンバーの配信予定を Discord に自動で届けます",
   "login.button": "Discord でログイン",
   "login.addBot": "サーバーに追加する",
-  "login.manageSettings": "通知設定を管理する",
   "login.previewCaption": "配信予定を、こんな感じで通知します",
   "login.permissions_note": "サーバー一覧の読み取り権限のみ使用します",
   "login.footer": "vspo-schedule.com",
@@ -86,6 +85,8 @@ const ja = {
   "nav.menu": "メニュー",
   "nav.skipToContent": "メインコンテンツへスキップ",
   "nav.channels": "チャンネル設定",
+  "nav.notifications": "通知ログ",
+  "nav.comingSoon": "準備中",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",
@@ -145,7 +146,6 @@ const en: Record<keyof typeof ja, string> = {
     "Get automatic Discord notifications for VSPO member streams",
   "login.button": "Login with Discord",
   "login.addBot": "Add to Server",
-  "login.manageSettings": "Manage notification settings",
   "login.previewCaption": "Here's what notifications look like",
   "login.permissions_note": "Only requests read access to your server list",
   "login.footer": "vspo-schedule.com",
@@ -223,6 +223,8 @@ const en: Record<keyof typeof ja, string> = {
   "nav.menu": "Menu",
   "nav.skipToContent": "Skip to main content",
   "nav.channels": "Channel Settings",
+  "nav.notifications": "Notification Log",
+  "nav.comingSoon": "Coming Soon",
 
   // Member types
   "memberType.vspo_jp": "VSPO JP",

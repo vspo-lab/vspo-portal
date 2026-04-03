@@ -50,17 +50,20 @@ const unregistered = availableChannels.filter(
         id="channel-search"
         type="search"
         placeholder={t(locale, "channel.add.search")}
-        class="w-full rounded-[--radius-sm] border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+        class="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
         data-search-input
       />
     </div>
 
     <div class="max-h-64 space-y-1 overflow-y-auto" role="listbox" aria-label={t(locale, "channel.add")}>
       {unregistered.length === 0 && (
-        <p class="py-8 text-center text-sm text-muted-foreground">
+        <p class="py-8 text-center text-sm text-on-surface-variant">
           {t(locale, "channel.add.empty")}
         </p>
       )}
+      <p class="hidden py-8 text-center text-sm text-on-surface-variant" data-search-empty>
+        {t(locale, "channel.add.empty")}
+      </p>
       {unregistered.map((ch) => (
         <form method="post" action={actions.addChannel} data-channel-item>
           <input type="hidden" name="guildId" value={guildId} />
@@ -69,11 +72,11 @@ const unregistered = availableChannels.filter(
             type="submit"
             role="option"
             aria-selected="false"
-            class="flex w-full items-center justify-between rounded-[--radius-sm] px-3 py-2 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-accent/50"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30"
             data-channel-name={ch.name.toLowerCase()}
           >
             <span class="flex items-center gap-2">
-              <svg class="h-4 w-4 shrink-0 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="h-4 w-4 shrink-0 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
               </svg>
               <span>{ch.name}</span>
@@ -86,7 +89,7 @@ const unregistered = availableChannels.filter(
         .filter((ch) => registeredChannelIds.has(ch.id))
         .map((ch) => (
           <div
-            class="flex items-center justify-between rounded-[--radius-sm] px-3 py-2 text-sm text-muted-foreground opacity-50"
+            class="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-on-surface-variant/50"
             data-channel-item
             data-channel-name={ch.name.toLowerCase()}
           >
@@ -124,12 +127,19 @@ const unregistered = availableChannels.filter(
     closeBtn?.addEventListener("click", navigateClose);
 
     // Search filter
+    const emptyMsg = dialog.querySelector<HTMLElement>("[data-search-empty]");
     searchInput?.addEventListener("input", () => {
       const query = searchInput.value.toLowerCase();
+      let visibleCount = 0;
       for (const item of items) {
         const el = item as HTMLElement;
         const name = el.dataset.channelName ?? el.querySelector("[data-channel-name]")?.getAttribute("data-channel-name") ?? "";
-        el.style.display = name.includes(query) ? "" : "none";
+        const show = name.includes(query);
+        el.style.display = show ? "" : "none";
+        if (show) visibleCount++;
+      }
+      if (emptyMsg) {
+        emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
       }
     });
 

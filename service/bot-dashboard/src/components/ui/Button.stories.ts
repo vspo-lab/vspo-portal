@@ -9,6 +9,8 @@ const variantClasses: Record<string, string> = {
   destructive:
     "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   discord: "bg-discord text-white hover:bg-discord/90",
+  gradient:
+    "bg-gradient-to-r from-vspo-purple to-[#bec2ff] text-white font-bold shadow-lg shadow-vspo-purple/20 hover:scale-[1.02] active:scale-95",
 };
 
 const sizeClasses: Record<string, string> = {
@@ -37,6 +39,7 @@ const meta: Meta<ButtonArgs> = {
         "ghost",
         "destructive",
         "discord",
+        "gradient",
       ],
     },
     size: {
@@ -119,6 +122,15 @@ export const Large: Story = {
     label: "大きいボタン",
     variant: "default",
     size: "lg",
+    disabled: false,
+  },
+};
+
+export const Gradient: Story = {
+  args: {
+    label: "グラデーション",
+    variant: "gradient",
+    size: "default",
     disabled: false,
   },
 };

@@ -40,17 +40,40 @@ describe("t (translation)", () => {
   });
 });
 
-describe("new landing page keys", () => {
+describe("landing page & UI keys", () => {
   it.each([
     "login.addBot",
-    "login.manageSettings",
     "login.previewCaption",
+    "login.features.desc",
+    "login.cta.headline",
+    "login.cta.description",
     "channel.add",
     "channel.add.search",
     "channel.add.registered",
     "channel.add.empty",
     "channel.add.submit",
     "channelConfig.language.unknown",
+  ] as const)("key '%s' exists in both locales", (key) => {
+    expect(t("ja", key)).not.toBe(key);
+    expect(t("en", key)).not.toBe(key);
+  });
+});
+
+describe("redesign keys", () => {
+  it.each([
+    "nav.channels",
+    "nav.notifications",
+    "nav.comingSoon",
+    "channel.status",
+    "channel.status.active",
+    "channel.status.paused",
+    "meta.login.description",
+    "meta.dashboard.description",
+    "meta.guildDetail.description",
+    "memberType.vspo_jp.desc",
+    "memberType.vspo_en.desc",
+    "memberType.all.desc",
+    "memberType.custom.desc",
   ] as const)("key '%s' exists in both locales", (key) => {
     expect(t("ja", key)).not.toBe(key);
     expect(t("en", key)).not.toBe(key);
