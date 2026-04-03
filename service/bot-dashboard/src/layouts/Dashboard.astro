@@ -20,29 +20,19 @@ const { title, description, showSidebar = false, activeGuild = null } = Astro.pr
 const { locale } = Astro.locals;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
-const currentPath = Astro.url.pathname;
 const avatarUrl = DiscordUser.avatarUrl(user);
 const returnTo = Astro.url.pathname + Astro.url.search;
-
-const isActive = (path: string) => currentPath === path || currentPath === `${path}/`;
-
-/* Sidebar nav items for guild detail pages */
-const sidebarNavItems = activeGuild ? [
-  { href: `/dashboard/${activeGuild.id}`, label: t(locale, "nav.channels"), icon: "channels" },
-  { href: `/dashboard/${activeGuild.id}/announcements`, label: t(locale, "nav.notifications"), icon: "notifications" },
-] : [];
-
-const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] = [];
+const sidebarChannelsHref = activeGuild ? `/dashboard/${activeGuild.id}` : "/dashboard";
+const sidebarAnnouncementsHref = activeGuild
+  ? `/dashboard/${activeGuild.id}/announcements`
+  : "/dashboard";
 ---
 
 <Base title={title} description={description} noindex>
   <div class="flex min-h-screen flex-col bg-surface">
     {showSidebar ? (
-      {/* === Layout WITH sidebar (guild detail) === */}
       <div class="flex min-h-screen">
-        {/* --- Sidebar (desktop) --- */}
         <aside class="hidden w-[280px] shrink-0 flex-col bg-surface-container-lowest p-4 lg:flex">
-          {/* Guild identity */}
           {activeGuild && (
             <div class="mb-8 flex items-center gap-3 px-2">
               <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-primary-container">
@@ -54,44 +44,21 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
             </div>
           )}
 
-          {/* Navigation */}
           <nav class="flex-1 space-y-1" aria-label={t(locale, "nav.sidebar")}>
-            {sidebarNavItems.map((item) => (
-              <a
-                href={item.href}
-                class:list={[
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50",
-                  isActive(item.href)
-                    ? "bg-gradient-to-r from-vspo-purple to-vspo-purple-light text-white shadow-lg shadow-vspo-purple/20"
-                    : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface",
-                ]}
-                aria-current={isActive(item.href) ? "page" : undefined}
-              >
-                {item.icon === "channels" && (
-                  <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
-                )}
-                {item.icon === "notifications" && (
-                  <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                )}
-                <span>{item.label}</span>
-              </a>
-            ))}
-            {sidebarFutureItems.map((item) => (
-              <span
-                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-on-surface-variant/40 cursor-not-allowed"
-                aria-disabled="true"
-                title={t(locale, "nav.comingSoon")}
-              >
-                {item.icon === "notifications" && (
-                  <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                )}
-                <span>{item.label}</span>
-                <span class="ml-auto rounded bg-surface-container-highest px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider">{t(locale, "nav.comingSoon")}</span>
-              </span>
-            ))}
+            <a
+              href={sidebarChannelsHref}
+              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface-variant transition-all duration-200 hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
+            >
+              <span>{t(locale, "nav.channels")}</span>
+            </a>
+            <a
+              href={sidebarAnnouncementsHref}
+              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface-variant transition-all duration-200 hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
+            >
+              <span>{t(locale, "nav.notifications")}</span>
+            </a>
           </nav>
 
-          {/* Bottom actions */}
           <div class="mt-auto space-y-1 pt-4">
             <a
               href="/dashboard"
@@ -103,18 +70,14 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
           </div>
         </aside>
 
-        {/* --- Main area --- */}
         <div class="flex flex-1 flex-col">
-          {/* Top header bar */}
           <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
             <div class="flex items-center gap-4">
-              {/* Mobile sidebar toggle */}
               <details class="group relative lg:hidden" id="mobile-sidebar">
                 <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" aria-label={t(locale, "nav.menu")}>
                   <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                   <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </summary>
-                {/* Mobile sidebar dropdown */}
                 <nav class="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl bg-surface-container-high/95 p-3 shadow-hover glass" aria-label={t(locale, "nav.sidebar")}>
                   {activeGuild && (
                     <div class="mb-3 flex items-center gap-3 px-2">
@@ -123,20 +86,18 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
                     </div>
                   )}
                   <div class="space-y-1">
-                    {sidebarNavItems.map((item) => (
-                      <a
-                        href={item.href}
-                        class:list={[
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm",
-                          isActive(item.href)
-                            ? "bg-vspo-purple/20 font-medium text-on-surface"
-                            : "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface",
-                        ]}
-                        aria-current={isActive(item.href) ? "page" : undefined}
-                      >
-                        <span>{item.label}</span>
-                      </a>
-                    ))}
+                    <a
+                      href={sidebarChannelsHref}
+                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                    >
+                      <span>{t(locale, "nav.channels")}</span>
+                    </a>
+                    <a
+                      href={sidebarAnnouncementsHref}
+                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                    >
+                      <span>{t(locale, "nav.notifications")}</span>
+                    </a>
                     <a
                       href="/dashboard"
                       class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
@@ -163,7 +124,6 @@ const sidebarFutureItems: { label: string; icon: string; disabled: boolean }[] =
         </div>
       </div>
     ) : (
-      {/* === Layout WITHOUT sidebar (guild selector) === */}
       <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
         <a href="/dashboard" class="font-heading text-lg font-bold text-vspo-purple">{t(locale, "app.name")}</a>
         <div class="flex items-center gap-2">
