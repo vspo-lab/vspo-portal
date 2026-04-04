@@ -127,7 +127,7 @@ const unregistered = availableChannels.filter(
 
     // Search filter (debounced)
     const emptyMsg = dialog.querySelector<HTMLElement>("[data-search-empty]");
-    let searchTimer: ReturnType<typeof setTimeout>;
+    let searchTimer: ReturnType<typeof setTimeout> | undefined;
     searchInput?.addEventListener("input", () => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {

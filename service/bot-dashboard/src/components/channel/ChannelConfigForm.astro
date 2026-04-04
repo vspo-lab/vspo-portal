@@ -342,7 +342,7 @@ const selectedCount = customMemberSet.size;
     };
 
     // Search filtering (debounced to reduce layout thrash)
-    let searchTimer: ReturnType<typeof setTimeout>;
+    let searchTimer: ReturnType<typeof setTimeout> | undefined;
     searchInput?.addEventListener("input", () => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
