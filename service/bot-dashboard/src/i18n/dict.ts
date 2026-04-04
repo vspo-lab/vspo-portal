@@ -5,7 +5,7 @@ const ja = {
 
   // Login page
   "login.title": "ログイン",
-  "login.headline": "すぽじゅーる Bot をサーバーに追加",
+  "login.headline": "ぶいすぽっ!の配信予定を\nDiscord に届ける",
   "login.description":
     "ぶいすぽっ!メンバーの配信予定を Discord に自動で届けます",
   "login.button": "Discord でログイン",
@@ -13,6 +13,8 @@ const ja = {
   "login.previewCaption": "配信予定を、こんな感じで通知します",
   "login.previewAlt1": "ぶいすぽっ!公式メンバーの配信通知例",
   "login.previewAlt2": "個別メンバーの配信通知例",
+  "login.stat.servers": "サーバー",
+  "login.stat.users": "総利用者数",
   "login.permissions_note": "サーバー一覧の読み取り権限のみ使用します",
   "login.footer": "Powered by すぽじゅーる",
   "login.footer.link": "配信予定を確認する",
@@ -176,7 +178,7 @@ const en: Record<keyof typeof ja, string> = {
 
   // Login page
   "login.title": "Login",
-  "login.headline": "Add Spodule Bot to your server",
+  "login.headline": "Deliver VSPO stream\nschedules to Discord",
   "login.description":
     "Get automatic Discord notifications for VSPO member streams",
   "login.button": "Login with Discord",
@@ -184,6 +186,8 @@ const en: Record<keyof typeof ja, string> = {
   "login.previewCaption": "Here's what notifications look like",
   "login.previewAlt1": "Example notification for official VSPO member streams",
   "login.previewAlt2": "Example notification for individual member streams",
+  "login.stat.servers": "Servers",
+  "login.stat.users": "Total Users",
   "login.permissions_note": "Only requests read access to your server list",
   "login.footer": "Powered by Spodule",
   "login.footer.link": "View stream schedules",
