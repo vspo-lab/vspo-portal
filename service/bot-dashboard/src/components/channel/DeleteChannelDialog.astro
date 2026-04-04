@@ -1,21 +1,17 @@
 ---
-import { actions } from "astro:actions";
 import Button from "~/components/ui/Button.astro";
-import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { t } from "~/i18n/dict";
 
 interface Props {
-  channel: ChannelConfigType;
   guildId: string;
 }
 
-const { channel, guildId } = Astro.props;
+const { guildId } = Astro.props;
 const { locale } = Astro.locals;
 ---
 
 <dialog
-  open
-  class="animate-backdrop-in fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  class="fixed inset-0 z-50 m-0 flex h-full w-full items-center justify-center bg-black/60 backdrop:bg-transparent"
   id="delete-channel-modal"
   aria-labelledby="delete-channel-heading"
   aria-modal="true"
@@ -46,9 +42,9 @@ const { locale } = Astro.locals;
       <div class="min-w-0 flex-1">
         <h2
           id="delete-channel-heading"
+          data-delete-heading
           class="text-base font-semibold leading-snug"
         >
-          {t(locale, "channel.deleteConfirm", { channelName: channel.channelName })}
         </h2>
         <p class="mt-1 text-sm text-on-surface-variant">
           {t(locale, "channel.deleteConfirm.desc")}
@@ -56,27 +52,15 @@ const { locale } = Astro.locals;
       </div>
     </div>
 
-    <form method="post" action={actions.deleteChannel} class="flex justify-end gap-2 pt-2">
-      <input type="hidden" name="guildId" value={guildId} />
-      <input type="hidden" name="channelId" value={channel.channelId} />
+    <input type="hidden" name="channelId" value="" />
 
-      <Button as="a" href={`/dashboard/${guildId}`} variant="ghost" size="sm">
+    <div class="flex justify-end gap-2 pt-2">
+      <Button as="button" type="button" variant="ghost" size="sm" data-modal-cancel>
         {t(locale, "channel.deleteConfirm.cancel")}
       </Button>
-      <Button type="submit" variant="destructive" size="sm">
+      <Button as="button" type="button" variant="destructive" size="sm" data-modal-confirm>
         {t(locale, "channel.deleteConfirm.submit")}
       </Button>
-    </form>
+    </div>
   </div>
 </dialog>
-
-<script>
-  import { initModalTrap } from "~/components/ui/modal-trap";
-  const dialog = document.getElementById("delete-channel-modal");
-  if (dialog) {
-    const navigateClose = () => {
-      dialog.querySelector<HTMLAnchorElement>("a[href]")?.click();
-    };
-    initModalTrap(dialog, navigateClose);
-  }
-</script>

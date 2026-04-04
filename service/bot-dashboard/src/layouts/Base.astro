@@ -1,5 +1,6 @@
 ---
 import "~/app.css";
+import { ClientRouter } from "astro:transitions";
 import { t } from "~/i18n/dict";
 
 interface Props {
@@ -93,6 +94,7 @@ const altPath = canonicalPath
         rel="stylesheet"
       />
     </noscript>
+    <ClientRouter />
     <title>{pageTitle}</title>
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
