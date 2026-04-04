@@ -16,15 +16,13 @@ const result = await ListGuildsUsecase.execute({
   appWorker: env.APP_WORKER,
 });
 
-if (result.err) {
-  return Astro.redirect("/?error=fetch_failed");
-}
-
-const { installed, notInstalled } = result.val;
+const fetchError = result.err ?? null;
+const installed = result.err ? [] : result.val.installed;
+const notInstalled = result.err ? [] : result.val.notInstalled;
 const botClientId = env.DISCORD_BOT_CLIENT_ID;
 ---
 
-<Dashboard title={t(locale, "dashboard.servers")} description={t(locale, "meta.dashboard.description")}>
+<Dashboard title={t(locale, "dashboard.servers")} description={t(locale, "meta.dashboard.description")} showSidebar>
   <div class="mx-auto max-w-7xl space-y-10">
     <div class="space-y-2">
       <h1 class="font-heading text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">{t(locale, "dashboard.servers")}</h1>
@@ -32,6 +30,18 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
         {t(locale, "dashboard.servers.desc")}
       </p>
     </div>
+
+    {
+      fetchError && (
+        <div role="alert" class="flex items-center gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface">
+          <svg class="h-5 w-5 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+          <span class="flex-1">{t(locale, "error.fetch_failed")}</span>
+          <a href="/dashboard" class="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50">
+            {t(locale, "toast.retry")}
+          </a>
+        </div>
+      )
+    }
 
     {
       installed.length > 0 && (
@@ -62,7 +72,7 @@ const botClientId = env.DISCORD_BOT_CLIENT_ID;
     }
 
     {
-      installed.length === 0 && notInstalled.length === 0 && (
+      !fetchError && installed.length === 0 && notInstalled.length === 0 && (
         <p class="text-on-surface-variant">
           {t(locale, "dashboard.noServers")}
         </p>

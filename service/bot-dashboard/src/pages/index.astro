@@ -7,7 +7,7 @@ import ThemeToggle from "~/components/ui/ThemeToggle.astro";
 import { t } from "~/i18n/dict";
 import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
-if (Astro.locals.user && !Astro.url.searchParams.has("preview")) {
+if (Astro.locals.user && !Astro.url.searchParams.has("preview") && !Astro.url.searchParams.has("error")) {
   return Astro.redirect("/dashboard");
 }
 
