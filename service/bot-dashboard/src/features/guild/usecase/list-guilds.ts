@@ -26,7 +26,7 @@ type ListGuildsResult = {
  * @returns Installed guilds, not-installed guilds, and sidebar guild metadata, or an AppError
  * @precondition params.accessToken !== "" && params.userId !== "" && params.appWorker is configured
  * @postcondition On Ok, installed guilds have botInstalled === true and isAdmin === true
- * @idempotent true
+ * @idempotent true - repeated calls with unchanged upstream data yield the same categorization
  */
 const execute = async (
   params: ListGuildsParams,
