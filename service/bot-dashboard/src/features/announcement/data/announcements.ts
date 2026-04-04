@@ -31,8 +31,8 @@ const announcements: readonly AnnouncementType[] = [
       en: "Multi-language Notifications Now Available",
     },
     body: {
-      ja: "日本語・英語に加えて、フランス語・ドイツ語・スペイン語・中国語（簡体/繁体）・韓国語での通知に対応しました。",
-      en: "Notifications are now available in French, German, Spanish, Simplified/Traditional Chinese, and Korean, in addition to Japanese and English.",
+      ja: "フランス語・ドイツ語・スペイン語・中国語（簡体/繁体）・韓国語での通知を追加しました。",
+      en: "Added French, German, Spanish, Chinese (Simplified/Traditional), and Korean.",
     },
     date: "2026-03-15T00:00:00Z",
     type: "update",
@@ -44,8 +44,8 @@ const announcements: readonly AnnouncementType[] = [
       en: "Spodule Bot Service Launch",
     },
     body: {
-      ja: "ぶいすぽっ!メンバーの配信予定をDiscordに自動通知するBotのサービスを開始しました。",
-      en: "We've launched the bot service that automatically notifies VSPO member stream schedules to Discord.",
+      ja: "ぶいすぽっ!メンバーの配信予定をDiscordに届けるBotを公開しました。",
+      en: "The bot now sends VSPO stream schedules to Discord.",
     },
     date: "2026-03-01T00:00:00Z",
     type: "info",
