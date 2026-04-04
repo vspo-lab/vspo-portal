@@ -27,16 +27,14 @@ const ja = {
     "チャンネルごとに JP / EN メンバーやカスタム選択で絞り込み",
   "login.pageSettings": "ページ設定",
   "login.features": "機能紹介",
-  "login.features.desc":
-    "コマンド不要。ブラウザだけで権限・言語・メンバーを管理。",
-  "login.cta.headline": "はじめよう",
-  "login.cta.description": "無料で今すぐ始められます。スラッシュコマンド不要。",
+  "login.features.desc": "コマンド不要。ブラウザだけで設定できます。",
+  "login.cta.headline": "使ってみる",
+  "login.cta.description": "スラッシュコマンド不要、登録だけで使えます。",
   "login.feature.realtime": "コマンド入力なし",
-  "login.feature.realtime.desc":
-    "ブラウザ操作だけで完了。スラッシュコマンドは使いません",
-  "login.feature.settings": "ブラウザで設定管理",
+  "login.feature.realtime.desc": "設定はすべてブラウザで完結します",
+  "login.feature.settings": "Webで設定管理",
   "login.feature.settings.desc":
-    "Webダッシュボードから通知チャンネルや対象メンバーを変更",
+    "ダッシュボードから通知チャンネルや対象メンバーを変更",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -178,9 +176,9 @@ const en: Record<keyof typeof ja, string> = {
 
   // Login page
   "login.title": "Login",
-  "login.headline": "Deliver VSPO stream\nschedules to Discord",
+  "login.headline": "VSPO stream schedules,\nright in Discord",
   "login.description":
-    "Get automatic Discord notifications for VSPO member streams",
+    "Automatic Discord notifications for VSPO member streams",
   "login.button": "Login with Discord",
   "login.addBot": "Add to Server",
   "login.previewCaption": "Here's what notifications look like",
@@ -195,22 +193,22 @@ const en: Record<keyof typeof ja, string> = {
   "login.footer.privacy": "Privacy Policy",
   "login.feature.list": "All servers, one screen",
   "login.feature.list.desc":
-    "Check and change settings across servers without switching",
+    "View and edit settings for all your servers in one place",
   "login.feature.filter": "Pick who to notify",
   "login.feature.filter.desc":
     "Filter by JP, EN, or select individual members per channel",
   "login.pageSettings": "Page settings",
   "login.features": "Features",
   "login.features.desc":
-    "No commands required. Manage permissions, language, and members from your browser.",
-  "login.cta.headline": "Get Started",
+    "No commands required. Set everything up in your browser.",
+  "login.cta.headline": "Try it out",
   "login.cta.description": "Free to use. No slash commands needed.",
-  "login.feature.realtime": "No commands needed",
+  "login.feature.realtime": "Browser only",
   "login.feature.realtime.desc":
-    "Everything works from the browser. No slash commands involved",
-  "login.feature.settings": "Browser-based settings",
+    "All setup happens in your browser, no slash commands",
+  "login.feature.settings": "Settings from the web",
   "login.feature.settings.desc":
-    "Change notification channels and target members from the web dashboard",
+    "Change notification channels and target members from the dashboard",
 
   // Dashboard
   "dashboard.servers": "Servers",
@@ -250,7 +248,7 @@ const en: Record<keyof typeof ja, string> = {
   "channel.table": "Channel settings",
   "channel.deleteConfirm": "Delete #{channelName}?",
   "channel.deleteConfirm.desc":
-    "This action cannot be undone. The Bot configuration for this channel will be permanently removed.",
+    "This permanently deletes the Bot configuration for this channel.",
   "channel.deleteConfirm.cancel": "Cancel",
   "channel.deleteConfirm.submit": "Delete",
 
@@ -326,10 +324,10 @@ const en: Record<keyof typeof ja, string> = {
   "error.invalid_state": "Invalid authentication request. Please try again.",
 
   // Toast / feedback
-  "toast.addSuccess": "Channel added successfully.",
+  "toast.addSuccess": "Channel added.",
   "toast.updateSuccess": "Channel settings updated.",
   "toast.deleteSuccess": "Channel configuration deleted.",
-  "toast.resetSuccess": "Channel settings have been reset to default.",
+  "toast.resetSuccess": "Settings reset to default.",
   "toast.dismiss": "Dismiss",
   "toast.retry": "Reload",
 
@@ -338,7 +336,7 @@ const en: Record<keyof typeof ja, string> = {
 
   // Meta descriptions
   "meta.login.description":
-    "Get automatic Discord notifications for VSPO member streams. No commands needed — set up everything from your browser.",
+    "Discord notifications for VSPO streams. Set up from your browser, no commands needed.",
   "meta.dashboard.description":
     "Manage notification settings for your Discord servers.",
   "meta.guildDetail.description":
