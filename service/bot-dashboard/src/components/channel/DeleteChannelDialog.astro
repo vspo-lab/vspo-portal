@@ -15,15 +15,13 @@ const { locale } = Astro.locals;
 
 <dialog
   open
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  class="animate-backdrop-in fixed inset-0 z-50 flex items-center justify-center bg-black/60"
   id="delete-channel-modal"
   aria-labelledby="delete-channel-heading"
   aria-modal="true"
-  style="animation: backdrop-in 200ms var(--ease-standard);"
 >
   <div
-    class="glass mx-4 w-full max-w-md rounded-xl bg-surface-container-high/90 p-6 shadow-hover"
-    style="animation: modal-in 200ms var(--ease-standard);"
+    class="animate-modal-in glass mx-2 w-full max-w-md rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6"
   >
     <div class="mb-4 flex items-start gap-3">
       <span
@@ -73,39 +71,12 @@ const { locale } = Astro.locals;
 </dialog>
 
 <script>
+  import { initModalTrap } from "~/components/ui/modal-trap";
   const dialog = document.getElementById("delete-channel-modal");
   if (dialog) {
-    const focusableSelector =
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    const focusableEls = dialog.querySelectorAll(focusableSelector);
-    const firstEl = focusableEls[0] as HTMLElement | undefined;
-    const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement | undefined;
-
-    firstEl?.focus();
-
-    dialog.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        const cancelLink = dialog.querySelector<HTMLAnchorElement>('a[href]');
-        cancelLink?.click();
-        return;
-      }
-      if (e.key === "Tab" && focusableEls.length > 0) {
-        if (e.shiftKey && document.activeElement === firstEl) {
-          e.preventDefault();
-          lastEl?.focus();
-        } else if (!e.shiftKey && document.activeElement === lastEl) {
-          e.preventDefault();
-          firstEl?.focus();
-        }
-      }
-    });
-
-    dialog.addEventListener("click", (e: MouseEvent) => {
-      if (e.target === dialog) {
-        const cancelLink = dialog.querySelector<HTMLAnchorElement>('a[href]');
-        cancelLink?.click();
-      }
-    });
+    const navigateClose = () => {
+      dialog.querySelector<HTMLAnchorElement>("a[href]")?.click();
+    };
+    initModalTrap(dialog, navigateClose);
   }
 </script>

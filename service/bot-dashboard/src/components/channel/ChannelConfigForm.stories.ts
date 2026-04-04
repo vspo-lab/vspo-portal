@@ -51,11 +51,12 @@ const meta: Meta<ChannelConfigFormArgs> = {
   title: "Channel/ChannelConfigForm",
   render: (args) => {
     const showCustomMembers = args.channel.memberType === "custom";
+    const customMemberSet = new Set(args.channel.customMembers ?? []);
 
     const radioItems = memberTypeOptions
       .map(
         (opt) => `
-      <label class="flex items-start gap-2 rounded-lg p-2 transition-colors hover:bg-surface-container-highest/50">
+      <label class="flex cursor-pointer items-start gap-2 rounded-lg p-2 transition-all ${args.channel.memberType === opt.value ? "bg-vspo-purple/10 ring-1 ring-vspo-purple/30" : "hover:bg-surface-container-highest/50"}" data-radio-label>
         <input type="radio" name="memberType" value="${opt.value}" ${args.channel.memberType === opt.value ? "checked" : ""} class="mt-0.5 accent-vspo-purple" />
         <div>
           <span class="text-sm font-medium">${opt.label}</span>
@@ -65,27 +66,24 @@ const meta: Meta<ChannelConfigFormArgs> = {
       )
       .join("");
 
-    const customMembersSection = showCustomMembers
-      ? `<div class="space-y-2">
-          <span class="text-sm font-medium">Custom Members</span>
-          <div class="max-h-48 space-y-1 overflow-y-auto rounded-md border border-outline-variant/20 p-2">
-            ${args.creators
-              .map(
-                (creator) => `
-              <label class="flex items-center gap-2 rounded px-2 py-1 hover:bg-surface-container-highest/30">
-                <input type="checkbox" name="customMemberIds" value="${creator.id}" ${args.channel.customMembers?.includes(creator.id) ? "checked" : ""} class="accent-vspo-purple" />
-                ${creator.thumbnailUrl ? `<img src="${creator.thumbnailUrl}" alt="" class="h-5 w-5 rounded-full" />` : ""}
-                <span class="text-sm">${creator.name}</span>
-              </label>`,
-              )
-              .join("")}
-          </div>
-        </div>`
-      : "";
+    const memberRow = (creator: Creator) => {
+      const checked = customMemberSet.has(creator.id);
+      const highlight = checked
+        ? "bg-vspo-purple/10 ring-1 ring-vspo-purple/20"
+        : "hover:bg-surface-container-highest/40";
+      return `
+        <label class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all ${highlight}" data-member-item data-member-name="${creator.name.toLowerCase()}">
+          <input type="checkbox" name="customMemberIds" value="${creator.id}" ${checked ? "checked" : ""} class="shrink-0 accent-vspo-purple" data-member-checkbox />
+          ${creator.thumbnailUrl ? `<img src="${creator.thumbnailUrl}" alt="" class="h-6 w-6 shrink-0 rounded-full object-cover" />` : `<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-xs font-medium text-on-surface-variant">${creator.name.charAt(0)}</span>`}
+          <span class="truncate text-sm">${creator.name}</span>
+        </label>`;
+    };
+
+    const selectedCount = customMemberSet.size;
 
     return `
       <dialog open class="fixed inset-0 z-50 flex items-center justify-center" id="config-modal" aria-labelledby="config-modal-heading" aria-modal="true" style="background: rgba(0,0,0,0.6);">
-        <div class="glass mx-4 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-6 shadow-hover">
+        <div class="glass mx-4 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-6 text-on-surface shadow-hover">
           <div class="mb-4 flex items-center justify-between">
             <h2 id="config-modal-heading" class="font-heading text-lg font-bold text-on-surface">#${args.channel.channelName} Settings</h2>
             <button type="button" class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface" aria-label="Close">${closeIcon}</button>
@@ -95,7 +93,7 @@ const meta: Meta<ChannelConfigFormArgs> = {
             <input type="hidden" name="channelId" value="${args.channel.channelId}" />
             <div class="space-y-2">
               <label for="language" class="text-sm font-medium">Language</label>
-              <select id="language" name="language" class="w-full rounded-md border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm">
+              <select id="language" name="language" class="w-full rounded-md border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm text-on-surface">
                 <option value="ja" ${args.channel.language === "ja" ? "selected" : ""}>Japanese</option>
                 <option value="en" ${args.channel.language === "en" ? "selected" : ""}>English</option>
               </select>
@@ -104,10 +102,18 @@ const meta: Meta<ChannelConfigFormArgs> = {
               <legend class="text-sm font-medium">Member Type</legend>
               <div class="space-y-2">${radioItems}</div>
             </fieldset>
-            ${customMembersSection}
+            <div class="space-y-3 overflow-hidden transition-all duration-200 ${showCustomMembers ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}" data-custom-members aria-hidden="${!showCustomMembers}">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium">Custom Members</span>
+                <span class="rounded-full bg-vspo-purple/10 px-2.5 py-0.5 text-xs font-medium text-vspo-purple" data-selected-count>${selectedCount} selected</span>
+              </div>
+              <div class="max-h-56 space-y-3 overflow-y-auto rounded-lg border border-outline-variant/20 p-3">
+                ${args.creators.map(memberRow).join("")}
+              </div>
+            </div>
             <div class="flex justify-end gap-2 pt-2">
               <a href="/dashboard/${args.guildId}" class="inline-flex items-center justify-center rounded-[--radius-sm] font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">Cancel</a>
-              <button type="submit" class="inline-flex items-center justify-center rounded-[--radius-sm] font-medium transition-colors bg-discord text-white hover:bg-discord/90 h-10 px-4 py-2">Save</button>
+              <button type="submit" class="inline-flex items-center justify-center rounded-[--radius-sm] font-medium transition-colors bg-discord text-white hover:bg-discord/90 h-10 px-4 py-2" data-save-btn>Save</button>
             </div>
           </form>
         </div>

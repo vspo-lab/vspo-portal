@@ -21,7 +21,6 @@ const guildsResult = await ListGuildsUsecase.execute({
   appWorker: env.APP_WORKER,
 });
 
-const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
 const allGuilds = guildsResult.err
   ? []
   : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
@@ -30,7 +29,6 @@ const currentGuild = allGuilds.find((g) => g.id === guildId);
 
 <Dashboard
   title={t(locale, "announcements.title")}
-  guilds={sidebarGuilds}
   showSidebar
   activeGuild={currentGuild
     ? {
@@ -55,9 +53,9 @@ const currentGuild = allGuilds.find((g) => g.id === guildId);
       <div class="space-y-4">
         {announcements.map((item) => {
           const typeColors = {
-            info: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+            info: "bg-info/10 text-info",
             update: "bg-vspo-purple/10 text-vspo-purple",
-            maintenance: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+            maintenance: "bg-warning/10 text-warning",
           };
           const typeKey = `announcements.type.${item.type}` as const;
           return (

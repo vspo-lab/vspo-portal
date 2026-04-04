@@ -88,6 +88,11 @@
   --color-primary-container:   var(--sem-primary-container);
   --color-tertiary:            var(--sem-tertiary);
   --color-outline-variant:     var(--sem-outline-variant);
+
+  /* --- Status Tokens --- */
+  --color-success:             var(--sem-success);
+  --color-info:                var(--sem-info);
+  --color-warning:             var(--sem-warning);
 }
 
 /*
@@ -129,6 +134,14 @@
 @keyframes backdrop-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+.animate-modal-in {
+  animation: modal-in 200ms var(--ease-standard);
+}
+
+.animate-backdrop-in {
+  animation: backdrop-in 200ms var(--ease-standard);
 }
 
 /*
@@ -217,6 +230,11 @@ dialog[open] {
   --sem-primary-container:   #5865f2;
   --sem-tertiary:            #e67e22;
   --sem-outline-variant:     rgba(0, 0, 0, 0.12);
+
+  /* Status tokens */
+  --sem-success:             #16a34a;
+  --sem-info:                #2563eb;
+  --sem-warning:             #d97706;
 }
 
 /* ===== Dark mode ===== */
@@ -256,4 +274,9 @@ dialog[open] {
   --sem-primary-container:   #5865f2;
   --sem-tertiary:            #ffb689;
   --sem-outline-variant:     #454655;
+
+  /* Status tokens */
+  --sem-success:             #4ade80;
+  --sem-info:                #60a5fa;
+  --sem-warning:             #fbbf24;
 }

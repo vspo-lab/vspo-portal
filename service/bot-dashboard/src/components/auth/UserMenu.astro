@@ -76,55 +76,19 @@ const returnTo = Astro.url.pathname + Astro.url.search;
   </div>
 </details>
 
-<script is:inline>
-  (function () {
-    // Close dropdown when clicking outside
-    document.addEventListener("click", function (e) {
-      var menu = document.getElementById("user-menu");
-      if (menu && menu.open && !menu.contains(e.target)) {
-        menu.open = false;
-      }
-    });
+<script>
+  import { registerIcons, toggle } from "~/components/ui/theme";
 
-    // Theme toggle inside dropdown
-    var btn = document.getElementById("dropdown-theme-toggle");
-    var iconSun = document.getElementById("dropdown-theme-icon-sun");
-    var iconMoon = document.getElementById("dropdown-theme-icon-moon");
+  // Close dropdown when clicking outside
+  const menu = document.getElementById("user-menu") as HTMLDetailsElement | null;
+  document.addEventListener("click", (e) => {
+    if (menu?.open && !menu.contains(e.target as Node)) menu.open = false;
+  });
 
-    function updateDropdownIcons(isDark) {
-      if (isDark) {
-        iconSun.classList.remove("hidden");
-        iconMoon.classList.add("hidden");
-      } else {
-        iconSun.classList.add("hidden");
-        iconMoon.classList.remove("hidden");
-      }
-    }
-
-    updateDropdownIcons(document.documentElement.classList.contains("dark"));
-
-    btn.addEventListener("click", function () {
-      var nowDark = document.documentElement.classList.contains("dark");
-      var next = !nowDark;
-      localStorage.setItem("theme", next ? "dark" : "light");
-      if (next) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-      updateDropdownIcons(next);
-      // Also sync the header ThemeToggle icons if present
-      var headerSun = document.getElementById("theme-icon-sun");
-      var headerMoon = document.getElementById("theme-icon-moon");
-      if (headerSun && headerMoon) {
-        if (next) {
-          headerSun.classList.remove("hidden");
-          headerMoon.classList.add("hidden");
-        } else {
-          headerSun.classList.add("hidden");
-          headerMoon.classList.remove("hidden");
-        }
-      }
-    });
-  })();
+  // Theme toggle inside dropdown
+  const sun = document.getElementById("dropdown-theme-icon-sun");
+  const moon = document.getElementById("dropdown-theme-icon-moon");
+  const btn = document.getElementById("dropdown-theme-toggle");
+  if (sun && moon) registerIcons(sun, moon);
+  btn?.addEventListener("click", toggle);
 </script>
