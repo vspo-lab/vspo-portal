@@ -32,7 +32,8 @@ const DiscordApiGuildSchema = z.object({
   id: z.string(),
   name: z.string(),
   icon: z.string().nullable(),
-  permissions: z.string(),
+  owner: z.boolean().optional().default(false),
+  permissions: z.string().optional().default("0"),
 });
 
 type DiscordApiGuild = z.infer<typeof DiscordApiGuildSchema>;
@@ -152,13 +153,15 @@ const DiscordApiRepository = {
           id: "111111111111111111",
           name: "Dev Server 1",
           icon: null,
-          permissions: "32",
+          owner: true,
+          permissions: "0",
         },
         {
           id: "222222222222222222",
           name: "Dev Server 2",
           icon: null,
-          permissions: "32",
+          owner: false,
+          permissions: "0",
         },
       ]);
     }

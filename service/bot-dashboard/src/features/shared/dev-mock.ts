@@ -131,4 +131,6 @@ export const devMock = {
   botGuildIds: new Set<string>([DEV_GUILD_ID]),
 
   botStats: { guildCount: 42, totalMemberCount: 1234 },
+
+  userGuildAdmin: { [DEV_GUILD_ID]: true } as Record<string, boolean>,
 } as const;
