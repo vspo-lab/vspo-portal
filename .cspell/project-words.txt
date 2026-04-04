@@ -19,6 +19,7 @@ datetime
 dayjs
 dcdn
 dearu
+defu
 desaturation
 desumasu
 devcontainer
