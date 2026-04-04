@@ -31,6 +31,27 @@ const VspoGuildApiRepository = {
     if (result.err) return result;
     return Ok(new Set(result.val));
   },
+
+  /**
+   * Retrieve bot statistics (guild count and total member count).
+   * Calls vspo-server's DiscordService.getBotStats() via RPC.
+   *
+   * @param appWorker - APP_WORKER service binding to vspo-server
+   * @returns Bot statistics with guild count and total member count
+   * @idempotent true
+   */
+  getBotStats: async (
+    appWorker: ApplicationService,
+  ): Promise<
+    Result<{ guildCount: number; totalMemberCount: number }, AppError>
+  > => {
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.botStats);
+    }
+
+    const discord = appWorker.newDiscordUsecase();
+    return discord.getBotStats();
+  },
 } as const;
 
 export { VspoGuildApiRepository };

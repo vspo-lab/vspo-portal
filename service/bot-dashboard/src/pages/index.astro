@@ -5,6 +5,7 @@ import Button from "~/components/ui/Button.astro";
 import LanguageSelector from "~/components/ui/LanguageSelector.astro";
 import ThemeToggle from "~/components/ui/ThemeToggle.astro";
 import { t } from "~/i18n/dict";
+import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
 if (Astro.locals.user && !Astro.url.searchParams.has("preview")) {
   return Astro.redirect("/dashboard");
@@ -13,6 +14,9 @@ if (Astro.locals.user && !Astro.url.searchParams.has("preview")) {
 const locale = Astro.locals.locale;
 const botClientId = env.DISCORD_BOT_CLIENT_ID;
 const botInviteUrl = `https://discord.com/oauth2/authorize?client_id=${botClientId}&permissions=2048&scope=bot%20applications.commands`;
+
+const statsResult = await VspoGuildApiRepository.getBotStats(env.APP_WORKER);
+const stats = statsResult.err ? null : statsResult.val;
 
 const errorParam = Astro.url.searchParams.get("error");
 const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || errorParam === "fetch_failed" || errorParam === "invalid_state"
@@ -48,13 +52,36 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
           </div>
 
           {/* Headline */}
-          <h1 class="mb-6 font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl">
+          <h1 class="mb-6 font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl" style="white-space: pre-line;">
             {t(locale, "login.headline")}
           </h1>
 
-          <p class="mb-10 max-w-xl text-base leading-relaxed text-on-surface-variant sm:text-lg" style="text-wrap: balance;">
+          <p class="mb-8 max-w-xl text-base leading-relaxed text-on-surface-variant sm:text-lg" style="text-wrap: balance;">
             {t(locale, "login.description")}
           </p>
+
+          {/* Stats */}
+          {stats && (
+            <div class="mb-10 flex items-center justify-center gap-6">
+              <div class="text-center">
+                <div class="text-2xl font-extrabold tabular-nums text-on-surface sm:text-3xl">
+                  {stats.guildCount.toLocaleString()}
+                </div>
+                <div class="text-xs font-medium tracking-wide text-on-surface-variant">
+                  {t(locale, "login.stat.servers")}
+                </div>
+              </div>
+              <div class="h-8 w-px bg-border/50" aria-hidden="true"></div>
+              <div class="text-center">
+                <div class="text-2xl font-extrabold tabular-nums text-on-surface sm:text-3xl">
+                  {stats.totalMemberCount.toLocaleString()}
+                </div>
+                <div class="text-xs font-medium tracking-wide text-on-surface-variant">
+                  {t(locale, "login.stat.users")}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Error */}
           {errorKey && (
