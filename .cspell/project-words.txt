@@ -70,6 +70,7 @@ nimg
 nonempty
 noto
 nuki
+nums
 oembed
 ofuse
 oklch
