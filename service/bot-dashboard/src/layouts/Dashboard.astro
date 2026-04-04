@@ -25,7 +25,7 @@ const returnTo = Astro.url.pathname + Astro.url.search;
 const sidebarChannelsHref = activeGuild ? `/dashboard/${activeGuild.id}` : "/dashboard";
 const sidebarAnnouncementsHref = activeGuild
   ? `/dashboard/${activeGuild.id}/announcements`
-  : "/dashboard";
+  : "/dashboard/announcements";
 ---
 
 <Base title={title} description={description} noindex>
