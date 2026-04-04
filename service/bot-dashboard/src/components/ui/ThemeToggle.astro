@@ -45,35 +45,11 @@ const buttonClass = variant === "header"
   </svg>
 </button>
 
-<script is:inline>
-  (function () {
-    var btn = document.getElementById("theme-toggle");
-    var iconSun = document.getElementById("theme-icon-sun");
-    var iconMoon = document.getElementById("theme-icon-moon");
-
-    function applyIcons(isDark) {
-      if (isDark) {
-        iconSun.classList.remove("hidden");
-        iconMoon.classList.add("hidden");
-      } else {
-        iconSun.classList.add("hidden");
-        iconMoon.classList.remove("hidden");
-      }
-    }
-
-    // Initialize from current state (already set by FOUC-prevention script in Base.astro)
-    applyIcons(document.documentElement.classList.contains("dark"));
-
-    btn.addEventListener("click", function () {
-      var nowDark = document.documentElement.classList.contains("dark");
-      var next = !nowDark;
-      localStorage.setItem("theme", next ? "dark" : "light");
-      if (next) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-      applyIcons(next);
-    });
-  })();
+<script>
+  import { registerIcons, toggle } from "~/components/ui/theme";
+  const sun = document.getElementById("theme-icon-sun");
+  const moon = document.getElementById("theme-icon-moon");
+  const btn = document.getElementById("theme-toggle");
+  if (sun && moon) registerIcons(sun, moon);
+  btn?.addEventListener("click", toggle);
 </script>

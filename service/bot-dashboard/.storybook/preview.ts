@@ -13,9 +13,10 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (story) => {
+    (story, context) => {
       const wrapper = document.createElement("div");
-      wrapper.className = "font-sans text-foreground";
+      const isDark = context.globals?.backgrounds?.value !== "#ffffff";
+      wrapper.className = `${isDark ? "dark" : ""} font-sans text-foreground`;
       const result = story();
       if (typeof result === "string") {
         wrapper.innerHTML = result;

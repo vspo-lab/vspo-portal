@@ -26,6 +26,12 @@ const sidebarChannelsHref = activeGuild ? `/dashboard/${activeGuild.id}` : "/das
 const sidebarAnnouncementsHref = activeGuild
   ? `/dashboard/${activeGuild.id}/announcements`
   : "/dashboard/announcements";
+const currentPath = Astro.url.pathname;
+const isChannelsActive = currentPath === sidebarChannelsHref || currentPath.startsWith(sidebarChannelsHref + "?");
+const isAnnouncementsActive = currentPath === sidebarAnnouncementsHref;
+const navBaseClass = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50";
+const navActiveClass = `${navBaseClass} bg-vspo-purple/10 text-vspo-purple`;
+const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface`;
 ---
 
 <Base title={title} description={description} noindex>
@@ -47,13 +53,15 @@ const sidebarAnnouncementsHref = activeGuild
           <nav class="flex-1 space-y-1" aria-label={t(locale, "nav.sidebar")}>
             <a
               href={sidebarChannelsHref}
-              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface-variant transition-all duration-200 hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
+              class={isChannelsActive ? navActiveClass : navInactiveClass}
+              aria-current={isChannelsActive ? "page" : undefined}
             >
               <span>{t(locale, "nav.channels")}</span>
             </a>
             <a
               href={sidebarAnnouncementsHref}
-              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-on-surface-variant transition-all duration-200 hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
+              class={isAnnouncementsActive ? navActiveClass : navInactiveClass}
+              aria-current={isAnnouncementsActive ? "page" : undefined}
             >
               <span>{t(locale, "nav.notifications")}</span>
             </a>
@@ -88,13 +96,19 @@ const sidebarAnnouncementsHref = activeGuild
                   <div class="space-y-1">
                     <a
                       href={sidebarChannelsHref}
-                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                      class={isChannelsActive
+                        ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
+                        : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
+                      aria-current={isChannelsActive ? "page" : undefined}
                     >
                       <span>{t(locale, "nav.channels")}</span>
                     </a>
                     <a
                       href={sidebarAnnouncementsHref}
-                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                      class={isAnnouncementsActive
+                        ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
+                        : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
+                      aria-current={isAnnouncementsActive ? "page" : undefined}
                     >
                       <span>{t(locale, "nav.notifications")}</span>
                     </a>

@@ -25,19 +25,6 @@ const announcements: readonly AnnouncementType[] = [
     type: "update",
   },
   {
-    id: "2026-03-15-multilang",
-    title: {
-      ja: "多言語通知に対応しました",
-      en: "Multi-language Notifications Now Available",
-    },
-    body: {
-      ja: "フランス語・ドイツ語・スペイン語・中国語（簡体/繁体）・韓国語での通知を追加しました。",
-      en: "Added French, German, Spanish, Chinese (Simplified/Traditional), and Korean.",
-    },
-    date: "2026-03-15T00:00:00Z",
-    type: "update",
-  },
-  {
     id: "2026-03-01-launch",
     title: {
       ja: "すぽじゅーる Bot サービス開始",

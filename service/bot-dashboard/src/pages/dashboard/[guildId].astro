@@ -6,6 +6,7 @@ import ChannelAddModal from "~/components/channel/ChannelAddModal.astro";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
 import ChannelTable from "~/components/channel/ChannelTable.astro";
 import DeleteChannelDialog from "~/components/channel/DeleteChannelDialog.astro";
+import ErrorAlert from "~/components/ui/ErrorAlert.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { GuildSummary } from "~/features/guild/domain/guild";
@@ -127,29 +128,13 @@ const deletingChannel = deleteChannelId
     </div>
 
     {/* Alerts */}
-    {
-      fetchError && (
-        <div role="alert" class="flex items-center gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface">
-          <svg class="h-5 w-5 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-          <span class="flex-1">{t(locale, "dashboard.error", { message: fetchError.message })}</span>
-          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50">
-            {t(locale, "toast.retry")}
-          </a>
-        </div>
-      )
-    }
+    {fetchError && (
+      <ErrorAlert message={t(locale, "dashboard.error", { message: fetchError.message })} retryHref={`/dashboard/${guildId}`} retryLabel={t(locale, "toast.retry")} />
+    )}
 
-    {
-      actionError && (
-        <div role="alert" class="flex items-center gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface">
-          <svg class="h-5 w-5 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-          <span class="flex-1">{t(locale, "dashboard.error", { message: actionError.message })}</span>
-          <a href={`/dashboard/${guildId}`} class="shrink-0 rounded-lg px-3 py-2 text-xs font-medium text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50">
-            {t(locale, "toast.retry")}
-          </a>
-        </div>
-      )
-    }
+    {actionError && (
+      <ErrorAlert message={t(locale, "dashboard.error", { message: actionError.message })} retryHref={`/dashboard/${guildId}`} retryLabel={t(locale, "toast.retry")} />
+    )}
 
     {
       successMessageKey && (

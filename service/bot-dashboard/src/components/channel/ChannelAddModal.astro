@@ -18,15 +18,13 @@ const unregistered = availableChannels.filter(
 
 <dialog
   open
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  class="animate-backdrop-in fixed inset-0 z-50 flex items-center justify-center bg-black/60"
   id="add-channel-modal"
   aria-labelledby="add-channel-heading"
   aria-modal="true"
-  style="animation: backdrop-in 200ms var(--ease-standard);"
 >
   <div
-    class="glass mx-4 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-6 shadow-hover"
-    style="animation: modal-in 200ms var(--ease-standard);"
+    class="animate-modal-in glass mx-2 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6"
   >
     <div class="mb-4 flex items-center justify-between">
       <h2 id="add-channel-heading" class="font-heading text-lg font-bold text-on-surface">
@@ -34,7 +32,7 @@ const unregistered = availableChannels.filter(
       </h2>
       <button
         type="button"
-        class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
+        class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
         aria-label={t(locale, "channelConfig.close")}
         data-close-href={`/dashboard/${guildId}`}
       >
@@ -50,7 +48,7 @@ const unregistered = availableChannels.filter(
         id="channel-search"
         type="search"
         placeholder={t(locale, "channel.add.search")}
-        class="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+        class="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
         data-search-input
       />
     </div>
@@ -72,7 +70,7 @@ const unregistered = availableChannels.filter(
             type="submit"
             role="option"
             aria-selected="false"
-            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30"
             data-channel-name={ch.name.toLowerCase()}
           >
             <span class="flex items-center gap-2">
@@ -89,7 +87,7 @@ const unregistered = availableChannels.filter(
         .filter((ch) => registeredChannelIds.has(ch.id))
         .map((ch) => (
           <div
-            class="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-on-surface-variant/50"
+            class="flex items-center justify-between rounded-lg px-3 py-3 text-sm text-on-surface-variant/50"
             data-channel-item
             data-channel-name={ch.name.toLowerCase()}
           >
@@ -113,6 +111,7 @@ const unregistered = availableChannels.filter(
 </dialog>
 
 <script>
+  import { initModalTrap } from "~/components/ui/modal-trap";
   const dialog = document.getElementById("add-channel-modal");
   if (dialog) {
     const closeBtn = dialog.querySelector<HTMLButtonElement>("button[data-close-href]");
@@ -126,51 +125,28 @@ const unregistered = availableChannels.filter(
 
     closeBtn?.addEventListener("click", navigateClose);
 
-    // Search filter
+    // Search filter (debounced)
     const emptyMsg = dialog.querySelector<HTMLElement>("[data-search-empty]");
+    let searchTimer: ReturnType<typeof setTimeout> | undefined;
     searchInput?.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase();
-      let visibleCount = 0;
-      for (const item of items) {
-        const el = item as HTMLElement;
-        const name = el.dataset.channelName ?? el.querySelector("[data-channel-name]")?.getAttribute("data-channel-name") ?? "";
-        const show = name.includes(query);
-        el.style.display = show ? "" : "none";
-        if (show) visibleCount++;
-      }
-      if (emptyMsg) {
-        emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
-      }
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        const query = searchInput.value.toLowerCase();
+        let visibleCount = 0;
+        for (const item of items) {
+          const el = item as HTMLElement;
+          const name = el.dataset.channelName ?? el.querySelector("[data-channel-name]")?.getAttribute("data-channel-name") ?? "";
+          const show = name.includes(query);
+          el.style.display = show ? "" : "none";
+          if (show) visibleCount++;
+        }
+        if (emptyMsg) {
+          emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
+        }
+      }, 100);
     });
 
     // Focus management
-    const focusableSelector =
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    const focusableEls = dialog.querySelectorAll(focusableSelector);
-    const firstEl = focusableEls[0] as HTMLElement | undefined;
-    const lastEl = focusableEls[focusableEls.length - 1] as HTMLElement | undefined;
-
-    firstEl?.focus();
-
-    dialog.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        navigateClose();
-        return;
-      }
-      if (e.key === "Tab" && focusableEls.length > 0) {
-        if (e.shiftKey && document.activeElement === firstEl) {
-          e.preventDefault();
-          lastEl?.focus();
-        } else if (!e.shiftKey && document.activeElement === lastEl) {
-          e.preventDefault();
-          firstEl?.focus();
-        }
-      }
-    });
-
-    dialog.addEventListener("click", (e: MouseEvent) => {
-      if (e.target === dialog) navigateClose();
-    });
+    initModalTrap(dialog, navigateClose);
   }
 </script>

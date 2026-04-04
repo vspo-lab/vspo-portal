@@ -12,6 +12,19 @@ const ChannelSummarySchema = z.object({
 
 type ChannelSummary = z.infer<typeof ChannelSummarySchema>;
 
+/** Shared OAuth2 query parameters for the bot invite URL. */
+const BOT_OAUTH_PARAMS =
+  "permissions=2147485696&integration_type=0&scope=bot%20applications.commands";
+
+/**
+ * Builds a Discord bot invite URL without a preselected guild.
+ *
+ * @param botClientId - The application's client ID
+ * @returns A Discord OAuth2 authorize URL for adding the bot
+ */
+const buildBotInviteUrl = (botClientId: string): string =>
+  `https://discord.com/oauth2/authorize?client_id=${botClientId}&${BOT_OAUTH_PARAMS}`;
+
 const GuildSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -81,7 +94,7 @@ const GuildSummary = {
 
   /** Builds a Discord bot invite URL preselecting the given guild. */
   inviteUrl: (guild: GuildSummary, botClientId: string): string =>
-    `https://discord.com/oauth2/authorize?client_id=${botClientId}&guild_id=${guild.id}&permissions=2048&scope=bot%20applications.commands`,
+    `https://discord.com/oauth2/authorize?client_id=${botClientId}&guild_id=${guild.id}&${BOT_OAUTH_PARAMS}`,
 
   /**
    * Attaches a derived channel summary to an existing guild summary.
@@ -134,6 +147,7 @@ const GuildBotConfig = {
 } as const;
 
 export {
+  buildBotInviteUrl,
   type ChannelSummary as ChannelSummaryType,
   GuildBotConfig,
   type GuildBotConfig as GuildBotConfigType,

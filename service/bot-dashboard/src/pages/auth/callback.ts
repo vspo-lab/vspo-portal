@@ -42,7 +42,10 @@ export const GET: APIRoute = async (context) => {
   context.session?.set("accessToken", accessToken);
   context.session?.set("refreshToken", refreshToken);
   context.session?.set("expiresAt", expiresAt);
-  context.session?.set("locale", locale?.startsWith("en") ? "en" : "ja");
+  const existingLocale = await context.session?.get("locale");
+  if (!existingLocale) {
+    context.session?.set("locale", locale?.startsWith("en") ? "en" : "ja");
+  }
 
   return context.redirect("/dashboard");
 };

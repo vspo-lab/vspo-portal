@@ -15,7 +15,11 @@ const MOCK_USER = {
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const sessionLocale = await context.session?.get("locale");
-  context.locals.locale = sessionLocale ?? "ja";
+  const locale = sessionLocale ?? "ja";
+  context.locals.locale = locale;
+  if (!sessionLocale) {
+    context.session?.set("locale", locale);
+  }
 
   const devMockAuth = (env as unknown as Record<string, unknown>).DEV_MOCK_AUTH;
   if (devMockAuth === "true" && import.meta.env.DEV) {

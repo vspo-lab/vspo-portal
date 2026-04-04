@@ -35,10 +35,10 @@ const renderStatus = (enabled: boolean) =>
   enabled
     ? `<div class="flex items-center gap-2">
         <div class="relative flex h-2 w-2">
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-success shadow-sm shadow-success/50"></span>
         </div>
-        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-success">Active</span>
       </div>`
     : `<div class="flex items-center gap-2">
         <span class="inline-flex h-2 w-2 rounded-full bg-on-surface-variant/40"></span>

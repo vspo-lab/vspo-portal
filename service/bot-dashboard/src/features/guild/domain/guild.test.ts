@@ -202,7 +202,7 @@ describe("GuildSummary", () => {
       };
       const url = GuildSummary.inviteUrl(guild, "my-client-id");
       expect(url).toBe(
-        "https://discord.com/oauth2/authorize?client_id=my-client-id&guild_id=guild-99&permissions=2048&scope=bot%20applications.commands",
+        "https://discord.com/oauth2/authorize?client_id=my-client-id&guild_id=guild-99&permissions=2147485696&integration_type=0&scope=bot%20applications.commands",
       );
     });
   });

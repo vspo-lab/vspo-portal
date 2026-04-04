@@ -72,10 +72,10 @@ const langChipLabel = (lang: string) => lang.toUpperCase();
                 {ch.enabled ? (
                   <div class="flex items-center gap-2">
                     <div class="relative flex h-2 w-2">
-                      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
+                      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+                      <span class="relative inline-flex h-2 w-2 rounded-full bg-success shadow-sm shadow-success/50"></span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">{t(locale, "channel.status.active")}</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-success">{t(locale, "channel.status.active")}</span>
                   </div>
                 ) : (
                   <div class="flex items-center gap-2">
@@ -85,17 +85,17 @@ const langChipLabel = (lang: string) => lang.toUpperCase();
                 )}
               </td>
               <td class="px-6 py-4 sm:px-8">
-                <div class="flex items-center justify-end gap-2 opacity-100 transition-opacity md:opacity-40 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                <div class="flex items-center justify-end gap-1">
                   <a
                     href={`?edit=${ch.channelId}`}
-                    class="rounded-lg p-2 text-on-surface-variant transition-colors hover:text-vspo-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
                     aria-label={`${t(locale, "channel.edit")} #${ch.channelName}`}
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                   </a>
                   <a
                     href={`?delete=${ch.channelId}`}
-                    class="rounded-lg p-2 text-on-surface-variant transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
                     aria-label={`${t(locale, "channel.delete")} #${ch.channelName}`}
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
