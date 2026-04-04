@@ -2,7 +2,7 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * Initialise focus trap, Escape-to-close, and backdrop-click-to-close on a
+ * Initialize focus trap, Escape-to-close, and backdrop-click-to-close on a
  * modal dialog element.
  *
  * @param dialog - The dialog element (must already be in the DOM)
