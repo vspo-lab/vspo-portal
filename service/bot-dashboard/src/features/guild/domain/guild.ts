@@ -4,9 +4,6 @@ import {
   type ChannelConfigType,
 } from "~/features/channel/domain/channel-config";
 
-const ADMINISTRATOR = 0x8;
-const MANAGE_GUILD = 0x20;
-
 const ChannelSummarySchema = z.object({
   enabledCount: z.number().int().nonnegative(),
   totalCount: z.number().int().nonnegative(),
@@ -32,10 +29,10 @@ const GuildSummary = {
   /**
    * Builds a guild summary from a Discord guild payload.
    *
-   * @param raw - Discord guild data including the permission bitset string
+   * @param raw - Discord guild data including the owner flag
    * @param botGuildIds - Guild IDs where the bot is already installed
-   * @returns Guild summary with installation and manageability flags derived from the inputs
-   * @precondition raw.id !== "" && raw.name !== "" && Number.isFinite(Number(raw.permissions))
+   * @returns Guild summary with installation and admin flags derived from the inputs
+   * @precondition raw.id !== "" && raw.name !== ""
    * @postcondition return.id === raw.id && return.name === raw.name && return.botInstalled === botGuildIds.has(raw.id)
    */
   fromDiscordGuild: (
@@ -43,14 +40,14 @@ const GuildSummary = {
       id: string;
       name: string;
       icon: string | null;
-      permissions: string;
+      owner: boolean;
     },
     botGuildIds: ReadonlySet<string>,
   ): GuildSummary => ({
     id: raw.id,
     name: raw.name,
     icon: raw.icon,
-    isAdmin: (Number(raw.permissions) & (ADMINISTRATOR | MANAGE_GUILD)) !== 0,
+    isAdmin: raw.owner,
     botInstalled: botGuildIds.has(raw.id),
   }),
 
@@ -109,6 +106,20 @@ const GuildSummary = {
       },
     };
   },
+
+  /**
+   * Returns a new guild summary with isAdmin overridden by a server-side check.
+   *
+   * @param guild - Existing guild summary
+   * @param isAdmin - Result of a server-side admin role check
+   * @returns New guild summary where isAdmin is true if either the guild or the server check indicates admin
+   * @precondition guild must already be constructed via fromDiscordGuild
+   * @postcondition return.isAdmin === (guild.isAdmin || isAdmin)
+   */
+  withAdminOverride: (guild: GuildSummary, isAdmin: boolean): GuildSummary => ({
+    ...guild,
+    isAdmin: guild.isAdmin || isAdmin,
+  }),
 } as const;
 
 const GuildBotConfigSchema = z.object({

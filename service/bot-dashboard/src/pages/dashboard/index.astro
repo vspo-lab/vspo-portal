@@ -7,12 +7,14 @@ import { t } from "~/i18n/dict";
 
 const locale = Astro.locals.locale;
 const accessToken = Astro.locals.accessToken;
-if (!accessToken) {
+const user = Astro.locals.user;
+if (!accessToken || !user) {
   return Astro.redirect("/");
 }
 
 const result = await ListGuildsUsecase.execute({
   accessToken,
+  userId: user.id,
   appWorker: env.APP_WORKER,
 });
 

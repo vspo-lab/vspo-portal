@@ -1,5 +1,6 @@
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import type { ApplicationService } from "~/types/api";
 import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
 import { ListGuildsUsecase } from "./list-guilds";
@@ -10,47 +11,93 @@ vi.mock("~/features/auth/repository/discord-api", () => ({
   },
 }));
 
+vi.mock("~/features/channel/repository/vspo-channel-api", () => ({
+  VspoChannelApiRepository: {
+    getGuildConfig: vi.fn(),
+  },
+}));
+
 vi.mock("../repository/vspo-guild-api", () => ({
   VspoGuildApiRepository: {
     getBotGuildIds: vi.fn(),
+    checkUserGuildAdmin: vi.fn(),
   },
 }));
 
 const appWorker = {} as ApplicationService;
 
-const adminGuild = {
+const ownerGuild = {
   id: "1",
-  name: "Admin Guild",
+  name: "Owner Guild",
   icon: "icon1",
-  permissions: "32", // MANAGE_GUILD (0x20)
-};
-
-const nonAdminGuild = {
-  id: "2",
-  name: "Non-Admin Guild",
-  icon: null,
+  owner: true,
   permissions: "0",
 };
 
-const anotherAdminGuild = {
+const nonOwnerGuild = {
+  id: "2",
+  name: "Non-Owner Guild",
+  icon: null,
+  owner: false,
+  permissions: "0",
+};
+
+const anotherNonOwnerGuild = {
   id: "3",
-  name: "Another Admin",
+  name: "Another Non-Owner",
   icon: "icon3",
-  permissions: "32",
+  owner: false,
+  permissions: "0",
 };
 
 describe("ListGuildsUsecase", () => {
   describe("execute", () => {
-    it("returns only admin guilds partitioned into installed and notInstalled", async () => {
+    it("owner guilds are always admin, server check upgrades non-owner installed guilds", async () => {
       vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
-        Ok([adminGuild, nonAdminGuild, anotherAdminGuild]),
+        Ok([ownerGuild, nonOwnerGuild, anotherNonOwnerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
-        Ok(new Set(["1"])),
+        Ok(new Set(["1", "2"])),
+      );
+      vi.mocked(VspoGuildApiRepository.checkUserGuildAdmin).mockResolvedValue(
+        Ok({ "1": true, "2": true }),
+      );
+      vi.mocked(VspoChannelApiRepository.getGuildConfig).mockResolvedValue(
+        Ok({ channels: [] } as never),
       );
 
       const result = await ListGuildsUsecase.execute({
         accessToken: "token",
+        userId: "user-1",
+        appWorker,
+      });
+
+      expect(result.err).toBeUndefined();
+      if (result.err) return;
+      expect(result.val.installed).toHaveLength(2);
+      expect(result.val.installed.map((g) => g.id)).toEqual(["1", "2"]);
+      expect(result.val.notInstalled).toHaveLength(0);
+    });
+
+    it("falls back to owner-only when checkUserGuildAdmin fails", async () => {
+      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+        Ok([ownerGuild, nonOwnerGuild]),
+      );
+      vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
+        Ok(new Set(["1", "2"])),
+      );
+      vi.mocked(VspoGuildApiRepository.checkUserGuildAdmin).mockResolvedValue(
+        Err(
+          new AppError({ message: "rpc error", code: "INTERNAL_SERVER_ERROR" }),
+        ),
+      );
+      vi.mocked(VspoChannelApiRepository.getGuildConfig).mockResolvedValue(
+        Ok({ channels: [] } as never),
+      );
+
+      const result = await ListGuildsUsecase.execute({
+        accessToken: "token",
+        userId: "user-1",
         appWorker,
       });
 
@@ -58,22 +105,25 @@ describe("ListGuildsUsecase", () => {
       if (result.err) return;
       expect(result.val.installed).toHaveLength(1);
       expect(result.val.installed[0].id).toBe("1");
-      expect(result.val.installed[0].botInstalled).toBe(true);
-      expect(result.val.notInstalled).toHaveLength(1);
-      expect(result.val.notInstalled[0].id).toBe("3");
-      expect(result.val.notInstalled[0].botInstalled).toBe(false);
     });
 
-    it("builds sidebarGuilds from installed guilds with iconUrl", async () => {
+    it("builds sidebarGuilds from installed admin guilds", async () => {
       vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
-        Ok([adminGuild]),
+        Ok([ownerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
         Ok(new Set(["1"])),
       );
+      vi.mocked(VspoGuildApiRepository.checkUserGuildAdmin).mockResolvedValue(
+        Ok({ "1": true }),
+      );
+      vi.mocked(VspoChannelApiRepository.getGuildConfig).mockResolvedValue(
+        Ok({ channels: [] } as never),
+      );
 
       const result = await ListGuildsUsecase.execute({
         accessToken: "token",
+        userId: "user-1",
         appWorker,
       });
 
@@ -82,29 +132,10 @@ describe("ListGuildsUsecase", () => {
       expect(result.val.sidebarGuilds).toEqual([
         {
           id: "1",
-          name: "Admin Guild",
+          name: "Owner Guild",
           iconUrl: "https://cdn.discordapp.com/icons/1/icon1.png",
         },
       ]);
-    });
-
-    it("returns sidebarGuilds with null iconUrl when icon is absent", async () => {
-      const adminNoIcon = { ...adminGuild, icon: null };
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
-        Ok([adminNoIcon]),
-      );
-      vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
-        Ok(new Set(["1"])),
-      );
-
-      const result = await ListGuildsUsecase.execute({
-        accessToken: "token",
-        appWorker,
-      });
-
-      expect(result.err).toBeUndefined();
-      if (result.err) return;
-      expect(result.val.sidebarGuilds[0].iconUrl).toBeNull();
     });
 
     it("returns Err when getUserGuilds fails", async () => {
@@ -121,6 +152,7 @@ describe("ListGuildsUsecase", () => {
 
       const result = await ListGuildsUsecase.execute({
         accessToken: "token",
+        userId: "user-1",
         appWorker,
       });
 
@@ -133,7 +165,7 @@ describe("ListGuildsUsecase", () => {
         code: "INTERNAL_SERVER_ERROR",
       });
       vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
-        Ok([adminGuild]),
+        Ok([ownerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
         Err(error),
@@ -141,6 +173,7 @@ describe("ListGuildsUsecase", () => {
 
       const result = await ListGuildsUsecase.execute({
         accessToken: "token",
+        userId: "user-1",
         appWorker,
       });
 
@@ -152,9 +185,13 @@ describe("ListGuildsUsecase", () => {
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
         Ok(new Set()),
       );
+      vi.mocked(VspoGuildApiRepository.checkUserGuildAdmin).mockResolvedValue(
+        Ok({}),
+      );
 
       const result = await ListGuildsUsecase.execute({
         accessToken: "token",
+        userId: "user-1",
         appWorker,
       });
 

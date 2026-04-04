@@ -52,6 +52,29 @@ const VspoGuildApiRepository = {
     const discord = appWorker.newDiscordUsecase();
     return discord.getBotStats();
   },
+  /**
+   * Check if a user has admin permissions in the specified guilds via bot token.
+   *
+   * @param appWorker - APP_WORKER service binding
+   * @param userId - Discord user ID to check
+   * @param guildIds - Guild IDs to check (must be guilds where bot is installed)
+   * @returns Record mapping guild ID to admin boolean
+   * @precondition userId is a non-empty string and guildIds are guilds where the bot is installed
+   * @postcondition On Ok, returned record maps each input guild ID to a boolean indicating admin status
+   * @idempotent true
+   */
+  checkUserGuildAdmin: async (
+    appWorker: ApplicationService,
+    userId: string,
+    guildIds: string[],
+  ): Promise<Result<Record<string, boolean>, AppError>> => {
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.userGuildAdmin);
+    }
+
+    const discord = appWorker.newDiscordUsecase();
+    return discord.checkUserGuildAdmin(userId, guildIds);
+  },
 } as const;
 
 export { VspoGuildApiRepository };

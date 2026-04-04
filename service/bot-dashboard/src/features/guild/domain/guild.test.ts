@@ -6,12 +6,12 @@ describe("GuildSummary", () => {
   describe("fromDiscordGuild", () => {
     it.each([
       {
-        label: "admin with bot installed",
+        label: "owner with bot installed",
         raw: {
           id: "guild-1",
           name: "My Server",
           icon: "abc123",
-          permissions: "32",
+          owner: true,
         },
         expected: {
           id: "guild-1",
@@ -22,28 +22,28 @@ describe("GuildSummary", () => {
         },
       },
       {
-        label: "admin without bot",
+        label: "non-owner without bot",
         raw: {
           id: "guild-2",
           name: "Other",
           icon: null,
-          permissions: "32",
+          owner: false,
         },
         expected: {
           id: "guild-2",
           name: "Other",
           icon: null,
-          isAdmin: true,
+          isAdmin: false,
           botInstalled: false,
         },
       },
       {
-        label: "non-admin (permissions=0)",
+        label: "non-owner with bot (isAdmin defaults to false)",
         raw: {
           id: "guild-1",
           name: "No Admin",
           icon: null,
-          permissions: "0",
+          owner: false,
         },
         expected: {
           id: "guild-1",
@@ -53,40 +53,34 @@ describe("GuildSummary", () => {
           botInstalled: true,
         },
       },
-      {
-        label: "admin via ADMINISTRATOR only (0x08)",
-        raw: {
-          id: "guild-2",
-          name: "Admin Only",
-          icon: null,
-          permissions: "8",
-        },
-        expected: {
-          id: "guild-2",
-          name: "Admin Only",
-          icon: null,
-          isAdmin: true,
-          botInstalled: false,
-        },
-      },
-      {
-        label: "admin via combined permission bits (0x20 | 0x08 = 40)",
-        raw: {
-          id: "guild-2",
-          name: "Combined",
-          icon: null,
-          permissions: "40",
-        },
-        expected: {
-          id: "guild-2",
-          name: "Combined",
-          icon: null,
-          isAdmin: true,
-          botInstalled: false,
-        },
-      },
     ])("$label", ({ raw, expected }) => {
       expect(GuildSummary.fromDiscordGuild(raw, botGuildIds)).toEqual(expected);
+    });
+  });
+
+  describe("withAdminOverride", () => {
+    it("sets isAdmin to true when server check is true", () => {
+      const guild: GuildSummaryType = {
+        id: "1",
+        name: "A",
+        icon: null,
+        isAdmin: false,
+        botInstalled: true,
+      };
+      const result = GuildSummary.withAdminOverride(guild, true);
+      expect(result.isAdmin).toBe(true);
+    });
+
+    it("preserves isAdmin true when server check is false (owner)", () => {
+      const guild: GuildSummaryType = {
+        id: "1",
+        name: "A",
+        icon: null,
+        isAdmin: true,
+        botInstalled: true,
+      };
+      const result = GuildSummary.withAdminOverride(guild, false);
+      expect(result.isAdmin).toBe(true);
     });
   });
 

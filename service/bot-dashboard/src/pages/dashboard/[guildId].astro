@@ -19,7 +19,8 @@ if (!guildId) {
 }
 
 const accessToken = Astro.locals.accessToken;
-if (!accessToken) {
+const user = Astro.locals.user;
+if (!accessToken || !user) {
   return Astro.redirect("/");
 }
 
@@ -29,6 +30,7 @@ const showAddModal = Astro.url.searchParams.get("add") === "true";
 const [guildsResult, channelsResult, availableChannelsResult, creatorsResult] = await Promise.all([
   ListGuildsUsecase.execute({
     accessToken,
+    userId: user.id,
     appWorker: env.APP_WORKER,
   }),
   VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),

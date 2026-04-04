@@ -9,6 +9,7 @@ import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
 
 type ListGuildsParams = {
   accessToken: string;
+  userId: string;
   appWorker: ApplicationService;
 };
 
@@ -21,11 +22,11 @@ type ListGuildsResult = {
 /**
  * Retrieves the guilds the current user can manage and categorizes them for the dashboard.
  *
- * @param params - Discord access token and app worker binding used to query guild data
+ * @param params - Discord access token, user ID, and app worker binding
  * @returns Installed guilds, not-installed guilds, and sidebar guild metadata, or an AppError
- * @precondition params.accessToken !== "" && params.appWorker is a configured ApplicationService
- * @postcondition On Ok, every guild in return.val.installed has botInstalled === true and return.val.sidebarGuilds is derived from return.val.installed
- * @idempotent true - The use case is read-only and repeated calls against unchanged upstream data yield the same categorization
+ * @precondition params.accessToken !== "" && params.userId !== "" && params.appWorker is configured
+ * @postcondition On Ok, installed guilds have botInstalled === true and isAdmin === true
+ * @idempotent true - repeated calls with unchanged upstream data yield the same categorization
  */
 const execute = async (
   params: ListGuildsParams,
@@ -41,7 +42,31 @@ const execute = async (
   const guilds = guildsResult.val.map((g) =>
     GuildSummary.fromDiscordGuild(g, botGuildIdsResult.val),
   );
-  const manageable = GuildSummary.filterManageable(guilds);
+
+  // For installed guilds, check admin permissions via bot token
+  const installedGuildIds = guilds
+    .filter((g) => g.botInstalled)
+    .map((g) => g.id);
+
+  const adminCheckResult =
+    installedGuildIds.length > 0
+      ? await VspoGuildApiRepository.checkUserGuildAdmin(
+          params.appWorker,
+          params.userId,
+          installedGuildIds,
+        )
+      : Ok({} as Record<string, boolean>);
+
+  const adminMap = adminCheckResult.err ? {} : adminCheckResult.val;
+
+  // Apply server-side admin check results to installed guilds
+  const resolvedGuilds = guilds.map((g) =>
+    g.botInstalled
+      ? GuildSummary.withAdminOverride(g, adminMap[g.id] ?? false)
+      : g,
+  );
+
+  const manageable = GuildSummary.filterManageable(resolvedGuilds);
   const { installed, notInstalled } = GuildSummary.partition(manageable);
 
   // Fetch channel configs for all installed guilds in parallel.

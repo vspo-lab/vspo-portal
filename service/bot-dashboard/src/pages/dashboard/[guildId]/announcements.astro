@@ -10,12 +10,14 @@ const { guildId } = Astro.params;
 if (!guildId) return Astro.redirect("/dashboard");
 
 const accessToken = Astro.locals.accessToken;
-if (!accessToken) return Astro.redirect("/");
+const user = Astro.locals.user;
+if (!accessToken || !user) return Astro.redirect("/");
 
 const locale = Astro.locals.locale;
 
 const guildsResult = await ListGuildsUsecase.execute({
   accessToken,
+  userId: user.id,
   appWorker: env.APP_WORKER,
 });
 
