@@ -19,6 +19,7 @@ datetime
 dayjs
 dcdn
 dearu
+defu
 desaturation
 desumasu
 devcontainer
@@ -70,6 +71,7 @@ nimg
 nonempty
 noto
 nuki
+nums
 oembed
 ofuse
 oklch

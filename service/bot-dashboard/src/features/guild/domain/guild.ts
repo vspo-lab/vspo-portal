@@ -4,6 +4,7 @@ import {
   type ChannelConfigType,
 } from "~/features/channel/domain/channel-config";
 
+const ADMINISTRATOR = 0x8;
 const MANAGE_GUILD = 0x20;
 
 const ChannelSummarySchema = z.object({
@@ -49,7 +50,7 @@ const GuildSummary = {
     id: raw.id,
     name: raw.name,
     icon: raw.icon,
-    isAdmin: (Number(raw.permissions) & MANAGE_GUILD) === MANAGE_GUILD,
+    isAdmin: (Number(raw.permissions) & (ADMINISTRATOR | MANAGE_GUILD)) !== 0,
     botInstalled: botGuildIds.has(raw.id),
   }),
 

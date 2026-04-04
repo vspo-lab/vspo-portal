@@ -2505,6 +2505,12 @@ declare class DiscordService extends RpcTarget {
   listBotGuildIds(): Promise<
     _vspo_lab_error.Result<string[], _vspo_lab_error.AppError>
   >;
+  getBotStats(): Promise<
+    _vspo_lab_error.Result<
+      { guildCount: number; totalMemberCount: number },
+      _vspo_lab_error.AppError
+    >
+  >;
   listGuildChannels(guildId: string): Promise<
     _vspo_lab_error.Result<
       { id: string; name: string; type: number; position: number }[],

@@ -54,6 +54,22 @@ describe("GuildSummary", () => {
         },
       },
       {
+        label: "admin via ADMINISTRATOR only (0x08)",
+        raw: {
+          id: "guild-2",
+          name: "Admin Only",
+          icon: null,
+          permissions: "8",
+        },
+        expected: {
+          id: "guild-2",
+          name: "Admin Only",
+          icon: null,
+          isAdmin: true,
+          botInstalled: false,
+        },
+      },
+      {
         label: "admin via combined permission bits (0x20 | 0x08 = 40)",
         raw: {
           id: "guild-2",
