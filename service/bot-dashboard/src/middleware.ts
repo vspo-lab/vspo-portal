@@ -1,6 +1,6 @@
-import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { defineMiddleware } from "astro:middleware";
 import { env } from "cloudflare:workers";
+import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
 
 /** Buffer in ms — refresh 5 minutes before actual expiry. */
