@@ -31,8 +31,7 @@ const ja = {
   "login.cta.headline": "使ってみる",
   "login.cta.description": "スラッシュコマンド不要、登録だけで使えます。",
   "login.feature.realtime": "コマンド入力なし",
-  "login.feature.realtime.desc":
-    "設定はすべてブラウザで完結します",
+  "login.feature.realtime.desc": "設定はすべてブラウザで完結します",
   "login.feature.settings": "Webで設定管理",
   "login.feature.settings.desc":
     "ダッシュボードから通知チャンネルや対象メンバーを変更",
