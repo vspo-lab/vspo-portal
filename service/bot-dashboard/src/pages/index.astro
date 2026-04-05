@@ -128,16 +128,13 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               {t(locale, "login.button")}
             </Button>
           </div>
-          <p class="mt-4 text-xs text-on-surface-variant">
-            {t(locale, "login.permissions_note")}
-          </p>
         </div>
       </section>
 
       {/* Discord notification preview */}
       <section class="px-6 pb-8 sm:pb-16">
         <div class="mx-auto max-w-5xl">
-          <p class="mb-8 text-center text-sm text-on-surface-variant">{t(locale, "login.previewCaption")}</p>
+          <p class="mb-8 text-center text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "login.previewCaption")}</p>
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
               <picture>

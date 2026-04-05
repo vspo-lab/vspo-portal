@@ -5,48 +5,50 @@ import { t } from "~/i18n/dict";
 interface Props {
   currentLocale: Locale;
   returnTo: string;
-  /** When true, style for header (white text on purple bg). When false, style for card/dropdown. */
+  /** "header" renders a compact icon button; "dropdown" renders text buttons for menus. */
   variant?: "header" | "dropdown";
 }
 
 const { currentLocale, returnTo, variant = "header" } = Astro.props;
-
-const activeClass = variant === "header"
-  ? "bg-surface-container-highest text-on-surface"
-  : "bg-primary/10 text-primary";
-const inactiveClass = variant === "header"
-  ? "text-on-surface-variant hover:text-on-surface"
-  : "text-muted-foreground hover:text-foreground";
-const dividerClass = variant === "header"
-  ? "text-on-surface-variant/40"
-  : "text-muted-foreground/40";
+const nextLocale: Locale = currentLocale === "ja" ? "en" : "ja";
 ---
 
-<form method="post" action="/api/change-locale" class="flex items-center gap-1">
-  <input type="hidden" name="_returnTo" value={returnTo} />
-  <button
-    type="submit"
-    name="locale"
-    value="ja"
-    class={`rounded px-2 py-1 text-[10px] font-bold transition-colors ${
-      currentLocale === "ja" ? activeClass : inactiveClass
-    }`}
-    aria-pressed={currentLocale === "ja" ? "true" : "false"}
-    aria-label={t(currentLocale, "settings.language.ja")}
-  >
-    {variant === "header" ? "JA" : t(currentLocale, "settings.language.ja")}
-  </button>
-  <span class={dividerClass} aria-hidden="true">/</span>
-  <button
-    type="submit"
-    name="locale"
-    value="en"
-    class={`rounded px-2 py-1 text-[10px] font-bold transition-colors ${
-      currentLocale === "en" ? activeClass : inactiveClass
-    }`}
-    aria-pressed={currentLocale === "en" ? "true" : "false"}
-    aria-label={t(currentLocale, "settings.language.en")}
-  >
-    {variant === "header" ? "EN" : t(currentLocale, "settings.language.en")}
-  </button>
-</form>
+{variant === "header" ? (
+  <form method="post" action="/api/change-locale">
+    <input type="hidden" name="_returnTo" value={returnTo} />
+    <input type="hidden" name="locale" value={nextLocale} />
+    <button
+      type="submit"
+      aria-label={t(currentLocale, "settings.language")}
+      class="relative flex h-9 w-9 items-center justify-center rounded-[--radius-sm] text-on-surface-variant transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50 cursor-pointer"
+    >
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path stroke-linecap="round" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+      <span class="absolute -bottom-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-vspo-purple px-0.5 text-[8px] font-bold leading-none text-white">
+        {currentLocale.toUpperCase()}
+      </span>
+    </button>
+  </form>
+) : (
+  <form method="post" action="/api/change-locale" class="flex items-center gap-1">
+    <input type="hidden" name="_returnTo" value={returnTo} />
+    {(["ja", "en"] as const).map((lang) => (
+      <button
+        type="submit"
+        name="locale"
+        value={lang}
+        class={`rounded px-2 py-1 text-[10px] font-bold transition-colors ${
+          currentLocale === lang
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+        aria-pressed={currentLocale === lang ? "true" : "false"}
+        aria-label={t(currentLocale, `settings.language.${lang}` as keyof typeof import("~/i18n/dict").ja)}
+      >
+        {t(currentLocale, `settings.language.${lang}` as keyof typeof import("~/i18n/dict").ja)}
+      </button>
+    ))}
+  </form>
+)}

@@ -124,8 +124,24 @@ const showToast = (message: string, type: "success" | "error" = "success") => {
 
 /* ---------- Modal helpers ---------- */
 
+const DIALOG_IDS = [
+  "config-modal",
+  "delete-channel-modal",
+  "add-channel-modal",
+] as const;
+
+/** Close all open dialogs except the one being opened. */
+const closeAllDialogs = (exceptId?: string) => {
+  for (const id of DIALOG_IDS) {
+    if (id === exceptId) continue;
+    const d = document.getElementById(id) as HTMLDialogElement | null;
+    if (d?.open) d.close();
+  }
+};
+
 const openDialog = (dialog: HTMLDialogElement) => {
   if (dialog.open) return;
+  closeAllDialogs(dialog.id);
   dialog.showModal();
 };
 
@@ -924,6 +940,9 @@ export const initChannelActions = () => {
   if (abortController) abortController.abort();
   abortController = new AbortController();
   currentData = null;
+
+  // Close any stale modals left open from view transitions
+  closeAllDialogs();
 
   const { signal } = abortController;
 
