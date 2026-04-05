@@ -105,7 +105,13 @@ const { locale } = Astro.locals;
 <script>
   import { initDialog } from "~/components/ui/dialog-helpers";
 
+  let addAbort: AbortController | null = null;
+
   function initAddModal() {
+    if (addAbort) addAbort.abort();
+    addAbort = new AbortController();
+    const { signal } = addAbort;
+
     initDialog("add-channel-modal");
 
     const dialog = document.getElementById("add-channel-modal") as HTMLDialogElement | null;
@@ -127,7 +133,7 @@ const { locale } = Astro.locals;
       if (!btn) return;
       dialog.showModal();
       loadChannels();
-    });
+    }, { signal });
 
 
     let searchTimer: ReturnType<typeof setTimeout> | undefined;
@@ -157,7 +163,7 @@ const { locale } = Astro.locals;
       if (searchInput) searchInput.value = "";
 
       const guildId = form?.querySelector<HTMLInputElement>('input[name="guildId"]')?.value;
-      if (!guildId) return;
+      if (!guildId) { if (loadingEl) loadingEl.classList.add("hidden"); return; }
 
       const registeredIds = new Set(
         Array.from(document.querySelectorAll<HTMLElement>("[data-channel-row]"))

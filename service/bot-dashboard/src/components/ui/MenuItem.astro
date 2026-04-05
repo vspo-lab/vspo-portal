@@ -3,7 +3,7 @@ import type { HTMLAttributes } from "astro/types";
 
 type MenuItemVariant = "default" | "destructive";
 
-interface Props extends HTMLAttributes<"button"> {
+type Props = HTMLAttributes<"button"> & {
   variant?: MenuItemVariant;
   as?: "button" | "a";
   href?: string;

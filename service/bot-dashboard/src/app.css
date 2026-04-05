@@ -223,9 +223,11 @@ dialog[open] {
 
 /* Fallback for browsers without animation-timeline support */
 @supports not (animation-timeline: view()) {
-  [data-scroll-reveal] {
-    opacity: 1;
-    transform: none;
+  [data-scroll-reveal],
+  [data-scroll-reveal="fade-in-up"] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
   }
 }
 

@@ -16,6 +16,7 @@ const { locale } = Astro.locals;
   id="delete-channel-modal"
   aria-labelledby="delete-channel-heading"
   aria-modal="true"
+  data-delete-template={t(locale, "channel.deleteConfirm", { channelName: "{channelName}" })}
 >
   <div
     class="animate-modal-in glass mx-2 w-full max-w-md rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6"
@@ -72,13 +73,18 @@ const { locale } = Astro.locals;
 <script>
   import { initDialog } from "~/components/ui/dialog-helpers";
 
+  let deleteAbort: AbortController | null = null;
+
   function initDeleteDialog() {
+    if (deleteAbort) deleteAbort.abort();
+    deleteAbort = new AbortController();
+    const { signal } = deleteAbort;
+
     initDialog("delete-channel-modal");
 
     const dialog = document.getElementById("delete-channel-modal") as HTMLDialogElement | null;
     if (!dialog) return;
 
-    // Open dialog on delete button click
     document.addEventListener("click", (e) => {
       const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-action-delete]");
       if (!btn) return;
@@ -87,13 +93,16 @@ const { locale } = Astro.locals;
       const channelName = btn.closest("tr")?.querySelector("p")?.textContent ?? "";
 
       const heading = dialog.querySelector("[data-delete-heading]");
-      if (heading) heading.textContent = channelName ? `#${channelName}` : "";
+      if (heading) {
+        const template = dialog.dataset.deleteTemplate ?? "Delete #{channelName}?";
+        heading.textContent = template.replace("{channelName}", channelName);
+      }
 
       const hiddenInput = dialog.querySelector<HTMLInputElement>('input[name="channelId"]');
       if (hiddenInput) hiddenInput.value = channelId;
 
       dialog.showModal();
-    });
+    }, { signal });
   }
 
   initDeleteDialog();

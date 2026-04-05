@@ -5,16 +5,12 @@
  *
  * @precondition Must be placed in a page that handles Astro Actions
  */
-import { t } from "~/i18n/dict";
-
 interface Props {
   result?: { data?: { success: boolean }; error?: { message: string } } | undefined;
   successMessage?: string;
 }
 
 const { result, successMessage } = Astro.props;
-const { locale } = Astro.locals;
-
 const hasSuccess = result?.data?.success === true;
 const hasError = !!result?.error;
 const message = hasError
@@ -63,7 +59,7 @@ const show = hasSuccess || hasError;
   }
 
   @keyframes flash-fade-out {
-    0%, 80% { opacity: 1; }
-    100% { opacity: 0; display: none; }
+    0%, 80% { opacity: 1; max-height: 100px; }
+    100% { opacity: 0; max-height: 0; padding: 0; margin: 0; overflow: hidden; }
   }
 </style>

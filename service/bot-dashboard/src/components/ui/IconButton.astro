@@ -4,7 +4,7 @@ import type { HTMLAttributes } from "astro/types";
 type IconButtonVariant = "ghost" | "destructive";
 type IconButtonSize = "sm" | "default";
 
-interface Props extends HTMLAttributes<"button"> {
+type Props = HTMLAttributes<"button"> & {
   variant?: IconButtonVariant;
   size?: IconButtonSize;
 }
