@@ -75,18 +75,27 @@ const showToast = (message: string, type: "success" | "error" = "success") => {
   }`;
 
   const iconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  iconSvg.setAttribute("class", `h-5 w-5 shrink-0 ${type === "success" ? "text-vspo-purple" : "text-destructive"}`);
+  iconSvg.setAttribute(
+    "class",
+    `h-5 w-5 shrink-0 ${type === "success" ? "text-vspo-purple" : "text-destructive"}`,
+  );
   iconSvg.setAttribute("fill", "none");
   iconSvg.setAttribute("stroke", "currentColor");
   iconSvg.setAttribute("viewBox", "0 0 24 24");
   iconSvg.setAttribute("aria-hidden", "true");
-  const iconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  const iconPath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path",
+  );
   iconPath.setAttribute("stroke-linecap", "round");
   iconPath.setAttribute("stroke-linejoin", "round");
   iconPath.setAttribute("stroke-width", "2");
-  iconPath.setAttribute("d", type === "success"
-    ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-    : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z");
+  iconPath.setAttribute(
+    "d",
+    type === "success"
+      ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+      : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z",
+  );
   iconSvg.appendChild(iconPath);
 
   const msgSpan = document.createElement("span");
@@ -95,7 +104,8 @@ const showToast = (message: string, type: "success" | "error" = "success") => {
 
   const closeBtn = document.createElement("button");
   closeBtn.type = "button";
-  closeBtn.className = "shrink-0 rounded-lg p-2 text-on-surface-variant hover:text-on-surface cursor-pointer";
+  closeBtn.className =
+    "shrink-0 rounded-lg p-2 text-on-surface-variant hover:text-on-surface cursor-pointer";
   closeBtn.setAttribute("aria-label", "close");
   closeBtn.innerHTML = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
   closeBtn.addEventListener("click", () => toast.remove());
@@ -468,13 +478,19 @@ const initAdd = (signal: AbortSignal) => {
         "flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30 cursor-pointer";
       const content = document.createElement("span");
       content.className = "flex items-center gap-2";
-      const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      const icon = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg",
+      );
       icon.setAttribute("class", "h-4 w-4 shrink-0 text-on-surface-variant");
       icon.setAttribute("fill", "none");
       icon.setAttribute("stroke", "currentColor");
       icon.setAttribute("viewBox", "0 0 24 24");
       icon.setAttribute("aria-hidden", "true");
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const path = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path",
+      );
       path.setAttribute("stroke-linecap", "round");
       path.setAttribute("stroke-linejoin", "round");
       path.setAttribute("stroke-width", "2");
@@ -555,13 +571,19 @@ const initAdd = (signal: AbortSignal) => {
         "flex items-center justify-between rounded-lg px-3 py-3 text-sm text-on-surface-variant/50";
       const regContent = document.createElement("span");
       regContent.className = "flex items-center gap-2";
-      const regIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      const regIcon = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg",
+      );
       regIcon.setAttribute("class", "h-4 w-4 shrink-0");
       regIcon.setAttribute("fill", "none");
       regIcon.setAttribute("stroke", "currentColor");
       regIcon.setAttribute("viewBox", "0 0 24 24");
       regIcon.setAttribute("aria-hidden", "true");
-      const regPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const regPath = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path",
+      );
       regPath.setAttribute("stroke-linecap", "round");
       regPath.setAttribute("stroke-linejoin", "round");
       regPath.setAttribute("stroke-width", "2");
@@ -573,7 +595,8 @@ const initAdd = (signal: AbortSignal) => {
       regContent.appendChild(regName);
       const regLabel = document.createElement("span");
       regLabel.className = "text-xs";
-      regLabel.textContent = data.i18n["channel.add.registered"] ?? "Registered";
+      regLabel.textContent =
+        data.i18n["channel.add.registered"] ?? "Registered";
       div.appendChild(regContent);
       div.appendChild(regLabel);
       listContainer.appendChild(div);
