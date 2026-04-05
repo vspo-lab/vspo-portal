@@ -1,7 +1,7 @@
 ---
 import { actions } from "astro:actions";
-import Button from "~/components/ui/Button.astro";
-import IconButton from "~/components/ui/IconButton.astro";
+import Button from "~/features/shared/components/Button.astro";
+import IconButton from "~/features/shared/components/IconButton.astro";
 import { MemberType } from "~/features/channel/domain/member-type";
 import { Creator, type CreatorType } from "~/features/shared/domain/creator";
 import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/dict";
@@ -275,7 +275,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
 </dialog>
 
 <script>
-  import { initDialog } from "~/components/ui/dialog-helpers";
+  import { initDialog } from "~/features/shared/components/dialog-helpers";
 
   /**
    * Edit modal interactive controls: radio highlights, dropdown multi-select,

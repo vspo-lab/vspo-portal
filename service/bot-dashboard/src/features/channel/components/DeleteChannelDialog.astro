@@ -1,6 +1,6 @@
 ---
 import { actions } from "astro:actions";
-import Button from "~/components/ui/Button.astro";
+import Button from "~/features/shared/components/Button.astro";
 import { t } from "~/i18n/dict";
 
 interface Props {
@@ -71,7 +71,7 @@ const { locale } = Astro.locals;
 </dialog>
 
 <script>
-  import { initDialog } from "~/components/ui/dialog-helpers";
+  import { initDialog } from "~/features/shared/components/dialog-helpers";
 
   let deleteAbort: AbortController | null = null;
 

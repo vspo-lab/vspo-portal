@@ -1,5 +1,5 @@
 ---
-import IconButton from "~/components/ui/IconButton.astro";
+import IconButton from "~/features/shared/components/IconButton.astro";
 import { t } from "~/i18n/dict";
 
 const { locale } = Astro.locals;
@@ -37,7 +37,7 @@ const { locale } = Astro.locals;
 </IconButton>
 
 <script>
-  import { syncTheme, toggle } from "~/components/ui/theme";
+  import { syncTheme, toggle } from "~/features/shared/components/theme";
 
   function init() {
     syncTheme();

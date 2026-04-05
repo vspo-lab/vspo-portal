@@ -1,13 +1,13 @@
 ---
 import { actions } from "astro:actions";
-import Button from "~/components/ui/Button.astro";
+import Button from "~/features/shared/components/Button.astro";
 import { env } from "cloudflare:workers";
-import ChannelAddModal from "~/components/channel/ChannelAddModal.astro";
-import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
-import ChannelTable from "~/components/channel/ChannelTable.astro";
-import DeleteChannelDialog from "~/components/channel/DeleteChannelDialog.astro";
-import ErrorAlert from "~/components/ui/ErrorAlert.astro";
-import FlashMessage from "~/components/ui/FlashMessage.astro";
+import ChannelAddModal from "~/features/channel/components/ChannelAddModal.astro";
+import ChannelConfigForm from "~/features/channel/components/ChannelConfigForm.astro";
+import ChannelTable from "~/features/channel/components/ChannelTable.astro";
+import DeleteChannelDialog from "~/features/channel/components/DeleteChannelDialog.astro";
+import ErrorAlert from "~/features/shared/components/ErrorAlert.astro";
+import FlashMessage from "~/features/shared/components/FlashMessage.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { GuildSummary } from "~/features/guild/domain/guild";
