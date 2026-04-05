@@ -41,8 +41,9 @@ const getPageData = (): PageData => {
   if (currentData) return currentData;
   const el = document.getElementById("channel-data");
   if (!el?.textContent) throw new Error("Missing #channel-data");
-  currentData = JSON.parse(el.textContent);
-  return currentData!;
+  const parsed: PageData = JSON.parse(el.textContent);
+  currentData = parsed;
+  return parsed;
 };
 
 const persistPageData = (data: PageData) => {
