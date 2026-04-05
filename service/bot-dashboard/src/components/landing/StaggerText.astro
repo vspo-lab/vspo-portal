@@ -1,0 +1,53 @@
+---
+/**
+ * StaggerText — Splits text into per-character spans with CSS variable --i for stagger delay.
+ *
+ * @precondition .stagger-text CSS rules and letter-rise keyframe must be in app.css.
+ * @postcondition Each character is wrapped in a <span style="--i: N"> for staggered animation.
+ *
+ * Uses Array.from() for proper Unicode handling (ja/en safe).
+ * Animation triggers on page load via .is-visible class (hero) or [data-visible] (scroll).
+ *
+ * @example
+ * <StaggerText text="Hello World" tag="h1" class="text-4xl font-bold" autoPlay />
+ */
+type Props = {
+  /** Text to animate character by character */
+  text: string;
+  /** HTML tag to render */
+  tag?: string;
+  /** Additional CSS classes */
+  class?: string;
+  /** Auto-play animation on page load (no scroll trigger needed) */
+  autoPlay?: boolean;
+};
+
+const {
+  text,
+  tag = "span",
+  class: className = "",
+  autoPlay = false,
+} = Astro.props;
+
+const Tag = tag;
+const chars = Array.from(text);
+---
+
+<Tag
+  class:list={["stagger-text", { "is-visible": autoPlay }, className]}
+>
+  {/* Screen reader accessible text */}
+  <span class="sr-only">{text}</span>
+  {/* Visual animated characters (hidden from AT) */}
+  <span aria-hidden="true" class="contents">
+    {chars.map((char, i) =>
+      char === " " ? (
+        <span class="inline-block" style={`--i: ${i}`}>&nbsp;</span>
+      ) : char === "\n" ? (
+        <br />
+      ) : (
+        <span style={`--i: ${i}`}>{char}</span>
+      )
+    )}
+  </span>
+</Tag>
