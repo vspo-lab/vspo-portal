@@ -33,7 +33,8 @@ const langDisplayLabels: Record<string, string> = {
   default: "Default",
 };
 
-const langChipLabel = (lang: string) => langDisplayLabels[lang] ?? lang.toUpperCase();
+const langChipLabel = (lang: string) =>
+  langDisplayLabels[lang] ?? lang.toUpperCase();
 
 const memberTypeLabel: Record<string, string> = {
   vspo_jp: "VSPO! JP",
