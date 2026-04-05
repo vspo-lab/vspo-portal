@@ -137,7 +137,10 @@ const updateStats = (data: PageData) => {
   if (desc) {
     const template =
       data.i18n["dashboard.channelsCount"] ?? "{total} channels registered";
-    desc.textContent = template.replace("{total}", String(data.channels.length));
+    desc.textContent = template.replace(
+      "{total}",
+      String(data.channels.length),
+    );
   }
 
   const langContainer = document.querySelector("[data-stat-languages]");
@@ -254,65 +257,61 @@ const initDelete = (signal: AbortSignal) => {
     { signal },
   );
 
-  dialog
-    .querySelector("[data-modal-confirm]")
-    ?.addEventListener(
-      "click",
-      async () => {
-        const data = getPageData();
-        const channelId = dialog.querySelector<HTMLInputElement>(
-          'input[name="channelId"]',
-        )?.value;
-        if (!channelId) return;
+  dialog.querySelector("[data-modal-confirm]")?.addEventListener(
+    "click",
+    async () => {
+      const data = getPageData();
+      const channelId = dialog.querySelector<HTMLInputElement>(
+        'input[name="channelId"]',
+      )?.value;
+      if (!channelId) return;
 
-        const confirmBtn = dialog.querySelector<HTMLButtonElement>(
-          "[data-modal-confirm]",
-        );
-        if (confirmBtn) {
-          confirmBtn.disabled = true;
-          confirmBtn.classList.add("opacity-50");
-        }
+      const confirmBtn = dialog.querySelector<HTMLButtonElement>(
+        "[data-modal-confirm]",
+      );
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.classList.add("opacity-50");
+      }
 
-        const { error } = await actions.deleteChannel({
-          guildId: data.guildId,
-          channelId,
-        });
+      const { error } = await actions.deleteChannel({
+        guildId: data.guildId,
+        channelId,
+      });
 
-        if (confirmBtn) {
-          confirmBtn.disabled = false;
-          confirmBtn.classList.remove("opacity-50");
-        }
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.classList.remove("opacity-50");
+      }
 
-        if (error) {
-          closeDialog(dialog);
-          showToast(error.message, "error");
-          return;
-        }
-
+      if (error) {
         closeDialog(dialog);
-        showToast(data.i18n["toast.deleteSuccess"] ?? "Deleted.");
+        showToast(error.message, "error");
+        return;
+      }
 
-        // Optimistic DOM update
-        const row = document.querySelector(
-          `[data-channel-row="${channelId}"]`,
-        );
-        if (row) {
-          row.classList.add("opacity-0", "transition-opacity", "duration-200");
-          setTimeout(() => {
-            row.remove();
-            restripeRows();
-          }, 200);
-        }
+      closeDialog(dialog);
+      showToast(data.i18n["toast.deleteSuccess"] ?? "Deleted.");
 
-        const updated: PageData = {
-          ...data,
-          channels: data.channels.filter((c) => c.channelId !== channelId),
-        };
-        persistPageData(updated);
-        updateStats(updated);
-      },
-      { signal },
-    );
+      // Optimistic DOM update
+      const row = document.querySelector(`[data-channel-row="${channelId}"]`);
+      if (row) {
+        row.classList.add("opacity-0", "transition-opacity", "duration-200");
+        setTimeout(() => {
+          row.remove();
+          restripeRows();
+        }, 200);
+      }
+
+      const updated: PageData = {
+        ...data,
+        channels: data.channels.filter((c) => c.channelId !== channelId),
+      };
+      persistPageData(updated);
+      updateStats(updated);
+    },
+    { signal },
+  );
 };
 
 /* ---------- Add ---------- */
@@ -561,128 +560,123 @@ const initEdit = (signal: AbortSignal) => {
   );
 
   // Save handler
-  dialog
-    .querySelector("[data-save-btn]")
-    ?.addEventListener(
-      "click",
-      async () => {
-        if (!form || !hiddenChannelId) return;
+  dialog.querySelector("[data-save-btn]")?.addEventListener(
+    "click",
+    async () => {
+      if (!form || !hiddenChannelId) return;
 
-        const data = getPageData();
-        const formData = new FormData(form);
-        const channelId = hiddenChannelId.value;
-        const language = formData.get("language") as string;
-        const memberType = formData.get("memberType") as
-          | "vspo_jp"
-          | "vspo_en"
-          | "all"
-          | "custom";
-        const customMemberIds = formData.getAll("customMemberIds") as string[];
+      const data = getPageData();
+      const formData = new FormData(form);
+      const channelId = hiddenChannelId.value;
+      const language = formData.get("language") as string;
+      const memberType = formData.get("memberType") as
+        | "vspo_jp"
+        | "vspo_en"
+        | "all"
+        | "custom";
+      const customMemberIds = formData.getAll("customMemberIds") as string[];
 
-        const saveBtn =
-          dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
-        if (saveBtn) {
-          saveBtn.disabled = true;
-          saveBtn.classList.add("opacity-50");
-        }
+      const saveBtn =
+        dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.classList.add("opacity-50");
+      }
 
-        const { error } = await actions.updateChannel({
-          guildId: data.guildId,
-          channelId,
-          language,
-          memberType,
-          customMemberIds: memberType === "custom" ? customMemberIds : undefined,
-        });
+      const { error } = await actions.updateChannel({
+        guildId: data.guildId,
+        channelId,
+        language,
+        memberType,
+        customMemberIds: memberType === "custom" ? customMemberIds : undefined,
+      });
 
-        if (saveBtn) {
-          saveBtn.disabled = false;
-          saveBtn.classList.remove("opacity-50");
-        }
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.classList.remove("opacity-50");
+      }
 
-        if (error) {
-          showToast(error.message, "error");
-          return;
-        }
+      if (error) {
+        showToast(error.message, "error");
+        return;
+      }
 
-        closeDialog(dialog);
-        showToast(data.i18n["toast.updateSuccess"] ?? "Updated.");
+      closeDialog(dialog);
+      showToast(data.i18n["toast.updateSuccess"] ?? "Updated.");
 
-        // Optimistic DOM update
-        const updates = {
-          language,
-          memberType,
-          customMembers:
-            memberType === "custom" ? customMemberIds : undefined,
-        };
-        updateRowCells(channelId, updates, data.i18n);
+      // Optimistic DOM update
+      const updates = {
+        language,
+        memberType,
+        customMembers: memberType === "custom" ? customMemberIds : undefined,
+      };
+      updateRowCells(channelId, updates, data.i18n);
 
-        const updated: PageData = {
-          ...data,
-          channels: data.channels.map((c) =>
-            c.channelId === channelId ? { ...c, ...updates } : c,
-          ),
-        };
-        persistPageData(updated);
-        updateStats(updated);
-      },
-      { signal },
-    );
+      const updated: PageData = {
+        ...data,
+        channels: data.channels.map((c) =>
+          c.channelId === channelId ? { ...c, ...updates } : c,
+        ),
+      };
+      persistPageData(updated);
+      updateStats(updated);
+    },
+    { signal },
+  );
 
   // Reset handler
-  dialog
-    .querySelector("[data-reset-btn]")
-    ?.addEventListener(
-      "click",
-      async () => {
-        if (!hiddenChannelId) return;
+  dialog.querySelector("[data-reset-btn]")?.addEventListener(
+    "click",
+    async () => {
+      if (!hiddenChannelId) return;
 
-        const data = getPageData();
-        const channelId = hiddenChannelId.value;
+      const data = getPageData();
+      const channelId = hiddenChannelId.value;
 
-        const resetBtn =
-          dialog.querySelector<HTMLButtonElement>("[data-reset-btn]");
-        if (resetBtn) {
-          resetBtn.disabled = true;
-          resetBtn.classList.add("opacity-50");
-        }
+      const resetBtn =
+        dialog.querySelector<HTMLButtonElement>("[data-reset-btn]");
+      if (resetBtn) {
+        resetBtn.disabled = true;
+        resetBtn.classList.add("opacity-50");
+      }
 
-        const { error } = await actions.resetChannel({
-          guildId: data.guildId,
-          channelId,
-        });
+      const { error } = await actions.resetChannel({
+        guildId: data.guildId,
+        channelId,
+      });
 
-        if (resetBtn) {
-          resetBtn.disabled = false;
-          resetBtn.classList.remove("opacity-50");
-        }
+      if (resetBtn) {
+        resetBtn.disabled = false;
+        resetBtn.classList.remove("opacity-50");
+      }
 
-        if (error) {
-          showToast(error.message, "error");
-          return;
-        }
+      if (error) {
+        showToast(error.message, "error");
+        return;
+      }
 
-        closeDialog(dialog);
-        showToast(data.i18n["toast.resetSuccess"] ?? "Reset to default.");
+      closeDialog(dialog);
+      showToast(data.i18n["toast.resetSuccess"] ?? "Reset to default.");
 
-        // Optimistic DOM update
-        const defaults = {
-          language: "default",
-          memberType: "all",
-          customMembers: [] as string[],
-        };
-        updateRowCells(channelId, defaults, data.i18n);
+      // Optimistic DOM update
+      const defaults = {
+        language: "default",
+        memberType: "all",
+        customMembers: [] as string[],
+      };
+      updateRowCells(channelId, defaults, data.i18n);
 
-        const updated: PageData = {
-          ...data,
-          channels: data.channels.map((c) =>
-            c.channelId === channelId ? { ...c, ...defaults } : c,
-          ),
-        };
-        persistPageData(updated);
-        updateStats(updated);
-      },
-      { signal },
-    );
+      const updated: PageData = {
+        ...data,
+        channels: data.channels.map((c) =>
+          c.channelId === channelId ? { ...c, ...defaults } : c,
+        ),
+      };
+      persistPageData(updated);
+      updateStats(updated);
+    },
+    { signal },
+  );
 };
 
 const populateEditForm = (
@@ -704,7 +698,9 @@ const populateEditForm = (
   );
   if (hiddenId) hiddenId.value = channel.channelId;
 
-  const langSelect = dialog.querySelector("#language") as HTMLSelectElement | null;
+  const langSelect = dialog.querySelector(
+    "#language",
+  ) as HTMLSelectElement | null;
   if (langSelect) langSelect.value = channel.language;
 
   const radios = dialog.querySelectorAll<HTMLInputElement>(
