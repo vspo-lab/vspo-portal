@@ -70,7 +70,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
 
           {/* Stats — digit roll counter */}
           {stats && (
-            <div class="hero-stats mb-10 flex items-center justify-center gap-6">
+            <div class="hero-stats mb-10 flex items-center justify-center gap-6" data-visible>
               <div class="text-center">
                 <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
                   <DigitRoll value={stats.guildCount} />

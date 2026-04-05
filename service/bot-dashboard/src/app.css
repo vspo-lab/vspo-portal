@@ -224,10 +224,16 @@ dialog[open] {
   to   { clip-path: circle(100% at 50% 50%); }
 }
 
-/* Digit Roll — uses --dh (digit height) CSS variable for responsive sizing */
+/* Digit Roll — uses --dh (digit height) CSS variable for responsive sizing
+ * Rolls from "9" position to the target digit (ref: 15-number-counter.html) */
 @keyframes digit-roll {
   from { transform: translateY(calc(var(--dh) * -9)); }
   to   { transform: translateY(calc(var(--dh) * var(--digit) * -1)); }
+}
+
+/* No-JS fallback — show target digit immediately */
+.digit-strip {
+  transform: translateY(calc(var(--dh, 40px) * var(--digit, 0) * -1));
 }
 
 /*
@@ -251,24 +257,15 @@ dialog[open] {
   animation: fade-in-up 600ms var(--ease-standard) var(--reveal-delay, 0ms) both;
 }
 
-/* Clip center reveal (with @supports fallback) */
-@supports (clip-path: inset(0 0)) {
-  [data-scroll-reveal="clip-center"] {
-    clip-path: inset(0 50%);
-  }
-  [data-scroll-reveal="clip-center"][data-visible] {
-    animation: clip-center 800ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
-  }
+/* Clip center reveal — no initial clip-path so IntersectionObserver works reliably.
+ * The animation's fill-mode:both applies the from-keyframe instantly on trigger. */
+[data-scroll-reveal="clip-center"][data-visible] {
+  animation: clip-center 800ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
 }
 
-/* Clip circle reveal (with @supports fallback) */
-@supports (clip-path: circle(50%)) {
-  [data-scroll-reveal="clip-circle"] {
-    clip-path: circle(0% at 50% 50%);
-  }
-  [data-scroll-reveal="clip-circle"][data-visible] {
-    animation: clip-circle 900ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
-  }
+/* Clip circle reveal */
+[data-scroll-reveal="clip-circle"][data-visible] {
+  animation: clip-circle 900ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
 }
 
 /*
@@ -366,7 +363,6 @@ dialog[open] {
 .digit-strip {
   display: flex;
   flex-direction: column;
-  transform: translateY(calc(var(--dh) * -9));
 }
 .digit-strip span {
   width: calc(var(--dh) * 0.8);
@@ -388,9 +384,9 @@ dialog[open] {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
 }
 [data-visible] .digit-sep {
+  opacity: 0;
   animation: fade-in-up 400ms var(--ease-standard) 0.8s both;
 }
 
@@ -441,6 +437,24 @@ dialog[open] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* Show content immediately when motion is reduced */
+  [data-scroll-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .stagger-text span {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hero-badge, .hero-description, .hero-stats, .hero-cta {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .line-reveal { opacity: 1 !important; }
+  .line-reveal-inner::before,
+  .line-reveal-inner::after { display: none !important; }
 }
 
 /* ===== Light mode (default) ===== */

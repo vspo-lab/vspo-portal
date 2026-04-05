@@ -10,7 +10,7 @@
   "description": "",
   "keywords": [],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup && tsc --emitDeclarationOnly"
   },
   "author": "sugar-cat7",
   "license": "MIT",

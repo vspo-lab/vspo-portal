@@ -10,12 +10,13 @@
   "description": "",
   "keywords": [],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && tsc --emitDeclarationOnly",
     "generate-openapi": "orval"
   },
   "author": "sugar-cat7",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "catalog:",
     "orval": "^8.0.0",
     "tsup": "catalog:",
     "typescript": "catalog:"

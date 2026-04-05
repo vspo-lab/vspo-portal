@@ -51,21 +51,38 @@ const Tag = tag;
     );
     if (elements.length === 0) return;
 
+    const reveal = (el: Element): void => {
+      el.setAttribute("data-visible", "");
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            entry.target.setAttribute("data-visible", "");
+            reveal(entry.target);
             observer.unobserve(entry.target);
           }
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+      { threshold: 0.05, rootMargin: "0px 0px -40px 0px" }
     );
 
     for (const el of elements) {
       observer.observe(el);
     }
+
+    // Fallback: reveal elements already in viewport on next frame
+    // (IntersectionObserver may miss elements visible at page load)
+    requestAnimationFrame(() => {
+      for (const el of elements) {
+        if (el.hasAttribute("data-visible")) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          reveal(el);
+          observer.unobserve(el);
+        }
+      }
+    });
   }
 
   // Initial load
