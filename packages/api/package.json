@@ -10,7 +10,7 @@
   "description": "",
   "keywords": [],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && tsc --emitDeclarationOnly",
     "generate-openapi": "orval"
   },
   "author": "sugar-cat7",
