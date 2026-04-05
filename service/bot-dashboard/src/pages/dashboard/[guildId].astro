@@ -138,7 +138,7 @@ const pageData = {
   </div>
 
   {/* Page data for client-side scripts */}
-  <script type="application/json" id="channel-data" set:html={JSON.stringify(pageData)} />
+  <script type="application/json" id="channel-data" set:html={JSON.stringify(pageData).replace(/</g, "\\u003c")} />
 </Dashboard>
 
 <script>

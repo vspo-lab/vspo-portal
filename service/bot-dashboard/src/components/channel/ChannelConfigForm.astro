@@ -42,7 +42,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       </button>
     </div>
 
-    <form id="update-channel-form" class="space-y-4">
+    <form id="update-channel-form" class="space-y-4" onsubmit="event.preventDefault()">
       <input type="hidden" name="guildId" value={guildId} />
       <input type="hidden" name="channelId" value="" />
 

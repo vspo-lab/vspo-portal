@@ -51,6 +51,15 @@ const persistPageData = (data: PageData) => {
   if (el) el.textContent = JSON.stringify(data);
 };
 
+/* ---------- Helpers ---------- */
+
+const escapeHtml = (str: string): string =>
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
 /* ---------- Toast ---------- */
 
 const showToast = (message: string, type: "success" | "error" = "success") => {
@@ -65,16 +74,35 @@ const showToast = (message: string, type: "success" | "error" = "success") => {
     type === "success" ? "bg-vspo-purple/10" : "bg-destructive/10"
   }`;
 
-  const icon =
-    type === "success"
-      ? `<svg class="h-5 w-5 shrink-0 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
-      : `<svg class="h-5 w-5 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>`;
+  const iconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  iconSvg.setAttribute("class", `h-5 w-5 shrink-0 ${type === "success" ? "text-vspo-purple" : "text-destructive"}`);
+  iconSvg.setAttribute("fill", "none");
+  iconSvg.setAttribute("stroke", "currentColor");
+  iconSvg.setAttribute("viewBox", "0 0 24 24");
+  iconSvg.setAttribute("aria-hidden", "true");
+  const iconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  iconPath.setAttribute("stroke-linecap", "round");
+  iconPath.setAttribute("stroke-linejoin", "round");
+  iconPath.setAttribute("stroke-width", "2");
+  iconPath.setAttribute("d", type === "success"
+    ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+    : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z");
+  iconSvg.appendChild(iconPath);
 
-  toast.innerHTML = `${icon}<span class="flex-1">${message}</span><button type="button" class="shrink-0 rounded-lg p-2 text-on-surface-variant hover:text-on-surface cursor-pointer" aria-label="close"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>`;
+  const msgSpan = document.createElement("span");
+  msgSpan.className = "flex-1";
+  msgSpan.textContent = message;
 
-  toast
-    .querySelector("button")
-    ?.addEventListener("click", () => toast.remove());
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "shrink-0 rounded-lg p-2 text-on-surface-variant hover:text-on-surface cursor-pointer";
+  closeBtn.setAttribute("aria-label", "close");
+  closeBtn.innerHTML = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
+  closeBtn.addEventListener("click", () => toast.remove());
+
+  toast.appendChild(iconSvg);
+  toast.appendChild(msgSpan);
+  toast.appendChild(closeBtn);
 
   const alertsContainer = document.querySelector("[data-alerts]");
   if (alertsContainer) {
@@ -103,20 +131,24 @@ const createRowHtml = (
   ch: ChannelConfig,
   i18n: Record<string, string>,
 ): string => {
-  const langLabel = ch.language.toUpperCase();
-  const mtLabel = memberTypeLabel(ch.memberType, i18n);
+  const name = escapeHtml(ch.channelName);
+  const id = escapeHtml(ch.channelId);
+  const langLabel = escapeHtml(ch.language.toUpperCase());
+  const mtLabel = escapeHtml(memberTypeLabel(ch.memberType, i18n));
   const statusActive = ch.enabled;
-  const statusLabel = statusActive
-    ? (i18n["channel.status.active"] ?? "Active")
-    : (i18n["channel.status.paused"] ?? "Paused");
-  const editLabel = i18n["channel.edit"] ?? "Edit";
-  const deleteLabel = i18n["channel.delete"] ?? "Delete";
+  const statusLabel = escapeHtml(
+    statusActive
+      ? (i18n["channel.status.active"] ?? "Active")
+      : (i18n["channel.status.paused"] ?? "Paused"),
+  );
+  const editLabel = escapeHtml(i18n["channel.edit"] ?? "Edit");
+  const deleteLabel = escapeHtml(i18n["channel.delete"] ?? "Delete");
 
   const statusHtml = statusActive
     ? `<div class="flex items-center gap-2"><div class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-success shadow-sm shadow-success/50"></span></div><span class="text-[10px] font-bold uppercase tracking-wider text-success">${statusLabel}</span></div>`
     : `<div class="flex items-center gap-2"><span class="inline-flex h-2 w-2 rounded-full bg-on-surface-variant/40"></span><span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">${statusLabel}</span></div>`;
 
-  return `<td class="px-6 py-4 sm:px-8"><div class="flex items-center gap-3"><div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vspo-purple/10 text-vspo-purple"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg></div><div><p class="text-sm font-semibold text-on-surface">${ch.channelName}</p><p class="text-[10px] text-on-surface-variant/60">${ch.channelId}</p></div></div></td><td class="hidden px-6 py-4 sm:table-cell sm:px-8"><span class="rounded bg-surface-container-highest px-2.5 py-1 text-[10px] font-bold text-on-surface">${langLabel}</span></td><td class="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">${mtLabel}</td><td class="hidden px-6 py-4 lg:table-cell sm:px-8">${statusHtml}</td><td class="px-6 py-4 sm:px-8"><div class="flex items-center justify-end gap-1"><button type="button" data-action-edit="${ch.channelId}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50 cursor-pointer" aria-label="${editLabel} #${ch.channelName}"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" data-action-delete="${ch.channelId}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 cursor-pointer" aria-label="${deleteLabel} #${ch.channelName}"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></td>`;
+  return `<td class="px-6 py-4 sm:px-8"><div class="flex items-center gap-3"><div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vspo-purple/10 text-vspo-purple"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg></div><div><p class="text-sm font-semibold text-on-surface">${name}</p><p class="text-[10px] text-on-surface-variant/60">${id}</p></div></div></td><td class="hidden px-6 py-4 sm:table-cell sm:px-8"><span class="rounded bg-surface-container-highest px-2.5 py-1 text-[10px] font-bold text-on-surface">${langLabel}</span></td><td class="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">${mtLabel}</td><td class="hidden px-6 py-4 lg:table-cell sm:px-8">${statusHtml}</td><td class="px-6 py-4 sm:px-8"><div class="flex items-center justify-end gap-1"><button type="button" data-action-edit="${id}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50 cursor-pointer" aria-label="${editLabel} #${name}"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" data-action-delete="${id}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 cursor-pointer" aria-label="${deleteLabel} #${name}"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></td>`;
 };
 
 const restripeRows = () => {
@@ -434,7 +466,29 @@ const initAdd = (signal: AbortSignal) => {
       btn.setAttribute("aria-selected", "false");
       btn.className =
         "flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30 cursor-pointer";
-      btn.innerHTML = `<span class="flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg><span>${ch.name}</span></span><span class="text-xs font-medium text-vspo-purple">${data.i18n["channel.add.submit"] ?? "Add"}</span>`;
+      const content = document.createElement("span");
+      content.className = "flex items-center gap-2";
+      const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      icon.setAttribute("class", "h-4 w-4 shrink-0 text-on-surface-variant");
+      icon.setAttribute("fill", "none");
+      icon.setAttribute("stroke", "currentColor");
+      icon.setAttribute("viewBox", "0 0 24 24");
+      icon.setAttribute("aria-hidden", "true");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("stroke-linejoin", "round");
+      path.setAttribute("stroke-width", "2");
+      path.setAttribute("d", "M7 20l4-16m2 16l4-16M6 9h14M4 15h14");
+      icon.appendChild(path);
+      const channelName = document.createElement("span");
+      channelName.textContent = ch.name;
+      content.appendChild(icon);
+      content.appendChild(channelName);
+      const addLabel = document.createElement("span");
+      addLabel.className = "text-xs font-medium text-vspo-purple";
+      addLabel.textContent = data.i18n["channel.add.submit"] ?? "Add";
+      btn.appendChild(content);
+      btn.appendChild(addLabel);
 
       btn.addEventListener("click", async () => {
         btn.disabled = true;
@@ -499,7 +553,29 @@ const initAdd = (signal: AbortSignal) => {
       div.setAttribute("data-channel-name", ch.name.toLowerCase());
       div.className =
         "flex items-center justify-between rounded-lg px-3 py-3 text-sm text-on-surface-variant/50";
-      div.innerHTML = `<span class="flex items-center gap-2"><svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg><span>${ch.name}</span></span><span class="text-xs">${data.i18n["channel.add.registered"] ?? "Registered"}</span>`;
+      const regContent = document.createElement("span");
+      regContent.className = "flex items-center gap-2";
+      const regIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      regIcon.setAttribute("class", "h-4 w-4 shrink-0");
+      regIcon.setAttribute("fill", "none");
+      regIcon.setAttribute("stroke", "currentColor");
+      regIcon.setAttribute("viewBox", "0 0 24 24");
+      regIcon.setAttribute("aria-hidden", "true");
+      const regPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      regPath.setAttribute("stroke-linecap", "round");
+      regPath.setAttribute("stroke-linejoin", "round");
+      regPath.setAttribute("stroke-width", "2");
+      regPath.setAttribute("d", "M7 20l4-16m2 16l4-16M6 9h14M4 15h14");
+      regIcon.appendChild(regPath);
+      const regName = document.createElement("span");
+      regName.textContent = ch.name;
+      regContent.appendChild(regIcon);
+      regContent.appendChild(regName);
+      const regLabel = document.createElement("span");
+      regLabel.className = "text-xs";
+      regLabel.textContent = data.i18n["channel.add.registered"] ?? "Registered";
+      div.appendChild(regContent);
+      div.appendChild(regLabel);
       listContainer.appendChild(div);
     }
   };
