@@ -43,29 +43,34 @@ const meta: Meta<GuildCardArgs> = {
          </div>`
       : `<span class="mt-1 inline-block text-xs text-on-surface-variant">Not installed</span>`;
 
-    const channelSummary =
-      args.botInstalled && args.channelTotalCount > 0
-        ? `<div class="mb-4">
+    const channelSummary = args.botInstalled
+      ? `<div class="mb-4 min-h-[2.5rem]">
              <p class="text-xs text-on-surface-variant">${args.channelTotalCount} channels configured</p>
              ${
                args.channelPreviewNames.length > 0
                  ? `<div class="mt-1.5 flex flex-wrap gap-1">
-                      ${args.channelPreviewNames.map((n) => `<span class="rounded bg-surface-container-highest px-2 py-0.5 text-xs text-on-surface-variant">#${n}</span>`).join("")}
+                      ${args.channelPreviewNames
+                        .slice(0, 3)
+                        .map(
+                          (n) =>
+                            `<span class="rounded bg-surface-container-highest px-2 py-0.5 text-xs text-on-surface-variant">#${n}</span>`,
+                        )
+                        .join("")}
                     </div>`
                  : ""
              }
            </div>`
-        : "";
+      : "";
 
     const buttonBase =
       "inline-flex items-center justify-center rounded-xl h-9 px-3 text-sm font-medium transition-colors w-full";
     const button = args.botInstalled
-      ? `<a href="/dashboard/${args.guildId}" class="${buttonBase} bg-gradient-to-r from-vspo-purple to-vspo-purple-light font-bold text-white shadow-lg shadow-vspo-purple/20 hover:scale-[1.02] active:scale-95">Manage Settings</a>`
+      ? `<a href="/dashboard/${args.guildId}" class="${buttonBase} bg-primary text-primary-foreground hover:bg-primary/90">Manage Settings</a>`
       : `<a href="#" class="${buttonBase} border border-border bg-transparent hover:bg-accent hover:text-accent-foreground">Add Bot</a>`;
 
     return `
       <div style="max-width: 360px;">
-        <div class="rounded-2xl p-6 transition-all duration-200 ${cardClasses}">
+        <div class="flex flex-col rounded-2xl p-6 transition-all duration-200 ${cardClasses}">
           <div class="mb-4 flex items-center gap-3">
             ${avatarFallback(args.guildName, src)}
             <div class="min-w-0 flex-1">
@@ -74,7 +79,7 @@ const meta: Meta<GuildCardArgs> = {
             </div>
           </div>
           ${channelSummary}
-          <div>${button}</div>
+          <div class="mt-auto">${button}</div>
         </div>
       </div>
     `;

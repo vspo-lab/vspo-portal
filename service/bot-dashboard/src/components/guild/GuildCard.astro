@@ -16,7 +16,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
 ---
 
 <div class:list={[
-  "rounded-2xl p-6 transition-all duration-200",
+  "flex flex-col rounded-2xl p-6 transition-all duration-200",
   guild.botInstalled
     ? "bg-surface-container hover:bg-surface-container-high"
     : "bg-surface-container-low opacity-70",
@@ -45,16 +45,16 @@ const iconUrl = GuildSummary.iconUrl(guild);
     </div>
   </div>
 
-  {guild.botInstalled && guild.channelSummary && (
-    <div class="mb-4">
+  {guild.botInstalled && (
+    <div class="mb-4 min-h-[2.5rem]">
       <p class="text-xs text-on-surface-variant">
         {t(locale, "dashboard.channelsCount", {
-          total: String(guild.channelSummary.totalCount),
+          total: String(guild.channelSummary?.totalCount ?? 0),
         })}
       </p>
-      {guild.channelSummary.previewNames.length > 0 && (
+      {guild.channelSummary && guild.channelSummary.previewNames.length > 0 && (
         <div class="mt-1.5 flex flex-wrap gap-1">
-          {guild.channelSummary.previewNames.map((name) => (
+          {guild.channelSummary.previewNames.slice(0, 3).map((name) => (
             <span class="rounded bg-surface-container-highest px-2 py-0.5 text-xs text-on-surface-variant">
               #{name}
             </span>
@@ -64,7 +64,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
     </div>
   )}
 
-  <div>
+  <div class="mt-auto">
     {
       guild.botInstalled ? (
         <Button
@@ -72,7 +72,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
           href={`/dashboard/${guild.id}`}
           variant="default"
           size="sm"
-          class="w-full rounded-xl bg-gradient-to-r from-vspo-purple to-vspo-purple-light font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.02] active:scale-95"
+          class="w-full rounded-xl"
         >
           {t(locale, "guild.manageSettings")}
         </Button>
