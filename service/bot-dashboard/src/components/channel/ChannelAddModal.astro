@@ -1,24 +1,17 @@
 ---
-import { actions } from "astro:actions";
 import Button from "~/components/ui/Button.astro";
 import { t } from "~/i18n/dict";
 
 interface Props {
   guildId: string;
-  registeredChannelIds: ReadonlySet<string>;
-  availableChannels: { id: string; name: string }[];
 }
 
-const { guildId, registeredChannelIds, availableChannels } = Astro.props;
+const { guildId } = Astro.props;
 const { locale } = Astro.locals;
-const unregistered = availableChannels.filter(
-  (ch) => !registeredChannelIds.has(ch.id),
-);
 ---
 
 <dialog
-  open
-  class="animate-backdrop-in fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  class="fixed inset-0 z-50 m-0 flex h-full w-full items-center justify-center bg-black/60 backdrop:bg-transparent"
   id="add-channel-modal"
   aria-labelledby="add-channel-heading"
   aria-modal="true"
@@ -32,9 +25,9 @@ const unregistered = availableChannels.filter(
       </h2>
       <button
         type="button"
+        data-modal-close
         class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
         aria-label={t(locale, "channelConfig.close")}
-        data-close-href={`/dashboard/${guildId}`}
       >
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -53,100 +46,29 @@ const unregistered = availableChannels.filter(
       />
     </div>
 
-    <div class="max-h-64 space-y-1 overflow-y-auto" role="listbox" aria-label={t(locale, "channel.add")}>
-      {unregistered.length === 0 && (
-        <p class="py-8 text-center text-sm text-on-surface-variant">
-          {t(locale, "channel.add.empty")}
-        </p>
-      )}
-      <p class="hidden py-8 text-center text-sm text-on-surface-variant" data-search-empty>
-        {t(locale, "channel.add.empty")}
-      </p>
-      {unregistered.map((ch) => (
-        <form method="post" action={actions.addChannel} data-channel-item>
-          <input type="hidden" name="guildId" value={guildId} />
-          <input type="hidden" name="channelId" value={ch.id} />
-          <button
-            type="submit"
-            role="option"
-            aria-selected="false"
-            class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30"
-            data-channel-name={ch.name.toLowerCase()}
-          >
-            <span class="flex items-center gap-2">
-              <svg class="h-4 w-4 shrink-0 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-              </svg>
-              <span>{ch.name}</span>
-            </span>
-            <span class="text-xs font-medium text-vspo-purple">{t(locale, "channel.add.submit")}</span>
-          </button>
-        </form>
-      ))}
-      {availableChannels
-        .filter((ch) => registeredChannelIds.has(ch.id))
-        .map((ch) => (
-          <div
-            class="flex items-center justify-between rounded-lg px-3 py-3 text-sm text-on-surface-variant/50"
-            data-channel-item
-            data-channel-name={ch.name.toLowerCase()}
-          >
-            <span class="flex items-center gap-2">
-              <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-              </svg>
-              <span>{ch.name}</span>
-            </span>
-            <span class="text-xs">{t(locale, "channel.add.registered")}</span>
-          </div>
-        ))}
+    {/* Loading state */}
+    <div class="hidden py-8 text-center" data-loading>
+      <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-vspo-purple border-t-transparent"></div>
+    </div>
+
+    {/* No channels state */}
+    <p class="hidden py-8 text-center text-sm text-on-surface-variant" data-no-channels>
+      {t(locale, "channel.add.empty")}
+    </p>
+
+    {/* Search empty state */}
+    <p class="hidden py-8 text-center text-sm text-on-surface-variant" data-search-empty>
+      {t(locale, "channel.add.empty")}
+    </p>
+
+    {/* Channel list - populated by JS */}
+    <div class="max-h-64 space-y-1 overflow-y-auto" role="listbox" aria-label={t(locale, "channel.add")} data-channel-list>
     </div>
 
     <div class="mt-4 flex justify-end">
-      <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
+      <Button as="button" type="button" variant="ghost" data-modal-cancel>
         {t(locale, "channel.add.cancel")}
       </Button>
     </div>
   </div>
 </dialog>
-
-<script>
-  import { initModalTrap } from "~/components/ui/modal-trap";
-  const dialog = document.getElementById("add-channel-modal");
-  if (dialog) {
-    const closeBtn = dialog.querySelector<HTMLButtonElement>("button[data-close-href]");
-    const closeHref = closeBtn?.dataset.closeHref;
-    const searchInput = dialog.querySelector<HTMLInputElement>("[data-search-input]");
-    const items = dialog.querySelectorAll("[data-channel-item]");
-
-    const navigateClose = () => {
-      if (closeHref) window.location.href = closeHref;
-    };
-
-    closeBtn?.addEventListener("click", navigateClose);
-
-    // Search filter (debounced)
-    const emptyMsg = dialog.querySelector<HTMLElement>("[data-search-empty]");
-    let searchTimer: ReturnType<typeof setTimeout> | undefined;
-    searchInput?.addEventListener("input", () => {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => {
-        const query = searchInput.value.toLowerCase();
-        let visibleCount = 0;
-        for (const item of items) {
-          const el = item as HTMLElement;
-          const name = el.dataset.channelName ?? el.querySelector("[data-channel-name]")?.getAttribute("data-channel-name") ?? "";
-          const show = name.includes(query);
-          el.style.display = show ? "" : "none";
-          if (show) visibleCount++;
-        }
-        if (emptyMsg) {
-          emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
-        }
-      }, 100);
-    });
-
-    // Focus management
-    initModalTrap(dialog, navigateClose);
-  }
-</script>

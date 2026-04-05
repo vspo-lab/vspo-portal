@@ -1,35 +1,26 @@
 ---
-import { actions } from "astro:actions";
 import Button from "~/components/ui/Button.astro";
-import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { MemberType } from "~/features/channel/domain/member-type";
 import { Creator, type CreatorType } from "~/features/shared/domain/creator";
 import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/dict";
 
 interface Props {
-  channel: ChannelConfigType;
   creators: CreatorType[];
   guildId: string;
 }
 
-const { channel, creators, guildId } = Astro.props;
+const { creators, guildId } = Astro.props;
 const { locale } = Astro.locals;
 const memberTypeOptions = MemberType.schema.options.map((value) => ({
   value,
   label: t(locale, memberTypeKey(value)),
 }));
-const showCustomMembers = MemberType.requiresCustomSelection(
-  channel.memberType,
-);
 const jpCreators = Creator.filterByType(creators, "vspo_jp");
 const enCreators = Creator.filterByType(creators, "vspo_en");
-const customMemberSet = new Set(channel.customMembers ?? []);
-const selectedCount = customMemberSet.size;
 ---
 
 <dialog
-  open
-  class="animate-backdrop-in fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+  class="fixed inset-0 z-50 m-0 flex h-full w-full items-center justify-center bg-black/60 backdrop:bg-transparent"
   id="config-modal"
   aria-labelledby="config-modal-heading"
   aria-modal="true"
@@ -38,12 +29,12 @@ const selectedCount = customMemberSet.size;
     class="animate-modal-in glass mx-2 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6"
   >
     <div class="mb-4 flex items-center justify-between">
-      <h2 id="config-modal-heading" class="font-heading text-lg font-bold text-on-surface">{t(locale, "channelConfig.title", { channelName: channel.channelName })}</h2>
+      <h2 id="config-modal-heading" data-config-heading class="font-heading text-lg font-bold text-on-surface"></h2>
       <button
         type="button"
+        data-modal-close
         class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
         aria-label={t(locale, "channelConfig.close")}
-        data-close-href={`/dashboard/${guildId}`}
       >
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -51,9 +42,9 @@ const selectedCount = customMemberSet.size;
       </button>
     </div>
 
-    <form id="update-channel-form" method="post" action={actions.updateChannel} class="space-y-4">
+    <form id="update-channel-form" class="space-y-4" onsubmit="event.preventDefault()">
       <input type="hidden" name="guildId" value={guildId} />
-      <input type="hidden" name="channelId" value={channel.channelId} />
+      <input type="hidden" name="channelId" value="" />
 
       <div class="space-y-2">
         <label for="language" class="text-sm font-medium">{t(locale, "channelConfig.language")}</label>
@@ -63,7 +54,7 @@ const selectedCount = customMemberSet.size;
           class="w-full rounded-md border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm text-on-surface"
         >
           {["ja", "en", "fr", "de", "es", "cn", "tw", "ko", "default"].map((lang) => (
-            <option value={lang} selected={channel.language === lang}>
+            <option value={lang}>
               {t(locale, languageDisplayKey(lang))}
             </option>
           ))}
@@ -76,19 +67,13 @@ const selectedCount = customMemberSet.size;
           {
             memberTypeOptions.map((opt) => (
               <label
-                class:list={[
-                  "flex cursor-pointer items-start gap-2 rounded-lg p-2 transition-all",
-                  channel.memberType === opt.value
-                    ? "bg-vspo-purple/10 ring-1 ring-vspo-purple/30"
-                    : "hover:bg-surface-container-highest/50",
-                ]}
+                class="flex cursor-pointer items-start gap-2 rounded-lg p-2 transition-all hover:bg-surface-container-highest/50"
                 data-radio-label
               >
                 <input
                   type="radio"
                   name="memberType"
                   value={opt.value}
-                  checked={channel.memberType === opt.value}
                   class="mt-0.5 accent-vspo-purple"
                 />
                 <div>
@@ -102,20 +87,18 @@ const selectedCount = customMemberSet.size;
       </fieldset>
 
       <div
-        class:list={["space-y-3 overflow-hidden transition-all duration-200", showCustomMembers ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"]}
+        class="max-h-0 opacity-0 space-y-3 overflow-hidden transition-all duration-200"
         data-custom-members
-        aria-hidden={!showCustomMembers}
+        aria-hidden="true"
       >
         <div class="flex items-center justify-between">
           <span class="text-sm font-medium">{t(locale, "channelConfig.customMembers")}</span>
           <span
             class="rounded-full bg-vspo-purple/10 px-2.5 py-0.5 text-xs font-medium text-vspo-purple"
             data-selected-count
-            data-template={t(locale, "channelConfig.members.selected", { count: "{count}" })}
             aria-live="polite"
             aria-atomic="true"
           >
-            {t(locale, "channelConfig.members.selected", { count: String(selectedCount) })}
           </span>
         </div>
 
@@ -155,12 +138,7 @@ const selectedCount = customMemberSet.size;
               <div class="space-y-0.5">
                 {jpCreators.map((creator) => (
                   <label
-                    class:list={[
-                      "flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all",
-                      customMemberSet.has(creator.id)
-                        ? "bg-vspo-purple/10 ring-1 ring-vspo-purple/20"
-                        : "hover:bg-surface-container-highest/40",
-                    ]}
+                    class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all hover:bg-surface-container-highest/40"
                     data-member-item
                     data-member-name={creator.name.toLowerCase()}
                     data-member-group-item="vspo_jp"
@@ -169,7 +147,6 @@ const selectedCount = customMemberSet.size;
                       type="checkbox"
                       name="customMemberIds"
                       value={creator.id}
-                      checked={customMemberSet.has(creator.id)}
                       class="shrink-0 accent-vspo-purple"
                       data-member-checkbox
                     />
@@ -212,12 +189,7 @@ const selectedCount = customMemberSet.size;
               <div class="space-y-0.5">
                 {enCreators.map((creator) => (
                   <label
-                    class:list={[
-                      "flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all",
-                      customMemberSet.has(creator.id)
-                        ? "bg-vspo-purple/10 ring-1 ring-vspo-purple/20"
-                        : "hover:bg-surface-container-highest/40",
-                    ]}
+                    class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all hover:bg-surface-container-highest/40"
                     data-member-item
                     data-member-name={creator.name.toLowerCase()}
                     data-member-group-item="vspo_en"
@@ -226,7 +198,6 @@ const selectedCount = customMemberSet.size;
                       type="checkbox"
                       name="customMemberIds"
                       value={creator.id}
-                      checked={customMemberSet.has(creator.id)}
                       class="shrink-0 accent-vspo-purple"
                       data-member-checkbox
                     />
@@ -258,45 +229,40 @@ const selectedCount = customMemberSet.size;
 
     </form>
     <div class="flex justify-end gap-2 pt-2">
-      <form method="post" action={actions.resetChannel} class="mr-auto">
-        <input type="hidden" name="guildId" value={guildId} />
-        <input type="hidden" name="channelId" value={channel.channelId} />
-        <Button type="submit" variant="ghost">
-          {t(locale, "channelConfig.reset")}
-        </Button>
-      </form>
-      <Button as="a" href={`/dashboard/${guildId}`} variant="ghost">
+      <Button as="button" type="button" variant="ghost" class="mr-auto cursor-pointer" data-reset-btn>
+        {t(locale, "channelConfig.reset")}
+      </Button>
+      <Button as="button" type="button" variant="ghost" data-modal-cancel>
         {t(locale, "channelConfig.cancel")}
       </Button>
-      <Button type="submit" form="update-channel-form" variant="discord" data-save-btn>{t(locale, "channelConfig.save")}</Button>
+      <Button as="button" type="button" variant="discord" data-save-btn>{t(locale, "channelConfig.save")}</Button>
     </div>
   </div>
 </dialog>
 
 <script>
-  import { initModalTrap } from "~/components/ui/modal-trap";
-  const dialog = document.getElementById("config-modal");
-  if (dialog) {
-    const closeBtn = dialog.querySelector<HTMLButtonElement>('button[data-close-href]');
-    const closeHref = closeBtn?.dataset.closeHref;
+  /**
+   * Edit modal interactive controls: radio highlights, custom member toggles, search filter.
+   * Uses AbortController to prevent duplicate listeners on view transition swaps.
+   */
+  let configFormAbort: AbortController | null = null;
 
-    const navigateClose = () => {
-      if (closeHref) window.location.href = closeHref;
-    };
+  const initConfigFormControls = () => {
+    if (configFormAbort) configFormAbort.abort();
+    configFormAbort = new AbortController();
+    const { signal } = configFormAbort;
 
-    closeBtn?.addEventListener("click", navigateClose);
+    const dialog = document.getElementById("config-modal");
+    if (!dialog) return;
 
-    // --- Custom member selection logic ---
     const customSection = dialog.querySelector<HTMLElement>("[data-custom-members]");
     const searchInput = dialog.querySelector<HTMLInputElement>("[data-member-search]");
     const memberItems = dialog.querySelectorAll<HTMLElement>("[data-member-item]");
     const checkboxes = dialog.querySelectorAll<HTMLInputElement>("[data-member-checkbox]");
-    const countEl = dialog.querySelector<HTMLElement>("[data-selected-count]");
     const emptyMsg = dialog.querySelector<HTMLElement>("[data-member-search-empty]");
     const saveBtn = dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
     const memberTypeRadios = dialog.querySelectorAll<HTMLInputElement>('input[name="memberType"]');
 
-    /** Toggle accent highlight on an element (radio labels and member rows). */
     const toggleHighlight = (
       el: HTMLElement,
       active: boolean,
@@ -312,14 +278,15 @@ const selectedCount = customMemberSet.size;
       }
     };
 
-    /** Update the "X selected" count display and save button state. */
     const updateSelectedState = () => {
+      const countEl = dialog.querySelector<HTMLElement>("[data-selected-count]");
       if (!countEl) return;
+      const data = document.getElementById("channel-data");
+      const i18n = data ? JSON.parse(data.textContent ?? "{}").i18n ?? {} : {};
       const count = dialog.querySelectorAll<HTMLInputElement>("[data-member-checkbox]:checked").length;
-      const template = countEl.dataset.template ?? "{count}";
+      const template = i18n["channelConfig.members.selected"] ?? "{count} selected";
       countEl.textContent = template.replace("{count}", String(count));
 
-      // Disable save when custom type is selected but 0 members chosen
       const isCustom = dialog.querySelector<HTMLInputElement>('input[name="memberType"][value="custom"]')?.checked;
       if (saveBtn && isCustom) {
         saveBtn.disabled = count === 0;
@@ -328,7 +295,6 @@ const selectedCount = customMemberSet.size;
       }
     };
 
-    /** Update the toggle button label based on group checkbox state. */
     const updateToggleLabel = (groupName: string) => {
       const toggleBtn = dialog.querySelector<HTMLButtonElement>(`[data-toggle-group="${groupName}"]`);
       if (!toggleBtn) return;
@@ -341,32 +307,31 @@ const selectedCount = customMemberSet.size;
         : (toggleBtn.dataset.labelSelect ?? "Select All");
     };
 
-    // Search filtering (debounced to reduce layout thrash)
+    // Search filtering
     let searchTimer: ReturnType<typeof setTimeout> | undefined;
     searchInput?.addEventListener("input", () => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
-      const query = searchInput.value.toLowerCase();
-      let visibleCount = 0;
-      for (const item of memberItems) {
-        const name = item.dataset.memberName ?? "";
-        const show = name.includes(query);
-        item.style.display = show ? "" : "none";
-        if (show) visibleCount++;
-      }
-      if (emptyMsg) {
-        emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
-      }
-      // Show/hide group headers when all items in group are hidden
-      for (const groupName of ["vspo_jp", "vspo_en"]) {
-        const group = dialog.querySelector<HTMLElement>(`[data-member-group="${groupName}"]`);
-        if (!group) continue;
-        const groupItems = group.querySelectorAll<HTMLElement>("[data-member-item]");
-        const anyVisible = Array.from(groupItems).some((el) => el.style.display !== "none");
-        group.style.display = anyVisible ? "" : "none";
-      }
+        const query = searchInput.value.toLowerCase();
+        let visibleCount = 0;
+        for (const item of memberItems) {
+          const name = item.dataset.memberName ?? "";
+          const show = name.includes(query);
+          item.style.display = show ? "" : "none";
+          if (show) visibleCount++;
+        }
+        if (emptyMsg) {
+          emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
+        }
+        for (const groupName of ["vspo_jp", "vspo_en"]) {
+          const group = dialog.querySelector<HTMLElement>(`[data-member-group="${groupName}"]`);
+          if (!group) continue;
+          const groupItems = group.querySelectorAll<HTMLElement>("[data-member-item]");
+          const anyVisible = Array.from(groupItems).some((el) => el.style.display !== "none");
+          group.style.display = anyVisible ? "" : "none";
+        }
       }, 100);
-    });
+    }, { signal });
 
     // Select All / Deselect All per group
     for (const toggleBtn of dialog.querySelectorAll<HTMLButtonElement>("[data-toggle-group]")) {
@@ -384,7 +349,7 @@ const selectedCount = customMemberSet.size;
         }
         updateToggleLabel(groupName);
         updateSelectedState();
-      });
+      }, { signal });
     }
 
     // Individual checkbox changes
@@ -395,10 +360,9 @@ const selectedCount = customMemberSet.size;
         const groupName = cb.closest<HTMLElement>("[data-member-group-item]")?.dataset.memberGroupItem;
         if (groupName) updateToggleLabel(groupName);
         updateSelectedState();
-      });
+      }, { signal });
     }
 
-    /** Update radio label highlights so only the selected one is accented. */
     const updateRadioHighlights = () => {
       for (const r of memberTypeRadios) {
         const label = r.closest<HTMLElement>("[data-radio-label]");
@@ -406,7 +370,6 @@ const selectedCount = customMemberSet.size;
       }
     };
 
-    /** Toggle visibility of the custom members section with animation. */
     const toggleCustomSection = (show: boolean) => {
       if (!customSection) return;
       customSection.setAttribute("aria-hidden", String(!show));
@@ -419,7 +382,6 @@ const selectedCount = customMemberSet.size;
       }
     };
 
-    // Re-evaluate save button state and custom section when member type changes
     for (const radio of memberTypeRadios) {
       radio.addEventListener("change", () => {
         updateRadioHighlights();
@@ -432,18 +394,10 @@ const selectedCount = customMemberSet.size;
             updateSelectedState();
           }
         }
-      });
+      }, { signal });
     }
+  };
 
-    // Initialize toggle labels and save button state
-    if (customSection) {
-      for (const groupName of ["vspo_jp", "vspo_en"]) {
-        updateToggleLabel(groupName);
-      }
-      updateSelectedState();
-    }
-
-    // --- Focus trap and modal close ---
-    initModalTrap(dialog, navigateClose);
-  }
+  initConfigFormControls();
+  document.addEventListener("astro:after-swap", initConfigFormControls);
 </script>

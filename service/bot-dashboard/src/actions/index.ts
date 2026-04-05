@@ -14,7 +14,7 @@ const requireAuth = (context: { locals: { user: unknown } }) => {
 
 export const server = {
   addChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -38,7 +38,7 @@ export const server = {
   }),
 
   updateChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -70,7 +70,7 @@ export const server = {
   }),
 
   resetChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -95,7 +95,7 @@ export const server = {
   }),
 
   deleteChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
