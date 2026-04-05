@@ -5,8 +5,8 @@ import { z } from "zod";
 import { parseResult } from "~/features/shared/lib/parse";
 
 const isDevMock = () =>
-  (env as unknown as Record<string, unknown>).DEV_MOCK_AUTH === "true" &&
-  import.meta.env.DEV;
+  import.meta.env.DEV &&
+  (env as unknown as Record<string, unknown>).DEV_MOCK_AUTH !== "false";
 
 const DiscordTokenResponseSchema = z.object({
   access_token: z.string(),

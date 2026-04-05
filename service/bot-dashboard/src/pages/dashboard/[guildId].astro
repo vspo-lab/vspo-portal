@@ -160,6 +160,12 @@ const pageData = {
     for (const d of dialogs) (d as HTMLDialogElement).close();
   });
 
+  // Also close dialogs after DOM swap to prevent stale top-layer state
+  document.addEventListener("astro:after-swap", () => {
+    const dialogs = document.querySelectorAll("dialog[open]");
+    for (const d of dialogs) (d as HTMLDialogElement).close();
+  });
+
   // Initialize on first load and after every client-side navigation
   document.addEventListener("astro:page-load", () => {
     initChannelActions();

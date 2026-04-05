@@ -22,7 +22,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const devMockAuth = (env as unknown as Record<string, unknown>).DEV_MOCK_AUTH;
-  if (devMockAuth === "true" && import.meta.env.DEV) {
+  if (import.meta.env.DEV && devMockAuth !== "false") {
     context.locals.user = MOCK_USER;
     context.locals.accessToken = "mock-access-token";
     return next();

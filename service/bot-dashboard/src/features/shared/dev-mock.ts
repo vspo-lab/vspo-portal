@@ -7,11 +7,15 @@ import type { ApplicationService } from "~/types/api";
  * APP_WORKER の RPC が利用不可（ローカル開発）かを判定する。
  * DEV_MOCK_AUTH=true かつ開発モードの場合、または APP_WORKER に RPC メソッドがない場合に true。
  */
-export const isRpcUnavailable = (appWorker: ApplicationService): boolean =>
-  ((env as unknown as Record<string, unknown>).DEV_MOCK_AUTH === "true" &&
-    import.meta.env.DEV) ||
-  !appWorker ||
-  typeof appWorker.newDiscordUsecase !== "function";
+export const isRpcUnavailable = (appWorker: ApplicationService): boolean => {
+  // In dev mode, use mocks by default. Set DEV_MOCK_AUTH=false to use real backend.
+  if (import.meta.env.DEV) {
+    const flag = (env as unknown as Record<string, unknown>).DEV_MOCK_AUTH;
+    return flag !== "false";
+  }
+  if (!appWorker) return true;
+  return typeof appWorker.newDiscordUsecase !== "function";
+};
 
 const DEV_GUILD_ID = "111111111111111111";
 
