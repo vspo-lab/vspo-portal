@@ -1,0 +1,65 @@
+---
+/**
+ * Server-rendered flash message that displays Astro Action results.
+ * Auto-dismisses after 5 seconds via CSS animation.
+ *
+ * @precondition Must be placed in a page that handles Astro Actions
+ */
+interface Props {
+  result?: { data?: { success: boolean }; error?: { message: string } } | undefined;
+  successMessage?: string;
+}
+
+const { result, successMessage } = Astro.props;
+const hasSuccess = result?.data?.success === true;
+const hasError = !!result?.error;
+const message = hasError
+  ? (result?.error?.message ?? "An error occurred")
+  : (successMessage ?? "");
+const type = hasError ? "error" : "success";
+const show = hasSuccess || hasError;
+---
+
+{show && (
+  <div
+    role="status"
+    aria-live="polite"
+    class={`flash-message flex items-center gap-3 rounded-xl p-4 text-sm text-on-surface ${
+      type === "success" ? "bg-vspo-purple/10" : "bg-destructive/10"
+    }`}
+  >
+    {type === "success" ? (
+      <svg
+        class="h-5 w-5 shrink-0 text-vspo-purple"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ) : (
+      <svg
+        class="h-5 w-5 shrink-0 text-destructive"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+      </svg>
+    )}
+    <span class="flex-1">{message}</span>
+  </div>
+)}
+
+<style>
+  .flash-message {
+    animation: flash-fade-out 5s ease-in-out forwards;
+  }
+
+  @keyframes flash-fade-out {
+    0%, 80% { opacity: 1; max-height: 100px; }
+    100% { opacity: 0; max-height: 0; padding: 0; margin: 0; overflow: hidden; }
+  }
+</style>

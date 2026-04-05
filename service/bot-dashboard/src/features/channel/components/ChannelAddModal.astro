@@ -1,0 +1,214 @@
+---
+import { actions } from "astro:actions";
+import Button from "~/features/shared/components/Button.astro";
+import IconButton from "~/features/shared/components/IconButton.astro";
+import { t } from "~/i18n/dict";
+
+interface Props {
+  guildId: string;
+}
+
+const { guildId } = Astro.props;
+const { locale } = Astro.locals;
+---
+
+<dialog
+  class="fixed inset-0 z-50 m-0 flex h-full w-full items-center justify-center bg-black/60 backdrop:bg-transparent"
+  id="add-channel-modal"
+  aria-labelledby="add-channel-heading"
+  aria-modal="true"
+>
+  <div
+    class="animate-modal-in glass mx-2 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6"
+  >
+    <div class="mb-4 flex items-center justify-between">
+      <h2 id="add-channel-heading" class="font-heading text-lg font-bold text-on-surface">
+        {t(locale, "channel.add")}
+      </h2>
+      <IconButton data-modal-close aria-label={t(locale, "channelConfig.close")}>
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </IconButton>
+    </div>
+
+    <div class="mb-4">
+      <label for="channel-search" class="sr-only">{t(locale, "channel.add.search")}</label>
+      <input
+        id="channel-search"
+        type="search"
+        placeholder={t(locale, "channel.add.search")}
+        class="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+        data-search-input
+      />
+    </div>
+
+    <div class="hidden py-8 text-center" data-loading>
+      <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-vspo-purple border-t-transparent"></div>
+    </div>
+
+    <p class="hidden py-8 text-center text-sm text-error" data-error>
+      {t(locale, "channel.add.error")}
+    </p>
+
+    <p class="hidden py-8 text-center text-sm text-on-surface-variant" data-no-channels>
+      {t(locale, "channel.add.empty")}
+    </p>
+
+    <p class="hidden py-8 text-center text-sm text-on-surface-variant" data-search-empty>
+      {t(locale, "channel.add.empty")}
+    </p>
+
+    <div class="max-h-64 space-y-1 overflow-y-auto" role="listbox" aria-label={t(locale, "channel.add")} data-channel-list>
+    </div>
+
+    <form id="add-channel-form" method="POST" action={actions.addChannel} class="hidden">
+      <input type="hidden" name="guildId" value={guildId} />
+      <input type="hidden" name="channelId" value="" data-add-channel-id />
+    </form>
+
+    <template id="tpl-channel-add">
+      <button type="button" data-channel-item role="option" aria-selected="false"
+        class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30 cursor-pointer">
+        <span class="flex items-center gap-2">
+          <svg class="h-4 w-4 shrink-0 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+          </svg>
+          <span data-name></span>
+        </span>
+        <span class="text-xs font-medium text-vspo-purple">{t(locale, "channel.add.submit")}</span>
+      </button>
+    </template>
+
+    <template id="tpl-channel-registered">
+      <div data-channel-item class="flex items-center justify-between rounded-lg px-3 py-3 text-sm text-on-surface-variant/50">
+        <span class="flex items-center gap-2">
+          <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+          </svg>
+          <span data-name></span>
+        </span>
+        <span class="text-xs">{t(locale, "channel.add.registered")}</span>
+      </div>
+    </template>
+
+    <div class="mt-4 flex justify-end">
+      <Button as="button" type="button" variant="ghost" data-modal-cancel>
+        {t(locale, "channel.add.cancel")}
+      </Button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { initDialog } from "~/features/shared/components/dialog-helpers";
+
+  let addAbort: AbortController | null = null;
+
+  function initAddModal() {
+    if (addAbort) addAbort.abort();
+    addAbort = new AbortController();
+    const { signal } = addAbort;
+
+    initDialog("add-channel-modal");
+
+    const dialog = document.getElementById("add-channel-modal") as HTMLDialogElement | null;
+    if (!dialog) return;
+
+    const listContainer = dialog.querySelector<HTMLElement>("[data-channel-list]");
+    const searchInput = dialog.querySelector<HTMLInputElement>("[data-search-input]");
+    const emptyMsg = dialog.querySelector<HTMLElement>("[data-search-empty]");
+    const loadingEl = dialog.querySelector<HTMLElement>("[data-loading]");
+    const noChannelsEl = dialog.querySelector<HTMLElement>("[data-no-channels]");
+    const errorEl = dialog.querySelector<HTMLElement>("[data-error]");
+    const form = document.getElementById("add-channel-form") as HTMLFormElement | null;
+    const hiddenChannelId = form?.querySelector<HTMLInputElement>("[data-add-channel-id]");
+    const tplAdd = document.getElementById("tpl-channel-add") as HTMLTemplateElement | null;
+    const tplReg = document.getElementById("tpl-channel-registered") as HTMLTemplateElement | null;
+
+    document.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-action-add]");
+      if (!btn) return;
+      dialog.showModal();
+      loadChannels();
+    }, { signal });
+
+
+    let searchTimer: ReturnType<typeof setTimeout> | undefined;
+    searchInput?.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        const query = searchInput.value.toLowerCase();
+        const items = listContainer?.querySelectorAll("[data-channel-item]") ?? [];
+        let visibleCount = 0;
+        for (const item of items) {
+          const el = item as HTMLElement;
+          const show = (el.dataset.channelName ?? "").includes(query);
+          el.style.display = show ? "" : "none";
+          if (show) visibleCount++;
+        }
+        if (emptyMsg) emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
+      }, 100);
+    });
+
+    async function loadChannels() {
+      if (!listContainer) return;
+
+      if (loadingEl) loadingEl.classList.remove("hidden");
+      if (noChannelsEl) noChannelsEl.classList.add("hidden");
+      if (errorEl) errorEl.classList.add("hidden");
+      listContainer.textContent = "";
+      if (searchInput) searchInput.value = "";
+
+      const guildId = form?.querySelector<HTMLInputElement>('input[name="guildId"]')?.value;
+      if (!guildId) { if (loadingEl) loadingEl.classList.add("hidden"); return; }
+
+      const registeredIds = new Set(
+        Array.from(document.querySelectorAll<HTMLElement>("[data-channel-row]"))
+          .map(el => el.dataset.channelRow).filter(Boolean)
+      );
+
+      let res: Response;
+      try { res = await fetch(`/api/guilds/${guildId}/channels`); }
+      catch { if (loadingEl) loadingEl.classList.add("hidden"); if (errorEl) errorEl.classList.remove("hidden"); return; }
+      if (loadingEl) loadingEl.classList.add("hidden");
+      if (!res.ok) { if (errorEl) errorEl.classList.remove("hidden"); return; }
+
+      const allChannels: { id: string; name: string }[] = await res.json();
+      const unregistered = allChannels.filter((ch) => !registeredIds.has(ch.id));
+
+      if (unregistered.length === 0 && allChannels.length === 0) {
+        if (noChannelsEl) noChannelsEl.classList.remove("hidden");
+        return;
+      }
+
+      for (const ch of unregistered) {
+        if (!tplAdd) continue;
+        const node = tplAdd.content.cloneNode(true) as DocumentFragment;
+        const btn = node.querySelector("button")!;
+        btn.dataset.channelName = ch.name.toLowerCase();
+        const nameEl = node.querySelector("[data-name]");
+        if (nameEl) nameEl.textContent = ch.name;
+        btn.addEventListener("click", () => {
+          if (!hiddenChannelId || !form) return;
+          hiddenChannelId.value = ch.id;
+          form.requestSubmit();
+        });
+        listContainer.appendChild(node);
+      }
+
+      for (const ch of allChannels.filter((c) => registeredIds.has(c.id))) {
+        if (!tplReg) continue;
+        const node = tplReg.content.cloneNode(true) as DocumentFragment;
+        const el = node.querySelector("[data-channel-item]") as HTMLElement;
+        if (el) el.dataset.channelName = ch.name.toLowerCase();
+        const nameEl = node.querySelector("[data-name]");
+        if (nameEl) nameEl.textContent = ch.name;
+        listContainer.appendChild(node);
+      }
+    }
+  }
+
+  initAddModal();
+  document.addEventListener("astro:page-load", initAddModal);
+</script>

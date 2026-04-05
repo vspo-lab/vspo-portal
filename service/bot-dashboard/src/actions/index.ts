@@ -12,9 +12,23 @@ const requireAuth = (context: { locals: { user: unknown } }) => {
   }
 };
 
+/** Unwrap a Result or throw an ActionError */
+const unwrapOrThrow = <T>(result: {
+  err?: { message: string } | null;
+  val?: T;
+}): T => {
+  if (result.err) {
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: result.err.message,
+    });
+  }
+  return result.val as T;
+};
+
 export const server = {
   addChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -28,17 +42,13 @@ export const server = {
         channelId: input.channelId,
       });
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
+      unwrapOrThrow(result);
+      return { success: true as const };
     },
   }),
 
   updateChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -60,17 +70,13 @@ export const server = {
         },
       );
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
+      unwrapOrThrow(result);
+      return { success: true as const };
     },
   }),
 
   resetChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -85,17 +91,13 @@ export const server = {
         { language: "default", memberType: "all", customMembers: [] },
       );
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
+      unwrapOrThrow(result);
+      return { success: true as const };
     },
   }),
 
   deleteChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -109,12 +111,8 @@ export const server = {
         channelId: input.channelId,
       });
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
+      unwrapOrThrow(result);
+      return { success: true as const };
     },
   }),
 };

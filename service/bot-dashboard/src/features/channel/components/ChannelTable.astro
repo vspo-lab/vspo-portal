@@ -1,5 +1,7 @@
 ---
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
+import Button from "~/features/shared/components/Button.astro";
+import IconButton from "~/features/shared/components/IconButton.astro";
 import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
 
 interface Props {
@@ -18,16 +20,12 @@ const langChipLabel = (lang: string) => t(locale, languageDisplayKey(lang));
   {/* Table header bar */}
   <div class="flex items-center justify-between bg-surface-container-low px-6 py-5 sm:px-8">
     <h3 class="font-heading text-lg font-bold text-on-surface">{t(locale, "channel.table")}</h3>
-    <button
-      type="button"
-      data-action-add
-      class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-vspo-purple to-vspo-purple-light px-5 py-2.5 font-heading text-sm font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.03] active:scale-95 cursor-pointer"
-    >
+    <Button as="button" type="button" variant="primary" data-action-add class="gap-2">
       <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
       {t(locale, "channel.add")}
-    </button>
+    </Button>
   </div>
 
   {/* Table */}
@@ -90,22 +88,19 @@ const langChipLabel = (lang: string) => t(locale, languageDisplayKey(lang));
               </td>
               <td class="px-6 py-4 sm:px-8">
                 <div class="flex items-center justify-end gap-1">
-                  <button
-                    type="button"
+                  <IconButton
                     data-action-edit={ch.channelId}
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50 cursor-pointer"
                     aria-label={`${t(locale, "channel.edit")} #${ch.channelName}`}
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                  </button>
-                  <button
-                    type="button"
+                  </IconButton>
+                  <IconButton
+                    variant="destructive"
                     data-action-delete={ch.channelId}
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 cursor-pointer"
                     aria-label={`${t(locale, "channel.delete")} #${ch.channelName}`}
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                  </button>
+                  </IconButton>
                 </div>
               </td>
             </tr>
@@ -125,14 +120,10 @@ const langChipLabel = (lang: string) => t(locale, languageDisplayKey(lang));
         <p class="text-sm text-on-surface-variant">
           {t(locale, "channel.empty")}
         </p>
-        <button
-          type="button"
-          data-action-add
-          class="mt-2 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-vspo-purple transition-colors hover:bg-vspo-purple/10 cursor-pointer"
-        >
+        <Button as="button" type="button" variant="link" data-action-add class="mt-2 gap-1.5">
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
           {t(locale, "channel.add")}
-        </button>
+        </Button>
       </div>
     )
   }

@@ -1,11 +1,11 @@
 ---
 import { env } from "cloudflare:workers";
 import Base from "~/layouts/Base.astro";
-import Button from "~/components/ui/Button.astro";
-import LanguageSelector from "~/components/ui/LanguageSelector.astro";
-import ThemeToggle from "~/components/ui/ThemeToggle.astro";
-import ScrollReveal from "~/components/landing/ScrollReveal.astro";
-import DigitRoll from "~/components/landing/DigitRoll.astro";
+import Button from "~/features/shared/components/Button.astro";
+import LanguageSelector from "~/features/shared/components/LanguageSelector.astro";
+import ThemeToggle from "~/features/shared/components/ThemeToggle.astro";
+import ScrollReveal from "~/features/landing/components/ScrollReveal.astro";
+import DigitRoll from "~/features/landing/components/DigitRoll.astro";
 import { t } from "~/i18n/dict";
 import { buildBotInviteUrl } from "~/features/guild/domain/guild";
 import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
@@ -39,7 +39,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
       </div>
       <div class="flex items-center gap-2">
         <LanguageSelector currentLocale={locale} returnTo="/" variant="header" />
-        <ThemeToggle variant="page" />
+        <ThemeToggle />
       </div>
     </nav>
 

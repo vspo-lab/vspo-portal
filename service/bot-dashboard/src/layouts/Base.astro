@@ -13,7 +13,7 @@ interface Props {
 const { title, description, canonicalPath, noindex } = Astro.props;
 const { locale } = Astro.locals;
 
-const siteUrl = "https://discord.vspo-schedule.com";
+const siteUrl = Astro.site?.origin ?? "https://discord.vspo-schedule.com";
 const pageTitle = `${title} | ${t(locale, "app.title")}`;
 const canonicalUrl = canonicalPath ? `${siteUrl}${canonicalPath}` : undefined;
 const altLocale = locale === "ja" ? "en" : "ja";
@@ -83,6 +83,9 @@ const altPath = canonicalPath
         applyTheme();
         document.addEventListener("astro:after-swap", applyTheme);
       })();
+    </script>
+    <script>
+      import "~/features/shared/components/close-on-outside-click";
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

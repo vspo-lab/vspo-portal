@@ -1,0 +1,110 @@
+---
+import { actions } from "astro:actions";
+import Button from "~/features/shared/components/Button.astro";
+import { t } from "~/i18n/dict";
+
+interface Props {
+  guildId: string;
+}
+
+const { guildId } = Astro.props;
+const { locale } = Astro.locals;
+---
+
+<dialog
+  class="fixed inset-0 z-50 m-0 flex h-full w-full items-center justify-center bg-black/60 backdrop:bg-transparent"
+  id="delete-channel-modal"
+  aria-labelledby="delete-channel-heading"
+  aria-modal="true"
+  data-delete-template={t(locale, "channel.deleteConfirm", { channelName: "{channelName}" })}
+>
+  <div
+    class="animate-modal-in glass mx-2 w-full max-w-md rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6"
+  >
+    <div class="mb-4 flex items-start gap-3">
+      <span
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10"
+        aria-hidden="true"
+      >
+        <svg
+          class="h-5 w-5 text-destructive"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+          />
+        </svg>
+      </span>
+      <div class="min-w-0 flex-1">
+        <h2
+          id="delete-channel-heading"
+          data-delete-heading
+          class="text-base font-semibold leading-snug"
+        >
+        </h2>
+        <p class="mt-1 text-sm text-on-surface-variant">
+          {t(locale, "channel.deleteConfirm.desc")}
+        </p>
+      </div>
+    </div>
+
+    <form method="POST" action={actions.deleteChannel}>
+      <input type="hidden" name="guildId" value={guildId} />
+      <input type="hidden" name="channelId" value="" />
+
+      <div class="flex justify-end gap-2 pt-2">
+        <Button as="button" type="button" variant="ghost" size="sm" data-modal-cancel>
+          {t(locale, "channel.deleteConfirm.cancel")}
+        </Button>
+        <Button as="button" type="submit" variant="destructive" size="sm">
+          {t(locale, "channel.deleteConfirm.submit")}
+        </Button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  import { initDialog } from "~/features/shared/components/dialog-helpers";
+
+  let deleteAbort: AbortController | null = null;
+
+  function initDeleteDialog() {
+    if (deleteAbort) deleteAbort.abort();
+    deleteAbort = new AbortController();
+    const { signal } = deleteAbort;
+
+    initDialog("delete-channel-modal");
+
+    const dialog = document.getElementById("delete-channel-modal") as HTMLDialogElement | null;
+    if (!dialog) return;
+
+    document.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-action-delete]");
+      if (!btn) return;
+
+      const channelId = btn.dataset.actionDelete ?? "";
+      const channelName = btn.closest("tr")?.querySelector("p")?.textContent ?? "";
+
+      const heading = dialog.querySelector("[data-delete-heading]");
+      if (heading) {
+        const template = dialog.dataset.deleteTemplate ?? "Delete #{channelName}?";
+        heading.textContent = template.replace("{channelName}", channelName);
+      }
+
+      const hiddenInput = dialog.querySelector<HTMLInputElement>('input[name="channelId"]');
+      if (hiddenInput) hiddenInput.value = channelId;
+
+      dialog.showModal();
+    }, { signal });
+  }
+
+  initDeleteDialog();
+  document.addEventListener("astro:page-load", initDeleteDialog);
+</script>

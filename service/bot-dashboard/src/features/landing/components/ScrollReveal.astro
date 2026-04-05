@@ -1,0 +1,40 @@
+---
+/**
+ * ScrollReveal — CSS-only scroll-triggered animations using animation-timeline.
+ *
+ * @precondition Animation keyframes must be defined in app.css.
+ * @postcondition Element animates when scrolled into view (CSS only, no JS).
+ *
+ * @example
+ * <ScrollReveal animation="fade-in-up">
+ *   <p>This fades in on scroll</p>
+ * </ScrollReveal>
+ */
+type Props = {
+  /** Animation type matching [data-scroll-reveal] CSS selectors */
+  animation: "fade-in-up";
+  /** Delay in ms before animation starts */
+  delay?: number;
+  /** HTML tag to render */
+  tag?: string;
+  /** Additional CSS classes */
+  class?: string;
+};
+
+const {
+  animation,
+  delay = 0,
+  tag = "div",
+  class: className = "",
+} = Astro.props;
+
+const Tag = tag;
+---
+
+<Tag
+  data-scroll-reveal={animation}
+  style={delay > 0 ? `--reveal-delay: ${delay}ms` : undefined}
+  class={className}
+>
+  <slot />
+</Tag>

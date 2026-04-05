@@ -1,0 +1,34 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type IconButtonVariant = "ghost" | "destructive";
+type IconButtonSize = "sm" | "default";
+
+type Props = HTMLAttributes<"button"> & {
+  variant?: IconButtonVariant;
+  size?: IconButtonSize;
+}
+
+const variantClasses: Record<IconButtonVariant, string> = {
+  ghost: "hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:ring-vspo-purple/50",
+  destructive: "hover:bg-destructive/10 hover:text-destructive focus-visible:ring-destructive/50",
+};
+
+const sizeClasses: Record<IconButtonSize, string> = {
+  default: "h-10 w-10",
+  sm: "h-8 w-8",
+};
+
+const {
+  variant = "ghost",
+  size = "default",
+  class: className = "",
+  ...attrs
+} = Astro.props;
+
+const classes = `inline-flex items-center justify-center rounded-lg text-on-surface-variant transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+---
+
+<button class={classes} type="button" {...attrs}>
+  <slot />
+</button>

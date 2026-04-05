@@ -7,7 +7,7 @@ const parseHtml = (html: string) =>
 
 describe("Button", () => {
   it.each([
-    { variant: "default", expectedClass: "bg-primary" },
+    { variant: "primary", expectedClass: "bg-vspo-purple" },
     { variant: "outline", expectedClass: "border" },
     { variant: "ghost", expectedClass: "hover:bg-accent" },
     { variant: "discord", expectedClass: "bg-discord" },
