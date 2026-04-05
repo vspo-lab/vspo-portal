@@ -186,44 +186,6 @@ dialog[open] {
  * === Landing Page Animations ===
  */
 
-/* Stagger Letter Rise */
-@keyframes letter-rise {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Text Line Reveal */
-@keyframes line-down {
-  from { transform: translateX(-50%) scaleY(0); }
-  to   { transform: translateX(-50%) scaleY(1); }
-}
-@keyframes curtain-round-left {
-  from { border-bottom-right-radius: 0; }
-  to   { border-bottom-right-radius: 100%; }
-}
-@keyframes curtain-open-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-101%); }
-}
-@keyframes curtain-round-right {
-  from { border-bottom-left-radius: 0; }
-  to   { border-bottom-left-radius: 100%; }
-}
-@keyframes curtain-open-right {
-  from { transform: translateX(0); }
-  to   { transform: translateX(101%); }
-}
-
-/* Clip-path Reveals */
-@keyframes clip-center {
-  from { clip-path: inset(0 50%); }
-  to   { clip-path: inset(0 0); }
-}
-@keyframes clip-circle {
-  from { clip-path: circle(0% at 50% 50%); }
-  to   { clip-path: circle(100% at 50% 50%); }
-}
-
 /* Digit Roll — uses --dh (digit height) CSS variable for responsive sizing
  * Rolls from "9" position to the target digit (ref: 15-number-counter.html) */
 @keyframes digit-roll {
@@ -255,90 +217,6 @@ dialog[open] {
 }
 [data-scroll-reveal="fade-in-up"][data-visible] {
   animation: fade-in-up 600ms var(--ease-standard) var(--reveal-delay, 0ms) both;
-}
-
-/* Clip center reveal — no initial clip-path so IntersectionObserver works reliably.
- * The animation's fill-mode:both applies the from-keyframe instantly on trigger. */
-[data-scroll-reveal="clip-center"][data-visible] {
-  animation: clip-center 800ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
-}
-
-/* Clip circle reveal */
-[data-scroll-reveal="clip-circle"][data-visible] {
-  animation: clip-circle 900ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
-}
-
-/*
- * === Stagger Text ===
- */
-.stagger-text span {
-  display: inline-block;
-  opacity: 0;
-}
-.stagger-text[data-visible] span,
-.stagger-text.is-visible span {
-  animation: letter-rise 0.5s ease-out calc(var(--i) * 60ms + 200ms) forwards;
-}
-
-/*
- * === Text Line Reveal ===
- */
-.line-reveal {
-  position: relative;
-  display: inline-block;
-  opacity: 0;
-}
-.line-reveal.is-visible {
-  opacity: 1;
-}
-
-.line-reveal::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 3px;
-  height: 100%;
-  background-color: var(--color-vspo-purple);
-  transform-origin: top;
-  transform: translateX(-50%) scaleY(0);
-}
-.line-reveal.is-visible::before {
-  animation: line-down 0.4s cubic-bezier(0.93, 0, 0.1, 1.01) var(--reveal-delay, 0ms) both;
-}
-
-.line-reveal-inner {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-  padding: 4px 16px;
-}
-.line-reveal-inner::before,
-.line-reveal-inner::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 50.5%;
-  height: 100%;
-  background: var(--color-surface, #fafafa);
-  z-index: 1;
-}
-.dark .line-reveal-inner::before,
-.dark .line-reveal-inner::after {
-  background: var(--sem-surface, #121317);
-}
-.line-reveal-inner::before { left: -1px; }
-.line-reveal-inner::after { right: -1px; }
-
-.line-reveal.is-visible .line-reveal-inner::before {
-  animation:
-    curtain-round-left 0.45s ease-out calc(var(--reveal-delay, 0ms) + 400ms) both,
-    curtain-open-left 0.9s ease-in-out calc(var(--reveal-delay, 0ms) + 500ms) forwards;
-}
-.line-reveal.is-visible .line-reveal-inner::after {
-  animation:
-    curtain-round-right 0.45s ease-out calc(var(--reveal-delay, 0ms) + 400ms) both,
-    curtain-open-right 0.9s ease-in-out calc(var(--reveal-delay, 0ms) + 500ms) forwards;
 }
 
 /*
@@ -415,6 +293,10 @@ dialog[open] {
   opacity: 0;
   animation: fade-in-up 500ms var(--ease-standard) 300ms both;
 }
+.hero-headline {
+  opacity: 0;
+  animation: fade-in-up 500ms var(--ease-standard) 400ms both;
+}
 .hero-description {
   opacity: 0;
   animation: fade-in-up 500ms var(--ease-standard) 500ms both;
@@ -442,19 +324,11 @@ dialog[open] {
   [data-scroll-reveal] {
     opacity: 1 !important;
     transform: none !important;
-    clip-path: none !important;
   }
-  .stagger-text span {
+  .hero-badge, .hero-headline, .hero-description, .hero-stats, .hero-cta {
     opacity: 1 !important;
     transform: none !important;
   }
-  .hero-badge, .hero-description, .hero-stats, .hero-cta {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .line-reveal { opacity: 1 !important; }
-  .line-reveal-inner::before,
-  .line-reveal-inner::after { display: none !important; }
 }
 
 /* ===== Light mode (default) ===== */

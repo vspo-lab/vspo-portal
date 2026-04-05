@@ -5,7 +5,6 @@ import Button from "~/components/ui/Button.astro";
 import LanguageSelector from "~/components/ui/LanguageSelector.astro";
 import ThemeToggle from "~/components/ui/ThemeToggle.astro";
 import ScrollReveal from "~/components/landing/ScrollReveal.astro";
-import StaggerText from "~/components/landing/StaggerText.astro";
 import DigitRoll from "~/components/landing/DigitRoll.astro";
 import { t } from "~/i18n/dict";
 import { buildBotInviteUrl } from "~/features/guild/domain/guild";
@@ -49,20 +48,17 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
       <section class="px-6 pb-16 pt-16 sm:pb-24 sm:pt-24">
         <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
           {/* Badge — line reveal animation */}
-          <div class="hero-badge line-reveal is-visible mb-8" style="--reveal-delay: 0ms">
-            <span class="line-reveal-inner inline-flex items-center gap-2 rounded-full bg-surface-container-highest px-3 py-1">
+          <div class="hero-badge mb-8">
+            <span class="inline-flex items-center gap-2 rounded-full bg-surface-container-highest px-3 py-1">
               <span class="h-2 w-2 rounded-full bg-success"></span>
               <span class="text-xs font-medium tracking-wide text-vspo-purple">{t(locale, "app.name")}</span>
             </span>
           </div>
 
-          {/* Headline — stagger letter rise */}
-          <StaggerText
-            text={t(locale, "login.headline")}
-            tag="h1"
-            class="mb-6 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl"
-            autoPlay
-          />
+          {/* Headline */}
+          <h1
+            class="hero-headline mb-6 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl"
+          >{t(locale, "login.headline")}</h1>
 
           <p class="hero-description mb-8 max-w-xl text-balance text-base leading-relaxed text-on-surface-variant sm:text-lg">
             {t(locale, "login.description")}
@@ -146,7 +142,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
             <p class="mb-8 text-center text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "login.previewCaption")}</p>
           </ScrollReveal>
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <ScrollReveal animation="clip-center" class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
+            <ScrollReveal animation="fade-in-up" class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
               <picture>
                 <source srcset="/discord-preview-1.webp" type="image/webp" />
                 <img
@@ -159,7 +155,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
                 />
               </picture>
             </ScrollReveal>
-            <ScrollReveal animation="clip-center" delay={200} class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
+            <ScrollReveal animation="fade-in-up" delay={200} class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
               <picture>
                 <source srcset="/discord-preview-2.webp" type="image/webp" />
                 <img
@@ -239,7 +235,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
 
       {/* CTA Section */}
       <section class="px-6 py-16 sm:py-24">
-        <ScrollReveal animation="clip-circle" class="mx-auto max-w-3xl rounded-2xl border border-border bg-surface-container-low p-10 text-center sm:p-16">
+        <ScrollReveal animation="fade-in-up" class="mx-auto max-w-3xl rounded-2xl border border-border bg-surface-container-low p-10 text-center sm:p-16">
           <h2 class="mb-4 font-heading text-3xl font-extrabold text-on-surface sm:text-4xl">{t(locale, "login.cta.headline")}</h2>
           <p class="mx-auto mb-8 max-w-lg text-on-surface-variant">{t(locale, "login.cta.description")}</p>
           <div class="flex flex-col justify-center gap-3 sm:flex-row">
