@@ -6,7 +6,9 @@
  */
 
 const syncIcons = (isDark: boolean): void => {
-  for (const el of document.querySelectorAll<HTMLElement>("[data-theme-icon]")) {
+  for (const el of document.querySelectorAll<HTMLElement>(
+    "[data-theme-icon]",
+  )) {
     const isSun = el.dataset.themeIcon === "sun";
     el.classList.toggle("hidden", isSun ? !isDark : isDark);
   }

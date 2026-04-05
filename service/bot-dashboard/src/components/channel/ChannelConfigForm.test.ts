@@ -1,8 +1,4 @@
-import {
-  getAllByRole,
-  getByLabelText,
-  getByText,
-} from "@testing-library/dom";
+import { getByText } from "@testing-library/dom";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import type { CreatorType } from "~/features/shared/domain/creator";
 import ChannelConfigForm from "./ChannelConfigForm.astro";
@@ -81,7 +77,9 @@ describe("ChannelConfigForm", () => {
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    const checkboxes = body.querySelectorAll<HTMLInputElement>("[data-member-checkbox]");
+    const checkboxes = body.querySelectorAll<HTMLInputElement>(
+      "[data-member-checkbox]",
+    );
     expect(checkboxes).toHaveLength(2);
     expect(checkboxes[0].value).toBe("c1");
     expect(checkboxes[1].value).toBe("c2");
@@ -115,7 +113,9 @@ describe("ChannelConfigForm", () => {
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    const guildIdInput = body.querySelector('input[name="guildId"]') as HTMLInputElement;
+    const guildIdInput = body.querySelector(
+      'input[name="guildId"]',
+    ) as HTMLInputElement;
     expect(guildIdInput).toBeTruthy();
     expect(guildIdInput.value).toBe("guild-1");
   });

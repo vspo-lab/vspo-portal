@@ -7,7 +7,9 @@
 const init = (): void => {
   document.addEventListener("click", (e) => {
     const target = e.target as Node;
-    for (const el of document.querySelectorAll<HTMLDetailsElement>("details[data-auto-close]")) {
+    for (const el of document.querySelectorAll<HTMLDetailsElement>(
+      "details[data-auto-close]",
+    )) {
       if (el.open && !el.contains(target)) el.open = false;
     }
   });
