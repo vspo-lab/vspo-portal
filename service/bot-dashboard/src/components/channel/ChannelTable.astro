@@ -1,6 +1,6 @@
 ---
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
-import { t, memberTypeKey } from "~/i18n/dict";
+import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
 
 interface Props {
   channels: ChannelConfigType[];
@@ -9,8 +9,8 @@ interface Props {
 const { channels } = Astro.props;
 const { locale } = Astro.locals;
 
-/** Language code to chip label — uppercases any language code */
-const langChipLabel = (lang: string) => lang.toUpperCase();
+/** Language code to localized chip label */
+const langChipLabel = (lang: string) => t(locale, languageDisplayKey(lang));
 ---
 
 {/* Configuration Matrix */}

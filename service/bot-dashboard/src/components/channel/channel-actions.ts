@@ -41,8 +41,9 @@ const getPageData = (): PageData => {
   if (currentData) return currentData;
   const el = document.getElementById("channel-data");
   if (!el?.textContent) throw new Error("Missing #channel-data");
-  currentData = JSON.parse(el.textContent);
-  return currentData!;
+  const parsed: PageData = JSON.parse(el.textContent);
+  currentData = parsed;
+  return parsed;
 };
 
 const persistPageData = (data: PageData) => {
@@ -52,6 +53,14 @@ const persistPageData = (data: PageData) => {
 };
 
 /* ---------- Helpers ---------- */
+
+const languageLabel = (lang: string, i18n: Record<string, string>): string => {
+  const key = lang.trim().toLowerCase();
+  if (!key) return i18n["language.unknown"] ?? "";
+  return (
+    i18n[`language.${key}`] ?? i18n["language.unknown"] ?? key.toUpperCase()
+  );
+};
 
 const escapeHtml = (str: string): string =>
   str
@@ -160,7 +169,7 @@ const createRowHtml = (
 ): string => {
   const name = escapeHtml(ch.channelName);
   const id = escapeHtml(ch.channelId);
-  const langLabel = escapeHtml(ch.language.toUpperCase());
+  const langLabel = escapeHtml(languageLabel(ch.language, i18n));
   const mtLabel = escapeHtml(memberTypeLabel(ch.memberType, i18n));
   const statusActive = ch.enabled;
   const statusLabel = escapeHtml(
@@ -216,7 +225,7 @@ const updateStats = (data: PageData) => {
         const chip = document.createElement("span");
         chip.className =
           "rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple";
-        chip.textContent = lang.toUpperCase();
+        chip.textContent = languageLabel(lang, data.i18n);
         langContainer.appendChild(chip);
       }
     }
@@ -254,7 +263,7 @@ const updateRowCells = (
 
   if (updates.language !== undefined) {
     const langCell = row.querySelector("td:nth-child(2) span");
-    if (langCell) langCell.textContent = updates.language.toUpperCase();
+    if (langCell) langCell.textContent = languageLabel(updates.language, i18n);
   }
 
   if (updates.memberType !== undefined) {
@@ -904,6 +913,9 @@ const populateEditForm = (
   }
 
   updateSelectedCount(dialog, data);
+
+  // Notify ChannelConfigForm script to sync chips
+  dialog.dispatchEvent(new CustomEvent("members-updated"));
 
   const saveBtn = dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
   if (saveBtn) {

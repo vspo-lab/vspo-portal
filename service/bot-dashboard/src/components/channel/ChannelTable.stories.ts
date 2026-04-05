@@ -21,8 +21,20 @@ const deleteIcon = `<svg class="h-5 w-5" fill="none" stroke="currentColor" viewB
 
 const addIcon = `<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>`;
 
+const langDisplayLabels: Record<string, string> = {
+  ja: "Japanese",
+  en: "English",
+  fr: "French",
+  de: "German",
+  es: "Spanish",
+  cn: "Simplified Chinese",
+  tw: "Traditional Chinese",
+  ko: "Korean",
+  default: "Default",
+};
+
 const langChipLabel = (lang: string) =>
-  lang === "ja" ? "JA" : lang === "en" ? "EN" : lang.toUpperCase();
+  langDisplayLabels[lang] ?? lang.toUpperCase();
 
 const memberTypeLabel: Record<string, string> = {
   vspo_jp: "VSPO! JP",
@@ -134,6 +146,13 @@ export const WithChannels: Story = {
         enabled: false,
         language: "en",
         memberType: "vspo_jp",
+      },
+      {
+        channelId: "ch-6",
+        channelName: "default-lang",
+        enabled: true,
+        language: "default",
+        memberType: "all",
       },
     ],
   },
