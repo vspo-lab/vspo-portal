@@ -1,18 +1,30 @@
 ---
 import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
+import type { CreatorType } from "~/features/shared/domain/creator";
+import { Creator } from "~/features/shared/domain/creator";
 import Button from "~/features/shared/components/Button.astro";
 import IconButton from "~/features/shared/components/IconButton.astro";
 import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
 
 interface Props {
   channels: ChannelConfigType[];
+  creators?: CreatorType[];
 }
 
-const { channels } = Astro.props;
+const { channels, creators = [] } = Astro.props;
 const { locale } = Astro.locals;
 
 /** Language code to localized chip label */
 const langChipLabel = (lang: string) => t(locale, languageDisplayKey(lang));
+
+/** Max number of avatars to display before showing "+N" */
+const MAX_AVATARS = 5;
+
+/** Resolve creators for a channel's custom members */
+const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
+  if (!customMembers || customMembers.length === 0) return [];
+  return Creator.filterByIds(creators, new Set(customMembers));
+};
 ---
 
 {/* Configuration Matrix */}
@@ -68,7 +80,35 @@ const langChipLabel = (lang: string) => t(locale, languageDisplayKey(lang));
                 </span>
               </td>
               <td class="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">
-                {t(locale, memberTypeKey(ch.memberType))}
+                {ch.memberType === "custom" ? (
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center -space-x-2">
+                      {resolveCustomCreators(ch.customMembers).slice(0, MAX_AVATARS).map((creator) => (
+                        <div class="relative h-7 w-7 shrink-0 rounded-full ring-2 ring-surface" title={creator.name}>
+                          {creator.thumbnailUrl ? (
+                            <img
+                              src={creator.thumbnailUrl}
+                              alt={creator.name}
+                              class="h-7 w-7 rounded-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-vspo-purple/20 text-[10px] font-bold text-vspo-purple">
+                              {creator.name.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {(ch.customMembers?.length ?? 0) > MAX_AVATARS && (
+                        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-[10px] font-bold text-on-surface-variant ring-2 ring-surface">
+                          +{(ch.customMembers?.length ?? 0) - MAX_AVATARS}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  t(locale, memberTypeKey(ch.memberType))
+                )}
               </td>
               <td class="hidden px-6 py-4 lg:table-cell sm:px-8">
                 {ch.enabled ? (
