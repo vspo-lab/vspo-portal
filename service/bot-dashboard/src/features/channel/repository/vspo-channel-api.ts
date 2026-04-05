@@ -80,9 +80,7 @@ const adjustAndEnqueue = async (
   const discord = appWorker.newDiscordUsecase();
   const result = await discord.adjustBotChannel(params);
   if (result.err) return result;
-  // Fire-and-forget: adjustBotChannel already updated KV cache.
-  // Enqueue failure should not surface to the user as their action succeeded.
-  discord.batchUpsertEnqueue([result.val]).catch(() => {});
+  await discord.batchUpsertEnqueue([result.val]);
   return Ok(undefined);
 };
 
