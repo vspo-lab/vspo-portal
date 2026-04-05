@@ -95,7 +95,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               </svg>
               <div class="flex-1">
                 <p>{t(locale, errorKey)}</p>
-                <a href="/auth/discord" class="mt-1 inline-block font-medium text-vspo-purple underline hover:no-underline">
+                <a href="/auth/discord" data-astro-prefetch="false" class="mt-1 inline-block font-medium text-vspo-purple underline hover:no-underline">
                   {t(locale, "login.button")}
                 </a>
               </div>
@@ -128,6 +128,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               rel="noopener"
               variant="outline"
               size="lg"
+              data-astro-prefetch="false"
             >
               {t(locale, "login.button")}
             </Button>
@@ -256,6 +257,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               rel="noopener"
               variant="outline"
               size="lg"
+              data-astro-prefetch="false"
             >
               {t(locale, "login.button")}
             </Button>

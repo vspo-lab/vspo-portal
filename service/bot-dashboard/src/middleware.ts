@@ -63,7 +63,8 @@ const auth = defineMiddleware(async (context, next) => {
       ? (env as Record<string, unknown>).DEV_MOCK_AUTH
       : undefined;
   if (import.meta.env.DEV && devMockAuth !== "false") {
-    context.locals.locale = "ja";
+    const devLocale = (await context.session?.get("locale")) ?? "ja";
+    context.locals.locale = devLocale;
     context.locals.user = MOCK_USER;
     context.locals.accessToken = "mock-access-token";
     return next();
