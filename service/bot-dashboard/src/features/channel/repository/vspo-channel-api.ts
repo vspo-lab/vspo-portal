@@ -25,6 +25,7 @@ const toFrontendMemberType = (
     | "vspo_all"
     | "general"
     | undefined,
+  selectedMemberIds?: string[],
 ): MemberTypeValue => {
   switch (serverMemberType) {
     case "vspo_jp":
@@ -32,6 +33,9 @@ const toFrontendMemberType = (
     case "vspo_en":
       return "vspo_en";
     case "vspo_all":
+      return selectedMemberIds && selectedMemberIds.length > 0
+        ? "custom"
+        : "all";
     case "general":
     case undefined:
       return "all";
@@ -122,8 +126,8 @@ const VspoChannelApiRepository = {
         channelName: ch.name,
         enabled: true,
         language: ch.languageCode,
-        memberType: toFrontendMemberType(ch.memberType),
-        customMembers: undefined,
+        memberType: toFrontendMemberType(ch.memberType, ch.selectedMemberIds),
+        customMembers: ch.selectedMemberIds,
       })),
     });
   },
@@ -167,7 +171,7 @@ const VspoChannelApiRepository = {
       memberType: data.memberType
         ? toServerMemberType(data.memberType)
         : undefined,
-      selectedMemberIds: data.customMembers,
+      selectedMemberIds: data.memberType === "custom" ? data.customMembers : [],
     });
   },
 

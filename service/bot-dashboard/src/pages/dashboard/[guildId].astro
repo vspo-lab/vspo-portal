@@ -150,7 +150,7 @@ const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
     </div>
 
     {/* Configuration Matrix */}
-    <ChannelTable channels={channels} />
+    <ChannelTable channels={channels} creators={[...creators.jp, ...creators.en]} />
 
     {/* Hidden modals */}
     <ChannelConfigForm

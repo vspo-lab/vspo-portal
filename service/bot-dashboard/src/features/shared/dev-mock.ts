@@ -57,6 +57,18 @@ export const devMock = {
               memberType: "vspo_jp" as const,
               customMembers: undefined,
             },
+            {
+              channelId: "ch-004",
+              channelName: "custom-picks",
+              enabled: true,
+              language: "ja",
+              memberType: "custom" as const,
+              customMembers: [
+                "creator-jp-001",
+                "creator-jp-003",
+                "creator-en-002",
+              ],
+            },
           ]
         : [],
   }),
@@ -67,6 +79,7 @@ export const devMock = {
           { id: "ch-001", name: "vspo-notifications" },
           { id: "ch-002", name: "schedule-en" },
           { id: "ch-003", name: "archives" },
+          { id: "ch-004", name: "custom-picks" },
           { id: "ch-mock-1", name: "general" },
           { id: "ch-mock-2", name: "random" },
         ]

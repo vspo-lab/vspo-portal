@@ -107,7 +107,10 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
 
         {/* Dropdown multi-select */}
         <div class="relative" data-member-dropdown>
-          {/* Trigger: chips area + dropdown button */}
+          {/* Selected chips */}
+          <div class="mb-1.5 flex hidden flex-wrap gap-1.5" data-selected-chips></div>
+
+          {/* Trigger: dropdown button */}
           <button
             type="button"
             class="flex w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-left text-sm transition-colors hover:border-vspo-purple/40 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
@@ -117,9 +120,6 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
           >
             <span class="text-on-surface-variant/60" data-dropdown-placeholder>{t(locale, "channelConfig.members.search")}</span>
           </button>
-
-          {/* Selected chips (shown above trigger when members are selected) */}
-          <div class="mb-1.5 flex hidden flex-wrap gap-1.5" data-selected-chips></div>
 
           {/* Dropdown panel */}
           <div
@@ -467,7 +467,6 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       }
       const hasChips = checked.length > 0;
       chipsContainer.classList.toggle("hidden", !hasChips);
-      if (placeholder) placeholder.classList.toggle("hidden", hasChips);
     };
 
     const updateSelectedState = () => {

@@ -2425,6 +2425,7 @@ declare class DiscordService extends RpcTarget {
             | "vspo_all"
             | "general"
             | undefined;
+          selectedMemberIds?: string[] | undefined;
           isInitialAdd?: boolean | undefined;
         }[];
       },
@@ -2455,6 +2456,7 @@ declare class DiscordService extends RpcTarget {
             | "vspo_all"
             | "general"
             | undefined;
+          selectedMemberIds?: string[] | undefined;
           isInitialAdd?: boolean | undefined;
         }[];
       },
