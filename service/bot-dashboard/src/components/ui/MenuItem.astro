@@ -1,0 +1,29 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type MenuItemVariant = "default" | "destructive";
+
+interface Props extends HTMLAttributes<"button"> {
+  variant?: MenuItemVariant;
+  as?: "button" | "a";
+  href?: string;
+}
+
+const variantClasses: Record<MenuItemVariant, string> = {
+  default: "text-on-surface hover:bg-surface-container-highest focus-visible:ring-vspo-purple/50",
+  destructive: "text-destructive hover:bg-destructive/10 focus-visible:ring-destructive/50",
+};
+
+const {
+  variant = "default",
+  class: className = "",
+  as: Tag = "button",
+  ...attrs
+} = Astro.props;
+
+const classes = `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${variantClasses[variant]} ${className}`;
+---
+
+<Tag class={classes} {...(Tag === "button" ? { type: "button" } : {})} {...attrs}>
+  <slot />
+</Tag>

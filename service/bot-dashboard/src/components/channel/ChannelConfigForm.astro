@@ -1,6 +1,7 @@
 ---
 import { actions } from "astro:actions";
 import Button from "~/components/ui/Button.astro";
+import IconButton from "~/components/ui/IconButton.astro";
 import { MemberType } from "~/features/channel/domain/member-type";
 import { Creator, type CreatorType } from "~/features/shared/domain/creator";
 import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/dict";
@@ -31,16 +32,11 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
   >
     <div class="mb-4 flex items-center justify-between">
       <h2 id="config-modal-heading" data-config-heading class="font-heading text-lg font-bold text-on-surface"></h2>
-      <button
-        type="button"
-        data-modal-close
-        class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
-        aria-label={t(locale, "channelConfig.close")}
-      >
+      <IconButton data-modal-close aria-label={t(locale, "channelConfig.close")}>
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
-      </button>
+      </IconButton>
     </div>
 
     <form id="update-channel-form" method="POST" action={actions.updateChannel} class="space-y-4">
@@ -267,7 +263,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       <Button as="button" type="button" variant="ghost" data-modal-cancel>
         {t(locale, "channelConfig.cancel")}
       </Button>
-      <Button as="button" type="submit" form="update-channel-form" variant="discord" data-save-btn>{t(locale, "channelConfig.save")}</Button>
+      <Button as="button" type="submit" form="update-channel-form" variant="primary" data-save-btn>{t(locale, "channelConfig.save")}</Button>
     </div>
   </div>
 </dialog>

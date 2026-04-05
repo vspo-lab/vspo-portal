@@ -2,13 +2,12 @@
 import type { HTMLAttributes } from "astro/types";
 
 type ButtonVariant =
-  | "default"
-  | "secondary"
+  | "primary"
   | "outline"
   | "ghost"
   | "destructive"
   | "discord"
-  | "gradient";
+  | "link";
 
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
@@ -22,15 +21,14 @@ interface Props extends HTMLAttributes<"button"> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  default: "bg-primary text-primary-foreground hover:bg-primary/90",
-  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  primary: "bg-vspo-purple text-white hover:bg-vspo-purple/90",
   outline:
     "border border-border bg-transparent hover:bg-accent hover:text-accent-foreground",
   ghost: "hover:bg-accent hover:text-accent-foreground",
   destructive:
     "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   discord: "bg-discord text-white hover:bg-discord/90",
-  gradient: "bg-gradient-to-r from-vspo-purple to-vspo-purple-light text-white font-bold shadow-lg shadow-vspo-purple/20 hover:scale-[1.02] active:scale-95",
+  link: "text-vspo-purple hover:bg-vspo-purple/10",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -41,14 +39,14 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const {
-  variant = "default",
+  variant = "primary",
   size = "default",
   class: className = "",
   as: Tag = "button",
   ...attrs
 } = Astro.props;
 
-const classes = `inline-flex items-center justify-center rounded-[--radius-sm] font-medium transition-colors duration-[--duration-fast] ease-[--ease-standard] focus-visible:outline-none focus-visible:shadow-focus disabled:pointer-events-none disabled:opacity-50 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+const classes = `inline-flex items-center justify-center rounded-[--radius-sm] font-medium transition-colors duration-[--duration-fast] ease-[--ease-standard] cursor-pointer focus-visible:outline-none focus-visible:shadow-focus disabled:pointer-events-none disabled:opacity-50 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
 ---
 
 <Tag class={classes} {...attrs}>

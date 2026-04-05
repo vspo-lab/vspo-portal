@@ -1,6 +1,7 @@
 ---
 import { actions } from "astro:actions";
 import Button from "~/components/ui/Button.astro";
+import IconButton from "~/components/ui/IconButton.astro";
 import { t } from "~/i18n/dict";
 
 interface Props {
@@ -24,16 +25,11 @@ const { locale } = Astro.locals;
       <h2 id="add-channel-heading" class="font-heading text-lg font-bold text-on-surface">
         {t(locale, "channel.add")}
       </h2>
-      <button
-        type="button"
-        data-modal-close
-        class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
-        aria-label={t(locale, "channelConfig.close")}
-      >
+      <IconButton data-modal-close aria-label={t(locale, "channelConfig.close")}>
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
-      </button>
+      </IconButton>
     </div>
 
     <div class="mb-4">

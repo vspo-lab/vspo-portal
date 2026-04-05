@@ -1,21 +1,13 @@
 ---
+import IconButton from "~/components/ui/IconButton.astro";
 import { t } from "~/i18n/dict";
 
-interface Props {
-  variant?: "header" | "page";
-}
-const { variant = "header" } = Astro.props;
 const { locale } = Astro.locals;
-
-const buttonClass = variant === "header"
-  ? "text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface focus-visible:ring-vspo-purple/50"
-  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring";
 ---
 
-<button
-  type="button"
+<IconButton
   aria-label={t(locale, "settings.theme.toggle")}
-  class={`theme-toggle flex h-9 w-9 items-center justify-center rounded-[--radius-sm] transition-colors duration-[--duration-fast] ease-[--ease-standard] focus-visible:outline-none focus-visible:ring-2 ${buttonClass}`}
+  class="theme-toggle"
 >
   <!-- Sun icon: shown in dark mode -->
   <svg
@@ -42,7 +34,7 @@ const buttonClass = variant === "header"
   >
     <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
   </svg>
-</button>
+</IconButton>
 
 <script>
   import { syncTheme, toggle } from "~/components/ui/theme";

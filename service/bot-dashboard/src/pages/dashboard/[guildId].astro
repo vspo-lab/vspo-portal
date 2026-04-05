@@ -1,5 +1,6 @@
 ---
 import { actions } from "astro:actions";
+import Button from "~/components/ui/Button.astro";
 import { env } from "cloudflare:workers";
 import ChannelAddModal from "~/components/channel/ChannelAddModal.astro";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
@@ -89,14 +90,10 @@ const pageData = {
           {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
         </p>
       </div>
-      <button
-        type="button"
-        data-action-add
-        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-vspo-purple to-vspo-purple-light px-5 py-3 font-heading text-sm font-bold text-white shadow-lg shadow-vspo-purple/20 transition-all hover:scale-[1.03] active:scale-95 sm:hidden cursor-pointer"
-      >
+      <Button as="button" type="button" variant="primary" data-action-add class="gap-2 sm:hidden">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
         {t(locale, "channel.add")}
-      </button>
+      </Button>
     </div>
 
     {/* Stats Bento Grid */}
