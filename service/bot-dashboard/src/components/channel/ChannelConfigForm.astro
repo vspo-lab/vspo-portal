@@ -243,9 +243,15 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
 <script>
   /**
    * Edit modal interactive controls: radio highlights, custom member toggles, search filter.
-   * These run within the dialog and are initialized on page load + view transitions.
+   * Uses AbortController to prevent duplicate listeners on view transition swaps.
    */
+  let configFormAbort: AbortController | null = null;
+
   const initConfigFormControls = () => {
+    if (configFormAbort) configFormAbort.abort();
+    configFormAbort = new AbortController();
+    const { signal } = configFormAbort;
+
     const dialog = document.getElementById("config-modal");
     if (!dialog) return;
 
@@ -325,7 +331,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
           group.style.display = anyVisible ? "" : "none";
         }
       }, 100);
-    });
+    }, { signal });
 
     // Select All / Deselect All per group
     for (const toggleBtn of dialog.querySelectorAll<HTMLButtonElement>("[data-toggle-group]")) {
@@ -343,7 +349,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
         }
         updateToggleLabel(groupName);
         updateSelectedState();
-      });
+      }, { signal });
     }
 
     // Individual checkbox changes
@@ -354,7 +360,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
         const groupName = cb.closest<HTMLElement>("[data-member-group-item]")?.dataset.memberGroupItem;
         if (groupName) updateToggleLabel(groupName);
         updateSelectedState();
-      });
+      }, { signal });
     }
 
     const updateRadioHighlights = () => {
@@ -388,7 +394,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
             updateSelectedState();
           }
         }
-      });
+      }, { signal });
     }
   };
 

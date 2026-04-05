@@ -1,13 +1,11 @@
 /**
  * Client-side controller for channel CRUD operations.
- * Manages modal open/close, form submissions via Astro Actions, and DOM updates.
- * Replaces MPA query-param navigation with SPA-like interactions.
+ * Uses optimistic DOM updates instead of full page reloads.
  *
  * @precondition Page must contain #channel-data script with JSON payload
- * @postcondition All modal interactions happen client-side without page reload
+ * @postcondition All modal interactions and data mutations happen client-side
  */
 import { actions } from "astro:actions";
-import { navigate } from "astro:transitions/client";
 
 /* ---------- Types ---------- */
 
@@ -36,10 +34,21 @@ type PageData = {
 
 /* ---------- State ---------- */
 
+let currentData: PageData | null = null;
+let abortController: AbortController | null = null;
+
 const getPageData = (): PageData => {
+  if (currentData) return currentData;
   const el = document.getElementById("channel-data");
   if (!el?.textContent) throw new Error("Missing #channel-data");
-  return JSON.parse(el.textContent);
+  currentData = JSON.parse(el.textContent);
+  return currentData!;
+};
+
+const persistPageData = (data: PageData) => {
+  currentData = data;
+  const el = document.getElementById("channel-data");
+  if (el) el.textContent = JSON.stringify(data);
 };
 
 /* ---------- Toast ---------- */
@@ -85,99 +94,230 @@ const closeDialog = (dialog: HTMLDialogElement) => {
   dialog.close();
 };
 
+/* ---------- DOM update helpers ---------- */
+
+const memberTypeLabel = (mt: string, i18n: Record<string, string>): string =>
+  i18n[`memberType.${mt}`] ?? mt;
+
+const createRowHtml = (
+  ch: ChannelConfig,
+  i18n: Record<string, string>,
+): string => {
+  const langLabel = ch.language.toUpperCase();
+  const mtLabel = memberTypeLabel(ch.memberType, i18n);
+  const statusActive = ch.enabled;
+  const statusLabel = statusActive
+    ? (i18n["channel.status.active"] ?? "Active")
+    : (i18n["channel.status.paused"] ?? "Paused");
+  const editLabel = i18n["channel.edit"] ?? "Edit";
+  const deleteLabel = i18n["channel.delete"] ?? "Delete";
+
+  const statusHtml = statusActive
+    ? `<div class="flex items-center gap-2"><div class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-success shadow-sm shadow-success/50"></span></div><span class="text-[10px] font-bold uppercase tracking-wider text-success">${statusLabel}</span></div>`
+    : `<div class="flex items-center gap-2"><span class="inline-flex h-2 w-2 rounded-full bg-on-surface-variant/40"></span><span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">${statusLabel}</span></div>`;
+
+  return `<td class="px-6 py-4 sm:px-8"><div class="flex items-center gap-3"><div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-vspo-purple/10 text-vspo-purple"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg></div><div><p class="text-sm font-semibold text-on-surface">${ch.channelName}</p><p class="text-[10px] text-on-surface-variant/60">${ch.channelId}</p></div></div></td><td class="hidden px-6 py-4 sm:table-cell sm:px-8"><span class="rounded bg-surface-container-highest px-2.5 py-1 text-[10px] font-bold text-on-surface">${langLabel}</span></td><td class="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">${mtLabel}</td><td class="hidden px-6 py-4 lg:table-cell sm:px-8">${statusHtml}</td><td class="px-6 py-4 sm:px-8"><div class="flex items-center justify-end gap-1"><button type="button" data-action-edit="${ch.channelId}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50 cursor-pointer" aria-label="${editLabel} #${ch.channelName}"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" data-action-delete="${ch.channelId}" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 cursor-pointer" aria-label="${deleteLabel} #${ch.channelName}"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></td>`;
+};
+
+const restripeRows = () => {
+  const rows = document.querySelectorAll<HTMLElement>("[data-channel-row]");
+  rows.forEach((row, i) => {
+    row.classList.remove("bg-surface", "bg-surface-container-lowest");
+    row.classList.add(
+      i % 2 === 0 ? "bg-surface" : "bg-surface-container-lowest",
+    );
+  });
+};
+
+const updateStats = (data: PageData) => {
+  const total = document.querySelector("[data-stat-total]");
+  if (total) total.textContent = String(data.channels.length);
+
+  const desc = document.querySelector("[data-channels-desc]");
+  if (desc) {
+    const template =
+      data.i18n["dashboard.channelsCount"] ?? "{total} channels registered";
+    desc.textContent = template.replace("{total}", String(data.channels.length));
+  }
+
+  const langContainer = document.querySelector("[data-stat-languages]");
+  if (langContainer) {
+    const langs = [...new Set(data.channels.map((c) => c.language))];
+    if (langs.length === 0) {
+      langContainer.innerHTML =
+        '<span class="text-sm text-on-surface-variant">—</span>';
+    } else {
+      langContainer.innerHTML = langs
+        .map(
+          (lang) =>
+            `<span class="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple">${lang.toUpperCase()}</span>`,
+        )
+        .join("");
+    }
+  }
+
+  const membersContainer = document.querySelector("[data-stat-members]");
+  if (membersContainer) {
+    const types = [...new Set(data.channels.map((c) => c.memberType))];
+    if (types.length === 0) {
+      membersContainer.innerHTML =
+        '<span class="text-sm text-on-surface-variant">—</span>';
+    } else {
+      membersContainer.innerHTML = types
+        .map(
+          (mt) =>
+            `<span class="text-sm font-medium text-on-surface">${memberTypeLabel(mt, data.i18n)}</span>`,
+        )
+        .join("");
+    }
+  }
+};
+
+const updateRowCells = (
+  channelId: string,
+  updates: Partial<ChannelConfig>,
+  i18n: Record<string, string>,
+) => {
+  const row = document.querySelector<HTMLElement>(
+    `[data-channel-row="${channelId}"]`,
+  );
+  if (!row) return;
+
+  if (updates.language !== undefined) {
+    const langCell = row.querySelector("td:nth-child(2) span");
+    if (langCell) langCell.textContent = updates.language.toUpperCase();
+  }
+
+  if (updates.memberType !== undefined) {
+    const mtCell = row.querySelector("td:nth-child(3)");
+    if (mtCell) mtCell.textContent = memberTypeLabel(updates.memberType, i18n);
+  }
+};
+
 /* ---------- Delete ---------- */
 
-const initDelete = () => {
+const initDelete = (signal: AbortSignal) => {
   const dialog = document.getElementById(
     "delete-channel-modal",
   ) as HTMLDialogElement | null;
   if (!dialog) return;
 
-  document.addEventListener("click", (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
-      "[data-action-delete]",
-    );
-    if (!btn || !dialog) return;
+  document.addEventListener(
+    "click",
+    (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+        "[data-action-delete]",
+      );
+      if (!btn || !dialog) return;
 
-    const data = getPageData();
-    const channelId = btn.dataset.actionDelete;
-    if (!channelId) return;
-    const channel = data.channels.find((c) => c.channelId === channelId);
-    if (!channel) return;
+      const data = getPageData();
+      const channelId = btn.dataset.actionDelete;
+      if (!channelId) return;
+      const channel = data.channels.find((c) => c.channelId === channelId);
+      if (!channel) return;
 
-    // Populate dialog
-    const heading = dialog.querySelector("[data-delete-heading]");
-    if (heading)
-      heading.textContent =
-        data.i18n["channel.deleteConfirm"]?.replace(
-          "{channelName}",
-          channel.channelName,
-        ) ?? `Delete #${channel.channelName}?`;
+      const heading = dialog.querySelector("[data-delete-heading]");
+      if (heading)
+        heading.textContent =
+          data.i18n["channel.deleteConfirm"]?.replace(
+            "{channelName}",
+            channel.channelName,
+          ) ?? `Delete #${channel.channelName}?`;
 
-    const hiddenChannelId = dialog.querySelector<HTMLInputElement>(
-      'input[name="channelId"]',
-    );
-    if (hiddenChannelId) hiddenChannelId.value = channelId;
+      const hiddenChannelId = dialog.querySelector<HTMLInputElement>(
+        'input[name="channelId"]',
+      );
+      if (hiddenChannelId) hiddenChannelId.value = channelId;
 
-    openDialog(dialog);
-  });
+      openDialog(dialog);
+    },
+    { signal },
+  );
 
-  // Close handlers
-  dialog.querySelector("[data-modal-cancel]")?.addEventListener("click", () => {
-    closeDialog(dialog);
-  });
+  dialog
+    .querySelector("[data-modal-cancel]")
+    ?.addEventListener("click", () => closeDialog(dialog), { signal });
 
-  dialog.addEventListener("click", (e) => {
-    if (e.target === dialog) closeDialog(dialog);
-  });
+  dialog.addEventListener(
+    "click",
+    (e) => {
+      if (e.target === dialog) closeDialog(dialog);
+    },
+    { signal },
+  );
 
-  dialog.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeDialog(dialog);
-  });
+  dialog.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key === "Escape") closeDialog(dialog);
+    },
+    { signal },
+  );
 
-  // Submit handler
   dialog
     .querySelector("[data-modal-confirm]")
-    ?.addEventListener("click", async () => {
-      const data = getPageData();
-      const channelId = dialog.querySelector<HTMLInputElement>(
-        'input[name="channelId"]',
-      )?.value;
-      if (!channelId) return;
+    ?.addEventListener(
+      "click",
+      async () => {
+        const data = getPageData();
+        const channelId = dialog.querySelector<HTMLInputElement>(
+          'input[name="channelId"]',
+        )?.value;
+        if (!channelId) return;
 
-      const confirmBtn = dialog.querySelector<HTMLButtonElement>(
-        "[data-modal-confirm]",
-      );
-      if (confirmBtn) {
-        confirmBtn.disabled = true;
-        confirmBtn.classList.add("opacity-50");
-      }
+        const confirmBtn = dialog.querySelector<HTMLButtonElement>(
+          "[data-modal-confirm]",
+        );
+        if (confirmBtn) {
+          confirmBtn.disabled = true;
+          confirmBtn.classList.add("opacity-50");
+        }
 
-      const { error } = await actions.deleteChannel({
-        guildId: data.guildId,
-        channelId,
-      });
+        const { error } = await actions.deleteChannel({
+          guildId: data.guildId,
+          channelId,
+        });
 
-      if (error) {
-        closeDialog(dialog);
-        showToast(error.message, "error");
         if (confirmBtn) {
           confirmBtn.disabled = false;
           confirmBtn.classList.remove("opacity-50");
         }
-        return;
-      }
 
-      closeDialog(dialog);
-      showToast(data.i18n["toast.deleteSuccess"] ?? "Deleted.");
-      // Reload page data via View Transitions (soft navigation)
-      navigate(window.location.pathname, { history: "replace" });
-    });
+        if (error) {
+          closeDialog(dialog);
+          showToast(error.message, "error");
+          return;
+        }
+
+        closeDialog(dialog);
+        showToast(data.i18n["toast.deleteSuccess"] ?? "Deleted.");
+
+        // Optimistic DOM update
+        const row = document.querySelector(
+          `[data-channel-row="${channelId}"]`,
+        );
+        if (row) {
+          row.classList.add("opacity-0", "transition-opacity", "duration-200");
+          setTimeout(() => {
+            row.remove();
+            restripeRows();
+          }, 200);
+        }
+
+        const updated: PageData = {
+          ...data,
+          channels: data.channels.filter((c) => c.channelId !== channelId),
+        };
+        persistPageData(updated);
+        updateStats(updated);
+      },
+      { signal },
+    );
 };
 
 /* ---------- Add ---------- */
 
-const initAdd = () => {
+const initAdd = (signal: AbortSignal) => {
   const dialog = document.getElementById(
     "add-channel-modal",
   ) as HTMLDialogElement | null;
@@ -193,60 +333,73 @@ const initAdd = () => {
   const loadingEl = dialog.querySelector<HTMLElement>("[data-loading]");
   const noChannelsEl = dialog.querySelector<HTMLElement>("[data-no-channels]");
 
-  // Open handler
-  document.addEventListener("click", (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>(
-      "[data-action-add]",
-    );
-    if (!btn || !dialog) return;
+  document.addEventListener(
+    "click",
+    (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>(
+        "[data-action-add]",
+      );
+      if (!btn || !dialog) return;
 
-    openDialog(dialog);
-    loadChannels();
-  });
+      openDialog(dialog);
+      loadChannels();
+    },
+    { signal },
+  );
 
-  // Close handlers
-  dialog.querySelector("[data-modal-close]")?.addEventListener("click", () => {
-    closeDialog(dialog);
-  });
-  dialog.querySelector("[data-modal-cancel]")?.addEventListener("click", () => {
-    closeDialog(dialog);
-  });
-  dialog.addEventListener("click", (e) => {
-    if (e.target === dialog) closeDialog(dialog);
-  });
-  dialog.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeDialog(dialog);
-  });
+  dialog
+    .querySelector("[data-modal-close]")
+    ?.addEventListener("click", () => closeDialog(dialog), { signal });
+  dialog
+    .querySelector("[data-modal-cancel]")
+    ?.addEventListener("click", () => closeDialog(dialog), { signal });
+  dialog.addEventListener(
+    "click",
+    (e) => {
+      if (e.target === dialog) closeDialog(dialog);
+    },
+    { signal },
+  );
+  dialog.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key === "Escape") closeDialog(dialog);
+    },
+    { signal },
+  );
 
-  // Search filter
   let searchTimer: ReturnType<typeof setTimeout> | undefined;
-  searchInput?.addEventListener("input", () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      const query = searchInput.value.toLowerCase();
-      const items =
-        listContainer?.querySelectorAll("[data-channel-item]") ?? [];
-      let visibleCount = 0;
-      for (const item of items) {
-        const el = item as HTMLElement;
-        const name = el.dataset.channelName ?? "";
-        const show = name.includes(query);
-        el.style.display = show ? "" : "none";
-        if (show) visibleCount++;
-      }
-      if (emptyMsg) {
-        emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
-      }
-    }, 100);
-  });
+  searchInput?.addEventListener(
+    "input",
+    () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        const query = searchInput.value.toLowerCase();
+        const items =
+          listContainer?.querySelectorAll("[data-channel-item]") ?? [];
+        let visibleCount = 0;
+        for (const item of items) {
+          const el = item as HTMLElement;
+          const name = el.dataset.channelName ?? "";
+          const show = name.includes(query);
+          el.style.display = show ? "" : "none";
+          if (show) visibleCount++;
+        }
+        if (emptyMsg) {
+          emptyMsg.classList.toggle("hidden", visibleCount > 0 || !query);
+        }
+      }, 100);
+    },
+    { signal },
+  );
 
   const loadChannels = async () => {
     if (!listContainer) return;
 
-    // Show loading
     if (loadingEl) loadingEl.classList.remove("hidden");
     if (noChannelsEl) noChannelsEl.classList.add("hidden");
     listContainer.innerHTML = "";
+    if (searchInput) searchInput.value = "";
 
     const data = getPageData();
     const registeredIds = new Set(data.channels.map((c) => c.channelId));
@@ -273,7 +426,6 @@ const initAdd = () => {
       return;
     }
 
-    // Render unregistered channels
     for (const ch of unregistered) {
       const btn = document.createElement("button");
       btn.type = "button";
@@ -289,8 +441,9 @@ const initAdd = () => {
         btn.disabled = true;
         btn.classList.add("opacity-50");
 
+        const latestData = getPageData();
         const { error } = await actions.addChannel({
-          guildId: data.guildId,
+          guildId: latestData.guildId,
           channelId: ch.id,
         });
 
@@ -302,14 +455,45 @@ const initAdd = () => {
         }
 
         closeDialog(dialog);
-        showToast(data.i18n["toast.addSuccess"] ?? "Channel added.");
-        navigate(window.location.pathname, { history: "replace" });
+        showToast(latestData.i18n["toast.addSuccess"] ?? "Channel added.");
+
+        // Optimistic DOM update
+        const newChannel: ChannelConfig = {
+          channelId: ch.id,
+          channelName: ch.name,
+          enabled: true,
+          language: "default",
+          memberType: "all",
+        };
+
+        const updated: PageData = {
+          ...latestData,
+          channels: [...latestData.channels, newChannel],
+        };
+        persistPageData(updated);
+
+        // Remove empty state if present
+        const emptyState = document.querySelector("[data-empty-state]");
+        if (emptyState) emptyState.remove();
+
+        // Add row to table
+        const tbody = document.querySelector("[data-table-body]");
+        if (tbody) {
+          const tr = document.createElement("tr");
+          tr.setAttribute("data-channel-row", ch.id);
+          tr.className =
+            "group transition-colors duration-200 hover:bg-surface-container-highest/30";
+          tr.innerHTML = createRowHtml(newChannel, updated.i18n);
+          tbody.appendChild(tr);
+          restripeRows();
+        }
+
+        updateStats(updated);
       });
 
       listContainer.appendChild(btn);
     }
 
-    // Render registered channels (disabled)
     for (const ch of allChannels.filter((c) => registeredIds.has(c.id))) {
       const div = document.createElement("div");
       div.setAttribute("data-channel-item", "");
@@ -324,7 +508,7 @@ const initAdd = () => {
 
 /* ---------- Edit / Config ---------- */
 
-const initEdit = () => {
+const initEdit = (signal: AbortSignal) => {
   const dialog = document.getElementById(
     "config-modal",
   ) as HTMLDialogElement | null;
@@ -335,117 +519,170 @@ const initEdit = () => {
     'input[name="channelId"]',
   );
 
-  // Open handler
-  document.addEventListener("click", (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
-      "[data-action-edit]",
-    );
-    if (!btn || !dialog) return;
+  document.addEventListener(
+    "click",
+    (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+        "[data-action-edit]",
+      );
+      if (!btn || !dialog) return;
 
-    const data = getPageData();
-    const channelId = btn.dataset.actionEdit;
-    if (!channelId) return;
-    const channel = data.channels.find((c) => c.channelId === channelId);
-    if (!channel) return;
+      const data = getPageData();
+      const channelId = btn.dataset.actionEdit;
+      if (!channelId) return;
+      const channel = data.channels.find((c) => c.channelId === channelId);
+      if (!channel) return;
 
-    populateEditForm(dialog, channel, data);
-    openDialog(dialog);
-  });
+      populateEditForm(dialog, channel, data);
+      openDialog(dialog);
+    },
+    { signal },
+  );
 
-  // Close handlers
-  dialog.querySelector("[data-modal-close]")?.addEventListener("click", () => {
-    closeDialog(dialog);
-  });
-  dialog.querySelector("[data-modal-cancel]")?.addEventListener("click", () => {
-    closeDialog(dialog);
-  });
-  dialog.addEventListener("click", (e) => {
-    if (e.target === dialog) closeDialog(dialog);
-  });
-  dialog.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeDialog(dialog);
-  });
+  dialog
+    .querySelector("[data-modal-close]")
+    ?.addEventListener("click", () => closeDialog(dialog), { signal });
+  dialog
+    .querySelector("[data-modal-cancel]")
+    ?.addEventListener("click", () => closeDialog(dialog), { signal });
+  dialog.addEventListener(
+    "click",
+    (e) => {
+      if (e.target === dialog) closeDialog(dialog);
+    },
+    { signal },
+  );
+  dialog.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key === "Escape") closeDialog(dialog);
+    },
+    { signal },
+  );
 
   // Save handler
   dialog
     .querySelector("[data-save-btn]")
-    ?.addEventListener("click", async () => {
-      if (!form || !hiddenChannelId) return;
+    ?.addEventListener(
+      "click",
+      async () => {
+        if (!form || !hiddenChannelId) return;
 
-      const data = getPageData();
-      const formData = new FormData(form);
-      const channelId = hiddenChannelId.value;
-      const language = formData.get("language") as string;
-      const memberType = formData.get("memberType") as
-        | "vspo_jp"
-        | "vspo_en"
-        | "all"
-        | "custom";
-      const customMemberIds = formData.getAll("customMemberIds") as string[];
+        const data = getPageData();
+        const formData = new FormData(form);
+        const channelId = hiddenChannelId.value;
+        const language = formData.get("language") as string;
+        const memberType = formData.get("memberType") as
+          | "vspo_jp"
+          | "vspo_en"
+          | "all"
+          | "custom";
+        const customMemberIds = formData.getAll("customMemberIds") as string[];
 
-      const saveBtn =
-        dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
-      if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.classList.add("opacity-50");
-      }
+        const saveBtn =
+          dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.classList.add("opacity-50");
+        }
 
-      const { error } = await actions.updateChannel({
-        guildId: data.guildId,
-        channelId,
-        language,
-        memberType,
-        customMemberIds: memberType === "custom" ? customMemberIds : undefined,
-      });
+        const { error } = await actions.updateChannel({
+          guildId: data.guildId,
+          channelId,
+          language,
+          memberType,
+          customMemberIds: memberType === "custom" ? customMemberIds : undefined,
+        });
 
-      if (error) {
-        showToast(error.message, "error");
         if (saveBtn) {
           saveBtn.disabled = false;
           saveBtn.classList.remove("opacity-50");
         }
-        return;
-      }
 
-      closeDialog(dialog);
-      showToast(data.i18n["toast.updateSuccess"] ?? "Updated.");
-      navigate(window.location.pathname, { history: "replace" });
-    });
+        if (error) {
+          showToast(error.message, "error");
+          return;
+        }
+
+        closeDialog(dialog);
+        showToast(data.i18n["toast.updateSuccess"] ?? "Updated.");
+
+        // Optimistic DOM update
+        const updates = {
+          language,
+          memberType,
+          customMembers:
+            memberType === "custom" ? customMemberIds : undefined,
+        };
+        updateRowCells(channelId, updates, data.i18n);
+
+        const updated: PageData = {
+          ...data,
+          channels: data.channels.map((c) =>
+            c.channelId === channelId ? { ...c, ...updates } : c,
+          ),
+        };
+        persistPageData(updated);
+        updateStats(updated);
+      },
+      { signal },
+    );
 
   // Reset handler
   dialog
     .querySelector("[data-reset-btn]")
-    ?.addEventListener("click", async () => {
-      if (!hiddenChannelId) return;
+    ?.addEventListener(
+      "click",
+      async () => {
+        if (!hiddenChannelId) return;
 
-      const data = getPageData();
-      const channelId = hiddenChannelId.value;
+        const data = getPageData();
+        const channelId = hiddenChannelId.value;
 
-      const resetBtn =
-        dialog.querySelector<HTMLButtonElement>("[data-reset-btn]");
-      if (resetBtn) {
-        resetBtn.disabled = true;
-        resetBtn.classList.add("opacity-50");
-      }
+        const resetBtn =
+          dialog.querySelector<HTMLButtonElement>("[data-reset-btn]");
+        if (resetBtn) {
+          resetBtn.disabled = true;
+          resetBtn.classList.add("opacity-50");
+        }
 
-      const { error } = await actions.resetChannel({
-        guildId: data.guildId,
-        channelId,
-      });
+        const { error } = await actions.resetChannel({
+          guildId: data.guildId,
+          channelId,
+        });
 
-      if (error) {
-        showToast(error.message, "error");
         if (resetBtn) {
           resetBtn.disabled = false;
           resetBtn.classList.remove("opacity-50");
         }
-        return;
-      }
 
-      closeDialog(dialog);
-      showToast(data.i18n["toast.resetSuccess"] ?? "Reset to default.");
-      navigate(window.location.pathname, { history: "replace" });
-    });
+        if (error) {
+          showToast(error.message, "error");
+          return;
+        }
+
+        closeDialog(dialog);
+        showToast(data.i18n["toast.resetSuccess"] ?? "Reset to default.");
+
+        // Optimistic DOM update
+        const defaults = {
+          language: "default",
+          memberType: "all",
+          customMembers: [] as string[],
+        };
+        updateRowCells(channelId, defaults, data.i18n);
+
+        const updated: PageData = {
+          ...data,
+          channels: data.channels.map((c) =>
+            c.channelId === channelId ? { ...c, ...defaults } : c,
+          ),
+        };
+        persistPageData(updated);
+        updateStats(updated);
+      },
+      { signal },
+    );
 };
 
 const populateEditForm = (
@@ -453,7 +690,6 @@ const populateEditForm = (
   channel: ChannelConfig,
   data: PageData,
 ) => {
-  // Title
   const heading = dialog.querySelector("[data-config-heading]");
   if (heading) {
     heading.textContent =
@@ -463,17 +699,14 @@ const populateEditForm = (
       ) ?? `#${channel.channelName}`;
   }
 
-  // Hidden channel ID
   const hiddenId = dialog.querySelector<HTMLInputElement>(
     'input[name="channelId"]',
   );
   if (hiddenId) hiddenId.value = channel.channelId;
 
-  // Language select
-  const langSelect = dialog.querySelector<HTMLSelectElement>("#language");
+  const langSelect = dialog.querySelector("#language") as HTMLSelectElement | null;
   if (langSelect) langSelect.value = channel.language;
 
-  // Member type radios
   const radios = dialog.querySelectorAll<HTMLInputElement>(
     'input[name="memberType"]',
   );
@@ -499,7 +732,6 @@ const populateEditForm = (
     }
   }
 
-  // Custom members section visibility
   const customSection = dialog.querySelector<HTMLElement>(
     "[data-custom-members]",
   );
@@ -515,7 +747,6 @@ const populateEditForm = (
     }
   }
 
-  // Custom member checkboxes
   const customSet = new Set(channel.customMembers ?? []);
   const checkboxes = dialog.querySelectorAll<HTMLInputElement>(
     "[data-member-checkbox]",
@@ -542,10 +773,8 @@ const populateEditForm = (
     }
   }
 
-  // Update selected count
   updateSelectedCount(dialog, data);
 
-  // Enable save button
   const saveBtn = dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
   if (saveBtn) {
     saveBtn.disabled = false;
@@ -574,10 +803,17 @@ const updateSelectedCount = (dialog: HTMLElement, data: PageData) => {
 
 /**
  * Initialize all channel action handlers.
- * Called on page load and after View Transition swaps.
+ * Uses AbortController to clean up previous listeners on re-init.
  */
 export const initChannelActions = () => {
-  initDelete();
-  initAdd();
-  initEdit();
+  // Clean up previous listeners
+  if (abortController) abortController.abort();
+  abortController = new AbortController();
+  currentData = null;
+
+  const { signal } = abortController;
+
+  initDelete(signal);
+  initAdd(signal);
+  initEdit(signal);
 };

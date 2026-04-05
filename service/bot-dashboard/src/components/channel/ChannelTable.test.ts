@@ -55,16 +55,20 @@ describe("ChannelTable", () => {
     expect(getByText(body, "No channels configured.")).toBeTruthy();
   });
 
-  it("renders edit links for each channel", async () => {
+  it("renders edit buttons for each channel", async () => {
     const html = await container.renderToString(ChannelTable, {
       props: { channels, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    const editLinks = getAllByRole(body, "link");
-    const editHrefs = editLinks.map((l) => l.getAttribute("href"));
-    expect(editHrefs).toContain("?edit=ch-1");
-    expect(editHrefs).toContain("?edit=ch-2");
+    const editButtons = getAllByRole(body, "button").filter(
+      (btn) => btn.getAttribute("data-action-edit") !== null,
+    );
+    const editIds = editButtons.map((btn) =>
+      btn.getAttribute("data-action-edit"),
+    );
+    expect(editIds).toContain("ch-1");
+    expect(editIds).toContain("ch-2");
   });
 
   it("shows Active status for enabled channels", async () => {

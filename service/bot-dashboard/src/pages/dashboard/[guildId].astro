@@ -56,6 +56,15 @@ const pageData = {
     "channel.add.registered": t(locale, "channel.add.registered"),
     "channelConfig.title": t(locale, "channelConfig.title", { channelName: "{channelName}" }),
     "channelConfig.members.selected": t(locale, "channelConfig.members.selected", { count: "{count}" }),
+    "memberType.all": t(locale, "memberType.all"),
+    "memberType.vspo_jp": t(locale, "memberType.vspo_jp"),
+    "memberType.vspo_en": t(locale, "memberType.vspo_en"),
+    "memberType.custom": t(locale, "memberType.custom"),
+    "channel.status.active": t(locale, "channel.status.active"),
+    "channel.status.paused": t(locale, "channel.status.paused"),
+    "channel.edit": t(locale, "channel.edit"),
+    "channel.delete": t(locale, "channel.delete"),
+    "dashboard.channelsCount": t(locale, "dashboard.channelsCount", { total: "{total}" }),
   },
 };
 ---
@@ -67,7 +76,7 @@ const pageData = {
       <div class="space-y-2">
         <p class="text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "nav.channels")}</p>
         <h1 class="font-heading text-3xl font-extrabold text-on-surface sm:text-4xl">{guildName}</h1>
-        <p class="max-w-md text-on-surface-variant">
+        <p data-channels-desc class="max-w-md text-on-surface-variant">
           {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
         </p>
       </div>
@@ -85,11 +94,11 @@ const pageData = {
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
       <div class="rounded-2xl bg-surface-container-low p-6">
         <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "dashboard.stat.channels")}</p>
-        <span class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
+        <span data-stat-total class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
       </div>
       <div class="rounded-2xl bg-surface-container-low p-6">
         <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.language")}</p>
-        <div class="flex gap-2">
+        <div data-stat-languages class="flex gap-2">
           {[...new Set(channels.map(c => c.language))].map(lang => (
             <span class="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple">{lang === "ja" ? "JA" : lang === "en" ? "EN" : lang.toUpperCase()}</span>
           ))}
@@ -98,7 +107,7 @@ const pageData = {
       </div>
       <div class="col-span-2 rounded-2xl bg-surface-container-low p-6">
         <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.members")}</p>
-        <div class="flex flex-wrap gap-2">
+        <div data-stat-members class="flex flex-wrap gap-2">
           {[...new Set(channels.map(c => c.memberType))].map(mt => (
             <span class="text-sm font-medium text-on-surface">{t(locale, memberTypeKey(mt))}</span>
           ))}
