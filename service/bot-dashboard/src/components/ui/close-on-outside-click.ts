@@ -6,7 +6,8 @@
  */
 const init = (): void => {
   document.addEventListener("click", (e) => {
-    const target = e.target as Node;
+    if (!(e.target instanceof Node)) return;
+    const target = e.target;
     for (const el of document.querySelectorAll<HTMLDetailsElement>(
       "details[data-auto-close]",
     )) {

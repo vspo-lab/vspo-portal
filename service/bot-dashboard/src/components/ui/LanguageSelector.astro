@@ -10,6 +10,11 @@ interface Props {
 }
 
 const { currentLocale, returnTo, variant = "header" } = Astro.props;
+
+const langKeys = {
+  ja: "settings.language.ja",
+  en: "settings.language.en",
+} as const satisfies Record<string, TranslationKey>;
 ---
 
 {variant === "header" ? (
@@ -40,7 +45,7 @@ const { currentLocale, returnTo, variant = "header" } = Astro.props;
                 : "text-on-surface hover:bg-surface-container-highest"
             }`}
           >
-            {t(currentLocale, `settings.language.${lang}` as TranslationKey)}
+            {t(currentLocale, langKeys[lang])}
             {currentLocale === lang && (
               <svg class="ml-auto h-4 w-4 text-vspo-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -66,9 +71,9 @@ const { currentLocale, returnTo, variant = "header" } = Astro.props;
             : "text-muted-foreground hover:text-foreground"
         }`}
         aria-pressed={currentLocale === lang ? "true" : "false"}
-        aria-label={t(currentLocale, `settings.language.${lang}` as TranslationKey)}
+        aria-label={t(currentLocale, langKeys[lang])}
       >
-        {t(currentLocale, `settings.language.${lang}` as TranslationKey)}
+        {t(currentLocale, langKeys[lang])}
       </button>
     ))}
   </form>

@@ -47,6 +47,10 @@ const { locale } = Astro.locals;
       <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-vspo-purple border-t-transparent"></div>
     </div>
 
+    <p class="hidden py-8 text-center text-sm text-error" data-error>
+      {t(locale, "channel.add.error")}
+    </p>
+
     <p class="hidden py-8 text-center text-sm text-on-surface-variant" data-no-channels>
       {t(locale, "channel.add.empty")}
     </p>
@@ -108,6 +112,7 @@ const { locale } = Astro.locals;
     const emptyMsg = dialog.querySelector<HTMLElement>("[data-search-empty]");
     const loadingEl = dialog.querySelector<HTMLElement>("[data-loading]");
     const noChannelsEl = dialog.querySelector<HTMLElement>("[data-no-channels]");
+    const errorEl = dialog.querySelector<HTMLElement>("[data-error]");
     const form = document.getElementById("add-channel-form") as HTMLFormElement | null;
     const hiddenChannelId = form?.querySelector<HTMLInputElement>("[data-add-channel-id]");
     const tplAdd = document.getElementById("tpl-channel-add") as HTMLTemplateElement | null;
@@ -146,6 +151,7 @@ const { locale } = Astro.locals;
 
       if (loadingEl) loadingEl.classList.remove("hidden");
       if (noChannelsEl) noChannelsEl.classList.add("hidden");
+      if (errorEl) errorEl.classList.add("hidden");
       listContainer.textContent = "";
       if (searchInput) searchInput.value = "";
 
@@ -159,9 +165,9 @@ const { locale } = Astro.locals;
 
       let res: Response;
       try { res = await fetch(`/api/guilds/${guildId}/channels`); }
-      catch { if (loadingEl) loadingEl.classList.add("hidden"); return; }
+      catch { if (loadingEl) loadingEl.classList.add("hidden"); if (errorEl) errorEl.classList.remove("hidden"); return; }
       if (loadingEl) loadingEl.classList.add("hidden");
-      if (!res.ok) return;
+      if (!res.ok) { if (errorEl) errorEl.classList.remove("hidden"); return; }
 
       const allChannels: { id: string; name: string }[] = await res.json();
       const unregistered = allChannels.filter((ch) => !registeredIds.has(ch.id));

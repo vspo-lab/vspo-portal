@@ -67,16 +67,7 @@ const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;
 const fetchError = guildsResult.err ?? channelsResult.err ?? null;
 
-// Data for client-side use (edit modal population, add modal channel loading)
-const pageData = {
-  guildId,
-  channels,
-  creators: [...creators.jp, ...creators.en],
-  i18n: {
-    "channelConfig.title": t(locale, "channelConfig.title", { channelName: "{channelName}" }),
-    "channelConfig.members.selected": t(locale, "channelConfig.members.selected", { count: "{count}" }),
-  },
-};
+
 ---
 
 <Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
@@ -142,6 +133,9 @@ const pageData = {
     <ChannelConfigForm
       creators={[...creators.jp, ...creators.en]}
       guildId={guildId}
+      channels={channels}
+      titleTemplate={t(locale, 'channelConfig.title', { channelName: '{channelName}' })}
+      selectedTemplate={t(locale, 'channelConfig.members.selected', { count: '{count}' })}
     />
 
     <DeleteChannelDialog guildId={guildId} />
@@ -149,8 +143,6 @@ const pageData = {
     <ChannelAddModal guildId={guildId} />
   </div>
 
-  {/* Page data for client-side scripts (edit modal population) */}
-  <script type="application/json" id="channel-data" set:html={JSON.stringify(pageData).replace(/</g, "\\u003c")} />
 </Dashboard>
 
 <script>

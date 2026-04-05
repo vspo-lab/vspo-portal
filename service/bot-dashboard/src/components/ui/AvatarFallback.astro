@@ -1,9 +1,9 @@
 ---
 const sizeClasses = {
-  xs: { img: "h-5 w-5", text: "text-xs" },
-  sm: { img: "h-8 w-8", text: "text-sm font-medium" },
-  md: { img: "h-10 w-10", text: "text-sm font-bold" },
-  lg: { img: "h-12 w-12", text: "text-lg font-bold" },
+  xs: { img: "h-5 w-5", text: "text-xs", px: 20 },
+  sm: { img: "h-8 w-8", text: "text-sm font-medium", px: 32 },
+  md: { img: "h-10 w-10", text: "text-sm font-bold", px: 40 },
+  lg: { img: "h-12 w-12", text: "text-lg font-bold", px: 48 },
 } as const;
 
 interface Props {
@@ -18,7 +18,7 @@ const classes = sizeClasses[size];
 
 {
   src ? (
-    <img src={src} alt={name} class={`${classes.img} rounded-full`} />
+    <img src={src} alt={name} class={`${classes.img} rounded-full`} loading="lazy" width={classes.px} height={classes.px} />
   ) : (
     <div
       class={`flex ${classes.img} items-center justify-center rounded-full bg-muted text-muted-foreground ${classes.text}`}

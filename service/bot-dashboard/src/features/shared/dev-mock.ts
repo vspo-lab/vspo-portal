@@ -14,7 +14,10 @@ import type { ApplicationService } from "~/types/api";
 export const isRpcUnavailable = (appWorker: ApplicationService): boolean => {
   // In dev mode, use mocks by default. Set DEV_MOCK_AUTH=false to use real backend.
   if (import.meta.env.DEV) {
-    const flag = (env as unknown as Record<string, unknown>).DEV_MOCK_AUTH;
+    const flag =
+      "DEV_MOCK_AUTH" in env
+        ? (env as Record<string, unknown>).DEV_MOCK_AUTH
+        : undefined;
     return flag !== "false";
   }
   if (!appWorker) return true;

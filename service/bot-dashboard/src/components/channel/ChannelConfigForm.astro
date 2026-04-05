@@ -9,9 +9,12 @@ import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/
 interface Props {
   creators: CreatorType[];
   guildId: string;
+  channels?: { channelId: string; channelName: string; language: string; memberType: string; customMembers?: string[] }[];
+  titleTemplate?: string;
+  selectedTemplate?: string;
 }
 
-const { creators, guildId } = Astro.props;
+const { creators, guildId, channels = [], titleTemplate = "#{channelName}", selectedTemplate = "{count} selected" } = Astro.props;
 const { locale } = Astro.locals;
 const memberTypeOptions = MemberType.schema.options.map((value) => ({
   value,
@@ -26,6 +29,9 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
   id="config-modal"
   aria-labelledby="config-modal-heading"
   aria-modal="true"
+  data-channels={JSON.stringify(channels)}
+  data-title-template={titleTemplate}
+  data-selected-template={selectedTemplate}
 >
   <div
     class="animate-modal-in glass mx-2 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6"
@@ -307,13 +313,21 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
     const chipsContainer = dialog.querySelector<HTMLElement>("[data-selected-chips]");
     const placeholder = dialog.querySelector<HTMLElement>("[data-dropdown-placeholder]");
 
-    // Build creators map from data attribute
+    // Build creators map from rendered DOM checkboxes
     const getCreatorsMap = (): Map<string, CreatorInfo> => {
-      const el = document.getElementById("channel-data");
-      if (!el?.textContent) return new Map();
-      const data = JSON.parse(el.textContent);
-      const creators: CreatorInfo[] = data.creators ?? [];
-      return new Map(creators.map((c) => [c.id, c]));
+      const map = new Map<string, CreatorInfo>();
+      for (const item of dialog!.querySelectorAll<HTMLElement>("[data-member-item]")) {
+        const cb = item.querySelector<HTMLInputElement>("[data-member-checkbox]");
+        if (!cb) continue;
+        const img = item.querySelector<HTMLImageElement>("img");
+        const nameEl = item.querySelector("span.truncate");
+        map.set(cb.value, {
+          id: cb.value,
+          name: nameEl?.textContent ?? "",
+          thumbnailUrl: img?.src ?? null,
+        });
+      }
+      return map;
     };
     const creatorsMap = getCreatorsMap();
 
@@ -338,22 +352,23 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       const langCell = row?.querySelector("td:nth-child(2) span");
       const language = langCell?.textContent?.trim() ?? "default";
 
-      // Read channel data from #channel-data JSON
-      const dataEl = document.getElementById("channel-data");
-      if (!dataEl?.textContent) return;
-      const pageData = JSON.parse(dataEl.textContent);
-      const channel = pageData.channels?.find((c: ChannelConfig) => c.channelId === channelId);
+      // Read channel data from dialog's data-channels attribute
+      const channelsJson = dialog!.dataset.channels;
+      if (!channelsJson) return;
+      const channelsList: ChannelConfig[] = JSON.parse(channelsJson);
+      const channel = channelsList.find((c) => c.channelId === channelId);
       if (!channel) return;
 
-      populateForm(channel, pageData);
+      populateForm(channel);
       dialog.showModal();
     }, { signal });
 
-    const populateForm = (channel: ChannelConfig, pageData: { i18n: Record<string, string> }) => {
+    const populateForm = (channel: ChannelConfig) => {
       // Heading
       const heading = dialog!.querySelector("[data-config-heading]");
       if (heading) {
-        heading.textContent = pageData.i18n["channelConfig.title"]?.replace("{channelName}", channel.channelName) ?? `#${channel.channelName}`;
+        const titleTpl = dialog!.dataset.titleTemplate ?? "#{channelName}";
+        heading.textContent = titleTpl.replace("{channelName}", channel.channelName);
       }
 
       // Hidden inputs
@@ -395,7 +410,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       }
 
       syncChips();
-      updateSelectedState(pageData.i18n);
+      updateSelectedState();
       for (const g of ["vspo_jp", "vspo_en"]) updateToggleLabel(g);
 
       if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove("opacity-50"); }
@@ -459,15 +474,11 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       if (placeholder) placeholder.classList.toggle("hidden", hasChips);
     };
 
-    const updateSelectedState = (i18n?: Record<string, string>) => {
+    const updateSelectedState = () => {
       const countEl = dialog!.querySelector<HTMLElement>("[data-selected-count]");
       if (!countEl) return;
-      if (!i18n) {
-        const dataEl = document.getElementById("channel-data");
-        i18n = dataEl ? JSON.parse(dataEl.textContent ?? "{}").i18n ?? {} : {};
-      }
       const count = dialog!.querySelectorAll<HTMLInputElement>("[data-member-checkbox]:checked").length;
-      const template = i18n!["channelConfig.members.selected"] ?? "{count} selected";
+      const template = dialog!.dataset.selectedTemplate ?? "{count} selected";
       countEl.textContent = template.replace("{count}", String(count));
 
       const isCustom = dialog!.querySelector<HTMLInputElement>('input[name="memberType"][value="custom"]')?.checked;

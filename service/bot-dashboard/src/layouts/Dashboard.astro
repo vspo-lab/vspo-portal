@@ -38,7 +38,7 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
   <div class="flex min-h-screen flex-col bg-surface">
     {showSidebar ? (
       <div class="flex min-h-screen">
-        <aside class="hidden w-[280px] shrink-0 flex-col bg-surface-container-lowest p-4 lg:flex">
+        <aside class="hidden w-[280px] shrink-0 flex-col bg-surface-container-lowest p-4 lg:flex" transition:persist>
           {activeGuild && (
             <div class="mb-8 flex items-center gap-3 px-2">
               <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-primary-container">
@@ -79,7 +79,7 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
         </aside>
 
         <div class="flex flex-1 flex-col">
-          <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
+          <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6" transition:persist>
             <div class="flex items-center gap-4">
               <details class="group relative lg:hidden" id="mobile-sidebar" data-auto-close>
                 <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" aria-label={t(locale, "nav.menu")}>
