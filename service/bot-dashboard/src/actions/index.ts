@@ -14,7 +14,7 @@ const requireAuth = (context: { locals: { user: unknown } }) => {
 
 export const server = {
   addChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -34,11 +34,13 @@ export const server = {
           message: result.err.message,
         });
       }
+
+      return { success: true as const };
     },
   }),
 
   updateChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -66,11 +68,13 @@ export const server = {
           message: result.err.message,
         });
       }
+
+      return { success: true as const };
     },
   }),
 
   resetChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -91,11 +95,13 @@ export const server = {
           message: result.err.message,
         });
       }
+
+      return { success: true as const };
     },
   }),
 
   deleteChannel: defineAction({
-    accept: "json",
+    accept: "form",
     input: z.object({
       guildId: z.string(),
       channelId: z.string(),
@@ -115,6 +121,8 @@ export const server = {
           message: result.err.message,
         });
       }
+
+      return { success: true as const };
     },
   }),
 };

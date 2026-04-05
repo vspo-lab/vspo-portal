@@ -81,7 +81,7 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
         <div class="flex flex-1 flex-col">
           <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
             <div class="flex items-center gap-4">
-              <details class="group relative lg:hidden" id="mobile-sidebar">
+              <details class="group relative lg:hidden" id="mobile-sidebar" data-auto-close>
                 <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" aria-label={t(locale, "nav.menu")}>
                   <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                   <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -153,12 +153,4 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
   </div>
 </Base>
 
-<script is:inline>
-  /* Close mobile sidebar when clicking outside */
-  document.addEventListener("click", function (e) {
-    var sidebar = document.getElementById("mobile-sidebar");
-    if (sidebar && sidebar.open && !sidebar.contains(e.target)) {
-      sidebar.open = false;
-    }
-  });
-</script>
+

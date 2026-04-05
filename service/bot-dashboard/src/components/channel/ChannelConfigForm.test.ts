@@ -1,19 +1,16 @@
 import {
   getAllByRole,
   getByLabelText,
-  getByRole,
   getByText,
-  queryByText,
 } from "@testing-library/dom";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
-import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import type { CreatorType } from "~/features/shared/domain/creator";
 import ChannelConfigForm from "./ChannelConfigForm.astro";
 
 vi.mock("astro:actions", () => ({
   actions: {
-    toggleChannel: "/api/toggle",
     updateChannel: "/api/update",
+    resetChannel: "/api/reset",
   },
 }));
 
@@ -26,23 +23,6 @@ describe("ChannelConfigForm", () => {
   beforeEach(async () => {
     container = await AstroContainer.create();
   });
-
-  const channel: ChannelConfigType = {
-    channelId: "ch-1",
-    channelName: "general",
-    enabled: true,
-    language: "ja",
-    memberType: "vspo_jp",
-  };
-
-  const customChannel: ChannelConfigType = {
-    channelId: "ch-2",
-    channelName: "custom-ch",
-    enabled: true,
-    language: "en",
-    memberType: "custom",
-    customMembers: ["c1"],
-  };
 
   const creators: CreatorType[] = [
     {
@@ -59,86 +39,94 @@ describe("ChannelConfigForm", () => {
     },
   ];
 
-  it("displays channel name in heading", async () => {
+  it("renders dialog with heading element", async () => {
     const html = await container.renderToString(ChannelConfigForm, {
-      props: { channel, creators, guildId: "guild-1" },
+      props: { creators, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    // en: channelConfig.title = "#{channelName} Settings"
-    const heading = getByRole(body, "heading", { name: /#general Settings/i });
+    const dialog = body.querySelector("dialog#config-modal");
+    expect(dialog).toBeTruthy();
+    const heading = dialog?.querySelector("[data-config-heading]");
     expect(heading).toBeTruthy();
   });
 
-  it("renders language select with correct selected option", async () => {
+  it("renders language select with all options", async () => {
     const html = await container.renderToString(ChannelConfigForm, {
-      props: { channel, creators, guildId: "guild-1" },
+      props: { creators, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    const select = getByLabelText(body, "Language") as HTMLSelectElement;
+    const select = body.querySelector("#language") as HTMLSelectElement;
     expect(select).toBeTruthy();
-    // Check that the "ja" option is selected
-    const jaOption = select.querySelector(
-      'option[value="ja"]',
-    ) as HTMLOptionElement;
-    expect(jaOption.selected).toBe(true);
+    const options = select.querySelectorAll("option");
+    expect(options.length).toBe(9); // ja, en, fr, de, es, cn, tw, ko, default
   });
 
   it("renders 4 member type radio buttons", async () => {
     const html = await container.renderToString(ChannelConfigForm, {
-      props: { channel, creators, guildId: "guild-1" },
+      props: { creators, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    const radios = getAllByRole(body, "radio");
+    const radios = body.querySelectorAll('input[name="memberType"]');
     expect(radios).toHaveLength(4);
-    const values = radios.map((r) => (r as HTMLInputElement).value);
+    const values = Array.from(radios).map((r) => (r as HTMLInputElement).value);
     expect(values).toEqual(["vspo_jp", "vspo_en", "all", "custom"]);
   });
 
-  it("has vspo_jp radio checked for channel with memberType=vspo_jp", async () => {
+  it("renders creator checkboxes for custom members", async () => {
     const html = await container.renderToString(ChannelConfigForm, {
-      props: { channel, creators, guildId: "guild-1" },
+      props: { creators, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    const radios = getAllByRole(body, "radio") as HTMLInputElement[];
-    const checked = radios.find((r) => r.checked);
-    expect(checked?.value).toBe("vspo_jp");
+    const checkboxes = body.querySelectorAll<HTMLInputElement>("[data-member-checkbox]");
+    expect(checkboxes).toHaveLength(2);
+    expect(checkboxes[0].value).toBe("c1");
+    expect(checkboxes[1].value).toBe("c2");
   });
 
-  it("hides custom members section when memberType is not custom", async () => {
+  it("renders update form with correct action", async () => {
     const html = await container.renderToString(ChannelConfigForm, {
-      props: { channel, creators, guildId: "guild-1" },
+      props: { creators, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    expect(queryByText(body, "Custom Members")).toBeNull();
+    const form = body.querySelector("#update-channel-form") as HTMLFormElement;
+    expect(form).toBeTruthy();
+    expect(form.getAttribute("method")).toBe("POST");
   });
 
-  it("shows custom members section when memberType is custom", async () => {
+  it("renders reset form with correct action", async () => {
     const html = await container.renderToString(ChannelConfigForm, {
-      props: { channel: customChannel, creators, guildId: "guild-1" },
+      props: { creators, guildId: "guild-1" },
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    expect(getByText(body, "Custom Members")).toBeTruthy();
-    // Should show creator names
+    const form = body.querySelector("#reset-channel-form") as HTMLFormElement;
+    expect(form).toBeTruthy();
+    expect(form.getAttribute("method")).toBe("POST");
+  });
+
+  it("includes guildId hidden input", async () => {
+    const html = await container.renderToString(ChannelConfigForm, {
+      props: { creators, guildId: "guild-1" },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
+    const guildIdInput = body.querySelector('input[name="guildId"]') as HTMLInputElement;
+    expect(guildIdInput).toBeTruthy();
+    expect(guildIdInput.value).toBe("guild-1");
+  });
+
+  it("shows creator names in member selection", async () => {
+    const html = await container.renderToString(ChannelConfigForm, {
+      props: { creators, guildId: "guild-1" },
+      locals: { locale: "en" },
+    });
+    const body = parseHtml(html);
     expect(getByText(body, "Creator One")).toBeTruthy();
     expect(getByText(body, "Creator Two")).toBeTruthy();
-  });
-
-  it("pre-checks custom members that are in channel.customMembers", async () => {
-    const html = await container.renderToString(ChannelConfigForm, {
-      props: { channel: customChannel, creators, guildId: "guild-1" },
-      locals: { locale: "en" },
-    });
-    const body = parseHtml(html);
-    const checkboxes = getAllByRole(body, "checkbox") as HTMLInputElement[];
-    const c1 = checkboxes.find((cb) => cb.value === "c1");
-    const c2 = checkboxes.find((cb) => cb.value === "c2");
-    expect(c1?.checked).toBe(true);
-    expect(c2?.checked).toBe(false);
   });
 });

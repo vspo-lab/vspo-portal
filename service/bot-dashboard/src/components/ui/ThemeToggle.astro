@@ -13,14 +13,13 @@ const buttonClass = variant === "header"
 ---
 
 <button
-  id="theme-toggle"
   type="button"
   aria-label={t(locale, "settings.theme.toggle")}
-  class={`flex h-9 w-9 items-center justify-center rounded-[--radius-sm] transition-colors duration-[--duration-fast] ease-[--ease-standard] focus-visible:outline-none focus-visible:ring-2 ${buttonClass}`}
+  class={`theme-toggle flex h-9 w-9 items-center justify-center rounded-[--radius-sm] transition-colors duration-[--duration-fast] ease-[--ease-standard] focus-visible:outline-none focus-visible:ring-2 ${buttonClass}`}
 >
   <!-- Sun icon: shown in dark mode -->
   <svg
-    id="theme-icon-sun"
+    data-theme-icon="sun"
     class="hidden h-5 w-5"
     fill="none"
     stroke="currentColor"
@@ -33,7 +32,7 @@ const buttonClass = variant === "header"
   </svg>
   <!-- Moon icon: shown in light mode -->
   <svg
-    id="theme-icon-moon"
+    data-theme-icon="moon"
     class="hidden h-5 w-5"
     fill="none"
     stroke="currentColor"
@@ -46,15 +45,13 @@ const buttonClass = variant === "header"
 </button>
 
 <script>
-  import { clearIcons, registerIcons, toggle } from "~/components/ui/theme";
+  import { syncTheme, toggle } from "~/components/ui/theme";
 
   function init() {
-    clearIcons();
-    const sun = document.getElementById("theme-icon-sun");
-    const moon = document.getElementById("theme-icon-moon");
-    const btn = document.getElementById("theme-toggle");
-    if (sun && moon) registerIcons(sun, moon);
-    btn?.addEventListener("click", toggle);
+    syncTheme();
+    for (const btn of document.querySelectorAll<HTMLElement>(".theme-toggle")) {
+      btn.addEventListener("click", toggle);
+    }
   }
 
   init();

@@ -1,4 +1,5 @@
 ---
+import { actions } from "astro:actions";
 import Button from "~/components/ui/Button.astro";
 import { t } from "~/i18n/dict";
 
@@ -52,15 +53,51 @@ const { locale } = Astro.locals;
       </div>
     </div>
 
-    <input type="hidden" name="channelId" value="" />
+    <form method="POST" action={actions.deleteChannel}>
+      <input type="hidden" name="guildId" value={guildId} />
+      <input type="hidden" name="channelId" value="" />
 
-    <div class="flex justify-end gap-2 pt-2">
-      <Button as="button" type="button" variant="ghost" size="sm" data-modal-cancel>
-        {t(locale, "channel.deleteConfirm.cancel")}
-      </Button>
-      <Button as="button" type="button" variant="destructive" size="sm" data-modal-confirm>
-        {t(locale, "channel.deleteConfirm.submit")}
-      </Button>
-    </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <Button as="button" type="button" variant="ghost" size="sm" data-modal-cancel>
+          {t(locale, "channel.deleteConfirm.cancel")}
+        </Button>
+        <Button as="button" type="submit" variant="destructive" size="sm">
+          {t(locale, "channel.deleteConfirm.submit")}
+        </Button>
+      </div>
+    </form>
   </div>
 </dialog>
+
+<script>
+  function initDeleteDialog() {
+    const dialog = document.getElementById("delete-channel-modal") as HTMLDialogElement | null;
+    if (!dialog) return;
+
+    // Open dialog on delete button click
+    document.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-action-delete]");
+      if (!btn) return;
+
+      const channelId = btn.dataset.actionDelete ?? "";
+      const channelName = btn.closest("tr")?.querySelector("p")?.textContent ?? "";
+
+      const heading = dialog.querySelector("[data-delete-heading]");
+      if (heading) heading.textContent = channelName ? `#${channelName}` : "";
+
+      const hiddenInput = dialog.querySelector<HTMLInputElement>('input[name="channelId"]');
+      if (hiddenInput) hiddenInput.value = channelId;
+
+      dialog.showModal();
+    });
+
+    // Cancel button and backdrop click
+    dialog.querySelector("[data-modal-cancel]")?.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+
+  initDeleteDialog();
+  document.addEventListener("astro:page-load", initDeleteDialog);
+</script>

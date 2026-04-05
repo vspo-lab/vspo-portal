@@ -93,7 +93,7 @@ describe("UserMenu", () => {
       locals: { locale: "en" },
     });
     const body = parseHtml(html);
-    const themeBtn = body.querySelector("#dropdown-theme-toggle");
+    const themeBtn = body.querySelector(".theme-toggle");
     expect(themeBtn).toBeTruthy();
     expect(getByText(body, "Theme")).toBeTruthy();
   });

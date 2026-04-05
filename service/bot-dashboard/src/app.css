@@ -156,6 +156,12 @@
 }
 
 /*
+ * Ensure closed <dialog> elements stay hidden even with Tailwind display utilities.
+ */
+dialog:not([open]) {
+  display: none;
+}
+/*
  * === Dialog reset ===
  * Override browser defaults for <dialog open> so Tailwind positioning works.
  */
@@ -200,23 +206,27 @@ dialog[open] {
 
 /*
  * === Scroll Reveal System ===
- * Elements with [data-scroll-reveal] start hidden.
- * IntersectionObserver adds [data-visible] to trigger animation.
+ * CSS-only scroll-triggered animations using animation-timeline: view().
+ * No JavaScript required. Falls back to visible content if unsupported.
  */
 [data-scroll-reveal] {
   opacity: 0;
 }
 
-[data-scroll-reveal][data-visible] {
-  opacity: 1;
-}
-
 /* Fade in up (default scroll reveal) */
 [data-scroll-reveal="fade-in-up"] {
   transform: translateY(24px);
-}
-[data-scroll-reveal="fade-in-up"][data-visible] {
   animation: fade-in-up 600ms var(--ease-standard) var(--reveal-delay, 0ms) both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 30%;
+}
+
+/* Fallback for browsers without animation-timeline support */
+@supports not (animation-timeline: view()) {
+  [data-scroll-reveal] {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /*
@@ -251,9 +261,11 @@ dialog[open] {
   font-variant-numeric: tabular-nums;
 }
 
-/* Animated only when parent has [data-visible] */
-[data-visible] .digit-strip {
+/* Animated when parent scroll-reveal enters viewport */
+[data-scroll-reveal] .digit-strip {
   animation: digit-roll 1.2s cubic-bezier(0.22, 1, 0.36, 1) var(--digit-delay, 0s) both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 40%;
 }
 
 /* Separator (comma, period) */
@@ -263,7 +275,7 @@ dialog[open] {
   align-items: center;
   justify-content: center;
 }
-[data-visible] .digit-sep {
+[data-scroll-reveal] .digit-sep {
   opacity: 0;
   animation: fade-in-up 400ms var(--ease-standard) 0.8s both;
 }
@@ -324,6 +336,7 @@ dialog[open] {
   [data-scroll-reveal] {
     opacity: 1 !important;
     transform: none !important;
+    animation: none !important;
   }
   .hero-badge, .hero-headline, .hero-description, .hero-stats, .hero-cta {
     opacity: 1 !important;

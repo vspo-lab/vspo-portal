@@ -1,10 +1,12 @@
 ---
+import { actions } from "astro:actions";
 import { env } from "cloudflare:workers";
 import ChannelAddModal from "~/components/channel/ChannelAddModal.astro";
 import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
 import ChannelTable from "~/components/channel/ChannelTable.astro";
 import DeleteChannelDialog from "~/components/channel/DeleteChannelDialog.astro";
 import ErrorAlert from "~/components/ui/ErrorAlert.astro";
+import FlashMessage from "~/components/ui/FlashMessage.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { GuildSummary } from "~/features/guild/domain/guild";
@@ -23,6 +25,30 @@ if (!accessToken || !user) {
   return Astro.redirect("/");
 }
 
+// Check for action results (form submissions)
+const addResult = Astro.getActionResult(actions.addChannel);
+const updateResult = Astro.getActionResult(actions.updateChannel);
+const deleteResult = Astro.getActionResult(actions.deleteChannel);
+const resetResult = Astro.getActionResult(actions.resetChannel);
+
+// If an action succeeded, redirect to refresh the page data
+if (addResult?.data?.success || updateResult?.data?.success || deleteResult?.data?.success || resetResult?.data?.success) {
+  const flashType = addResult?.data ? "add" : updateResult?.data ? "update" : deleteResult?.data ? "delete" : "reset";
+  return Astro.redirect(`/dashboard/${guildId}?flash=${flashType}`);
+}
+
+// Check for flash message from redirect
+const flashType = Astro.url.searchParams.get("flash");
+const flashMessages: Record<string, string> = {
+  add: t(locale, "toast.addSuccess"),
+  update: t(locale, "toast.updateSuccess"),
+  delete: t(locale, "toast.deleteSuccess"),
+  reset: t(locale, "toast.resetSuccess"),
+};
+
+// Get action error if any
+const actionError = addResult?.error ?? updateResult?.error ?? deleteResult?.error ?? resetResult?.error ?? null;
+
 const [guildsResult, channelsResult, creatorsResult] = await Promise.all([
   ListGuildsUsecase.execute({
     accessToken,
@@ -40,41 +66,14 @@ const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;
 const fetchError = guildsResult.err ?? channelsResult.err ?? null;
 
-// Prepare data for client-side use (modals, actions)
+// Data for client-side use (edit modal population, add modal channel loading)
 const pageData = {
   guildId,
   channels,
   creators: [...creators.jp, ...creators.en],
   i18n: {
-    "channel.deleteConfirm": t(locale, "channel.deleteConfirm", { channelName: "{channelName}" }),
-    "toast.addSuccess": t(locale, "toast.addSuccess"),
-    "toast.updateSuccess": t(locale, "toast.updateSuccess"),
-    "toast.deleteSuccess": t(locale, "toast.deleteSuccess"),
-    "toast.resetSuccess": t(locale, "toast.resetSuccess"),
-    "dashboard.error": t(locale, "dashboard.error", { message: "{message}" }),
-    "channel.add.submit": t(locale, "channel.add.submit"),
-    "channel.add.registered": t(locale, "channel.add.registered"),
     "channelConfig.title": t(locale, "channelConfig.title", { channelName: "{channelName}" }),
     "channelConfig.members.selected": t(locale, "channelConfig.members.selected", { count: "{count}" }),
-    "memberType.all": t(locale, "memberType.all"),
-    "memberType.vspo_jp": t(locale, "memberType.vspo_jp"),
-    "memberType.vspo_en": t(locale, "memberType.vspo_en"),
-    "memberType.custom": t(locale, "memberType.custom"),
-    "channel.status.active": t(locale, "channel.status.active"),
-    "channel.status.paused": t(locale, "channel.status.paused"),
-    "channel.edit": t(locale, "channel.edit"),
-    "channel.delete": t(locale, "channel.delete"),
-    "dashboard.channelsCount": t(locale, "dashboard.channelsCount", { total: "{total}" }),
-    "language.ja": t(locale, "channelConfig.language.ja"),
-    "language.en": t(locale, "channelConfig.language.en"),
-    "language.fr": t(locale, "channelConfig.language.fr"),
-    "language.de": t(locale, "channelConfig.language.de"),
-    "language.es": t(locale, "channelConfig.language.es"),
-    "language.cn": t(locale, "channelConfig.language.cn"),
-    "language.tw": t(locale, "channelConfig.language.tw"),
-    "language.ko": t(locale, "channelConfig.language.ko"),
-    "language.default": t(locale, "channelConfig.language.default"),
-    "language.unknown": t(locale, "channelConfig.language.unknown"),
   },
 };
 ---
@@ -86,7 +85,7 @@ const pageData = {
       <div class="space-y-2">
         <p class="text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "nav.channels")}</p>
         <h1 class="font-heading text-3xl font-extrabold text-on-surface sm:text-4xl">{guildName}</h1>
-        <p data-channels-desc class="max-w-md text-on-surface-variant">
+        <p class="max-w-md text-on-surface-variant">
           {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
         </p>
       </div>
@@ -104,11 +103,11 @@ const pageData = {
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
       <div class="rounded-2xl bg-surface-container-low p-6">
         <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "dashboard.stat.channels")}</p>
-        <span data-stat-total class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
+        <span class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
       </div>
       <div class="rounded-2xl bg-surface-container-low p-6">
         <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.language")}</p>
-        <div data-stat-languages class="flex gap-2">
+        <div class="flex gap-2">
           {[...new Set(channels.map(c => c.language))].map(lang => (
             <span class="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple">{t(locale, languageDisplayKey(lang))}</span>
           ))}
@@ -117,7 +116,7 @@ const pageData = {
       </div>
       <div class="col-span-2 rounded-2xl bg-surface-container-low p-6">
         <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.members")}</p>
-        <div data-stat-members class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2">
           {[...new Set(channels.map(c => c.memberType))].map(mt => (
             <span class="text-sm font-medium text-on-surface">{t(locale, memberTypeKey(mt))}</span>
           ))}
@@ -127,7 +126,13 @@ const pageData = {
     </div>
 
     {/* Alerts container */}
-    <div data-alerts class="space-y-4">
+    <div class="space-y-4">
+      {flashType && flashMessages[flashType] && (
+        <FlashMessage result={{ data: { success: true } }} successMessage={flashMessages[flashType]} />
+      )}
+      {actionError && (
+        <FlashMessage result={{ error: { message: actionError.message } }} />
+      )}
       {fetchError && (
         <ErrorAlert message={t(locale, "dashboard.error", { message: fetchError.message })} retryHref={`/dashboard/${guildId}`} retryLabel={t(locale, "toast.retry")} />
       )}
@@ -136,7 +141,7 @@ const pageData = {
     {/* Configuration Matrix */}
     <ChannelTable channels={channels} />
 
-    {/* Hidden modals - opened via client-side JS */}
+    {/* Hidden modals */}
     <ChannelConfigForm
       creators={[...creators.jp, ...creators.en]}
       guildId={guildId}
@@ -147,27 +152,17 @@ const pageData = {
     <ChannelAddModal guildId={guildId} />
   </div>
 
-  {/* Page data for client-side scripts */}
+  {/* Page data for client-side scripts (edit modal population) */}
   <script type="application/json" id="channel-data" set:html={JSON.stringify(pageData).replace(/</g, "\\u003c")} />
 </Dashboard>
 
 <script>
-  import { initChannelActions } from "~/components/channel/channel-actions";
-
   // Close open dialogs before page transition to prevent stale top-layer state
   document.addEventListener("astro:before-preparation", () => {
-    const dialogs = document.querySelectorAll("dialog[open]");
-    for (const d of dialogs) (d as HTMLDialogElement).close();
+    for (const d of document.querySelectorAll("dialog[open]")) (d as HTMLDialogElement).close();
   });
 
-  // Also close dialogs after DOM swap to prevent stale top-layer state
   document.addEventListener("astro:after-swap", () => {
-    const dialogs = document.querySelectorAll("dialog[open]");
-    for (const d of dialogs) (d as HTMLDialogElement).close();
-  });
-
-  // Initialize on first load and after every client-side navigation
-  document.addEventListener("astro:page-load", () => {
-    initChannelActions();
+    for (const d of document.querySelectorAll("dialog[open]")) (d as HTMLDialogElement).close();
   });
 </script>
