@@ -192,7 +192,7 @@ jobs:
 
       - name: Upload coverage (web)
         if: always() && steps.web-test.outcome == 'success'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: service/vspo-schedule/v2/web/coverage/coverage-final.json
@@ -200,7 +200,7 @@ jobs:
           fail_ci_if_error: false
       - name: Upload coverage (bot-dashboard)
         if: always() && steps.bot-test.outcome == 'success'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: service/bot-dashboard/coverage/coverage-final.json
