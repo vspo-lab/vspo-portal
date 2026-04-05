@@ -187,33 +187,40 @@ const updateStats = (data: PageData) => {
 
   const langContainer = document.querySelector("[data-stat-languages]");
   if (langContainer) {
+    langContainer.textContent = "";
     const langs = [...new Set(data.channels.map((c) => c.language))];
     if (langs.length === 0) {
-      langContainer.innerHTML =
-        '<span class="text-sm text-on-surface-variant">—</span>';
+      const empty = document.createElement("span");
+      empty.className = "text-sm text-on-surface-variant";
+      empty.textContent = "—";
+      langContainer.appendChild(empty);
     } else {
-      langContainer.innerHTML = langs
-        .map(
-          (lang) =>
-            `<span class="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple">${lang.toUpperCase()}</span>`,
-        )
-        .join("");
+      for (const lang of langs) {
+        const chip = document.createElement("span");
+        chip.className =
+          "rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple";
+        chip.textContent = lang.toUpperCase();
+        langContainer.appendChild(chip);
+      }
     }
   }
 
   const membersContainer = document.querySelector("[data-stat-members]");
   if (membersContainer) {
+    membersContainer.textContent = "";
     const types = [...new Set(data.channels.map((c) => c.memberType))];
     if (types.length === 0) {
-      membersContainer.innerHTML =
-        '<span class="text-sm text-on-surface-variant">—</span>';
+      const empty = document.createElement("span");
+      empty.className = "text-sm text-on-surface-variant";
+      empty.textContent = "—";
+      membersContainer.appendChild(empty);
     } else {
-      membersContainer.innerHTML = types
-        .map(
-          (mt) =>
-            `<span class="text-sm font-medium text-on-surface">${memberTypeLabel(mt, data.i18n)}</span>`,
-        )
-        .join("");
+      for (const mt of types) {
+        const chip = document.createElement("span");
+        chip.className = "text-sm font-medium text-on-surface";
+        chip.textContent = memberTypeLabel(mt, data.i18n);
+        membersContainer.appendChild(chip);
+      }
     }
   }
 };
