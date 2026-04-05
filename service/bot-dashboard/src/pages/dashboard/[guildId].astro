@@ -147,7 +147,7 @@ const pageData = {
   // Initialize on first load
   initChannelActions();
 
-  // Re-initialize after View Transition navigations
+  // Re-initialize after View Transition swaps
   document.addEventListener("astro:after-swap", () => {
     initChannelActions();
   });
