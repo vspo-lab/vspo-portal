@@ -5,10 +5,9 @@ const ja = {
 
   // Login page
   "login.title": "ログイン",
-  "login.headline": "ぶいすぽっ!の配信予定を\nDiscord に届ける",
-  "login.description":
-    "ぶいすぽっ!メンバーの配信予定を Discord に自動で届けます",
-  "login.button": "Discord でログイン",
+  "login.headline": "ぶいすぽっ!の配信予定を\nDiscordへ",
+  "login.description": "",
+  "login.button": "Discordで管理画面へログイン",
   "login.addBot": "サーバーに追加する",
   "login.previewCaption": "通知イメージ",
   "login.previewAlt1": "ぶいすぽっ!公式メンバーの配信通知例",
@@ -34,6 +33,7 @@ const ja = {
   "login.feature.settings": "Webで設定管理",
   "login.feature.settings.desc":
     "ダッシュボードから通知チャンネルや対象メンバーを変更",
+  "login.feature.close": "閉じる",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -176,10 +176,9 @@ const en: Record<keyof typeof ja, string> = {
 
   // Login page
   "login.title": "Login",
-  "login.headline": "VSPO stream schedules,\nright in Discord",
-  "login.description":
-    "Automatic Discord notifications for VSPO member streams",
-  "login.button": "Login with Discord",
+  "login.headline": "VSPO stream schedules,\nto Discord",
+  "login.description": "",
+  "login.button": "Log in to Dashboard with Discord",
   "login.addBot": "Add to Server",
   "login.previewCaption": "Preview",
   "login.previewAlt1": "Example notification for official VSPO member streams",
@@ -208,6 +207,7 @@ const en: Record<keyof typeof ja, string> = {
   "login.feature.settings": "Settings from the web",
   "login.feature.settings.desc":
     "Change notification channels and target members from the dashboard",
+  "login.feature.close": "Close",
 
   // Dashboard
   "dashboard.servers": "Servers",
