@@ -50,18 +50,26 @@ const flashMessages: Record<string, string> = {
 // Get action error if any
 const actionError = addResult?.error ?? updateResult?.error ?? deleteResult?.error ?? resetResult?.error ?? null;
 
+// Use cached guild summaries from session (set by /dashboard) to avoid the heavy
+// ListGuildsUsecase call on every guild detail navigation.
+// Falls back to the full fetch only on direct navigation (e.g. bookmark).
+const cachedGuilds = await Astro.session?.get("guildSummaries");
+const cachedGuild = cachedGuilds?.find((g) => g.id === guildId);
+
 const [guildsResult, channelsResult, creatorsResult] = await Promise.all([
-  ListGuildsUsecase.execute({
-    accessToken,
-    userId: user.id,
-    appWorker: env.APP_WORKER,
-  }),
+  cachedGuild
+    ? Promise.resolve(null)
+    : ListGuildsUsecase.execute({ accessToken, userId: user.id, appWorker: env.APP_WORKER, includeChannelSummary: false }),
   VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),
   VspoChannelApiRepository.listCreators(env.APP_WORKER),
 ]);
 
-const allGuilds = guildsResult.err ? [] : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
-const currentGuild = allGuilds.find((g) => g.id === guildId);
+const currentGuild = cachedGuild
+  ? { id: cachedGuild.id, name: cachedGuild.name, icon: cachedGuild.icon, isAdmin: cachedGuild.isAdmin, botInstalled: cachedGuild.botInstalled }
+  : (() => {
+      const all = guildsResult?.err ? [] : [...(guildsResult?.val.installed ?? []), ...(guildsResult?.val.notInstalled ?? [])];
+      return all.find((g) => g.id === guildId) ?? null;
+    })();
 const guildName = currentGuild?.name ?? guildId;
 const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;

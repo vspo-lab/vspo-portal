@@ -11,6 +11,7 @@ type ListGuildsParams = {
   accessToken: string;
   userId: string;
   appWorker: ApplicationService;
+  includeChannelSummary?: boolean;
 };
 
 type ListGuildsResult = {
@@ -22,7 +23,7 @@ type ListGuildsResult = {
 /**
  * Retrieves the guilds the current user can manage and categorizes them for the dashboard.
  *
- * @param params - Discord access token, user ID, and app worker binding
+ * @param params - Discord access token, user ID, app worker binding, and optional includeChannelSummary (default true; when false, skips per-guild channel config fetches)
  * @returns Installed guilds, not-installed guilds, and sidebar guild metadata, or an AppError
  * @precondition params.accessToken !== "" && params.userId !== "" && params.appWorker is configured
  * @postcondition On Ok, installed guilds have botInstalled === true and isAdmin === true
@@ -31,6 +32,7 @@ type ListGuildsResult = {
 const execute = async (
   params: ListGuildsParams,
 ): Promise<Result<ListGuildsResult, AppError>> => {
+  const { includeChannelSummary = true } = params;
   const [guildsResult, botGuildIdsResult] = await Promise.all([
     DiscordApiRepository.getUserGuilds(params.accessToken),
     VspoGuildApiRepository.getBotGuildIds(params.appWorker),
@@ -69,18 +71,23 @@ const execute = async (
   const manageable = GuildSummary.filterManageable(resolvedGuilds);
   const { installed, notInstalled } = GuildSummary.partition(manageable);
 
-  // Fetch channel configs for all installed guilds in parallel.
+  // Fetch channel configs for all installed guilds in parallel if requested.
   // Per-guild failures are swallowed so a single bad guild does not block the page.
-  const installedWithSummaries = await Promise.all(
-    installed.map(async (guild) => {
-      const channelResult = await VspoChannelApiRepository.getGuildConfig(
-        params.appWorker,
-        guild.id,
-      );
-      if (channelResult.err) return guild;
-      return GuildSummary.withChannelSummary(guild, channelResult.val.channels);
-    }),
-  );
+  const installedWithSummaries = includeChannelSummary
+    ? await Promise.all(
+        installed.map(async (guild) => {
+          const channelResult = await VspoChannelApiRepository.getGuildConfig(
+            params.appWorker,
+            guild.id,
+          );
+          if (channelResult.err) return guild;
+          return GuildSummary.withChannelSummary(
+            guild,
+            channelResult.val.channels,
+          );
+        }),
+      )
+    : installed;
 
   return Ok({
     installed: installedWithSummaries,

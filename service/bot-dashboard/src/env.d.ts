@@ -25,6 +25,14 @@ declare namespace App {
     expiresAt: number;
     oauth_state: string;
     locale: import("~/i18n/dict").Locale;
+    /** Cached guild summaries to avoid re-fetching on guild detail pages */
+    guildSummaries: Array<{
+      id: string;
+      name: string;
+      icon: string | null;
+      isAdmin: boolean;
+      botInstalled: boolean;
+    }>;
   }
   interface Locals {
     user: SessionData["user"] | null;
