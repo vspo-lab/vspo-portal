@@ -17,10 +17,8 @@ const { locale } = Astro.locals;
 /** Language code to localized chip label */
 const langChipLabel = (lang: string) => t(locale, languageDisplayKey(lang));
 
-/** Max number of avatars to display before showing "+N" */
 const MAX_AVATARS = 5;
 
-/** Resolve creators for a channel's custom members */
 const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
   if (!customMembers || customMembers.length === 0) return [];
   return Creator.filterByIds(creators, new Set(customMembers));
@@ -80,8 +78,9 @@ const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
                 </span>
               </td>
               <td class="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">
-                {ch.memberType === "custom" ? (
-                  <div class="flex items-center gap-2">
+                {ch.memberType === "custom" ? (() => {
+                  const overflow = (ch.customMembers?.length ?? 0) - MAX_AVATARS;
+                  return (
                     <div class="flex items-center -space-x-2">
                       {resolveCustomCreators(ch.customMembers).slice(0, MAX_AVATARS).map((creator) => (
                         <div class="relative h-7 w-7 shrink-0 rounded-full ring-2 ring-surface" title={creator.name}>
@@ -99,14 +98,14 @@ const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
                           )}
                         </div>
                       ))}
-                      {(ch.customMembers?.length ?? 0) > MAX_AVATARS && (
+                      {overflow > 0 && (
                         <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-[10px] font-bold text-on-surface-variant ring-2 ring-surface">
-                          +{(ch.customMembers?.length ?? 0) - MAX_AVATARS}
+                          +{overflow}
                         </div>
                       )}
                     </div>
-                  </div>
-                ) : (
+                  );
+                })() : (
                   t(locale, memberTypeKey(ch.memberType))
                 )}
               </td>
