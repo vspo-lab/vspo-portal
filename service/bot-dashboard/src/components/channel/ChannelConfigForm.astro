@@ -561,6 +561,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
     }, { signal });
   };
 
-  initConfigFormControls();
-  document.addEventListener("astro:after-swap", initConfigFormControls);
+  document.addEventListener("astro:page-load", () => {
+    initConfigFormControls();
+  });
 </script>

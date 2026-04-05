@@ -154,11 +154,14 @@ const pageData = {
 <script>
   import { initChannelActions } from "~/components/channel/channel-actions";
 
-  // Initialize on first load
-  initChannelActions();
+  // Close open dialogs before page transition to prevent stale top-layer state
+  document.addEventListener("astro:before-preparation", () => {
+    const dialogs = document.querySelectorAll("dialog[open]");
+    for (const d of dialogs) (d as HTMLDialogElement).close();
+  });
 
-  // Re-initialize after View Transition swaps
-  document.addEventListener("astro:after-swap", () => {
+  // Initialize on first load and after every client-side navigation
+  document.addEventListener("astro:page-load", () => {
     initChannelActions();
   });
 </script>
