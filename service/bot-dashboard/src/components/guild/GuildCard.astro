@@ -47,19 +47,25 @@ const iconUrl = GuildSummary.iconUrl(guild);
 
   {guild.botInstalled && (
     <div class="mb-4 min-h-[2.5rem]">
-      <p class="text-xs text-on-surface-variant">
-        {t(locale, "dashboard.channelsCount", {
-          total: String(guild.channelSummary?.totalCount ?? 0),
-        })}
-      </p>
-      {guild.channelSummary && guild.channelSummary.previewNames.length > 0 && (
-        <div class="mt-1.5 flex flex-wrap gap-1">
-          {guild.channelSummary.previewNames.slice(0, 3).map((name) => (
-            <span class="rounded bg-surface-container-highest px-2 py-0.5 text-xs text-on-surface-variant">
-              #{name}
-            </span>
-          ))}
-        </div>
+      {guild.channelSummary ? (
+        <>
+          <p class="text-xs text-on-surface-variant">
+            {t(locale, "dashboard.channelsCount", {
+              total: String(guild.channelSummary.totalCount),
+            })}
+          </p>
+          {guild.channelSummary.previewNames.length > 0 && (
+            <div class="mt-1.5 flex flex-wrap gap-1">
+              {guild.channelSummary.previewNames.slice(0, 3).map((name) => (
+                <span class="rounded bg-surface-container-highest px-2 py-0.5 text-xs text-on-surface-variant">
+                  #{name}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <p class="text-xs text-on-surface-variant">&mdash;</p>
       )}
     </div>
   )}
