@@ -62,13 +62,11 @@ const { locale } = Astro.locals;
     <div class="max-h-64 space-y-1 overflow-y-auto" role="listbox" aria-label={t(locale, "channel.add")} data-channel-list>
     </div>
 
-    {/* Hidden form for submitting the selected channel */}
     <form id="add-channel-form" method="POST" action={actions.addChannel} class="hidden">
       <input type="hidden" name="guildId" value={guildId} />
       <input type="hidden" name="channelId" value="" data-add-channel-id />
     </form>
 
-    {/* Templates for channel list items (cloned by JS, no createElement) */}
     <template id="tpl-channel-add">
       <button type="button" data-channel-item role="option" aria-selected="false"
         class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition-colors duration-[--duration-fast] hover:bg-surface-container-highest/30 cursor-pointer">

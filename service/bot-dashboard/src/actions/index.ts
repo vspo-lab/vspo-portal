@@ -12,6 +12,17 @@ const requireAuth = (context: { locals: { user: unknown } }) => {
   }
 };
 
+/** Unwrap a Result or throw an ActionError */
+const unwrapOrThrow = <T>(result: { err?: { message: string } | null; val?: T }): T => {
+  if (result.err) {
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: result.err.message,
+    });
+  }
+  return result.val as T;
+};
+
 export const server = {
   addChannel: defineAction({
     accept: "form",
@@ -28,13 +39,7 @@ export const server = {
         channelId: input.channelId,
       });
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
-
+      unwrapOrThrow(result);
       return { success: true as const };
     },
   }),
@@ -62,13 +67,7 @@ export const server = {
         },
       );
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
-
+      unwrapOrThrow(result);
       return { success: true as const };
     },
   }),
@@ -89,13 +88,7 @@ export const server = {
         { language: "default", memberType: "all", customMembers: [] },
       );
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
-
+      unwrapOrThrow(result);
       return { success: true as const };
     },
   }),
@@ -115,13 +108,7 @@ export const server = {
         channelId: input.channelId,
       });
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
-
+      unwrapOrThrow(result);
       return { success: true as const };
     },
   }),

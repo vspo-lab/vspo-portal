@@ -334,6 +334,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       return map;
     };
     const creatorsMap = getCreatorsMap();
+    const channelsList: ChannelConfig[] = JSON.parse(dialog!.dataset.channels ?? "[]");
 
     const toggleHighlight = (el: HTMLElement, active: boolean, ring: string, hoverClass: string) => {
       if (active) {
@@ -356,10 +357,6 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       const langCell = row?.querySelector("td:nth-child(2) span");
       const language = langCell?.textContent?.trim() ?? "default";
 
-      // Read channel data from dialog's data-channels attribute
-      const channelsJson = dialog!.dataset.channels;
-      if (!channelsJson) return;
-      const channelsList: ChannelConfig[] = JSON.parse(channelsJson);
       const channel = channelsList.find((c) => c.channelId === channelId);
       if (!channel) return;
 
