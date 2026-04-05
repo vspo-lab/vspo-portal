@@ -58,24 +58,31 @@ const securityHeaders = defineMiddleware(async (_context, next) => {
  * destructive operations, so explicit CSRF protection is not required for it.
  */
 const auth = defineMiddleware(async (context, next) => {
-  const sessionLocale = await context.session?.get("locale");
+  const devMockAuth =
+    "DEV_MOCK_AUTH" in env
+      ? (env as Record<string, unknown>).DEV_MOCK_AUTH
+      : undefined;
+  if (import.meta.env.DEV && devMockAuth !== "false") {
+    context.locals.locale = "ja";
+    context.locals.user = MOCK_USER;
+    context.locals.accessToken = "mock-access-token";
+    return next();
+  }
+
+  // Read session values in parallel to reduce KV round-trips
+  const [sessionLocale, user, expiresAt, accessToken] = await Promise.all([
+    context.session?.get("locale"),
+    context.session?.get("user"),
+    context.session?.get("expiresAt"),
+    context.session?.get("accessToken"),
+  ]);
+
   const locale = sessionLocale ?? "ja";
   context.locals.locale = locale;
   if (!sessionLocale) {
     context.session?.set("locale", locale);
   }
 
-  const devMockAuth =
-    "DEV_MOCK_AUTH" in env
-      ? (env as Record<string, unknown>).DEV_MOCK_AUTH
-      : undefined;
-  if (import.meta.env.DEV && devMockAuth !== "false") {
-    context.locals.user = MOCK_USER;
-    context.locals.accessToken = "mock-access-token";
-    return next();
-  }
-
-  const user = await context.session?.get("user");
   context.locals.user = user ?? null;
 
   if (!user) {
@@ -87,10 +94,9 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Check token expiry and refresh if needed
-  const expiresAt = (await context.session?.get("expiresAt")) ?? 0;
   const now = getCurrentUTCDate().getTime();
 
-  if (now >= expiresAt - REFRESH_BUFFER_MS) {
+  if (now >= (expiresAt ?? 0) - REFRESH_BUFFER_MS) {
     const refreshToken = await context.session?.get("refreshToken");
     if (!refreshToken) {
       context.session?.destroy();
@@ -115,8 +121,7 @@ const auth = defineMiddleware(async (context, next) => {
     context.session?.set("expiresAt", newExpiresAt);
     context.locals.accessToken = tokens.access_token;
   } else {
-    context.locals.accessToken =
-      (await context.session?.get("accessToken")) ?? null;
+    context.locals.accessToken = accessToken ?? null;
   }
 
   return next();

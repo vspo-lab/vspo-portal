@@ -19,6 +19,7 @@ const guildsResult = await ListGuildsUsecase.execute({
   accessToken,
   userId: user.id,
   appWorker: env.APP_WORKER,
+  includeChannelSummary: false,
 });
 
 const allGuilds = guildsResult.err

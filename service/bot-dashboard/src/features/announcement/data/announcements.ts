@@ -24,19 +24,6 @@ const announcements: readonly AnnouncementType[] = [
     date: "2026-04-01T00:00:00Z",
     type: "update",
   },
-  {
-    id: "2026-03-01-launch",
-    title: {
-      ja: "すぽじゅーる Bot サービス開始",
-      en: "Spodule Bot Service Launch",
-    },
-    body: {
-      ja: "ぶいすぽっ!メンバーの配信予定をDiscordに届けるBotを公開しました。",
-      en: "The bot now sends VSPO stream schedules to Discord.",
-    },
-    date: "2026-03-01T00:00:00Z",
-    type: "info",
-  },
 ] as const;
 
 export { type AnnouncementType, announcements };

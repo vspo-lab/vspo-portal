@@ -23,6 +23,15 @@ const fetchError = result.err ?? null;
 const installed = result.err ? [] : result.val.installed;
 const notInstalled = result.err ? [] : result.val.notInstalled;
 const botClientId = env.DISCORD_BOT_CLIENT_ID;
+
+// Cache guild summaries in session for fast access on guild detail pages
+if (!result.err) {
+  const allGuilds = [...result.val.installed, ...result.val.notInstalled];
+  Astro.session?.set(
+    "guildSummaries",
+    allGuilds.map((g) => ({ id: g.id, name: g.name, icon: g.icon, botInstalled: g.botInstalled })),
+  );
+}
 ---
 
 <Dashboard title={t(locale, "dashboard.servers")} description={t(locale, "meta.dashboard.description")} showSidebar>

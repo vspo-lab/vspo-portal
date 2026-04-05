@@ -138,6 +138,30 @@ describe("ListGuildsUsecase", () => {
       ]);
     });
 
+    it("does not fetch channel summaries when includeChannelSummary is false", async () => {
+      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+        Ok([ownerGuild]),
+      );
+      vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
+        Ok(new Set(["1"])),
+      );
+      vi.mocked(VspoGuildApiRepository.checkUserGuildAdmin).mockResolvedValue(
+        Ok({ "1": true }),
+      );
+
+      const result = await ListGuildsUsecase.execute({
+        accessToken: "token",
+        userId: "user-1",
+        appWorker,
+        includeChannelSummary: false,
+      });
+
+      expect(result.err).toBeUndefined();
+      expect(VspoChannelApiRepository.getGuildConfig).not.toHaveBeenCalled();
+      if (result.err) return;
+      expect(result.val.installed[0].channelSummary).toBeUndefined();
+    });
+
     it("returns Err when getUserGuilds fails", async () => {
       const error = new AppError({
         message: "guild fetch failed",

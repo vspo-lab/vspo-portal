@@ -6,6 +6,9 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   site: "https://discord.vspo-schedule.com",
   output: "server",
+  prefetch: {
+    defaultStrategy: "viewport",
+  },
   i18n: {
     defaultLocale: "ja",
     locales: ["ja", "en"],
