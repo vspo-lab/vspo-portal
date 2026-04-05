@@ -110,7 +110,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
             class="flex w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-left text-sm transition-colors hover:border-vspo-purple/40 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
             data-dropdown-trigger
             aria-expanded="false"
-            aria-haspopup="listbox"
+            aria-haspopup="dialog"
           >
             <span class="text-on-surface-variant/60" data-dropdown-placeholder>{t(locale, "channelConfig.members.search")}</span>
           </button>
@@ -122,8 +122,6 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
           <div
             class="absolute left-0 z-10 mt-1 hidden w-full rounded-lg border border-outline-variant/20 bg-surface-container-high shadow-lg"
             data-dropdown-panel
-            role="listbox"
-            aria-multiselectable="true"
           >
             {/* Search bar */}
             <div class="border-b border-outline-variant/10 p-2">

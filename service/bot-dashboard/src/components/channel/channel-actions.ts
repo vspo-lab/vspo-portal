@@ -53,8 +53,11 @@ const persistPageData = (data: PageData) => {
 
 /* ---------- Helpers ---------- */
 
-const languageLabel = (lang: string, i18n: Record<string, string>): string =>
-  i18n[`language.${lang}`] ?? lang.toUpperCase();
+const languageLabel = (lang: string, i18n: Record<string, string>): string => {
+  const key = lang.trim().toLowerCase();
+  if (!key) return i18n["language.unknown"] ?? "";
+  return i18n[`language.${key}`] ?? i18n["language.unknown"] ?? key.toUpperCase();
+};
 
 const escapeHtml = (str: string): string =>
   str
