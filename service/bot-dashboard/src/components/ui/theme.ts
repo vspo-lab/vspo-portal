@@ -8,13 +8,18 @@
 
 type IconPair = { sun: HTMLElement; moon: HTMLElement };
 
-const pairs: IconPair[] = [];
+let pairs: IconPair[] = [];
 
 const applyAll = (isDark: boolean): void => {
   for (const { sun, moon } of pairs) {
     sun.classList.toggle("hidden", !isDark);
     moon.classList.toggle("hidden", isDark);
   }
+};
+
+/** Clear all registered icon pairs (call before re-registering after View Transitions). */
+export const clearIcons = (): void => {
+  pairs = [];
 };
 
 /** Register a sun/moon icon pair to be kept in sync. */
