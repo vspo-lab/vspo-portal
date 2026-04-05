@@ -1,4 +1,4 @@
-import { defineMiddleware } from "astro:middleware";
+import { defineMiddleware, sequence } from "astro:middleware";
 import { env } from "cloudflare:workers";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
@@ -13,7 +13,51 @@ const MOCK_USER = {
   avatar: null,
 } as const;
 
-export const onRequest = defineMiddleware(async (context, next) => {
+/**
+ * Security headers applied to every response.
+ *
+ * - `'unsafe-inline'` in script-src/style-src: required for Astro `is:inline` scripts and Tailwind inline styles.
+ * - `cdn.discordapp.com` in img-src: Discord user avatars.
+ * - `discord.com` in connect-src: Discord OAuth API calls.
+ * - frame-ancestors 'none': prevents clickjacking (mirrors X-Frame-Options: DENY).
+ */
+const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
+  [
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com data:; connect-src 'self' https://discord.com; frame-ancestors 'none'",
+  ],
+  ["X-Content-Type-Options", "nosniff"],
+  ["X-Frame-Options", "DENY"],
+  ["Referrer-Policy", "strict-origin-when-cross-origin"],
+] as const;
+
+/**
+ * Appends security headers to a Response.
+ * @param response - The Response to augment.
+ * @returns The same Response with security headers set.
+ */
+const applySecurityHeaders = (response: Response): Response => {
+  for (const [name, value] of SECURITY_HEADERS) {
+    response.headers.set(name, value);
+  }
+  return response;
+};
+
+/** Middleware: sets security headers on every response. */
+const securityHeaders = defineMiddleware(async (_context, next) => {
+  const response = await next();
+  return applySecurityHeaders(response);
+});
+
+/**
+ * Middleware: authentication, session locale, and token refresh.
+ *
+ * CSRF note: Astro Actions with `accept: "form"` automatically include CSRF
+ * protection via the `_astroAction` hidden field. The `/api/change-locale`
+ * endpoint only sets a non-sensitive cookie preference and does not perform
+ * destructive operations, so explicit CSRF protection is not required for it.
+ */
+const auth = defineMiddleware(async (context, next) => {
   const sessionLocale = await context.session?.get("locale");
   const locale = sessionLocale ?? "ja";
   context.locals.locale = locale;
@@ -77,3 +121,5 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   return next();
 });
+
+export const onRequest = sequence(securityHeaders, auth);

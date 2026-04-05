@@ -13,7 +13,7 @@ interface Props {
 const { title, description, canonicalPath, noindex } = Astro.props;
 const { locale } = Astro.locals;
 
-const siteUrl = "https://discord.vspo-schedule.com";
+const siteUrl = Astro.site?.origin ?? "https://discord.vspo-schedule.com";
 const pageTitle = `${title} | ${t(locale, "app.title")}`;
 const canonicalUrl = canonicalPath ? `${siteUrl}${canonicalPath}` : undefined;
 const altLocale = locale === "ja" ? "en" : "ja";

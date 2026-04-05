@@ -275,6 +275,8 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
 </dialog>
 
 <script>
+  import { initDialog } from "~/components/ui/dialog-helpers";
+
   /**
    * Edit modal interactive controls: radio highlights, dropdown multi-select,
    * search filter, dialog open/close, and form population.
@@ -298,6 +300,8 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
 
     const dialog = document.getElementById("config-modal") as HTMLDialogElement | null;
     if (!dialog) return;
+
+    initDialog("config-modal");
 
     const form = document.getElementById("update-channel-form") as HTMLFormElement | null;
     const resetForm = document.getElementById("reset-channel-form") as HTMLFormElement | null;
@@ -415,11 +419,6 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
 
       if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove("opacity-50"); }
     };
-
-    /* -- Close handlers -- */
-    dialog.querySelector("[data-modal-close]")?.addEventListener("click", () => dialog.close(), { signal });
-    dialog.querySelector("[data-modal-cancel]")?.addEventListener("click", () => dialog.close(), { signal });
-    dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); }, { signal });
 
     /* -- Reset button submits reset form -- */
     dialog.querySelector("[data-reset-btn]")?.addEventListener("click", () => {

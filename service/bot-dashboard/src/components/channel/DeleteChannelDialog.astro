@@ -70,7 +70,11 @@ const { locale } = Astro.locals;
 </dialog>
 
 <script>
+  import { initDialog } from "~/components/ui/dialog-helpers";
+
   function initDeleteDialog() {
+    initDialog("delete-channel-modal");
+
     const dialog = document.getElementById("delete-channel-modal") as HTMLDialogElement | null;
     if (!dialog) return;
 
@@ -89,12 +93,6 @@ const { locale } = Astro.locals;
       if (hiddenInput) hiddenInput.value = channelId;
 
       dialog.showModal();
-    });
-
-    // Cancel button and backdrop click
-    dialog.querySelector("[data-modal-cancel]")?.addEventListener("click", () => dialog.close());
-    dialog.addEventListener("click", (e) => {
-      if (e.target === dialog) dialog.close();
     });
   }
 
