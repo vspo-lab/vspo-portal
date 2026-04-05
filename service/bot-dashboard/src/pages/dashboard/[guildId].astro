@@ -9,7 +9,7 @@ import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { GuildSummary } from "~/features/guild/domain/guild";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
-import { t, memberTypeKey } from "~/i18n/dict";
+import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
 
 const locale = Astro.locals.locale;
 const { guildId } = Astro.params;
@@ -65,6 +65,15 @@ const pageData = {
     "channel.edit": t(locale, "channel.edit"),
     "channel.delete": t(locale, "channel.delete"),
     "dashboard.channelsCount": t(locale, "dashboard.channelsCount", { total: "{total}" }),
+    "language.ja": t(locale, "channelConfig.language.ja"),
+    "language.en": t(locale, "channelConfig.language.en"),
+    "language.fr": t(locale, "channelConfig.language.fr"),
+    "language.de": t(locale, "channelConfig.language.de"),
+    "language.es": t(locale, "channelConfig.language.es"),
+    "language.cn": t(locale, "channelConfig.language.cn"),
+    "language.tw": t(locale, "channelConfig.language.tw"),
+    "language.ko": t(locale, "channelConfig.language.ko"),
+    "language.default": t(locale, "channelConfig.language.default"),
   },
 };
 ---
@@ -100,7 +109,7 @@ const pageData = {
         <p class="mb-2 text-xs font-medium text-on-surface-variant">{t(locale, "channel.language")}</p>
         <div data-stat-languages class="flex gap-2">
           {[...new Set(channels.map(c => c.language))].map(lang => (
-            <span class="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple">{lang === "ja" ? "JA" : lang === "en" ? "EN" : lang.toUpperCase()}</span>
+            <span class="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple">{t(locale, languageDisplayKey(lang))}</span>
           ))}
           {channels.length === 0 && <span class="text-sm text-on-surface-variant">—</span>}
         </div>

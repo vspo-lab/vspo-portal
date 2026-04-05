@@ -81,6 +81,21 @@ const meta: Meta<ChannelConfigFormArgs> = {
 
     const selectedCount = customMemberSet.size;
 
+    const chipHtml = (creator: Creator) => `
+      <span data-chip="${creator.id}" class="inline-flex items-center gap-1 rounded-full bg-vspo-purple/10 py-0.5 pl-1 pr-1.5 text-xs text-on-surface">
+        ${creator.thumbnailUrl ? `<img src="${creator.thumbnailUrl}" alt="" class="h-4 w-4 rounded-full object-cover" />` : `<span class="flex h-4 w-4 items-center justify-center rounded-full bg-surface-container-highest text-[8px] font-medium text-on-surface-variant">${creator.name.charAt(0)}</span>`}
+        <span class="max-w-[80px] truncate">${creator.name}</span>
+        <button type="button" class="ml-0.5 inline-flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-full text-on-surface-variant/60 hover:bg-vspo-purple/20 hover:text-on-surface" data-remove-chip="${creator.id}" aria-label="Remove ${creator.name}">
+          <svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </span>`;
+
+    const selectedChips = args.creators
+      .filter((c) => customMemberSet.has(c.id))
+      .map(chipHtml)
+      .join("");
+    const hasChips = selectedCount > 0;
+
     return `
       <dialog open class="fixed inset-0 z-50 flex items-center justify-center" id="config-modal" aria-labelledby="config-modal-heading" aria-modal="true" style="background: rgba(0,0,0,0.6);">
         <div class="glass mx-4 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-6 text-on-surface shadow-hover">
@@ -96,6 +111,7 @@ const meta: Meta<ChannelConfigFormArgs> = {
               <select id="language" name="language" class="w-full rounded-md border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-sm text-on-surface">
                 <option value="ja" ${args.channel.language === "ja" ? "selected" : ""}>Japanese</option>
                 <option value="en" ${args.channel.language === "en" ? "selected" : ""}>English</option>
+                <option value="default" ${args.channel.language === "default" ? "selected" : ""}>Default</option>
               </select>
             </div>
             <fieldset class="space-y-2">
@@ -107,8 +123,22 @@ const meta: Meta<ChannelConfigFormArgs> = {
                 <span class="text-sm font-medium">Custom Members</span>
                 <span class="rounded-full bg-vspo-purple/10 px-2.5 py-0.5 text-xs font-medium text-vspo-purple" data-selected-count>${selectedCount} selected</span>
               </div>
-              <div class="max-h-56 space-y-3 overflow-y-auto rounded-lg border border-outline-variant/20 p-3">
-                ${args.creators.map(memberRow).join("")}
+              <div class="relative" data-member-dropdown>
+                <button type="button" class="flex w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-left text-sm transition-colors hover:border-vspo-purple/40" data-dropdown-trigger aria-expanded="${showCustomMembers}" aria-haspopup="listbox">
+                  ${hasChips ? "" : '<span class="text-on-surface-variant/60" data-dropdown-placeholder>Search members...</span>'}
+                </button>
+                <div class="mb-1.5 flex ${hasChips ? "" : "hidden"} flex-wrap gap-1.5" data-selected-chips>${selectedChips}</div>
+                <div class="${showCustomMembers ? "" : "hidden"} absolute left-0 z-10 mt-1 w-full rounded-lg border border-outline-variant/20 bg-surface-container-high shadow-lg" data-dropdown-panel role="listbox" aria-multiselectable="true">
+                  <div class="border-b border-outline-variant/10 p-2">
+                    <div class="relative">
+                      <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                      <input type="search" placeholder="Search members..." class="w-full rounded-md border border-outline-variant/20 bg-surface-container-low py-1.5 pl-9 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant/60" data-member-search />
+                    </div>
+                  </div>
+                  <div class="max-h-48 space-y-3 overflow-y-auto p-3 sm:max-h-56">
+                    ${args.creators.map(memberRow).join("")}
+                  </div>
+                </div>
               </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">

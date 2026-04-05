@@ -102,128 +102,155 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
           </span>
         </div>
 
-        {/* Search bar */}
-        <label for="member-search" class="sr-only">{t(locale, "channelConfig.members.search")}</label>
-        <div class="relative">
-          <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            id="member-search"
-            type="search"
-            placeholder={t(locale, "channelConfig.members.search")}
-            class="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low py-2 pl-9 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
-            data-member-search
-          />
-        </div>
+        {/* Dropdown multi-select */}
+        <div class="relative" data-member-dropdown>
+          {/* Trigger: chips area + dropdown button */}
+          <button
+            type="button"
+            class="flex w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-left text-sm transition-colors hover:border-vspo-purple/40 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+            data-dropdown-trigger
+            aria-expanded="false"
+            aria-haspopup="listbox"
+          >
+            <span class="text-on-surface-variant/60" data-dropdown-placeholder>{t(locale, "channelConfig.members.search")}</span>
+          </button>
 
-        <div class="max-h-48 space-y-3 overflow-y-auto rounded-lg border border-outline-variant/20 p-3 sm:max-h-56">
-          {/* JP Group */}
-          {jpCreators.length > 0 && (
-            <div data-member-group="vspo_jp">
-              <div class="mb-1.5 flex items-center justify-between">
-                <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {t(locale, "channelConfig.members.jpGroup")}
-                </h4>
-                <button
-                  type="button"
-                  class="cursor-pointer text-xs font-medium text-vspo-purple transition-colors hover:text-vspo-purple/80"
-                  data-toggle-group="vspo_jp"
-                  data-label-select={t(locale, "channelConfig.members.selectAll")}
-                  data-label-deselect={t(locale, "channelConfig.members.deselectAll")}
-                >
-                  {t(locale, "channelConfig.members.selectAll")}
-                </button>
-              </div>
-              <div class="space-y-0.5">
-                {jpCreators.map((creator) => (
-                  <label
-                    class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all hover:bg-surface-container-highest/40"
-                    data-member-item
-                    data-member-name={creator.name.toLowerCase()}
-                    data-member-group-item="vspo_jp"
-                  >
-                    <input
-                      type="checkbox"
-                      name="customMemberIds"
-                      value={creator.id}
-                      class="shrink-0 accent-vspo-purple"
-                      data-member-checkbox
-                    />
-                    {creator.thumbnailUrl ? (
-                      <img
-                        src={creator.thumbnailUrl}
-                        alt=""
-                        class="h-6 w-6 shrink-0 rounded-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-xs font-medium text-on-surface-variant">
-                        {creator.name.charAt(0)}
-                      </span>
-                    )}
-                    <span class="truncate text-sm">{creator.name}</span>
-                  </label>
-                ))}
+          {/* Selected chips (shown above trigger when members are selected) */}
+          <div class="mb-1.5 flex hidden flex-wrap gap-1.5" data-selected-chips></div>
+
+          {/* Dropdown panel */}
+          <div
+            class="absolute left-0 z-10 mt-1 hidden w-full rounded-lg border border-outline-variant/20 bg-surface-container-high shadow-lg"
+            data-dropdown-panel
+            role="listbox"
+            aria-multiselectable="true"
+          >
+            {/* Search bar */}
+            <div class="border-b border-outline-variant/10 p-2">
+              <label for="member-search" class="sr-only">{t(locale, "channelConfig.members.search")}</label>
+              <div class="relative">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  id="member-search"
+                  type="search"
+                  placeholder={t(locale, "channelConfig.members.search")}
+                  class="w-full rounded-md border border-outline-variant/20 bg-surface-container-low py-1.5 pl-9 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+                  data-member-search
+                />
               </div>
             </div>
-          )}
 
-          {/* EN Group */}
-          {enCreators.length > 0 && (
-            <div data-member-group="vspo_en">
-              <div class="mb-1.5 flex items-center justify-between">
-                <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                  {t(locale, "channelConfig.members.enGroup")}
-                </h4>
-                <button
-                  type="button"
-                  class="cursor-pointer text-xs font-medium text-vspo-purple transition-colors hover:text-vspo-purple/80"
-                  data-toggle-group="vspo_en"
-                  data-label-select={t(locale, "channelConfig.members.selectAll")}
-                  data-label-deselect={t(locale, "channelConfig.members.deselectAll")}
-                >
-                  {t(locale, "channelConfig.members.selectAll")}
-                </button>
-              </div>
-              <div class="space-y-0.5">
-                {enCreators.map((creator) => (
-                  <label
-                    class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all hover:bg-surface-container-highest/40"
-                    data-member-item
-                    data-member-name={creator.name.toLowerCase()}
-                    data-member-group-item="vspo_en"
-                  >
-                    <input
-                      type="checkbox"
-                      name="customMemberIds"
-                      value={creator.id}
-                      class="shrink-0 accent-vspo-purple"
-                      data-member-checkbox
-                    />
-                    {creator.thumbnailUrl ? (
-                      <img
-                        src={creator.thumbnailUrl}
-                        alt=""
-                        class="h-6 w-6 shrink-0 rounded-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-xs font-medium text-on-surface-variant">
-                        {creator.name.charAt(0)}
-                      </span>
-                    )}
-                    <span class="truncate text-sm">{creator.name}</span>
-                  </label>
-                ))}
-              </div>
+            <div class="max-h-48 space-y-3 overflow-y-auto p-3 sm:max-h-56">
+              {/* JP Group */}
+              {jpCreators.length > 0 && (
+                <div data-member-group="vspo_jp">
+                  <div class="mb-1.5 flex items-center justify-between">
+                    <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                      {t(locale, "channelConfig.members.jpGroup")}
+                    </h4>
+                    <button
+                      type="button"
+                      class="cursor-pointer text-xs font-medium text-vspo-purple transition-colors hover:text-vspo-purple/80"
+                      data-toggle-group="vspo_jp"
+                      data-label-select={t(locale, "channelConfig.members.selectAll")}
+                      data-label-deselect={t(locale, "channelConfig.members.deselectAll")}
+                    >
+                      {t(locale, "channelConfig.members.selectAll")}
+                    </button>
+                  </div>
+                  <div class="space-y-0.5">
+                    {jpCreators.map((creator) => (
+                      <label
+                        class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all hover:bg-surface-container-highest/40"
+                        data-member-item
+                        data-member-name={creator.name.toLowerCase()}
+                        data-member-group-item="vspo_jp"
+                      >
+                        <input
+                          type="checkbox"
+                          name="customMemberIds"
+                          value={creator.id}
+                          class="shrink-0 accent-vspo-purple"
+                          data-member-checkbox
+                        />
+                        {creator.thumbnailUrl ? (
+                          <img
+                            src={creator.thumbnailUrl}
+                            alt=""
+                            class="h-6 w-6 shrink-0 rounded-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-xs font-medium text-on-surface-variant">
+                            {creator.name.charAt(0)}
+                          </span>
+                        )}
+                        <span class="truncate text-sm">{creator.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* EN Group */}
+              {enCreators.length > 0 && (
+                <div data-member-group="vspo_en">
+                  <div class="mb-1.5 flex items-center justify-between">
+                    <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                      {t(locale, "channelConfig.members.enGroup")}
+                    </h4>
+                    <button
+                      type="button"
+                      class="cursor-pointer text-xs font-medium text-vspo-purple transition-colors hover:text-vspo-purple/80"
+                      data-toggle-group="vspo_en"
+                      data-label-select={t(locale, "channelConfig.members.selectAll")}
+                      data-label-deselect={t(locale, "channelConfig.members.deselectAll")}
+                    >
+                      {t(locale, "channelConfig.members.selectAll")}
+                    </button>
+                  </div>
+                  <div class="space-y-0.5">
+                    {enCreators.map((creator) => (
+                      <label
+                        class="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all hover:bg-surface-container-highest/40"
+                        data-member-item
+                        data-member-name={creator.name.toLowerCase()}
+                        data-member-group-item="vspo_en"
+                      >
+                        <input
+                          type="checkbox"
+                          name="customMemberIds"
+                          value={creator.id}
+                          class="shrink-0 accent-vspo-purple"
+                          data-member-checkbox
+                        />
+                        {creator.thumbnailUrl ? (
+                          <img
+                            src={creator.thumbnailUrl}
+                            alt=""
+                            class="h-6 w-6 shrink-0 rounded-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-xs font-medium text-on-surface-variant">
+                            {creator.name.charAt(0)}
+                          </span>
+                        )}
+                        <span class="truncate text-sm">{creator.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty search state */}
+              <p class="hidden py-4 text-center text-sm text-on-surface-variant" data-member-search-empty aria-live="polite">
+                {t(locale, "channel.add.empty")}
+              </p>
             </div>
-          )}
-
-          {/* Empty search state */}
-          <p class="hidden py-4 text-center text-sm text-on-surface-variant" data-member-search-empty aria-live="polite">
-            {t(locale, "channel.add.empty")}
-          </p>
+          </div>
         </div>
       </div>
 
@@ -242,10 +269,20 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
 
 <script>
   /**
-   * Edit modal interactive controls: radio highlights, custom member toggles, search filter.
+   * Edit modal interactive controls: radio highlights, dropdown multi-select, search filter.
    * Uses AbortController to prevent duplicate listeners on view transition swaps.
    */
   let configFormAbort: AbortController | null = null;
+
+  type CreatorInfo = { id: string; name: string; thumbnailUrl: string | null };
+
+  const getCreatorsMap = (): Map<string, CreatorInfo> => {
+    const el = document.getElementById("channel-data");
+    if (!el?.textContent) return new Map();
+    const data = JSON.parse(el.textContent);
+    const creators: CreatorInfo[] = data.creators ?? [];
+    return new Map(creators.map((c) => [c.id, c]));
+  };
 
   const initConfigFormControls = () => {
     if (configFormAbort) configFormAbort.abort();
@@ -262,6 +299,12 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
     const emptyMsg = dialog.querySelector<HTMLElement>("[data-member-search-empty]");
     const saveBtn = dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
     const memberTypeRadios = dialog.querySelectorAll<HTMLInputElement>('input[name="memberType"]');
+    const dropdownTrigger = dialog.querySelector<HTMLButtonElement>("[data-dropdown-trigger]");
+    const dropdownPanel = dialog.querySelector<HTMLElement>("[data-dropdown-panel]");
+    const chipsContainer = dialog.querySelector<HTMLElement>("[data-selected-chips]");
+    const placeholder = dialog.querySelector<HTMLElement>("[data-dropdown-placeholder]");
+
+    const creatorsMap = getCreatorsMap();
 
     const toggleHighlight = (
       el: HTMLElement,
@@ -276,6 +319,59 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
         el.classList.remove("bg-vspo-purple/10", "ring-1", ring);
         el.classList.add(hoverClass);
       }
+    };
+
+    /* -- Chip management -- */
+
+    const createChip = (creator: CreatorInfo): HTMLSpanElement => {
+      const chip = document.createElement("span");
+      chip.setAttribute("data-chip", creator.id);
+      chip.className =
+        "inline-flex items-center gap-1 rounded-full bg-vspo-purple/10 py-0.5 pl-1 pr-1.5 text-xs text-on-surface";
+
+      if (creator.thumbnailUrl) {
+        const img = document.createElement("img");
+        img.src = creator.thumbnailUrl;
+        img.alt = "";
+        img.className = "h-4 w-4 rounded-full object-cover";
+        chip.appendChild(img);
+      } else {
+        const fallback = document.createElement("span");
+        fallback.className =
+          "flex h-4 w-4 items-center justify-center rounded-full bg-surface-container-highest text-[8px] font-medium text-on-surface-variant";
+        fallback.textContent = creator.name.charAt(0);
+        chip.appendChild(fallback);
+      }
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "max-w-[80px] truncate";
+      nameSpan.textContent = creator.name;
+      chip.appendChild(nameSpan);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className =
+        "ml-0.5 inline-flex h-3.5 w-3.5 cursor-pointer items-center justify-center rounded-full text-on-surface-variant/60 transition-colors hover:bg-vspo-purple/20 hover:text-on-surface";
+      removeBtn.setAttribute("data-remove-chip", creator.id);
+      removeBtn.setAttribute("aria-label", `Remove ${creator.name}`);
+      removeBtn.innerHTML =
+        '<svg class="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>';
+      chip.appendChild(removeBtn);
+
+      return chip;
+    };
+
+    const syncChips = () => {
+      if (!chipsContainer) return;
+      chipsContainer.textContent = "";
+      const checked = dialog.querySelectorAll<HTMLInputElement>("[data-member-checkbox]:checked");
+      for (const cb of checked) {
+        const creator = creatorsMap.get(cb.value);
+        if (creator) chipsContainer.appendChild(createChip(creator));
+      }
+      const hasChips = checked.length > 0;
+      chipsContainer.classList.toggle("hidden", !hasChips);
+      if (placeholder) placeholder.classList.toggle("hidden", hasChips);
     };
 
     const updateSelectedState = () => {
@@ -293,6 +389,8 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
         saveBtn.classList.toggle("opacity-50", count === 0);
         saveBtn.classList.toggle("pointer-events-none", count === 0);
       }
+
+      syncChips();
     };
 
     const updateToggleLabel = (groupName: string) => {
@@ -306,6 +404,65 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
         ? (toggleBtn.dataset.labelDeselect ?? "Deselect All")
         : (toggleBtn.dataset.labelSelect ?? "Select All");
     };
+
+    /* -- Dropdown open/close -- */
+
+    const openDropdown = () => {
+      if (!dropdownPanel || !dropdownTrigger) return;
+      dropdownPanel.classList.remove("hidden");
+      dropdownTrigger.setAttribute("aria-expanded", "true");
+      searchInput?.focus();
+    };
+
+    const closeDropdown = () => {
+      if (!dropdownPanel || !dropdownTrigger) return;
+      dropdownPanel.classList.add("hidden");
+      dropdownTrigger.setAttribute("aria-expanded", "false");
+    };
+
+    dropdownTrigger?.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isOpen = dropdownTrigger.getAttribute("aria-expanded") === "true";
+      if (isOpen) {
+        closeDropdown();
+      } else {
+        openDropdown();
+      }
+    }, { signal });
+
+    // Close on click outside
+    document.addEventListener("click", (e) => {
+      const dropdown = dialog.querySelector<HTMLElement>("[data-member-dropdown]");
+      if (!dropdown) return;
+      if (!dropdown.contains(e.target as Node)) {
+        closeDropdown();
+      }
+    }, { signal });
+
+    // Close on Escape within dropdown
+    dialog.querySelector("[data-member-dropdown]")?.addEventListener("keydown", (e) => {
+      if ((e as KeyboardEvent).key === "Escape") {
+        e.stopPropagation();
+        closeDropdown();
+      }
+    }, { signal });
+
+    // Chip removal via event delegation on chips container
+    chipsContainer?.addEventListener("click", (e) => {
+      const removeBtn = (e.target as HTMLElement).closest<HTMLElement>("[data-remove-chip]");
+      if (!removeBtn) return;
+      const creatorId = removeBtn.dataset.removeChip;
+      if (!creatorId) return;
+      const cb = dialog.querySelector<HTMLInputElement>(`[data-member-checkbox][value="${creatorId}"]`);
+      if (cb) {
+        cb.checked = false;
+        const label = cb.closest<HTMLElement>("[data-member-item]");
+        if (label) toggleHighlight(label, false, "ring-vspo-purple/20", "hover:bg-surface-container-highest/40");
+        const groupName = cb.closest<HTMLElement>("[data-member-group-item]")?.dataset.memberGroupItem;
+        if (groupName) updateToggleLabel(groupName);
+      }
+      updateSelectedState();
+    }, { signal });
 
     // Search filtering
     let searchTimer: ReturnType<typeof setTimeout> | undefined;
@@ -379,6 +536,7 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
       } else {
         customSection.classList.add("max-h-0", "opacity-0");
         customSection.classList.remove("max-h-[600px]", "opacity-100");
+        closeDropdown();
       }
     };
 
@@ -396,6 +554,13 @@ const enCreators = Creator.filterByType(creators, "vspo_en");
         }
       }, { signal });
     }
+
+    // Listen for members-updated event from channel-actions.ts (populateEditForm)
+    dialog.addEventListener("members-updated", () => {
+      syncChips();
+      updateSelectedState();
+      for (const groupName of ["vspo_jp", "vspo_en"]) updateToggleLabel(groupName);
+    }, { signal });
   };
 
   initConfigFormControls();

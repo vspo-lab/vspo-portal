@@ -53,6 +53,9 @@ const persistPageData = (data: PageData) => {
 
 /* ---------- Helpers ---------- */
 
+const languageLabel = (lang: string, i18n: Record<string, string>): string =>
+  i18n[`language.${lang}`] ?? lang.toUpperCase();
+
 const escapeHtml = (str: string): string =>
   str
     .replace(/&/g, "&amp;")
@@ -144,7 +147,7 @@ const createRowHtml = (
 ): string => {
   const name = escapeHtml(ch.channelName);
   const id = escapeHtml(ch.channelId);
-  const langLabel = escapeHtml(ch.language.toUpperCase());
+  const langLabel = escapeHtml(languageLabel(ch.language, i18n));
   const mtLabel = escapeHtml(memberTypeLabel(ch.memberType, i18n));
   const statusActive = ch.enabled;
   const statusLabel = escapeHtml(
@@ -200,7 +203,7 @@ const updateStats = (data: PageData) => {
         const chip = document.createElement("span");
         chip.className =
           "rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold text-vspo-purple";
-        chip.textContent = lang.toUpperCase();
+        chip.textContent = languageLabel(lang, data.i18n);
         langContainer.appendChild(chip);
       }
     }
@@ -238,7 +241,7 @@ const updateRowCells = (
 
   if (updates.language !== undefined) {
     const langCell = row.querySelector("td:nth-child(2) span");
-    if (langCell) langCell.textContent = updates.language.toUpperCase();
+    if (langCell) langCell.textContent = languageLabel(updates.language, i18n);
   }
 
   if (updates.memberType !== undefined) {
@@ -888,6 +891,9 @@ const populateEditForm = (
   }
 
   updateSelectedCount(dialog, data);
+
+  // Notify ChannelConfigForm script to sync chips
+  dialog.dispatchEvent(new CustomEvent("members-updated"));
 
   const saveBtn = dialog.querySelector<HTMLButtonElement>("[data-save-btn]");
   if (saveBtn) {
