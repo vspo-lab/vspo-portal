@@ -71,7 +71,7 @@ const toServerMemberType = (
  * Adjust a channel's bot configuration and enqueue the result for D1 persistence.
  * Mirrors the two-step pattern used by Discord slash command handlers.
  * @precondition appWorker is a valid service binding with DiscordService RPC
- * @postcondition On Ok, channel config is updated in KV cache and enqueued for D1 write
+ * @postcondition On Ok, channel config is updated in KV cache and enqueued for D1 persistence
  */
 const adjustAndEnqueue = async (
   appWorker: ApplicationService,
