@@ -125,6 +125,7 @@ const showToast = (message: string, type: "success" | "error" = "success") => {
 /* ---------- Modal helpers ---------- */
 
 const openDialog = (dialog: HTMLDialogElement) => {
+  if (dialog.open) return;
   dialog.showModal();
 };
 
@@ -446,13 +447,24 @@ const initAdd = (signal: AbortSignal) => {
 
     if (loadingEl) loadingEl.classList.remove("hidden");
     if (noChannelsEl) noChannelsEl.classList.add("hidden");
-    listContainer.innerHTML = "";
+    listContainer.textContent = "";
     if (searchInput) searchInput.value = "";
 
     const data = getPageData();
     const registeredIds = new Set(data.channels.map((c) => c.channelId));
 
-    const res = await fetch(`/api/guilds/${data.guildId}/channels`);
+    let res: Response;
+    try {
+      res = await fetch(`/api/guilds/${data.guildId}/channels`);
+    } catch {
+      if (loadingEl) loadingEl.classList.add("hidden");
+      showToast(
+        data.i18n["dashboard.error"]?.replace("{message}", "Network error") ??
+          "Network error",
+        "error",
+      );
+      return;
+    }
     if (loadingEl) loadingEl.classList.add("hidden");
 
     if (!res.ok) {
