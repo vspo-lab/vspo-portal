@@ -71,13 +71,17 @@ const altPath = canonicalPath
 
     <script is:inline>
       (function () {
-        var stored = localStorage.getItem("theme");
-        var prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-        if (stored === "light" || (!stored && prefersLight)) {
-          /* light mode only when explicitly chosen or OS prefers light */
-        } else {
-          document.documentElement.classList.add("dark");
+        function applyTheme() {
+          var stored = localStorage.getItem("theme");
+          var prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+          if (stored === "light" || (!stored && prefersLight)) {
+            document.documentElement.classList.remove("dark");
+          } else {
+            document.documentElement.classList.add("dark");
+          }
         }
+        applyTheme();
+        document.addEventListener("astro:after-swap", applyTheme);
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
