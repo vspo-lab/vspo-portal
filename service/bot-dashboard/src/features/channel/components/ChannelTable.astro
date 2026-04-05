@@ -79,10 +79,12 @@ const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
               </td>
               <td class="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">
                 {ch.memberType === "custom" ? (() => {
+                  const resolved = resolveCustomCreators(ch.customMembers);
+                  if (resolved.length === 0) return t(locale, memberTypeKey(ch.memberType));
                   const overflow = (ch.customMembers?.length ?? 0) - MAX_AVATARS;
                   return (
                     <div class="flex items-center -space-x-2">
-                      {resolveCustomCreators(ch.customMembers).slice(0, MAX_AVATARS).map((creator) => (
+                      {resolved.slice(0, MAX_AVATARS).map((creator) => (
                         <div class="relative h-7 w-7 shrink-0 rounded-full ring-2 ring-surface" title={creator.name}>
                           {creator.thumbnailUrl ? (
                             <img
@@ -92,7 +94,7 @@ const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
                               loading="lazy"
                             />
                           ) : (
-                            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-vspo-purple/20 text-[10px] font-bold text-vspo-purple">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-vspo-purple/20 text-[10px] font-bold text-vspo-purple" role="img" aria-label={creator.name}>
                               {creator.name.charAt(0)}
                             </div>
                           )}

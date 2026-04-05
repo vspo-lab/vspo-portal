@@ -171,7 +171,7 @@ const VspoChannelApiRepository = {
       memberType: data.memberType
         ? toServerMemberType(data.memberType)
         : undefined,
-      selectedMemberIds: data.customMembers,
+      selectedMemberIds: data.memberType === "custom" ? data.customMembers : [],
     });
   },
 
