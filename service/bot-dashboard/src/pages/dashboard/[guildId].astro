@@ -65,13 +65,28 @@ const currentGuild = allGuilds.find((g) => g.id === guildId);
 const guildName = currentGuild?.name ?? guildId;
 const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;
-const fetchError = guildsResult.err ?? channelsResult.err ?? null;
+const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
 
 
 ---
 
 <Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
   <div class="mx-auto max-w-7xl space-y-10">
+    {/* Breadcrumb */}
+    <nav aria-label={t(locale, "nav.breadcrumb")} class="text-sm">
+      <ol class="flex items-center gap-1.5 text-on-surface-variant">
+        <li>
+          <a href="/dashboard" class="transition-colors hover:text-on-surface">{t(locale, "dashboard.allServers")}</a>
+        </li>
+        <li role="presentation">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+        </li>
+        <li>
+          <span class="font-medium text-on-surface">{guildName}</span>
+        </li>
+      </ol>
+    </nav>
+
     {/* Page header */}
     <div class="flex items-end justify-between">
       <div class="space-y-2">

@@ -67,6 +67,23 @@ const toServerMemberType = (
  * Communicates via Cloudflare Workers RPC through the APP_WORKER service binding.
  * @precondition APP_WORKER Service Binding must be configured (except in dev-mock mode)
  */
+/**
+ * Adjust a channel's bot configuration and enqueue the result for D1 persistence.
+ * Mirrors the two-step pattern used by Discord slash command handlers.
+ * @precondition appWorker is a valid service binding with DiscordService RPC
+ * @postcondition On Ok, channel config is updated in KV cache and enqueued for D1 persistence
+ */
+const adjustAndEnqueue = async (
+  appWorker: ApplicationService,
+  params: AdjustBotChannelRpcParams & { type: "add" | "remove" },
+): Promise<Result<void, AppError>> => {
+  const discord = appWorker.newDiscordUsecase();
+  const result = await discord.adjustBotChannel(params);
+  if (result.err) return result;
+  await discord.batchUpsertEnqueue([result.val]);
+  return Ok(undefined);
+};
+
 const VspoChannelApiRepository = {
   /**
    * Retrieve the Bot configuration for a server.
@@ -90,7 +107,12 @@ const VspoChannelApiRepository = {
 
     const discord = appWorker.newDiscordUsecase();
     const result = await discord.get(guildId);
-    if (result.err) return result;
+    if (result.err) {
+      if (result.err.code === "NOT_FOUND") {
+        return Ok({ guildId, channels: [] });
+      }
+      return result;
+    }
 
     const server = result.val;
     return Ok({
@@ -137,8 +159,7 @@ const VspoChannelApiRepository = {
       );
     }
 
-    const discord = appWorker.newDiscordUsecase();
-    const params: AdjustBotChannelRpcParams = {
+    return adjustAndEnqueue(appWorker, {
       type: "add",
       serverId: guildId,
       targetChannelId: channelId,
@@ -147,10 +168,7 @@ const VspoChannelApiRepository = {
         ? toServerMemberType(data.memberType)
         : undefined,
       selectedMemberIds: data.customMembers,
-    };
-    const result = await discord.adjustBotChannel(params);
-    if (result.err) return result;
-    return Ok(undefined);
+    });
   },
 
   /**
@@ -219,14 +237,11 @@ const VspoChannelApiRepository = {
       );
     }
 
-    const discord = appWorker.newDiscordUsecase();
-    const result = await discord.adjustBotChannel({
+    return adjustAndEnqueue(appWorker, {
       type: "add",
       serverId: guildId,
       targetChannelId: channelId,
     });
-    if (result.err) return result;
-    return Ok(undefined);
   },
 
   /**
@@ -282,14 +297,11 @@ const VspoChannelApiRepository = {
       );
     }
 
-    const discord = appWorker.newDiscordUsecase();
-    const result = await discord.adjustBotChannel({
+    return adjustAndEnqueue(appWorker, {
       type: "remove",
       serverId: guildId,
       targetChannelId: channelId,
     });
-    if (result.err) return result;
-    return Ok(undefined);
   },
 } as const;
 

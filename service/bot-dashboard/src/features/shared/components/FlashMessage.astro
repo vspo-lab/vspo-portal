@@ -55,11 +55,14 @@ const show = hasSuccess || hasError;
 
 <style>
   .flash-message {
-    animation: flash-fade-out 5s ease-in-out forwards;
-  }
-
-  @keyframes flash-fade-out {
-    0%, 80% { opacity: 1; max-height: 100px; }
-    100% { opacity: 0; max-height: 0; padding: 0; margin: 0; overflow: hidden; }
+    animation: toast-in 200ms var(--ease-standard, ease-out), toast-out 300ms var(--ease-standard, ease-in) 4.7s forwards;
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".flash-message").forEach((el) => {
+    el.addEventListener("animationend", (e) => {
+      if (e.animationName === "toast-out") el.remove();
+    });
+  });
+</script>
