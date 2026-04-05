@@ -8,13 +8,19 @@ const init = (): void => {
   if (controller) controller.abort();
   controller = new AbortController();
 
-  document.addEventListener("click", (e) => {
-    if (!(e.target instanceof Node)) return;
-    const target = e.target;
-    for (const el of document.querySelectorAll<HTMLDetailsElement>("details[data-auto-close]")) {
-      if (el.open && !el.contains(target)) el.open = false;
-    }
-  }, { signal: controller.signal });
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!(e.target instanceof Node)) return;
+      const target = e.target;
+      for (const el of document.querySelectorAll<HTMLDetailsElement>(
+        "details[data-auto-close]",
+      )) {
+        if (el.open && !el.contains(target)) el.open = false;
+      }
+    },
+    { signal: controller.signal },
+  );
 };
 
 init();

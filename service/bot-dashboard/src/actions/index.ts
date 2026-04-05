@@ -13,7 +13,10 @@ const requireAuth = (context: { locals: { user: unknown } }) => {
 };
 
 /** Unwrap a Result or throw an ActionError */
-const unwrapOrThrow = <T>(result: { err?: { message: string } | null; val?: T }): T => {
+const unwrapOrThrow = <T>(result: {
+  err?: { message: string } | null;
+  val?: T;
+}): T => {
   if (result.err) {
     throw new ActionError({
       code: "INTERNAL_SERVER_ERROR",

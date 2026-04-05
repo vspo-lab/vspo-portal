@@ -1,6 +1,6 @@
 /**
  * Initialize standard dialog behavior: backdrop-click-to-close and cancel button.
- * Uses AbortController to prevent duplicate listeners on View Transition navigations.
+ * Uses AbortController to prevent duplicate listeners on View Transition navigation.
  */
 const controllers = new Map<string, AbortController>();
 
@@ -14,11 +14,17 @@ export const initDialog = (dialogId: string): void => {
   controllers.set(dialogId, controller);
   const { signal } = controller;
 
-  dialog.addEventListener("click", (e) => {
-    if (e.target === dialog) dialog.close();
-  }, { signal });
+  dialog.addEventListener(
+    "click",
+    (e) => {
+      if (e.target === dialog) dialog.close();
+    },
+    { signal },
+  );
 
-  for (const btn of dialog.querySelectorAll("[data-modal-close], [data-modal-cancel]")) {
+  for (const btn of dialog.querySelectorAll(
+    "[data-modal-close], [data-modal-cancel]",
+  )) {
     btn.addEventListener("click", () => dialog.close(), { signal });
   }
 };

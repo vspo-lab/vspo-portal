@@ -36,7 +36,7 @@ export const Success: Story = {
   },
 };
 
-export const Error: Story = {
+export const ErrorMessage: Story = {
   args: {
     type: "error",
     message: "エラーが発生しました。もう一度お試しください。",
