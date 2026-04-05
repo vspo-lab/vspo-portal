@@ -65,7 +65,7 @@ const [guildsResult, channelsResult, creatorsResult] = await Promise.all([
 ]);
 
 const currentGuild = cachedGuild
-  ? { id: cachedGuild.id, name: cachedGuild.name, icon: cachedGuild.icon, isAdmin: true, botInstalled: cachedGuild.botInstalled }
+  ? { id: cachedGuild.id, name: cachedGuild.name, icon: cachedGuild.icon, isAdmin: cachedGuild.isAdmin, botInstalled: cachedGuild.botInstalled }
   : (() => {
       const all = guildsResult?.err ? [] : [...(guildsResult?.val.installed ?? []), ...(guildsResult?.val.notInstalled ?? [])];
       return all.find((g) => g.id === guildId) ?? null;

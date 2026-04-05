@@ -23,7 +23,7 @@ type ListGuildsResult = {
 /**
  * Retrieves the guilds the current user can manage and categorizes them for the dashboard.
  *
- * @param params - Discord access token, user ID, and app worker binding
+ * @param params - Discord access token, user ID, app worker binding, and optional includeChannelSummary (default true; when false, skips per-guild channel config fetches)
  * @returns Installed guilds, not-installed guilds, and sidebar guild metadata, or an AppError
  * @precondition params.accessToken !== "" && params.userId !== "" && params.appWorker is configured
  * @postcondition On Ok, installed guilds have botInstalled === true and isAdmin === true

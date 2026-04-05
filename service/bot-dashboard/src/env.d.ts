@@ -30,6 +30,7 @@ declare namespace App {
       id: string;
       name: string;
       icon: string | null;
+      isAdmin: boolean;
       botInstalled: boolean;
     }>;
   }
