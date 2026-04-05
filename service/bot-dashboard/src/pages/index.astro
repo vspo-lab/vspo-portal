@@ -4,6 +4,9 @@ import Base from "~/layouts/Base.astro";
 import Button from "~/components/ui/Button.astro";
 import LanguageSelector from "~/components/ui/LanguageSelector.astro";
 import ThemeToggle from "~/components/ui/ThemeToggle.astro";
+import ScrollReveal from "~/components/landing/ScrollReveal.astro";
+import StaggerText from "~/components/landing/StaggerText.astro";
+import DigitRoll from "~/components/landing/DigitRoll.astro";
 import { t } from "~/i18n/dict";
 import { buildBotInviteUrl } from "~/features/guild/domain/guild";
 import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
@@ -45,27 +48,32 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
       {/* Hero Section */}
       <section class="px-6 pb-16 pt-16 sm:pb-24 sm:pt-24">
         <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-          {/* Badge */}
-          <div class="mb-8 inline-flex items-center gap-2 rounded-full bg-surface-container-highest px-3 py-1">
-            <div class="h-2 w-2 rounded-full bg-success"></div>
-            <span class="text-xs font-medium tracking-wide text-vspo-purple">{t(locale, "app.name")}</span>
+          {/* Badge — line reveal animation */}
+          <div class="hero-badge line-reveal is-visible mb-8" style="--reveal-delay: 0ms">
+            <span class="line-reveal-inner inline-flex items-center gap-2 rounded-full bg-surface-container-highest px-3 py-1">
+              <span class="h-2 w-2 rounded-full bg-success"></span>
+              <span class="text-xs font-medium tracking-wide text-vspo-purple">{t(locale, "app.name")}</span>
+            </span>
           </div>
 
-          {/* Headline */}
-          <h1 class="mb-6 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl">
-            {t(locale, "login.headline")}
-          </h1>
+          {/* Headline — stagger letter rise */}
+          <StaggerText
+            text={t(locale, "login.headline")}
+            tag="h1"
+            class="mb-6 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl"
+            autoPlay
+          />
 
-          <p class="mb-8 max-w-xl text-balance text-base leading-relaxed text-on-surface-variant sm:text-lg">
+          <p class="hero-description mb-8 max-w-xl text-balance text-base leading-relaxed text-on-surface-variant sm:text-lg">
             {t(locale, "login.description")}
           </p>
 
-          {/* Stats */}
+          {/* Stats — digit roll counter */}
           {stats && (
-            <div class="mb-10 flex items-center justify-center gap-6">
+            <div class="hero-stats mb-10 flex items-center justify-center gap-6">
               <div class="text-center">
-                <div class="text-2xl font-extrabold tabular-nums text-on-surface sm:text-3xl">
-                  {stats.guildCount.toLocaleString()}
+                <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
+                  <DigitRoll value={stats.guildCount} />
                 </div>
                 <div class="text-xs font-medium tracking-wide text-on-surface-variant">
                   {t(locale, "login.stat.servers")}
@@ -73,8 +81,8 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               </div>
               <div class="h-8 w-px bg-border/50" aria-hidden="true"></div>
               <div class="text-center">
-                <div class="text-2xl font-extrabold tabular-nums text-on-surface sm:text-3xl">
-                  {stats.totalMemberCount.toLocaleString()}
+                <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
+                  <DigitRoll value={stats.totalMemberCount} />
                 </div>
                 <div class="text-xs font-medium tracking-wide text-on-surface-variant">
                   {t(locale, "login.stat.users")}
@@ -103,7 +111,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
           )}
 
           {/* CTA Buttons */}
-          <div class="flex flex-col items-center gap-3 sm:flex-row">
+          <div class="hero-cta flex flex-col items-center gap-3 sm:flex-row">
             <Button
               as="a"
               href={botInviteUrl}
@@ -134,9 +142,11 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
       {/* Discord notification preview */}
       <section class="px-6 pb-8 sm:pb-16">
         <div class="mx-auto max-w-5xl">
-          <p class="mb-8 text-center text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "login.previewCaption")}</p>
+          <ScrollReveal animation="fade-in-up">
+            <p class="mb-8 text-center text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "login.previewCaption")}</p>
+          </ScrollReveal>
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
+            <ScrollReveal animation="clip-center" class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
               <picture>
                 <source srcset="/discord-preview-1.webp" type="image/webp" />
                 <img
@@ -148,8 +158,8 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
                   height="1024"
                 />
               </picture>
-            </div>
-            <div class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
+            </ScrollReveal>
+            <ScrollReveal animation="clip-center" delay={200} class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
               <picture>
                 <source srcset="/discord-preview-2.webp" type="image/webp" />
                 <img
@@ -161,7 +171,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
                   height="1024"
                 />
               </picture>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -169,59 +179,67 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
       {/* Features */}
       <section class="bg-surface-container-lowest px-6 py-16 sm:py-24">
         <div class="mx-auto max-w-4xl">
-          <div class="mb-12 text-left">
+          <ScrollReveal animation="fade-in-up" class="mb-12 text-left">
             <h2 class="mb-3 font-heading text-2xl font-extrabold tracking-tight text-on-surface sm:text-3xl">{t(locale, "login.features")}</h2>
             <p class="max-w-xl text-on-surface-variant">{t(locale, "login.features.desc")}</p>
-          </div>
+          </ScrollReveal>
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="rounded-xl bg-surface-container p-6 transition-colors hover:bg-surface-container-high">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
-                <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
+            <ScrollReveal animation="fade-in-up" delay={0}>
+              <div class="feature-card rounded-xl bg-surface-container p-6">
+                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
+                  <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </div>
+                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.list")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.list.desc")}</p>
               </div>
-              <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.list")}</h3>
-              <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.list.desc")}</p>
-            </div>
+            </ScrollReveal>
 
-            <div class="rounded-xl bg-surface-container p-6 transition-colors hover:bg-surface-container-high">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary/10">
-                <svg class="h-5 w-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
+            <ScrollReveal animation="fade-in-up" delay={100}>
+              <div class="feature-card rounded-xl bg-surface-container p-6">
+                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary/10">
+                  <svg class="h-5 w-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                </div>
+                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.filter")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.filter.desc")}</p>
               </div>
-              <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.filter")}</h3>
-              <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.filter.desc")}</p>
-            </div>
+            </ScrollReveal>
 
-            <div class="rounded-xl bg-surface-container p-6 transition-colors hover:bg-surface-container-high">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
-                <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+            <ScrollReveal animation="fade-in-up" delay={200}>
+              <div class="feature-card rounded-xl bg-surface-container p-6">
+                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
+                  <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.realtime")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.realtime.desc")}</p>
               </div>
-              <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.realtime")}</h3>
-              <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.realtime.desc")}</p>
-            </div>
+            </ScrollReveal>
 
-            <div class="rounded-xl bg-surface-container p-6 transition-colors hover:bg-surface-container-high">
-              <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
-                <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+            <ScrollReveal animation="fade-in-up" delay={300}>
+              <div class="feature-card rounded-xl bg-surface-container p-6">
+                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
+                  <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.settings")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.settings.desc")}</p>
               </div>
-              <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.settings")}</h3>
-              <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.settings.desc")}</p>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section class="px-6 py-16 sm:py-24">
-        <div class="mx-auto max-w-3xl rounded-2xl border border-border bg-surface-container-low p-10 text-center sm:p-16">
+        <ScrollReveal animation="clip-circle" class="mx-auto max-w-3xl rounded-2xl border border-border bg-surface-container-low p-10 text-center sm:p-16">
           <h2 class="mb-4 font-heading text-3xl font-extrabold text-on-surface sm:text-4xl">{t(locale, "login.cta.headline")}</h2>
           <p class="mx-auto mb-8 max-w-lg text-on-surface-variant">{t(locale, "login.cta.description")}</p>
           <div class="flex flex-col justify-center gap-3 sm:flex-row">
@@ -249,11 +267,12 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               {t(locale, "login.button")}
             </Button>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Footer */}
       <footer class="border-t border-border/50 px-6 py-8">
+        <ScrollReveal animation="fade-in-up">
         <div class="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <div class="flex items-center gap-2">
             <span class="font-heading text-lg font-bold tracking-tight text-vspo-purple">{t(locale, "app.name")}</span>
@@ -286,6 +305,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
             </a>
           </nav>
         </div>
+        </ScrollReveal>
       </footer>
     </main>
   </div>

@@ -183,6 +183,256 @@ dialog[open] {
 }
 
 /*
+ * === Landing Page Animations ===
+ */
+
+/* Stagger Letter Rise */
+@keyframes letter-rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Text Line Reveal */
+@keyframes line-down {
+  from { transform: translateX(-50%) scaleY(0); }
+  to   { transform: translateX(-50%) scaleY(1); }
+}
+@keyframes curtain-round-left {
+  from { border-bottom-right-radius: 0; }
+  to   { border-bottom-right-radius: 100%; }
+}
+@keyframes curtain-open-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-101%); }
+}
+@keyframes curtain-round-right {
+  from { border-bottom-left-radius: 0; }
+  to   { border-bottom-left-radius: 100%; }
+}
+@keyframes curtain-open-right {
+  from { transform: translateX(0); }
+  to   { transform: translateX(101%); }
+}
+
+/* Clip-path Reveals */
+@keyframes clip-center {
+  from { clip-path: inset(0 50%); }
+  to   { clip-path: inset(0 0); }
+}
+@keyframes clip-circle {
+  from { clip-path: circle(0% at 50% 50%); }
+  to   { clip-path: circle(100% at 50% 50%); }
+}
+
+/* Digit Roll — uses --dh (digit height) CSS variable for responsive sizing */
+@keyframes digit-roll {
+  from { transform: translateY(calc(var(--dh) * -9)); }
+  to   { transform: translateY(calc(var(--dh) * var(--digit) * -1)); }
+}
+
+/*
+ * === Scroll Reveal System ===
+ * Elements with [data-scroll-reveal] start hidden.
+ * IntersectionObserver adds [data-visible] to trigger animation.
+ */
+[data-scroll-reveal] {
+  opacity: 0;
+}
+
+[data-scroll-reveal][data-visible] {
+  opacity: 1;
+}
+
+/* Fade in up (default scroll reveal) */
+[data-scroll-reveal="fade-in-up"] {
+  transform: translateY(24px);
+}
+[data-scroll-reveal="fade-in-up"][data-visible] {
+  animation: fade-in-up 600ms var(--ease-standard) var(--reveal-delay, 0ms) both;
+}
+
+/* Clip center reveal (with @supports fallback) */
+@supports (clip-path: inset(0 0)) {
+  [data-scroll-reveal="clip-center"] {
+    clip-path: inset(0 50%);
+  }
+  [data-scroll-reveal="clip-center"][data-visible] {
+    animation: clip-center 800ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
+  }
+}
+
+/* Clip circle reveal (with @supports fallback) */
+@supports (clip-path: circle(50%)) {
+  [data-scroll-reveal="clip-circle"] {
+    clip-path: circle(0% at 50% 50%);
+  }
+  [data-scroll-reveal="clip-circle"][data-visible] {
+    animation: clip-circle 900ms var(--ease-emphasized) var(--reveal-delay, 0ms) both;
+  }
+}
+
+/*
+ * === Stagger Text ===
+ */
+.stagger-text span {
+  display: inline-block;
+  opacity: 0;
+}
+.stagger-text[data-visible] span,
+.stagger-text.is-visible span {
+  animation: letter-rise 0.5s ease-out calc(var(--i) * 60ms + 200ms) forwards;
+}
+
+/*
+ * === Text Line Reveal ===
+ */
+.line-reveal {
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+}
+.line-reveal.is-visible {
+  opacity: 1;
+}
+
+.line-reveal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 100%;
+  background-color: var(--color-vspo-purple);
+  transform-origin: top;
+  transform: translateX(-50%) scaleY(0);
+}
+.line-reveal.is-visible::before {
+  animation: line-down 0.4s cubic-bezier(0.93, 0, 0.1, 1.01) var(--reveal-delay, 0ms) both;
+}
+
+.line-reveal-inner {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  padding: 4px 16px;
+}
+.line-reveal-inner::before,
+.line-reveal-inner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 50.5%;
+  height: 100%;
+  background: var(--color-surface, #fafafa);
+  z-index: 1;
+}
+.dark .line-reveal-inner::before,
+.dark .line-reveal-inner::after {
+  background: var(--sem-surface, #121317);
+}
+.line-reveal-inner::before { left: -1px; }
+.line-reveal-inner::after { right: -1px; }
+
+.line-reveal.is-visible .line-reveal-inner::before {
+  animation:
+    curtain-round-left 0.45s ease-out calc(var(--reveal-delay, 0ms) + 400ms) both,
+    curtain-open-left 0.9s ease-in-out calc(var(--reveal-delay, 0ms) + 500ms) forwards;
+}
+.line-reveal.is-visible .line-reveal-inner::after {
+  animation:
+    curtain-round-right 0.45s ease-out calc(var(--reveal-delay, 0ms) + 400ms) both,
+    curtain-open-right 0.9s ease-in-out calc(var(--reveal-delay, 0ms) + 500ms) forwards;
+}
+
+/*
+ * === Digit Roll ===
+ * --dh controls digit height for responsive sizing.
+ */
+.digit-roll {
+  --dh: 40px;
+  display: flex;
+  align-items: center;
+}
+@media (min-width: 640px) {
+  .digit-roll { --dh: 48px; }
+}
+
+.digit-slot {
+  width: calc(var(--dh) * 0.8);
+  height: var(--dh);
+  overflow: hidden;
+  position: relative;
+}
+.digit-strip {
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(var(--dh) * -9));
+}
+.digit-strip span {
+  width: calc(var(--dh) * 0.8);
+  height: var(--dh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Animated only when parent has [data-visible] */
+[data-visible] .digit-strip {
+  animation: digit-roll 1.2s cubic-bezier(0.22, 1, 0.36, 1) var(--digit-delay, 0s) both;
+}
+
+/* Separator (comma, period) */
+.digit-sep {
+  width: calc(var(--dh) * 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+[data-visible] .digit-sep {
+  animation: fade-in-up 400ms var(--ease-standard) 0.8s both;
+}
+
+/*
+ * === Feature Card Hover Enhancement ===
+ */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .feature-card {
+    transition: transform var(--duration-medium) var(--ease-standard),
+                box-shadow var(--duration-medium) var(--ease-standard);
+  }
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+  }
+  .feature-card:hover .feature-icon {
+    transform: scale(1.1);
+    transition: transform var(--duration-medium) cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+/*
+ * === Hero Sequence (page-load animations) ===
+ */
+.hero-badge {
+  opacity: 0;
+  animation: fade-in-up 500ms var(--ease-standard) 300ms both;
+}
+.hero-description {
+  opacity: 0;
+  animation: fade-in-up 500ms var(--ease-standard) 500ms both;
+}
+.hero-stats {
+  opacity: 0;
+  animation: fade-in-up 500ms var(--ease-standard) 600ms both;
+}
+.hero-cta {
+  opacity: 0;
+  animation: fade-in-up 500ms var(--ease-standard) 700ms both;
+}
+
+/*
  * === Reduced motion ===
  */
 @media (prefers-reduced-motion: reduce) {
