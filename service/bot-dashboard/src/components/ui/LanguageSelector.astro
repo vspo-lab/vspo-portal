@@ -5,22 +5,21 @@ import { t } from "~/i18n/dict";
 interface Props {
   currentLocale: Locale;
   returnTo: string;
-  /** "header" renders a compact icon button; "dropdown" renders text buttons for menus. */
+  /** "header" renders a compact icon button with popup; "dropdown" renders text buttons for menus. */
   variant?: "header" | "dropdown";
 }
 
 const { currentLocale, returnTo, variant = "header" } = Astro.props;
-const nextLocale: Locale = currentLocale === "ja" ? "en" : "ja";
 ---
 
 {variant === "header" ? (
-  <form method="post" action="/api/change-locale">
-    <input type="hidden" name="_returnTo" value={returnTo} />
-    <input type="hidden" name="locale" value={nextLocale} />
+  <div class="lang-popup-wrapper relative">
     <button
-      type="submit"
+      type="button"
       aria-label={t(currentLocale, "settings.language")}
-      class="relative flex h-9 w-9 items-center justify-center rounded-[--radius-sm] text-on-surface-variant transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50 cursor-pointer"
+      aria-expanded="false"
+      aria-haspopup="true"
+      class="lang-popup-trigger relative flex h-9 w-9 items-center justify-center rounded-[--radius-sm] text-on-surface-variant transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50 cursor-pointer"
     >
       <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
@@ -30,7 +29,57 @@ const nextLocale: Locale = currentLocale === "ja" ? "en" : "ja";
         {currentLocale.toUpperCase()}
       </span>
     </button>
-  </form>
+    <div class="lang-popup absolute right-0 top-full z-50 mt-2 hidden min-w-[140px] overflow-hidden rounded-lg border border-outline-variant bg-surface-container shadow-lg" role="menu">
+      {(["ja", "en"] as const).map((lang) => (
+        <form method="post" action="/api/change-locale">
+          <input type="hidden" name="_returnTo" value={returnTo} />
+          <input type="hidden" name="locale" value={lang} />
+          <button
+            type="submit"
+            role="menuitem"
+            class={`flex w-full items-center gap-2 px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+              currentLocale === lang
+                ? "bg-vspo-purple/10 text-vspo-purple font-semibold"
+                : "text-on-surface hover:bg-surface-container-highest"
+            }`}
+          >
+            {t(currentLocale, `settings.language.${lang}` as keyof typeof import("~/i18n/dict").ja)}
+            {currentLocale === lang && (
+              <svg class="ml-auto h-4 w-4 text-vspo-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </button>
+        </form>
+      ))}
+    </div>
+  </div>
+  <script>
+    document.addEventListener("click", (e) => {
+      const wrapper = (e.target as Element)?.closest(".lang-popup-wrapper");
+      document.querySelectorAll(".lang-popup-wrapper").forEach((w) => {
+        if (w !== wrapper) {
+          w.querySelector(".lang-popup")?.classList.add("hidden");
+          w.querySelector(".lang-popup-trigger")?.setAttribute("aria-expanded", "false");
+        }
+      });
+      if (!wrapper) return;
+      const trigger = wrapper.querySelector(".lang-popup-trigger");
+      const popup = wrapper.querySelector(".lang-popup");
+      if (!trigger || !popup) return;
+      if ((e.target as Element)?.closest(".lang-popup-trigger")) {
+        const isOpen = !popup.classList.contains("hidden");
+        popup.classList.toggle("hidden");
+        trigger.setAttribute("aria-expanded", isOpen ? "false" : "true");
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        document.querySelectorAll(".lang-popup").forEach((p) => p.classList.add("hidden"));
+        document.querySelectorAll(".lang-popup-trigger").forEach((t) => t.setAttribute("aria-expanded", "false"));
+      }
+    });
+  </script>
 ) : (
   <form method="post" action="/api/change-locale" class="flex items-center gap-1">
     <input type="hidden" name="_returnTo" value={returnTo} />

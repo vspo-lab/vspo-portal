@@ -233,7 +233,7 @@ dialog[open] {
 }
 
 .digit-slot {
-  width: calc(var(--dh) * 0.8);
+  width: calc(var(--dh) * 0.6);
   height: var(--dh);
   overflow: hidden;
   position: relative;
@@ -243,7 +243,7 @@ dialog[open] {
   flex-direction: column;
 }
 .digit-strip span {
-  width: calc(var(--dh) * 0.8);
+  width: calc(var(--dh) * 0.6);
   height: var(--dh);
   display: flex;
   align-items: center;
