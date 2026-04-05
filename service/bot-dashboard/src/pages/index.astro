@@ -1,9 +1,9 @@
 ---
 import { env } from "cloudflare:workers";
 import Base from "~/layouts/Base.astro";
+import Header from "~/features/shared/components/Header.astro";
+import Footer from "~/features/shared/components/Footer.astro";
 import Button from "~/features/shared/components/Button.astro";
-import LanguageSelector from "~/features/shared/components/LanguageSelector.astro";
-import ThemeToggle from "~/features/shared/components/ThemeToggle.astro";
 import ScrollReveal from "~/features/landing/components/ScrollReveal.astro";
 import DigitRoll from "~/features/landing/components/DigitRoll.astro";
 import FeaturePopup from "~/features/landing/components/FeaturePopup.astro";
@@ -33,16 +33,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
   canonicalPath="/"
 >
   <div class="min-h-screen bg-surface text-on-surface">
-    {/* Top Navigation */}
-    <nav class="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border/50 bg-surface/80 px-6 backdrop-blur-lg">
-      <div class="flex items-center gap-8">
-        <span class="text-xl font-bold font-heading tracking-tight text-vspo-purple">{t(locale, "app.name")}</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <LanguageSelector currentLocale={locale} returnTo="/" variant="header" />
-        <ThemeToggle />
-      </div>
-    </nav>
+    <Header />
 
     <main id="main-content" class="relative">
       {/* Hero Section */}
@@ -268,43 +259,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
         </ScrollReveal>
       </section>
 
-      {/* Footer */}
-      <footer class="border-t border-border/50 px-6 py-8">
-        <ScrollReveal animation="fade-in-up">
-        <div class="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
-          <div class="flex items-center gap-2">
-            <span class="font-heading text-lg font-bold tracking-tight text-vspo-purple">{t(locale, "app.name")}</span>
-            <span class="text-xs text-on-surface-variant">{t(locale, "login.footer")}</span>
-          </div>
-          <nav class="flex items-center gap-4 text-xs text-on-surface-variant" aria-label="Footer">
-            <a
-              href="https://www.vspo-schedule.com/schedule/all"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="underline hover:text-on-surface"
-            >
-              {t(locale, "login.footer.link")}
-            </a>
-            <a
-              href="https://www.vspo-schedule.com/terms"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="underline hover:text-on-surface"
-            >
-              {t(locale, "login.footer.terms")}
-            </a>
-            <a
-              href="https://www.vspo-schedule.com/privacy-policy"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="underline hover:text-on-surface"
-            >
-              {t(locale, "login.footer.privacy")}
-            </a>
-          </nav>
-        </div>
-        </ScrollReveal>
-      </footer>
+      <Footer />
     </main>
   </div>
 </Base>

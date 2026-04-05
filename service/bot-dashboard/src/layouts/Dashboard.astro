@@ -1,8 +1,7 @@
 ---
 import Base from "./Base.astro";
-import UserMenu from "~/features/auth/components/UserMenu.astro";
-import ThemeToggle from "~/features/shared/components/ThemeToggle.astro";
-import LanguageSelector from "~/features/shared/components/LanguageSelector.astro";
+import Header from "~/features/shared/components/Header.astro";
+import Footer from "~/features/shared/components/Footer.astro";
 import AvatarFallback from "~/features/shared/components/AvatarFallback.astro";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
 import { t } from "~/i18n/dict";
@@ -21,7 +20,6 @@ const { locale } = Astro.locals;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
 const avatarUrl = DiscordUser.avatarUrl(user);
-const returnTo = Astro.url.pathname + Astro.url.search;
 const sidebarChannelsHref = activeGuild ? `/dashboard/${activeGuild.id}` : "/dashboard";
 const sidebarAnnouncementsHref = activeGuild
   ? `/dashboard/${activeGuild.id}/announcements`
@@ -79,76 +77,61 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
         </aside>
 
         <div class="flex flex-1 flex-col">
-          <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
-            <div class="flex items-center gap-4">
-              <details class="group relative lg:hidden" id="mobile-sidebar" data-auto-close>
-                <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" aria-label={t(locale, "nav.menu")}>
-                  <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                  <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </summary>
-                <nav class="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl bg-surface-container-high/95 p-3 shadow-hover glass" aria-label={t(locale, "nav.sidebar")}>
-                  {activeGuild && (
-                    <div class="mb-3 flex items-center gap-3 px-2">
-                      <AvatarFallback src={activeGuild.iconUrl} name={activeGuild.name} size="xs" />
-                      <span class="truncate text-sm font-bold text-on-surface">{activeGuild.name}</span>
-                    </div>
-                  )}
-                  <div class="space-y-1">
-                    <a
-                      href={sidebarChannelsHref}
-                      class={isChannelsActive
-                        ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
-                        : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
-                      aria-current={isChannelsActive ? "page" : undefined}
-                    >
-                      <span>{t(locale, "nav.channels")}</span>
-                    </a>
-                    <a
-                      href={sidebarAnnouncementsHref}
-                      class={isAnnouncementsActive
-                        ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
-                        : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
-                      aria-current={isAnnouncementsActive ? "page" : undefined}
-                    >
-                      <span>{t(locale, "nav.notifications")}</span>
-                    </a>
-                    <a
-                      href="/dashboard"
-                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
-                    >
-                      {t(locale, "dashboard.allServers")}
-                    </a>
+          <Header user={{ displayName: user.displayName, avatarUrl }}>
+            <details slot="left" class="group relative lg:hidden" id="mobile-sidebar" data-auto-close>
+              <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" aria-label={t(locale, "nav.menu")}>
+                <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </summary>
+              <nav class="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl bg-surface-container-high/95 p-3 shadow-hover glass" aria-label={t(locale, "nav.sidebar")}>
+                {activeGuild && (
+                  <div class="mb-3 flex items-center gap-3 px-2">
+                    <AvatarFallback src={activeGuild.iconUrl} name={activeGuild.name} size="xs" />
+                    <span class="truncate text-sm font-bold text-on-surface">{activeGuild.name}</span>
                   </div>
-                </nav>
-              </details>
-
-              <a href="/dashboard" class="font-heading text-lg font-bold text-vspo-purple lg:hidden">{t(locale, "app.name")}</a>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <LanguageSelector currentLocale={locale} returnTo={returnTo} variant="header" />
-              <ThemeToggle />
-              <UserMenu displayName={user.displayName} avatarUrl={avatarUrl} />
-            </div>
-          </header>
+                )}
+                <div class="space-y-1">
+                  <a
+                    href={sidebarChannelsHref}
+                    class={isChannelsActive
+                      ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
+                      : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
+                    aria-current={isChannelsActive ? "page" : undefined}
+                  >
+                    <span>{t(locale, "nav.channels")}</span>
+                  </a>
+                  <a
+                    href={sidebarAnnouncementsHref}
+                    class={isAnnouncementsActive
+                      ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
+                      : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
+                    aria-current={isAnnouncementsActive ? "page" : undefined}
+                  >
+                    <span>{t(locale, "nav.notifications")}</span>
+                  </a>
+                  <a
+                    href="/dashboard"
+                    class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                  >
+                    {t(locale, "dashboard.allServers")}
+                  </a>
+                </div>
+              </nav>
+            </details>
+          </Header>
 
           <main id="main-content" class="flex-1 bg-surface p-6 sm:p-10">
             <slot />
           </main>
+          <Footer />
         </div>
       </div>
     ) : (
-      <header class="sticky top-0 z-30 flex h-14 items-center justify-between bg-surface-container px-4 sm:px-6">
-        <a href="/dashboard" class="font-heading text-lg font-bold text-vspo-purple">{t(locale, "app.name")}</a>
-        <div class="flex items-center gap-2">
-          <LanguageSelector currentLocale={locale} returnTo={returnTo} variant="header" />
-          <ThemeToggle />
-          <UserMenu displayName={user.displayName} avatarUrl={avatarUrl} />
-        </div>
-      </header>
+      <Header user={{ displayName: user.displayName, avatarUrl }} />
       <main id="main-content" class="flex-1 bg-surface p-4 sm:p-6">
         <slot />
       </main>
+      <Footer />
     )}
   </div>
 </Base>

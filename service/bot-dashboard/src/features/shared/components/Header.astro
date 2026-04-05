@@ -1,0 +1,28 @@
+---
+import LanguageSelector from "~/features/shared/components/LanguageSelector.astro";
+import ThemeToggle from "~/features/shared/components/ThemeToggle.astro";
+import UserMenu from "~/features/auth/components/UserMenu.astro";
+import { t } from "~/i18n/dict";
+
+type Props = {
+  user?: { displayName: string; avatarUrl: string | null } | null;
+};
+
+const { user = null } = Astro.props;
+const { locale } = Astro.locals;
+const returnTo = Astro.url.pathname + Astro.url.search;
+---
+
+<header class="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/50 bg-surface/80 px-4 backdrop-blur-lg sm:px-6">
+  <div class="flex items-center gap-4">
+    <slot name="left" />
+    <a href={user ? "/dashboard" : "/"} class="font-heading text-lg font-bold tracking-tight text-vspo-purple">
+      {t(locale, "app.name")}
+    </a>
+  </div>
+  <div class="flex items-center gap-2">
+    <LanguageSelector currentLocale={locale} returnTo={returnTo} variant="header" />
+    <ThemeToggle />
+    {user && <UserMenu displayName={user.displayName} avatarUrl={user.avatarUrl} />}
+  </div>
+</header>
