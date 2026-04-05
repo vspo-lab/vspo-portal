@@ -4,18 +4,22 @@ interface Props {
   title: string;
   description: string;
   closeLabel: string;
+  imagePlaceholder: string;
 }
 
-const { id, title, description, closeLabel } = Astro.props;
+const { id, title, description, closeLabel, imagePlaceholder } = Astro.props;
+const titleId = `${id}-title`;
 ---
 
 <dialog
   id={id}
+  aria-modal="true"
+  aria-labelledby={titleId}
   class="feature-popup m-auto max-w-lg rounded-2xl border border-border bg-surface p-0 text-on-surface shadow-xl backdrop:bg-black/50"
 >
   <div class="flex flex-col gap-4 p-6">
     <div class="flex items-start justify-between">
-      <h3 class="font-heading text-xl font-bold">{title}</h3>
+      <h3 id={titleId} class="font-heading text-xl font-bold">{title}</h3>
       <button
         type="button"
         class="feature-popup-close -mr-2 -mt-2 cursor-pointer rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-accent hover:text-on-surface"
@@ -34,7 +38,7 @@ const { id, title, description, closeLabel } = Astro.props;
           <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          Coming soon
+          {imagePlaceholder}
         </div>
       </slot>
     </div>

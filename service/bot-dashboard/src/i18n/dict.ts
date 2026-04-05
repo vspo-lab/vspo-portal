@@ -34,6 +34,7 @@ const ja = {
   "login.feature.settings.desc":
     "ダッシュボードから通知チャンネルや対象メンバーを変更",
   "login.feature.close": "閉じる",
+  "login.feature.imagePlaceholder": "準備中",
 
   // Dashboard
   "dashboard.servers": "サーバー一覧",
@@ -208,6 +209,7 @@ const en: Record<keyof typeof ja, string> = {
   "login.feature.settings.desc":
     "Change notification channels and target members from the dashboard",
   "login.feature.close": "Close",
+  "login.feature.imagePlaceholder": "Coming soon",
 
   // Dashboard
   "dashboard.servers": "Servers",
