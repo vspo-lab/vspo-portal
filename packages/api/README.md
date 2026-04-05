@@ -20,8 +20,6 @@ const response = await apiClient.someEndpoint();
 ## Dependencies
 
 - @vspo-lab/error: workspace package
-- axios: ^1.9.0
-- axios-retry: ^4.5.0
 
 ## Development
 

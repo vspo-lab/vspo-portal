@@ -5,11 +5,6 @@
  * API
  * OpenAPI spec version: 1.0.0
  */
-import axios from 'axios';
-import type {
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
 
 /**
  * A machine readable error code.
@@ -936,87 +931,3 @@ export type ListFreechats200 = {
   pagination: ListFreechats200Pagination;
 };
 
-export const listStreams = <TData = AxiosResponse<ListStreams200>>(
-    params: ListStreamsParams, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.get(
-      `/api/streams`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-
-export const listCreators = <TData = AxiosResponse<ListCreators200>>(
-    params: ListCreatorsParams, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.get(
-      `/api/creators`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-
-export const postStream = <TData = AxiosResponse<PostStream200>>(
-    postStreamBody: PostStreamBody, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.post(
-      `/api/streams/search`,
-      postStreamBody,options
-    );
-  }
-
-export const listClips = <TData = AxiosResponse<ListClips200>>(
-    params: ListClipsParams, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.get(
-      `/api/clips`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-
-export const listEvents = <TData = AxiosResponse<ListEvents200>>(
-    params: ListEventsParams, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.get(
-      `/api/events`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-
-export const createEvent = <TData = AxiosResponse<CreateEvent201>>(
-    createEventBody: CreateEventBody, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.post(
-      `/api/events`,
-      createEventBody,options
-    );
-  }
-
-export const getEvent = <TData = AxiosResponse<GetEvent200>>(
-    id: string, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.get(
-      `/api/events/${id}`,options
-    );
-  }
-
-export const listFreechats = <TData = AxiosResponse<ListFreechats200>>(
-    params: ListFreechatsParams, options?: AxiosRequestConfig
- ): Promise<TData> => {
-    return axios.get(
-      `/api/freechats`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-
-export type ListStreamsResult = AxiosResponse<ListStreams200>
-export type ListCreatorsResult = AxiosResponse<ListCreators200>
-export type PostStreamResult = AxiosResponse<PostStream200>
-export type ListClipsResult = AxiosResponse<ListClips200>
-export type ListEventsResult = AxiosResponse<ListEvents200>
-export type CreateEventResult = AxiosResponse<CreateEvent201>
-export type GetEventResult = AxiosResponse<GetEvent200>
-export type ListFreechatsResult = AxiosResponse<ListFreechats200>

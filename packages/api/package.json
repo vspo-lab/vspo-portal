@@ -21,7 +21,6 @@
     "typescript": "catalog:"
   },
   "dependencies": {
-    "@vspo-lab/error": "workspace:^",
-    "axios": "^1.13.6"
+    "@vspo-lab/error": "workspace:^"
   }
 }
