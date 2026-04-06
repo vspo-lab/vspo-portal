@@ -139,16 +139,14 @@ describe("LoginUsecase", () => {
     it("returns Err when user parsing fails", async () => {
       const mockAppWorker = createMockAppWorker({
         exchangeOAuthCode: vi.fn().mockResolvedValue(Ok(tokenResponse)),
-        getOAuthUser: vi
-          .fn()
-          .mockResolvedValue(
-            Ok({
-              id: 123 as unknown as string,
-              username: "u",
-              global_name: null,
-              avatar: null,
-            }),
-          ),
+        getOAuthUser: vi.fn().mockResolvedValue(
+          Ok({
+            id: 123 as unknown as string,
+            username: "u",
+            global_name: null,
+            avatar: null,
+          }),
+        ),
       });
 
       const result = await LoginUsecase.handleCallback(

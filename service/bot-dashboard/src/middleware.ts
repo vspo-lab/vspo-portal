@@ -1,6 +1,6 @@
 import { DEV_MOCK_AUTH } from "astro:env/server";
-import { env } from "cloudflare:workers";
 import { defineMiddleware, sequence } from "astro:middleware";
+import { env } from "cloudflare:workers";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DiscordOAuthRpcRepository } from "~/features/auth/repository/discord-oauth-rpc";
 

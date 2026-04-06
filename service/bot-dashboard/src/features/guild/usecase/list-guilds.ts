@@ -34,7 +34,10 @@ const execute = async (
 ): Promise<Result<ListGuildsResult, AppError>> => {
   const { includeChannelSummary = true } = params;
   const [guildsResult, botGuildIdsResult] = await Promise.all([
-    DiscordOAuthRpcRepository.getUserGuilds(params.appWorker, params.accessToken),
+    DiscordOAuthRpcRepository.getUserGuilds(
+      params.appWorker,
+      params.accessToken,
+    ),
     VspoGuildApiRepository.getBotGuildIds(params.appWorker),
   ]);
 

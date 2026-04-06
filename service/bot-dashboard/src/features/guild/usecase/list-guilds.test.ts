@@ -205,7 +205,9 @@ describe("ListGuildsUsecase", () => {
     });
 
     it("returns empty arrays when no guilds exist", async () => {
-      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(Ok([]));
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(
+        Ok([]),
+      );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
         Ok(new Set()),
       );

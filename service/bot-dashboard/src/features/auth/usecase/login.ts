@@ -86,10 +86,11 @@ const handleCallback = async (
   appWorker: ApplicationService,
   codeVerifier?: string,
 ): Promise<Result<LoginResult, AppError>> => {
-  const tokenResult = await DiscordOAuthRpcRepository.exchangeCode(
-    appWorker,
-    { code, redirectUri: env.DISCORD_REDIRECT_URI, codeVerifier },
-  );
+  const tokenResult = await DiscordOAuthRpcRepository.exchangeCode(appWorker, {
+    code,
+    redirectUri: env.DISCORD_REDIRECT_URI,
+    codeVerifier,
+  });
   if (tokenResult.err) return tokenResult;
 
   const userResult = await DiscordOAuthRpcRepository.getCurrentUser(
