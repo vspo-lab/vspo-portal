@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { $channelToEdit } from "../../stores/channel-actions";
@@ -37,6 +37,10 @@ const translations = {
   reset: "Reset",
   cancel: "Cancel",
   save: "Save",
+  diffTitle: "Change Preview",
+  diffLanguage: "Language",
+  diffMemberType: "Members",
+  diffCustomMembers: "Custom Members",
 };
 
 const languageOptions = [
@@ -137,6 +141,45 @@ describe("ChannelConfigModal", () => {
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect($channelToEdit.get()).toBeNull();
+  });
+
+  it("shows change preview when language is changed", async () => {
+    const user = userEvent.setup();
+    $channelToEdit.set({
+      channelId: "ch1",
+      channelName: "general",
+      language: "ja",
+      memberType: "vspo_jp",
+    });
+    render(<ChannelConfigModal {...defaultProps} />);
+
+    expect(screen.queryByText("Change Preview")).not.toBeInTheDocument();
+
+    const select = screen.getByLabelText("Language") as HTMLSelectElement;
+    await user.selectOptions(select, "en");
+
+    const preview = screen.getByText("Change Preview").closest("div")!;
+    expect(preview).toBeInTheDocument();
+    expect(within(preview).getByText("Japanese")).toBeInTheDocument();
+    expect(within(preview).getByText("English")).toBeInTheDocument();
+  });
+
+  it("shows change preview when member type is changed", async () => {
+    const user = userEvent.setup();
+    $channelToEdit.set({
+      channelId: "ch1",
+      channelName: "general",
+      language: "ja",
+      memberType: "vspo_jp",
+    });
+    render(<ChannelConfigModal {...defaultProps} />);
+
+    await user.click(screen.getByLabelText("VSPO EN"));
+
+    const preview = screen.getByText("Change Preview").closest("div")!;
+    expect(preview).toBeInTheDocument();
+    expect(within(preview).getByText("VSPO JP")).toBeInTheDocument();
+    expect(within(preview).getByText("VSPO EN")).toBeInTheDocument();
   });
 
   it("checks custom members when pre-selected", async () => {

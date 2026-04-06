@@ -28,7 +28,6 @@ const features: FeatureItem[] = [
 const defaultProps = {
   features,
   closeLabel: "Close",
-  imagePlaceholder: "Coming soon",
 };
 
 describe("FeatureShowcase", () => {
@@ -68,11 +67,13 @@ describe("FeatureShowcase", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("shows image placeholder in dialog", async () => {
+  it("shows feature image in dialog", async () => {
     const user = userEvent.setup();
     render(<FeatureShowcase {...defaultProps} />);
 
     await user.click(screen.getByRole("button", { name: /Manage Together/i }));
-    expect(screen.getByText("Coming soon")).toBeInTheDocument();
+    const img = within(screen.getByRole("dialog")).getByRole("img");
+    expect(img).toHaveAttribute("src", "/features/feature-list.png");
+    expect(img).toHaveAttribute("alt", "Manage Together");
   });
 });
