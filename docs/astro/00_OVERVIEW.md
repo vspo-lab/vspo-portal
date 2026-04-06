@@ -1,21 +1,34 @@
-# bot-dashboard 改善計画 Overview
+# bot-dashboard Improvement Plan Overview
 
-## 現状のアーキテクチャ
+## Current Architecture
 
-| 項目 | 現状 |
-|------|------|
-| フレームワーク | Astro (SSR, `output: "server"`) |
-| デプロイ先 | Cloudflare Workers (`@astrojs/cloudflare`) |
+| Item | Status |
+|------|--------|
+| Framework | Astro (SSR, `output: "server"`) |
+| Deployment | Cloudflare Workers (`@astrojs/cloudflare`) |
 | CSS | Tailwind CSS v4 (`@tailwindcss/vite`) |
-| i18n | Astro built-in (`defaultLocale: "ja"`, `locales: ["ja", "en"]`) + 自前辞書 (`dict.ts`) |
-| ページ遷移 | `<ClientRouter />` (View Transitions) + `prefetch: "viewport"` |
-| 認証 | Discord OAuth2 (middleware + session) |
-| サーバーアクション | Astro Actions (`defineAction`, `accept: "form"`) |
-| クライアント JS | **vanilla JS** (`<script>` タグ内、AbortController パターン) |
-| 状態管理 | なし (DOM 操作で完結) |
-| テスト | vitest (設定あり、テスト未確認) |
+| i18n | Astro built-in (`defaultLocale: "ja"`, `locales: ["ja", "en"]`) + custom dictionary (`dict.ts`) |
+| Page Transitions | `<ClientRouter />` (View Transitions) + `prefetch: "viewport"` |
+| Authentication | Discord OAuth2 (middleware + session) |
+| Server Actions | Astro Actions (`defineAction`, `accept: "form"`) |
+| Client JS | **Hybrid** — React Islands for new components, vanilla JS (`<script>` tags, AbortController pattern) for unmigrated ones |
+| State Management | None (DOM-based for vanilla JS components) |
+| Testing | vitest + @testing-library/react (150 tests passing) |
+| React Integration | `@astrojs/react` installed and configured |
 
-## ディレクトリ構造 (feature-based)
+## Progress Status
+
+### Completed
+
+- **Phase 1: Foundation Setup** — `@astrojs/react`, `react`, `react-dom` installed; `astro.config.ts` and `vitest.config.ts` configured with `react()` integration; `vitest.setup.ts` extended with happy-dom globals for React DOM rendering
+- **Phase 2 (partial): ThemeToggle React Island** — First React Island in the project. `ThemeToggle.tsx` replaces `ThemeToggle.astro`, used with `client:load` in `Header.astro`. 6 unit tests passing.
+
+### Pending Cleanup
+
+- `ThemeToggle.astro` — no longer imported, can be deleted
+- `theme.ts` — no longer imported, can be deleted
+
+## Directory Structure (feature-based)
 
 ```text
 src/
@@ -26,33 +39,35 @@ src/
       domain/discord-user.ts
       repository/discord-api.ts
       usecase/login.ts
-    channel/                # チャンネル設定 CRUD
+    channel/                # Channel config CRUD
       components/ChannelTable.astro, ChannelConfigForm.astro,
                  ChannelAddModal.astro, DeleteChannelDialog.astro
       domain/channel-config.ts, member-type.ts
       repository/vspo-channel-api.ts
       usecase/add-channel.ts, delete-channel.ts
-    guild/                  # サーバー一覧
+    guild/                  # Server list
       components/GuildCard.astro
       domain/guild.ts
       repository/vspo-guild-api.ts
       usecase/list-guilds.ts
-    shared/                 # 共通 UI
+    shared/                 # Shared UI
       components/Button.astro, Card.astro, Header.astro, Footer.astro,
-                 FlashMessage.astro, ErrorAlert.astro, ThemeToggle.astro,
+                 FlashMessage.astro, ErrorAlert.astro,
+                 ThemeToggle.tsx (React Island),
+                 ThemeToggle.astro (deprecated),
                  LanguageSelector.astro, MenuItem.astro, IconButton.astro,
                  AvatarFallback.astro, dialog-helpers.ts,
-                 close-on-outside-click.ts, theme.ts
+                 close-on-outside-click.ts, theme.ts (deprecated)
       domain/creator.ts
-    landing/                # LP 専用
+    landing/                # Landing page
       components/FeaturePopup.astro, DigitRoll.astro, ScrollReveal.astro
-    announcement/           # お知らせデータ
+    announcement/           # Announcements
       data/announcements.ts
-  i18n/dict.ts              # ja/en 辞書 + t() ヘルパー
+  i18n/dict.ts              # ja/en dictionary + t() helper
   layouts/Base.astro, Dashboard.astro
-  middleware.ts             # セキュリティヘッダー + 認証 + トークンリフレッシュ
-  pages/                    # ルーティング
-    index.astro             # LP (未認証) / リダイレクト (認証済み)
+  middleware.ts             # Security headers + auth + token refresh
+  pages/                    # Routing
+    index.astro             # LP (unauthenticated) / redirect (authenticated)
     404.astro
     auth/discord.ts, callback.ts, logout.ts
     api/change-locale.ts, guilds/[guildId]/channels.ts
@@ -60,35 +75,48 @@ src/
               [guildId]/announcements.astro
 ```
 
-## 改善の方針
+## Improvement Strategy
 
-1. **Feature-based 構造は維持** — 現在の `features/` ディレクトリ設計は Clean Architecture に沿っており良好
-2. **Islands Architecture を並行導入** — インタラクティブ部分のみ React Island 化
-3. **vanilla JS を React コンポーネントに段階的に置換** — `client:load` / `client:idle` / `client:visible` ディレクティブ活用
-4. **Nano Stores で island 間状態共有** — `@nanostores/react` 併用
-5. **Astro ベストプラクティスへの準拠** — CSP, Server Islands, Content Layer 等
-6. **Astro 組み込み機能の活用** — Sessions API, `astro:env` 型安全環境変数, `<Image>` / `<Picture>` 最適化, Cloudflare bindings
+1. **Maintain feature-based structure** — Current `features/` directory design follows Clean Architecture; keep it
+2. **Adopt Islands Architecture in parallel** — Convert interactive parts to React Islands only
+3. **Incrementally replace vanilla JS with React components** — Use `client:load` / `client:idle` / `client:visible` directives
+4. **Share state across islands with Nano Stores** — Use `@nanostores/react`
+5. **Align with Astro best practices** — CSP, Server Islands, Content Layer, etc.
+6. **Leverage Astro built-in features** — Sessions API, `astro:env` type-safe env vars, `<Image>` / `<Picture>` optimization, Cloudflare bindings
 
-## ドキュメント一覧
+## Document Index
 
-| ファイル | 内容 |
-|---------|------|
-| [01_ISLANDS_ARCHITECTURE.md](./01_ISLANDS_ARCHITECTURE.md) | Islands Architecture 移行計画 |
-| [02_REACT_MIGRATION.md](./02_REACT_MIGRATION.md) | vanilla JS → React 移行の全コンポーネント詳細 |
-| [03_PAGE_IMPROVEMENTS.md](./03_PAGE_IMPROVEMENTS.md) | 全ページごとの改善点 |
-| [04_COMPONENT_IMPROVEMENTS.md](./04_COMPONENT_IMPROVEMENTS.md) | 全コンポーネントの改善点 |
-| [05_STATE_MANAGEMENT.md](./05_STATE_MANAGEMENT.md) | Nano Stores による状態管理設計 |
-| [06_PERFORMANCE.md](./06_PERFORMANCE.md) | パフォーマンス最適化 |
-| [07_I18N.md](./07_I18N.md) | i18n 改善 |
-| [08_ACCESSIBILITY.md](./08_ACCESSIBILITY.md) | アクセシビリティ改善 |
-| [09_SECURITY.md](./09_SECURITY.md) | セキュリティ改善 |
-| [10_TESTING.md](./10_TESTING.md) | テスト戦略 |
-| [11_IMPLEMENTATION_PLAN.md](./11_IMPLEMENTATION_PLAN.md) | 実装順序と依存関係 |
-| [12_CLOUDFLARE_INTEGRATION.md](./12_CLOUDFLARE_INTEGRATION.md) | Cloudflare Workers 統合改善 |
-| [13_FONTS_OPTIMIZATION.md](./13_FONTS_OPTIMIZATION.md) | フォント最適化 (Astro 6 fonts) |
-| [14_CONTENT_COLLECTIONS.md](./14_CONTENT_COLLECTIONS.md) | Content Collections 移行 |
-| [15_MIDDLEWARE_PATTERNS.md](./15_MIDDLEWARE_PATTERNS.md) | Middleware パターン改善 |
-| [16_ADVANCED_FEATURES.md](./16_ADVANCED_FEATURES.md) | 高度な Astro 機能の活用 |
-| [17_ACTIONS_PATTERNS.md](./17_ACTIONS_PATTERNS.md) | Astro Actions パターン改善 |
-| [18_SESSION_MANAGEMENT.md](./18_SESSION_MANAGEMENT.md) | セッション管理の改善 |
-| [19_CSP_BUILTIN.md](./19_CSP_BUILTIN.md) | Astro 6 ビルトイン CSP |
+| File | Contents |
+|------|---------|
+| [01_ISLANDS_ARCHITECTURE.md](./01_ISLANDS_ARCHITECTURE.md) | Islands Architecture migration plan |
+| [02_REACT_MIGRATION.md](./02_REACT_MIGRATION.md) | Vanilla JS to React migration details for all components |
+| [03_PAGE_IMPROVEMENTS.md](./03_PAGE_IMPROVEMENTS.md) | Per-page improvement points |
+| [04_COMPONENT_IMPROVEMENTS.md](./04_COMPONENT_IMPROVEMENTS.md) | Per-component improvement points |
+| [05_STATE_MANAGEMENT.md](./05_STATE_MANAGEMENT.md) | Nano Stores state management design |
+| [06_PERFORMANCE.md](./06_PERFORMANCE.md) | Performance optimization |
+| [07_I18N.md](./07_I18N.md) | i18n improvements |
+| [08_ACCESSIBILITY.md](./08_ACCESSIBILITY.md) | Accessibility improvements |
+| [09_SECURITY.md](./09_SECURITY.md) | Security improvements |
+| [10_TESTING.md](./10_TESTING.md) | Test strategy |
+| [11_IMPLEMENTATION_PLAN.md](./11_IMPLEMENTATION_PLAN.md) | Implementation order and dependencies |
+| [12_CLOUDFLARE_INTEGRATION.md](./12_CLOUDFLARE_INTEGRATION.md) | Cloudflare Workers integration improvements |
+| [13_FONTS_OPTIMIZATION.md](./13_FONTS_OPTIMIZATION.md) | Font optimization (Astro 6 fonts) |
+| [14_CONTENT_COLLECTIONS.md](./14_CONTENT_COLLECTIONS.md) | Content Collections migration |
+| [15_MIDDLEWARE_PATTERNS.md](./15_MIDDLEWARE_PATTERNS.md) | Middleware pattern improvements |
+| [16_ADVANCED_FEATURES.md](./16_ADVANCED_FEATURES.md) | Advanced Astro feature adoption |
+| [17_ACTIONS_PATTERNS.md](./17_ACTIONS_PATTERNS.md) | Astro Actions pattern improvements |
+| [18_SESSION_MANAGEMENT.md](./18_SESSION_MANAGEMENT.md) | Session management improvements |
+| [19_CSP_BUILTIN.md](./19_CSP_BUILTIN.md) | Astro 6 built-in CSP |
+| [20_API_ROUTES.md](./20_API_ROUTES.md) | API route security and migration to Actions |
+| [21_ERROR_HANDLING.md](./21_ERROR_HANDLING.md) | Error handling across all layers |
+| [22_DATA_LAYER.md](./22_DATA_LAYER.md) | Repository, UseCase, and domain model improvements |
+| [23_DEV_TOOLING.md](./23_DEV_TOOLING.md) | Testing, Storybook, dev mock, and CI improvements |
+| [24_SEO_META.md](./24_SEO_META.md) | SEO, meta tags, JSON-LD, sitemap, and robots.txt |
+| [25_IMAGE_OPTIMIZATION.md](./25_IMAGE_OPTIMIZATION.md) | Image optimization with Astro `<Image>`, Discord CDN, CLS prevention |
+| [26_FORM_UX.md](./26_FORM_UX.md) | Form UX, HTML5 validation, loading states, input errors |
+| [27_RESPONSIVE_DESIGN.md](./27_RESPONSIVE_DESIGN.md) | Responsive layout, mobile sidebar, touch targets, dark mode transitions |
+| [28_ASTRO_ENV.md](./28_ASTRO_ENV.md) | `astro:env` type-safe environment variables migration |
+| [29_VIEW_TRANSITIONS.md](./29_VIEW_TRANSITIONS.md) | View Transitions, `<ClientRouter />`, lifecycle events, prefetch |
+| [30_DESIGN_SYSTEM.md](./30_DESIGN_SYSTEM.md) | Design tokens, component library, spacing scale, dark mode audit |
+| [31_TYPE_SAFETY.md](./31_TYPE_SAFETY.md) | End-to-end type safety, RPC types, locale types, `any` elimination |
+| [32_MONITORING.md](./32_MONITORING.md) | Monitoring, logging, error reporting, Web Vitals, health check |
