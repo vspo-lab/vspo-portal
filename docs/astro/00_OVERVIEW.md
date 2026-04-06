@@ -120,3 +120,5 @@ src/
 | [30_DESIGN_SYSTEM.md](./30_DESIGN_SYSTEM.md) | Design tokens, component library, spacing scale, dark mode audit |
 | [31_TYPE_SAFETY.md](./31_TYPE_SAFETY.md) | End-to-end type safety, RPC types, locale types, `any` elimination |
 | [32_MONITORING.md](./32_MONITORING.md) | Monitoring, logging, error reporting, Web Vitals, health check |
+| [33_SERVER_ISLANDS.md](./33_SERVER_ISLANDS.md) | Server Islands (`server:defer`), deferred rendering, caching, `ASTRO_KEY` |
+| [34_CONTAINER_API.md](./34_CONTAINER_API.md) | Container API for Astro component testing, `locals`, React renderer, test utils |
