@@ -113,6 +113,7 @@ export const ja = {
   "nav.announcements": "お知らせ",
   "nav.comingSoon": "準備中",
   "nav.breadcrumb": "パンくずリスト",
+  "nav.sidebarCollapse": "サイドバーを折りたたむ",
   "announcements.title": "お知らせ",
   "announcements.empty": "お知らせはありません",
   "announcements.type.info": "お知らせ",
