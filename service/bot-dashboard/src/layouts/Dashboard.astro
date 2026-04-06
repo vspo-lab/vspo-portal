@@ -46,17 +46,25 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
           class="hidden shrink-0 flex-col bg-surface-container-lowest transition-[width] duration-200 ease-in-out lg:flex"
           data-expanded="true"
         >
-          <!-- Back to all servers -->
-          <a
-            href="/dashboard"
-            class="sidebar-nav-item flex items-center gap-3 border-b border-outline-variant/30 px-4 py-3 text-sm text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
-            title={t(locale, "dashboard.allServers")}
-          >
-            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-            <span class="sidebar-label truncate">{t(locale, "dashboard.allServers")}</span>
-          </a>
+          <div class="flex items-center gap-2 border-b border-outline-variant/30 px-3 py-3">
+            <button
+              id="sidebar-toggle"
+              type="button"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
+              aria-label={t(locale, "nav.sidebarCollapse")}
+              aria-controls="desktop-sidebar"
+              aria-expanded="true"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <a
+              href="/dashboard"
+              class="sidebar-label truncate text-sm text-on-surface-variant transition-colors hover:text-on-surface"
+            >
+              {t(locale, "dashboard.allServers")}
+            </a>
+          </div>
 
-          <!-- Guild info -->
           {activeGuild && (
             <div class="sidebar-nav-item flex items-center gap-3 px-4 py-4">
               <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
@@ -68,7 +76,6 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
             </div>
           )}
 
-          <!-- Navigation -->
           <nav class="flex-1 space-y-1 px-3 pt-2" aria-label={t(locale, "nav.sidebar")}>
             <a
               href={sidebarChannelsHref}
@@ -89,19 +96,6 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
               <span class="sidebar-label">{t(locale, "nav.notifications")}</span>
             </a>
           </nav>
-
-          <!-- Collapse toggle -->
-          <div class="mt-auto border-t border-outline-variant/30 px-3 py-3">
-            <button
-              id="sidebar-toggle"
-              type="button"
-              class="flex w-full items-center justify-center rounded-lg p-2 text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
-              aria-label={t(locale, "nav.sidebarCollapse")}
-            >
-              <svg id="collapse-icon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7" /></svg>
-              <svg id="expand-icon" class="hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7" /></svg>
-            </button>
-          </div>
         </aside>
 
         <div class="flex flex-1 flex-col">
@@ -176,7 +170,15 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
     padding: 0;
   }
   #desktop-sidebar[data-expanded="false"] .sidebar-label {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
   #desktop-sidebar[data-expanded="false"] .sidebar-nav-item {
     justify-content: center;
@@ -187,25 +189,29 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
 </style>
 
 <script>
-  const sidebar = document.getElementById("desktop-sidebar");
-  const toggle = document.getElementById("sidebar-toggle");
-  const collapseIcon = document.getElementById("collapse-icon");
-  const expandIcon = document.getElementById("expand-icon");
+  function initSidebar() {
+    const sidebar = document.getElementById("desktop-sidebar");
+    const toggle = document.getElementById("sidebar-toggle");
 
-  if (sidebar && toggle && collapseIcon && expandIcon) {
+    if (!sidebar || !toggle) return;
+
     const stored = localStorage.getItem("sidebar-collapsed");
     if (stored === "true") {
       sidebar.dataset.expanded = "false";
-      collapseIcon.classList.add("hidden");
-      expandIcon.classList.remove("hidden");
+      toggle.setAttribute("aria-expanded", "false");
     }
 
+    const ac = new AbortController();
     toggle.addEventListener("click", () => {
       const isExpanded = sidebar.dataset.expanded === "true";
       sidebar.dataset.expanded = isExpanded ? "false" : "true";
-      collapseIcon.classList.toggle("hidden", isExpanded);
-      expandIcon.classList.toggle("hidden", !isExpanded);
+      toggle.setAttribute("aria-expanded", String(!isExpanded));
       localStorage.setItem("sidebar-collapsed", String(isExpanded));
-    });
+    }, { signal: ac.signal });
+
+    document.addEventListener("astro:before-swap", () => ac.abort(), { once: true });
   }
+
+  initSidebar();
+  document.addEventListener("astro:page-load", initSidebar);
 </script>

@@ -33,7 +33,7 @@ const STATIC_HEADERS: ReadonlyArray<readonly [string, string]> = [
 ] as const;
 
 /**
- * Builds the CSP header value.
+ * Static CSP header value.
  *
  * While `<ClientRouter />` is active, Astro emits nonce-less inline hydration
  * scripts for React islands. Including a nonce in `script-src` causes the
@@ -41,21 +41,20 @@ const STATIC_HEADERS: ReadonlyArray<readonly [string, string]> = [
  * hydration scripts. Therefore, the nonce is intentionally omitted here and
  * `'unsafe-inline'` is used until the project migrates to hash-based CSP.
  */
-const buildCspHeader = (): string =>
-  [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline'",
-    "font-src 'self'",
-    "img-src 'self' https://cdn.discordapp.com data:",
-    "connect-src 'self' https://discord.com",
-    "frame-ancestors 'none'",
-  ].join("; ");
+const CSP_HEADER = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
+  "img-src 'self' https://cdn.discordapp.com data:",
+  "connect-src 'self' https://discord.com",
+  "frame-ancestors 'none'",
+].join("; ");
 
 /** Middleware: sets security headers on every response. */
 const securityHeaders = defineMiddleware(async (_context, next) => {
   const response = await next();
-  response.headers.set("Content-Security-Policy", buildCspHeader());
+  response.headers.set("Content-Security-Policy", CSP_HEADER);
   for (const [name, value] of STATIC_HEADERS) {
     response.headers.set(name, value);
   }
