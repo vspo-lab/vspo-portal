@@ -1,17 +1,17 @@
-# vanilla JS → React コンポーネント移行
+# Vanilla JS to React Component Migration
 
-## 移行対象の vanilla JS ファイル
+## Vanilla JS Files to Migrate
 
 ### 1. `features/shared/components/dialog-helpers.ts`
 
-**現状**: `initDialog()` で dialog の backdrop-click-to-close と cancel ボタンを設定。AbortController で View Transitions 対応。
+**Current state**: `initDialog()` sets up backdrop-click-to-close and cancel button for dialogs. Uses AbortController for View Transitions support.
 
-**問題点**:
+**Problems**:
 
-- 呼び出し側（ChannelConfigForm, ChannelAddModal, DeleteChannelDialog）が毎回 `initDialog("dialog-id")` を呼ぶ必要がある
-- `astro:page-load` での再初期化が必要
+- Callers (ChannelConfigForm, ChannelAddModal, DeleteChannelDialog) must call `initDialog("dialog-id")` every time
+- Re-initialization required on `astro:page-load`
 
-**React 移行後**: カスタムフックに置換
+**After React migration**: Replace with a custom hook
 
 ```tsx
 // features/shared/hooks/useDialog.ts
@@ -24,14 +24,14 @@ function useDialog(ref: RefObject<HTMLDialogElement>) {
 
 ### 2. `features/shared/components/close-on-outside-click.ts`
 
-**現状**: `<details data-auto-close>` 要素のクリック外閉じを実装。global event listener。
+**Current state**: Implements click-outside-to-close for `<details data-auto-close>` elements. Uses a global event listener.
 
-**問題点**:
+**Problems**:
 
-- グローバルイベントリスナーで全 `<details>` を監視
-- React island 内の `<details>` との干渉リスク
+- Global event listener monitors all `<details>` elements
+- Risk of interference with `<details>` inside React islands
 
-**React 移行後**: `useClickOutside` フックまたは headless dropdown コンポーネント
+**After React migration**: `useClickOutside` hook or headless dropdown component
 
 ```tsx
 // features/shared/hooks/useClickOutside.ts
@@ -48,14 +48,14 @@ function useClickOutside(ref: RefObject<HTMLElement>, handler: () => void) {
 
 ### 3. `features/shared/components/theme.ts`
 
-**現状**: `toggle()` と `syncTheme()` を export。`localStorage` + `classList` 操作。
+**Current state**: Exports `toggle()` and `syncTheme()`. Operates on `localStorage` + `classList`.
 
-**問題点**:
+**Problems**:
 
-- ThemeToggle と UserMenu の両方から呼ばれるが、状態の同期は DOM ベース
-- SSR 時のフラッシュ防止が `is:inline` スクリプトに依存
+- Called from both ThemeToggle and UserMenu, but state synchronization is DOM-based
+- Flash prevention on SSR depends on an `is:inline` script
 
-**React 移行後**: Nano Store + React hook
+**After React migration**: Nano Store + React hook
 
 ```tsx
 // features/shared/stores/theme.ts (Nano Store)
@@ -70,11 +70,11 @@ function useTheme() {
 }
 ```
 
-## ページ内 `<script>` タグの移行
+## In-Page `<script>` Tag Migration
 
-### 4. `pages/index.astro` — Feature Popup スクリプト (30行)
+### 4. `pages/index.astro` — Feature Popup Script (30 lines)
 
-**現状**:
+**Current state**:
 
 ```js
 document.querySelectorAll(".feature-card-trigger").forEach(btn => {
@@ -85,12 +85,12 @@ document.querySelectorAll(".feature-card-trigger").forEach(btn => {
 });
 ```
 
-**問題点**:
+**Problems**:
 
-- `AbortController` + `astro:page-load` で re-init
-- クラス名ベースのセレクタに依存
+- Requires `AbortController` + `astro:page-load` for re-initialization
+- Relies on class-name-based selectors
 
-**React 移行案**: `FeatureShowcase` React island
+**React migration plan**: `FeatureShowcase` React island
 
 ```tsx
 // features/landing/components/FeatureShowcase.tsx
@@ -116,29 +116,29 @@ function FeatureShowcase({ features }: { features: Feature[] }) {
 }
 ```
 
-### 5. `pages/dashboard/[guildId].astro` — Dialog close スクリプト (8行)
+### 5. `pages/dashboard/[guildId].astro` — Dialog Close Script (8 lines)
 
-**現状**: `astro:before-preparation` と `astro:after-swap` で全 dialog を close。
+**Current state**: Closes all dialogs on `astro:before-preparation` and `astro:after-swap`.
 
-**問題点**: View Transitions の「stale top-layer state」対策。React 移行後は不要。
+**Problems**: A workaround for the "stale top-layer state" issue with View Transitions. Becomes unnecessary after React migration.
 
-**React 移行後**: React island 内で dialog state を管理するため、ページ遷移で自然にアンマウント → 不要に。
+**After React migration**: Since dialog state is managed within React islands, dialogs naturally unmount on page navigation, making this unnecessary.
 
-### 6. `ChannelConfigForm.astro` — メイン操作スクリプト (320行)
+### 6. `ChannelConfigForm.astro` — Main Interaction Script (320 lines)
 
-**これが最大の移行対象。** 以下の機能を含む:
+**This is the largest migration target.** It includes the following features:
 
-- Edit ボタンクリック → dialog open + フォーム populate
+- Edit button click → dialog open + form populate
 - Radio button highlight toggle
 - Custom members dropdown open/close
-- Chip 生成・削除
-- 検索フィルタリング
+- Chip creation and deletion
+- Search filtering
 - Select All / Deselect All per group
-- Selected count 更新
-- Reset ボタン → reset form submit
-- Save ボタン disabled state
+- Selected count updates
+- Reset button → reset form submit
+- Save button disabled state
 
-**React 移行案**: 3つの React コンポーネントに分割
+**React migration plan**: Split into 3 React components
 
 ```yaml
 ChannelConfigModal.tsx (island, client:load)
@@ -150,7 +150,7 @@ ChannelConfigModal.tsx (island, client:load)
        └── MemberCheckboxGroup.tsx
 ```
 
-**状態管理**:
+**State management**:
 
 ```tsx
 type ConfigFormState = {
@@ -164,11 +164,11 @@ type ConfigFormState = {
 };
 ```
 
-### 7. `ChannelAddModal.astro` — チャンネル追加スクリプト (110行)
+### 7. `ChannelAddModal.astro` — Channel Add Script (110 lines)
 
-**現状**: fetch API でギルドのチャンネル一覧を取得、検索フィルタ、template clone。
+**Current state**: Fetches guild channel list via fetch API, applies search filter, uses template clone.
 
-**React 移行案**:
+**React migration plan**:
 
 ```tsx
 // features/channel/components/ChannelAddModal.tsx
@@ -192,11 +192,11 @@ function ChannelAddModal({ guildId, registeredIds }: Props) {
 }
 ```
 
-### 8. `DeleteChannelDialog.astro` — 削除確認スクリプト (30行)
+### 8. `DeleteChannelDialog.astro` — Delete Confirmation Script (30 lines)
 
-**現状**: クリックイベントで dialog open + heading/hidden input 書き換え。
+**Current state**: Opens dialog on click event and rewrites heading/hidden input.
 
-**React 移行案**:
+**React migration plan**:
 
 ```tsx
 function DeleteChannelDialog({ guildId }: Props) {
@@ -213,9 +213,9 @@ function DeleteChannelDialog({ guildId }: Props) {
 }
 ```
 
-### 9. `ThemeToggle.astro` — テーマ切替スクリプト (12行)
+### 9. `ThemeToggle.astro` — Theme Toggle Script (12 lines)
 
-**React 移行案**:
+**React migration plan**:
 
 ```tsx
 function ThemeToggle() {
@@ -228,11 +228,11 @@ function ThemeToggle() {
 }
 ```
 
-**注意**: `Base.astro` の `is:inline` テーマ初期化スクリプトは維持する必要がある (FOUC 防止)。
+**Note**: The `is:inline` theme initialization script in `Base.astro` must be kept (to prevent FOUC).
 
-### 10. `FlashMessage.astro` — auto-dismiss スクリプト (5行)
+### 10. `FlashMessage.astro` — Auto-dismiss Script (5 lines)
 
-**React 移行案**:
+**React migration plan**:
 
 ```tsx
 function FlashMessage({ message, type }: Props) {
@@ -246,33 +246,33 @@ function FlashMessage({ message, type }: Props) {
 }
 ```
 
-## 移行時の注意点
+## Migration Notes
 
-### Astro Actions との統合
+### Integration with Astro Actions
 
-React island から Astro Actions を呼ぶ方法:
+How to call Astro Actions from a React island:
 
 ```tsx
 import { actions } from "astro:actions";
 
-// React コンポーネント内
+// Inside a React component
 const handleSubmit = async (data: FormData) => {
   const result = await actions.updateChannel(data);
   if (result.error) { /* handle error */ }
 };
 ```
 
-ただし `accept: "form"` の Action は `<form>` 経由でないと CSRF 保護が効かない。選択肢:
+However, Actions with `accept: "form"` only have CSRF protection when submitted via `<form>`. Options:
 
-1. **hidden form を維持** — React で state 管理、submit は hidden form 経由
-2. **Action を `accept: "json"` に変更** — React から直接呼べるが、progressive enhancement を失う
+1. **Keep hidden form** — Manage state in React, submit via hidden form
+2. **Change Action to `accept: "json"`** — Can call directly from React, but loses progressive enhancement
 
-**推奨**: Phase 3 では hidden form 維持、Phase 4 で `accept: "json"` に移行。
+**Recommendation**: Keep hidden form in Phase 3, migrate to `accept: "json"` in Phase 4.
 
-### Actions セキュリティの注意点 (Astro MCP 検証済み)
+### Actions Security Notes (Verified via Astro MCP)
 
-- Astro Actions は `/_actions/{name}` で公開エンドポイントとして公開される
-- `getActionContext()` を middleware で使用して認証ゲーティング可能:
+- Astro Actions are exposed as public endpoints at `/_actions/{name}`
+- You can use `getActionContext()` in middleware for authentication gating:
 
 ```typescript
 // middleware.ts
@@ -282,7 +282,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { action } = getActionContext(context);
   if (!action) return next();
 
-  // 認証が必要な Action の場合
+  // For Actions that require authentication
   const user = await context.session?.get("user");
   if (!user) {
     if (action.calledFrom === "rpc") {
@@ -294,22 +294,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
 });
 ```
 
-### View Transitions との互換性
+### Compatibility with View Transitions
 
-`<ClientRouter />` 使用時の React island の注意点:
+Notes on React islands when using `<ClientRouter />`:
 
-- `transition:persist` を使うと island のアンマウント/再マウントを防げる
-- `transition:name` でアニメーション対象を指定
-- `astro:page-load` は React island 内では不要 (React が自前でライフサイクル管理)
+- `transition:persist` can prevent island unmount/remount
+- `transition:name` specifies the animation target
+- `astro:page-load` is unnecessary inside React islands (React manages its own lifecycle)
 
-### SSR と Hydration
+### SSR and Hydration
 
-- `client:load` — ページロード即座にハイドレーション。フォーム系に使用
-- `client:idle` — ブラウザがアイドル時にハイドレーション。UserMenu, LanguageSelector で使用
-- `client:visible` — ビューポート入場時にハイドレーション。LP の FeaturePopup で利用
-- `client:only="react"` — SSR なしでクライアントのみレンダリング。テーマトグル等に使用可能
+- `client:load` — Hydrates immediately on page load. Use for form components
+- `client:idle` — Hydrates when the browser is idle. Use for UserMenu, LanguageSelector
+- `client:visible` — Hydrates when entering the viewport. Use for LP's FeaturePopup
+- `client:only="react"` — Client-only rendering without SSR. Can be used for theme toggle, etc.
 
-## ファイル配置規則
+## File Placement Rules
 
 ```text
 features/

@@ -1,21 +1,21 @@
-# Middleware パターン改善
+# Middleware Pattern Improvements
 
-## 現状
+## Current State
 
-### middleware.ts の構成
+### middleware.ts Structure
 
-`src/middleware.ts` で 2 つのミドルウェアを `sequence()` で合成:
+`src/middleware.ts` composes two middlewares using `sequence()`:
 
 ```typescript
 export const onRequest = sequence(securityHeaders, auth);
 ```
 
-1. **securityHeaders**: 全レスポンスに CSP / X-Frame-Options 等を付与
-2. **auth**: セッション読み取り → ロケール設定 → 認証チェック → トークンリフレッシュ
+1. **securityHeaders**: Applies CSP / X-Frame-Options etc. to all responses
+2. **auth**: Session read → Locale setting → Auth check → Token refresh
 
-### 型付き Locals
+### Typed Locals
 
-`src/env.d.ts` で `App.Locals` と `App.SessionData` を型定義:
+`App.Locals` and `App.SessionData` are type-defined in `src/env.d.ts`:
 
 ```typescript
 declare namespace App {
@@ -36,17 +36,17 @@ declare namespace App {
 }
 ```
 
-### 課題
+### Issues
 
-1. **auth ミドルウェアの責務過多**: ロケール設定 + 認証 + トークンリフレッシュが 1 関数に混在
-2. **セキュリティヘッダーのハードコード**: CSP が文字列リテラルで管理困難
-3. **Actions の認証重複**: `actions/index.ts` で `requireAuth()` を各アクションで手動呼び出し
-4. **エラーページ連携不足**: 500 エラーページでの middleware 動作が未考慮
-5. **rewrite パターン未活用**: ロケール切替やフォールバック表示に `context.rewrite()` が使えていない
+1. **auth middleware has too many responsibilities**: Locale setting + authentication + token refresh are mixed in a single function
+2. **Hardcoded security headers**: CSP is managed as string literals, making it hard to maintain
+3. **Duplicate auth in Actions**: `requireAuth()` is manually called in each action in `actions/index.ts`
+4. **Insufficient error page integration**: Middleware behavior on 500 error pages is not considered
+5. **Unused rewrite pattern**: `context.rewrite()` is not used for locale switching or fallback display
 
-## 改善 1: ミドルウェア分割
+## Improvement 1: Middleware Splitting
 
-### 責務の分離
+### Separation of Concerns
 
 ```typescript
 // src/middleware.ts
@@ -68,8 +68,8 @@ const locale = defineMiddleware(async (context, next) => {
 });
 
 const auth = defineMiddleware(async (context, next) => {
-  // 認証 + トークンリフレッシュのみ
-  // ロケール処理は locale ミドルウェアに委譲
+  // Only authentication + token refresh
+  // Locale processing is delegated to the locale middleware
   const user = await context.session?.get("user");
   context.locals.user = user ?? null;
 
@@ -88,33 +88,33 @@ const auth = defineMiddleware(async (context, next) => {
 export const onRequest = sequence(securityHeaders, locale, auth);
 ```
 
-### メリット
+### Benefits
 
-| 項目 | Before | After |
+| Item | Before | After |
 |------|--------|-------|
-| auth の行数 | ~70 行 (ロケール含む) | ~30 行 (認証のみ) |
-| テスタビリティ | ロケールと認証が絡む | 各ミドルウェア独立テスト可 |
-| 再利用性 | auth 無しでロケールだけ使えない | locale のみ適用可能 |
+| auth line count | ~70 lines (including locale) | ~30 lines (auth only) |
+| Testability | Locale and auth are coupled | Each middleware testable independently |
+| Reusability | Cannot use locale without auth | locale can be applied alone |
 
-## 改善 2: CSP ヘッダーのビルダーパターン
+## Improvement 2: CSP Header Builder Pattern
 
-### 現状の問題
+### Current Problem
 
 ```typescript
-// 1 行の長い文字列 — 変更箇所が見つけにくい
+// One long string — hard to find the part to change
 "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ..."
 ```
 
-### 改善: オブジェクト構造で管理
+### Improvement: Object-based Management
 
 ```typescript
 const CSP_DIRECTIVES: Record<string, readonly string[]> = {
   "default-src": ["'self'"],
   "script-src": ["'self'", "'unsafe-inline'"],
   "style-src": ["'self'", "'unsafe-inline'"],
-  // fonts 移行後: https://fonts.googleapis.com を削除
+  // After font migration: remove https://fonts.googleapis.com
   "font-src": ["'self'"],
-  // fonts 移行後: https://fonts.gstatic.com を削除
+  // After font migration: remove https://fonts.gstatic.com
   "img-src": ["'self'", "https://cdn.discordapp.com", "data:"],
   "connect-src": ["'self'", "https://discord.com"],
   "frame-ancestors": ["'none'"],
@@ -126,27 +126,27 @@ const buildCsp = (directives: Record<string, readonly string[]>): string =>
     .join("; ");
 ```
 
-### メリット
+### Benefits
 
-- ディレクティブ単位で追加・削除が明確
-- `13_FONTS_OPTIMIZATION.md` のフォント移行後、`style-src` / `font-src` から外部ドメインを削除するだけで完了
-- レビュー時に差分が読みやすい
+- Adding/removing directives is clear at a per-directive level
+- After the font migration in `13_FONTS_OPTIMIZATION.md`, simply remove external domains from `style-src` / `font-src`
+- Diffs are easier to read during code review
 
-## 改善 3: Actions 認証の middleware ゲーティング
+## Improvement 3: Actions Auth Gating via Middleware
 
-### 現状の問題
+### Current Problem
 
 ```typescript
-// actions/index.ts — 全アクションで requireAuth() を手動呼び出し
+// actions/index.ts — manual requireAuth() call in every action
 handler: async (input, context) => {
-  requireAuth(context);  // 忘れるとセキュリティホール
+  requireAuth(context);  // Forgetting this creates a security hole
   // ...
 }
 ```
 
-### 改善: getActionContext() による事前検証
+### Improvement: Pre-validation with getActionContext()
 
-Astro の `getActionContext()` を middleware 内で使用し、アクション実行前に認証を強制:
+Use `getActionContext()` in middleware to enforce authentication before action execution:
 
 ```typescript
 import { getActionContext } from "astro:actions";
@@ -154,12 +154,12 @@ import { getActionContext } from "astro:actions";
 const actionAuth = defineMiddleware(async (context, next) => {
   const actionCtx = getActionContext(context);
 
-  // Action リクエストでない場合はスキップ
+  // Skip if not an Action request
   if (!actionCtx.action) {
     return next();
   }
 
-  // 全 Action に認証を要求
+  // Require auth for all Actions
   if (!context.locals.user) {
     actionCtx.setActionError({
       code: "UNAUTHORIZED",
@@ -174,54 +174,54 @@ const actionAuth = defineMiddleware(async (context, next) => {
 export const onRequest = sequence(securityHeaders, locale, auth, actionAuth);
 ```
 
-### Actions 側の変更
+### Actions Side Changes
 
 ```typescript
-// Before: 各 handler で requireAuth()
+// Before: requireAuth() in each handler
 handler: async (input, context) => {
   requireAuth(context);
   // ...
 }
 
-// After: middleware で認証済み — requireAuth() 不要
+// After: authenticated by middleware — requireAuth() not needed
 handler: async (input, _context) => {
-  // 認証は middleware で保証済み
+  // Auth is guaranteed by middleware
   // ...
 }
 ```
 
-### メリット
+### Benefits
 
-- 認証漏れのリスクを排除
-- アクションハンドラが純粋なビジネスロジックに集中
-- テスト時に middleware を差し替えるだけで認証スキップ可能
+- Eliminates the risk of missing authentication
+- Action handlers focus purely on business logic
+- For testing, just swap out the middleware to skip authentication
 
-## 改善 4: context.rewrite() の活用
+## Improvement 4: Leveraging context.rewrite()
 
-### ユースケース 1: 未認証ユーザーのフォールバック
+### Use Case 1: Fallback for Unauthenticated Users
 
 ```typescript
-// 現状: redirect でランディングページへ
+// Current: redirect to landing page
 if (!user && context.url.pathname.startsWith("/dashboard")) {
   return context.redirect("/");
 }
 
-// 改善: rewrite で URL を変えずにランディングページを表示
-// ユーザーに「リダイレクトされた」感を与えない
+// Improvement: rewrite to show landing page without changing URL
+// Avoids giving users the feeling of being "redirected"
 if (!user && context.url.pathname.startsWith("/dashboard")) {
   return context.rewrite("/");
 }
 ```
 
-### ユースケース 2: ロケールベースの rewrite
+### Use Case 2: Locale-based Rewrite
 
-将来的にパスベースのロケーティング (`/en/dashboard`, `/ja/dashboard`) を導入する場合:
+For future path-based locale routing (`/en/dashboard`, `/ja/dashboard`):
 
 ```typescript
 const locale = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
-  // /en/* → ロケール設定して /en を除去した path の内容を返す
+  // /en/* → Set locale and return content at path with /en removed
   if (pathname.startsWith("/en/")) {
     context.locals.locale = "en";
     return context.rewrite(pathname.replace("/en", ""));
@@ -232,19 +232,19 @@ const locale = defineMiddleware(async (context, next) => {
 });
 ```
 
-### redirect vs rewrite の使い分け
+### Choosing Between redirect and rewrite
 
-| 方法 | URL 変更 | HTTP コード | 用途 |
-|------|---------|------------|------|
-| `context.redirect()` | あり | 302/301 | 認証失敗 → ログインへ |
-| `context.rewrite()` | なし | 200 | フォールバック、ロケール |
-| `Astro.rewrite()` | なし | 200 | ページ内条件分岐 |
+| Method | URL Change | HTTP Code | Use Case |
+|--------|-----------|------------|----------|
+| `context.redirect()` | Yes | 302/301 | Auth failure → redirect to login |
+| `context.rewrite()` | No | 200 | Fallback, locale |
+| `Astro.rewrite()` | No | 200 | Conditional branching within a page |
 
-## 改善 5: エラーページとの連携
+## Improvement 5: Error Page Integration
 
-### 500.astro の追加
+### Adding 500.astro
 
-Astro 4.11+ では `src/pages/500.astro` にカスタムエラーページを設置可能:
+Starting from Astro 4.11+, a custom error page can be placed at `src/pages/500.astro`:
 
 ```astro
 ---
@@ -257,27 +257,27 @@ const error = Astro.props.error;
 </Layout>
 ```
 
-### ミドルウェアの注意点
+### Middleware Considerations
 
-- ミドルウェアは 500 エラーページの**レンダリング前**にも実行される
-- `Astro.locals` はミドルウェアで設定済みの値がエラーページでも利用可能
-- ただしエラーの原因がミドルウェア自体にある場合は 500.astro も失敗する → ミドルウェアでの例外ハンドリングが重要
+- Middleware runs **before rendering** the 500 error page as well
+- Values set in `Astro.locals` by middleware are available in the error page
+- However, if the middleware itself is the cause of the error, 500.astro will also fail — defensive exception handling in middleware is important
 
 ```typescript
 const securityHeaders = defineMiddleware(async (_context, next) => {
-  // ミドルウェア自体がエラーを起こさないよう防御的に実装
+  // Implement defensively to prevent the middleware itself from throwing errors
   const response = await next();
   applySecurityHeaders(response);
   return response;
 });
 ```
 
-## 改善 6: セッション並列読み取りの最適化
+## Improvement 6: Session Parallel Read Optimization
 
-### 現状 (良い実装)
+### Current (Good Implementation)
 
 ```typescript
-// すでに Promise.all で並列化されている — 維持
+// Already parallelized with Promise.all — maintain this
 const [sessionLocale, user, expiresAt, accessToken] = await Promise.all([
   context.session?.get("locale"),
   context.session?.get("user"),
@@ -286,17 +286,17 @@ const [sessionLocale, user, expiresAt, accessToken] = await Promise.all([
 ]);
 ```
 
-### 注意: ミドルウェア分割時
+### Note: When Splitting Middleware
 
-ロケールと認証を分割すると、KV アクセスが分散する。Astro Sessions はセッションデータをキャッシュするため、同一リクエスト内での重複アクセスは最適化されるが、パフォーマンス計測で確認すべき。
+When splitting locale and auth, KV accesses become distributed. Since Astro Sessions caches session data, duplicate accesses within the same request are optimized, but this should be verified through performance measurement.
 
-## 移行チェックリスト
+## Migration Checklist
 
-- [ ] auth ミドルウェアからロケール処理を `locale` ミドルウェアに分離
-- [ ] CSP ヘッダーをオブジェクト構造に変更
-- [ ] `getActionContext()` による認証ゲーティングを追加
-- [ ] `actions/index.ts` から `requireAuth()` の手動呼び出しを削除
-- [ ] `src/pages/500.astro` カスタムエラーページを追加
-- [ ] redirect → rewrite 変更を検討 (未認証フォールバック)
-- [ ] ミドルウェア分割後のセッション KV アクセスパフォーマンスを計測
-- [ ] 各ミドルウェアの単体テストを作成
+- [ ] Separate locale processing from auth middleware into a `locale` middleware
+- [ ] Change CSP headers to object-based structure
+- [ ] Add auth gating with `getActionContext()`
+- [ ] Remove manual `requireAuth()` calls from `actions/index.ts`
+- [ ] Add `src/pages/500.astro` custom error page
+- [ ] Consider changing redirect to rewrite (unauthenticated fallback)
+- [ ] Measure session KV access performance after middleware splitting
+- [ ] Create unit tests for each middleware

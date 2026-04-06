@@ -1,16 +1,16 @@
-# テスト戦略
+# Testing Strategy
 
-## 現状
+## Current State
 
-- vitest の設定あり
-- テストファイルの数が少ない (要確認)
-- vanilla JS コンポーネントはテスト困難
+- vitest configuration exists
+- Few test files (needs verification)
+- vanilla JS components are difficult to test
 
-## テスト種別
+## Test Types
 
-### 1. React コンポーネント単体テスト
+### 1. React Component Unit Tests
 
-React island 化により、コンポーネントの単体テストが容易になる。
+Migration to React islands makes component unit testing straightforward.
 
 ```bash
 pnpm add -D @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
@@ -34,7 +34,7 @@ export default defineConfig({
 import "@testing-library/jest-dom";
 ```
 
-#### テスト例: ChannelConfigModal
+#### Test Example: ChannelConfigModal
 
 ```tsx
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -136,7 +136,7 @@ describe("ChannelConfigModal", () => {
 });
 ```
 
-#### テスト例: DeleteChannelDialog
+#### Test Example: DeleteChannelDialog
 
 ```tsx
 describe("DeleteChannelDialog", () => {
@@ -179,7 +179,7 @@ describe("DeleteChannelDialog", () => {
 });
 ```
 
-### 2. Nano Store テスト
+### 2. Nano Store Tests
 
 ```tsx
 import { $channelData, optimisticUpdate, optimisticRemove } from "../stores/channel-data";
@@ -213,7 +213,7 @@ describe("channel-data store", () => {
 });
 ```
 
-### 3. Hook テスト
+### 3. Hook Tests
 
 ```tsx
 import { renderHook, act } from "@testing-library/react";
@@ -241,29 +241,29 @@ describe("useTheme", () => {
 });
 ```
 
-### 4. Astro Actions テスト
+### 4. Astro Actions Tests
 
 ```typescript
 // src/actions/__tests__/index.test.ts
 import { describe, test, expect, vi } from "vitest";
 
-// Astro Actions のユニットテストは handler 関数を直接テスト
+// Unit test Astro Actions by directly testing the handler function
 describe("updateChannel action handler", () => {
   test("validates input with Zod schema", async () => {
     const input = {
-      guildId: "invalid", // Discord snowflake ではない
+      guildId: "invalid", // Not a Discord snowflake
       channelId: "123456789012345678",
       language: "ja",
       memberType: "all",
     };
 
-    // Zod バリデーションエラーを検証
-    // (Astro Action の handler を直接呼べるか、または schema だけテスト)
+    // Verify Zod validation error
+    // (Either call the Astro Action handler directly, or test the schema alone)
   });
 });
 ```
 
-### 5. ドメインロジックテスト
+### 5. Domain Logic Tests
 
 ```typescript
 // features/channel/domain/__tests__/member-type.test.ts
@@ -279,7 +279,7 @@ describe("MemberType", () => {
 });
 ```
 
-### 6. アクセシビリティテスト
+### 6. Accessibility Tests
 
 ```tsx
 import { render } from "@testing-library/react";
@@ -310,7 +310,7 @@ describe("a11y", () => {
 });
 ```
 
-### 7. E2E テスト (Playwright)
+### 7. E2E Tests (Playwright)
 
 ```bash
 pnpm add -D @playwright/test
@@ -378,10 +378,10 @@ test.describe("Channel Configuration", () => {
 });
 ```
 
-## テストカバレッジ目標
+## Test Coverage Targets
 
-| レイヤー | カバレッジ目標 | テスト種別 |
-|---------|-------------|-----------|
+| Layer | Coverage Target | Test Type |
+|-------|----------------|-----------|
 | Domain (types, schemas) | 90%+ | Unit |
 | Stores (Nano Stores) | 90%+ | Unit |
 | Hooks (useDialog, etc.) | 80%+ | Unit |
@@ -390,7 +390,7 @@ test.describe("Channel Configuration", () => {
 | API Endpoints | 80%+ | Integration |
 | Critical User Flows | 100% | E2E |
 
-## テストファイル配置
+## Test File Layout
 
 ```text
 src/

@@ -1,21 +1,21 @@
-# セッション管理の改善
+# Session Management Improvements
 
-## 現状
+## Current State
 
-### セッション設定
+### Session Configuration
 
-`astro.config.ts` にセッション設定が**未定義**。Cloudflare adapter がデフォルトのセッションドライバー (KV) を自動提供。
+Session configuration is **undefined** in `astro.config.ts`. The Cloudflare adapter automatically provides the default session driver (KV).
 
 ```typescript
-// astro.config.ts — session 設定なし
+// astro.config.ts — no session configuration
 export default defineConfig({
   output: "server",
   adapter: cloudflare(),
-  // session: { ... } ← 未設定
+  // session: { ... } ← not configured
 });
 ```
 
-### セッションデータ構造 (`env.d.ts`)
+### Session Data Structure (`env.d.ts`)
 
 ```typescript
 declare namespace App {
@@ -36,10 +36,10 @@ declare namespace App {
 }
 ```
 
-### セッション利用 (`middleware.ts`)
+### Session Usage (`middleware.ts`)
 
 ```typescript
-// 並列読み取りで KV ラウンドトリップ削減
+// Parallel reads to reduce KV round trips
 const [sessionLocale, user, expiresAt, accessToken] = await Promise.all([
   context.session?.get("locale"),
   context.session?.get("user"),
@@ -48,18 +48,18 @@ const [sessionLocale, user, expiresAt, accessToken] = await Promise.all([
 ]);
 ```
 
-### 課題
+### Issues
 
-1. **セッション設定が暗黙的**: デフォルトドライバーの動作が明示されていない
-2. **Cookie 設定が未明示**: `httpOnly`, `secure`, `sameSite` がデフォルト任せ
-3. **TTL 未設定**: セッションの有効期限がトークン失効時のみ。アイドルタイムアウトなし
-4. **トークンリフレッシュの競合**: 並行リクエスト時に複数回リフレッシュが発生する可能性
-5. **ギルドサマリーキャッシュの失効**: セッション内キャッシュに TTL なし、古いデータが残る
-6. **OAuth state の残存**: 認証完了後も `oauth_state` がセッションに残る
+1. **Session configuration is implicit**: The default driver behavior is not explicitly documented
+2. **Cookie settings are not explicit**: `httpOnly`, `secure`, `sameSite` are left to defaults
+3. **No TTL configured**: Session lifetime depends only on token expiration. No idle timeout
+4. **Token refresh race condition**: Concurrent requests may trigger multiple refreshes simultaneously
+5. **Guild summary cache staleness**: In-session cache has no TTL, stale data persists
+6. **OAuth state remains after auth**: `oauth_state` stays in the session after authentication completes
 
-## 改善 1: 明示的なセッション設定
+## Improvement 1: Explicit Session Configuration
 
-### 推奨設定
+### Recommended Configuration
 
 ```typescript
 // astro.config.ts
@@ -67,65 +67,65 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare(),
   session: {
-    // Cloudflare adapter はデフォルトで KV ドライバーを使用
-    // 明示的に設定することで動作を文書化
+    // Cloudflare adapter uses KV driver by default
+    // Explicitly configuring documents the behavior
     cookie: {
       name: "vspo-dash-session",
       sameSite: "lax",
       httpOnly: true,
       secure: true,
-      // path: "/" はデフォルト
+      // path: "/" is the default
     },
-    ttl: 86400, // 24時間 — セッション全体の最大寿命
+    ttl: 86400, // 24 hours — maximum session lifetime
   },
 });
 ```
 
-### Cookie 設定の詳細
+### Cookie Configuration Details
 
-| 属性 | デフォルト | 推奨 | 理由 |
-|------|-----------|------|------|
-| `name` | `"astro-session"` | `"vspo-dash-session"` | アプリ固有の名前で競合回避 |
-| `sameSite` | `"lax"` | `"lax"` | OAuth リダイレクトとの互換性を維持 |
-| `httpOnly` | `true` | `true` | JS からのアクセスを禁止 |
-| `secure` | `true` | `true` | HTTPS のみ |
+| Attribute | Default | Recommended | Reason |
+|-----------|---------|-------------|--------|
+| `name` | `"astro-session"` | `"vspo-dash-session"` | App-specific name to avoid conflicts |
+| `sameSite` | `"lax"` | `"lax"` | Maintain compatibility with OAuth redirects |
+| `httpOnly` | `true` | `true` | Prevent JS access |
+| `secure` | `true` | `true` | HTTPS only |
 
-### セッションドライバーの選択肢
+### Session Driver Options
 
-| ドライバー | 用途 | 備考 |
-|-----------|------|------|
-| Cloudflare KV (デフォルト) | 現在の本番環境 | adapter が自動設定 |
-| Redis (`sessionDrivers.redis()`) | 高スループット | 別途 Redis インスタンスが必要 |
-| Memory | 開発環境 | ワーカー再起動で消失 |
+| Driver | Use Case | Notes |
+|--------|----------|-------|
+| Cloudflare KV (default) | Current production environment | Automatically configured by adapter |
+| Redis (`sessionDrivers.redis()`) | High throughput | Requires a separate Redis instance |
+| Memory | Development environment | Lost on worker restart |
 
-## 改善 2: セッション TTL とアイドルタイムアウト
+## Improvement 2: Session TTL and Idle Timeout
 
-### 現状の問題
+### Current Problem
 
-セッションの寿命がトークン失効 (Discord OAuth の `expires_in`) にのみ依存:
+Session lifetime depends only on token expiration (Discord OAuth's `expires_in`):
 
 ```typescript
-// middleware.ts — トークン失効チェック
+// middleware.ts — token expiration check
 if (now >= (expiresAt ?? 0) - REFRESH_BUFFER_MS) {
-  // リフレッシュ or 破棄
+  // refresh or destroy
 }
 ```
 
-→ リフレッシュが成功し続ける限り、セッションは無期限に存続する。
+→ As long as refresh succeeds, the session persists indefinitely.
 
-### 改善: TTL + アイドルタイムアウト
+### Improvement: TTL + Idle Timeout
 
 ```typescript
 // astro.config.ts
 session: {
-  ttl: 86400, // 24時間 — セッション全体の最大寿命
+  ttl: 86400, // 24 hours — maximum session lifetime
 }
 ```
 
-加えて、ミドルウェアでアイドルタイムアウトを実装:
+Additionally, implement idle timeout in middleware:
 
 ```typescript
-const SESSION_IDLE_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2時間
+const SESSION_IDLE_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 const sessionTimeout = defineMiddleware(async (context, next) => {
   const lastActivity = await context.session?.get("lastActivity");
@@ -136,36 +136,36 @@ const sessionTimeout = defineMiddleware(async (context, next) => {
     return context.redirect("/?error=session_expired");
   }
 
-  // アクティビティを記録
+  // Record activity
   context.session?.set("lastActivity", now);
   return next();
 });
 ```
 
-### TTL の効果
+### TTL Effects
 
-| 項目 | Before | After |
+| Item | Before | After |
 |------|--------|-------|
-| セッション最大寿命 | 無期限 (リフレッシュ成功時) | 24 時間 |
-| アイドルタイムアウト | なし | 2 時間 |
-| ストレージ消費 | 際限なく増加 | TTL で自動削除 |
+| Maximum session lifetime | Indefinite (when refresh succeeds) | 24 hours |
+| Idle timeout | None | 2 hours |
+| Storage consumption | Grows without bound | Auto-deleted by TTL |
 
-## 改善 3: トークンリフレッシュの競合防止
+## Improvement 3: Token Refresh Race Condition Prevention
 
-### 現状の問題
+### Current Problem
 
-並行リクエスト (ページロード + Server Island + Action) が同時にリフレッシュを実行:
+Concurrent requests (page load + Server Island + Action) execute refresh simultaneously:
 
 ```yaml
 Request A: expiresAt < now → refresh → new tokens → session.set(...)
 Request B: expiresAt < now → refresh → old refresh token → FAIL (token already used)
 ```
 
-### 改善: リフレッシュロック
+### Improvement: Refresh Lock
 
 ```typescript
 const REFRESH_LOCK_KEY = "tokenRefreshLock";
-const REFRESH_LOCK_TTL_MS = 10_000; // 10秒
+const REFRESH_LOCK_TTL_MS = 10_000; // 10 seconds
 
 const refreshTokenIfNeeded = async (context: APIContext) => {
   const [expiresAt, accessToken] = await Promise.all([
@@ -179,14 +179,14 @@ const refreshTokenIfNeeded = async (context: APIContext) => {
     return;
   }
 
-  // ロックを確認 — 他のリクエストがリフレッシュ中なら現在のトークンを使う
+  // Check lock — if another request is refreshing, use the current token
   const lock = await context.session?.get(REFRESH_LOCK_KEY);
   if (lock && now - lock < REFRESH_LOCK_TTL_MS) {
     context.locals.accessToken = accessToken ?? null;
     return;
   }
 
-  // ロックを取得
+  // Acquire lock
   context.session?.set(REFRESH_LOCK_KEY, now);
 
   const refreshToken = await context.session?.get("refreshToken");
@@ -206,37 +206,37 @@ const refreshTokenIfNeeded = async (context: APIContext) => {
   context.session?.set("accessToken", tokens.access_token);
   context.session?.set("refreshToken", tokens.refresh_token);
   context.session?.set("expiresAt", now + tokens.expires_in * 1000);
-  context.session?.set(REFRESH_LOCK_KEY, null); // ロック解除
+  context.session?.set(REFRESH_LOCK_KEY, null); // Release lock
   context.locals.accessToken = tokens.access_token;
 };
 ```
 
-### 注意点
+### Caveats
 
-- Cloudflare KV がトランザクションをサポートしないため、分散ロック機構の完全性は保証されません
-- 競合ウィンドウは狭い (同一セッションの並行リクエストかつトークン期限切れ時のみ)
-- 最悪のケースでも、リフレッシュトークンの無効化で `session.destroy()` されるため安全
+- Since Cloudflare KV does not support transactions, the completeness of the distributed lock mechanism is not guaranteed
+- The race window is narrow (only concurrent requests on the same session when the token is expired)
+- In the worst case, refresh token invalidation triggers `session.destroy()`, which is safe
 
-## 改善 4: ギルドサマリーキャッシュの TTL
+## Improvement 4: Guild Summary Cache TTL
 
-### 現状の問題
+### Current Problem
 
 ```typescript
-// SessionData に guildSummaries をキャッシュ
+// Guild summaries cached in SessionData
 guildSummaries: Array<{ id: string; name: string; ... }>;
 ```
 
-キャッシュ期限がないため、ギルド名変更やBot追加/削除が反映されない。
+Without a cache expiration, changes to guild names or bot additions/removals are not reflected.
 
-### 改善: キャッシュメタデータの追加
+### Improvement: Add Cache Metadata
 
 ```typescript
 interface SessionData {
   guildSummaries: Array<{ id: string; name: string; icon: string | null; isAdmin: boolean; botInstalled: boolean }>;
-  guildSummariesCachedAt: number; // キャッシュ時刻
+  guildSummariesCachedAt: number; // Cache timestamp
 }
 
-const GUILD_CACHE_TTL_MS = 5 * 60 * 1000; // 5分
+const GUILD_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 const getGuildSummaries = async (context: APIContext) => {
   const [cached, cachedAt] = await Promise.all([
@@ -249,7 +249,7 @@ const getGuildSummaries = async (context: APIContext) => {
     return cached;
   }
 
-  // キャッシュ失効 — 再取得
+  // Cache expired — re-fetch
   const guilds = await fetchGuildSummaries(context.locals.accessToken);
   context.session?.set("guildSummaries", guilds);
   context.session?.set("guildSummariesCachedAt", now);
@@ -257,49 +257,49 @@ const getGuildSummaries = async (context: APIContext) => {
 };
 ```
 
-## 改善 5: OAuth State のクリーンアップ
+## Improvement 5: OAuth State Cleanup
 
-### 現状
+### Current State
 
-`oauth_state` が認証完了後もセッションに残存する。
+`oauth_state` remains in the session after authentication completes.
 
-### 改善
+### Improvement
 
 ```typescript
 // pages/auth/callback.astro
 const oauthState = await Astro.session?.get("oauth_state");
-// ... state 検証 ...
+// ... state validation ...
 
-// 検証後に削除
+// Delete after validation
 Astro.session?.set("oauth_state", undefined);
 ```
 
-## 改善 6: セッションデータの型安全性強化
+## Improvement 6: Strengthening Session Data Type Safety
 
-### 現状
+### Current State
 
-`context.session?.get("key")` の戻り値は `SessionData[key]` だが、`session?` の optional chaining により常に `undefined` の可能性がある。
+The return value of `context.session?.get("key")` is `SessionData[key]`, but due to the optional chaining on `session?`, it always has the possibility of being `undefined`.
 
-### 改善: セッションの存在保証
+### Improvement: Guaranteeing Session Existence
 
 ```typescript
 const auth = defineMiddleware(async (context, next) => {
-  // session が undefined の場合のガード
+  // Guard if session is undefined
   if (!context.session) {
-    // Cloudflare adapter ではありえないが型安全のため
+    // This shouldn't happen with the Cloudflare adapter, but included for type safety
     return context.redirect("/?error=session_unavailable");
   }
 
-  // ここ以降は session が確実に存在
+  // From here on, session is guaranteed to exist
   const user = await context.session.get("user");
   // ...
 });
 ```
 
-## セッションフロー図
+## Session Flow Diagram
 
 ```text
-ブラウザ → Cloudflare Worker
+Browser → Cloudflare Worker
   ↓
 middleware (securityHeaders)
   ↓
@@ -308,7 +308,7 @@ middleware (locale)
   └── locals.locale = locale
   ↓
 middleware (auth)
-  ├── session.get("user", "expiresAt", "accessToken") → KV (並列)
+  ├── session.get("user", "expiresAt", "accessToken") → KV (parallel)
   ├── DEV: mock auth → skip
   ├── !user: redirect to "/"
   ├── token expired: refresh + session.set(...) → KV
@@ -324,14 +324,14 @@ Page / Action rendering
 Response + Security Headers
 ```
 
-## 移行チェックリスト
+## Migration Checklist
 
-- [ ] `astro.config.ts` に `session` 設定 (cookie, ttl) を追加
-- [ ] セッション Cookie 名を `"vspo-dash-session"` に変更
-- [ ] セッション TTL を 24 時間に設定
-- [ ] アイドルタイムアウトミドルウェアを追加 (2 時間)
-- [ ] トークンリフレッシュのロック機構を実装
-- [ ] ギルドサマリーキャッシュに TTL メタデータを追加
-- [ ] OAuth state の認証完了後クリーンアップを追加
-- [ ] `lastActivity` タイムスタンプの記録を追加
-- [ ] セッション設定の動作を開発環境で検証
+- [ ] Add `session` configuration (cookie, ttl) to `astro.config.ts`
+- [ ] Change session cookie name to `"vspo-dash-session"`
+- [ ] Set session TTL to 24 hours
+- [ ] Add idle timeout middleware (2 hours)
+- [ ] Implement token refresh lock mechanism
+- [ ] Add TTL metadata to guild summary cache
+- [ ] Add OAuth state cleanup after authentication completes
+- [ ] Add `lastActivity` timestamp recording
+- [ ] Verify session configuration behavior in development environment

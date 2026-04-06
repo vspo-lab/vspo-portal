@@ -1,8 +1,8 @@
-# Astro 6 ビルトイン CSP
+# Astro 6 Built-in CSP
 
-## 現状
+## Current State
 
-### 手動 CSP ヘッダー (`middleware.ts`)
+### Manual CSP Header (`middleware.ts`)
 
 ```typescript
 const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
@@ -16,28 +16,28 @@ const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
 ];
 ```
 
-### 課題
+### Issues
 
-1. **`'unsafe-inline'` の使用**: スクリプトとスタイルに `'unsafe-inline'` を許可 — XSS 攻撃のリスク
-2. **手動管理の煩雑さ**: CSP 文字列を直接編集。新しいスクリプト追加時にハッシュの手動計算が必要
-3. **外部フォントドメイン**: `fonts.googleapis.com` / `fonts.gstatic.com` の許可が必要
-4. **View Transitions との非互換**: `<ClientRouter />` 使用時のインラインスクリプトが CSP に対応困難
-5. **ページ固有の CSP 不可**: 全ページに同一の CSP が適用される
+1. **Use of `'unsafe-inline'`**: Allows `'unsafe-inline'` for scripts and styles — XSS attack risk
+2. **Cumbersome manual management**: CSP string is edited directly. Adding new scripts requires manual hash calculation
+3. **External font domains**: Requires allowing `fonts.googleapis.com` / `fonts.gstatic.com`
+4. **Incompatibility with View Transitions**: Inline scripts from `<ClientRouter />` are difficult to accommodate in CSP
+5. **No per-page CSP**: The same CSP is applied to all pages
 
-## 改善: Astro 6 security.csp
+## Improvement: Astro 6 security.csp
 
-### 概要
+### Overview
 
-Astro 6 のビルトイン CSP は、ビルド時にスクリプトとスタイルのハッシュを自動計算し、`<meta http-equiv="content-security-policy">` タグとして各ページに挿入する。
+Astro 6's built-in CSP automatically computes hashes for scripts and styles at build time and inserts them as `<meta http-equiv="content-security-policy">` tags into each page.
 
-### 主要な特長
+### Key Features
 
-1. **ハッシュベース**: `'unsafe-inline'` が不要になる — ブラウザはハッシュが一致するスクリプトのみ実行
-2. **自動計算**: Astro がバンドルしたスクリプト/スタイルのハッシュを自動生成
-3. **ページ固有**: 各ページに必要なハッシュのみが含まれる
-4. **アルゴリズム選択**: SHA-256 (デフォルト), SHA-384, SHA-512
+1. **Hash-based**: Eliminates the need for `'unsafe-inline'` — the browser only executes scripts whose hashes match
+2. **Automatic computation**: Astro auto-generates hashes for bundled scripts/styles
+3. **Per-page**: Only the necessary hashes are included for each page
+4. **Algorithm selection**: SHA-256 (default), SHA-384, SHA-512
 
-### 設定
+### Configuration
 
 ```typescript
 // astro.config.ts
@@ -48,7 +48,7 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare(),
   security: {
-    checkOrigin: true, // デフォルト: true — CSRF 保護
+    checkOrigin: true, // Default: true — CSRF protection
     csp: {
       algorithm: "SHA-256",
       directives: [
@@ -56,19 +56,19 @@ export default defineConfig({
         "img-src 'self' https://cdn.discordapp.com data:",
         "connect-src 'self' https://discord.com",
         "frame-ancestors 'none'",
-        // font-src は fonts 移行後に 'self' のみ
+        // font-src will be 'self' only after fonts migration
         "font-src 'self'",
       ],
-      // script-src と style-src は Astro が自動管理
-      // → ハッシュが自動生成されるため、手動設定不要
+      // script-src and style-src are managed automatically by Astro
+      // → Hashes are auto-generated, so manual configuration is unnecessary
     },
-    // Actions のリクエストボディサイズ制限
-    actionBodySizeLimit: 1048576, // 1 MB (デフォルト)
+    // Request body size limit for Actions
+    actionBodySizeLimit: 1048576, // 1 MB (default)
   },
 });
 ```
 
-### 生成される `<meta>` タグ
+### Generated `<meta>` Tag
 
 ```html
 <head>
@@ -87,21 +87,21 @@ export default defineConfig({
 </head>
 ```
 
-## 詳細設定
+## Detailed Configuration
 
 ### scriptDirective
 
-外部スクリプトやカスタムハッシュを追加:
+Add external scripts or custom hashes:
 
 ```typescript
 security: {
   csp: {
     scriptDirective: {
-      // 外部スクリプトのソースを追加
+      // Add external script sources
       resources: ["'self'", "https://analytics.example.com"],
-      // カスタムハッシュ (外部スクリプト用)
+      // Custom hashes (for external scripts)
       hashes: ["sha256-externalScriptHash"],
-      // 動的スクリプト注入を許可 (Server Islands が内部的に使用する場合)
+      // Allow dynamic script injection (if Server Islands use it internally)
       strictDynamic: false,
     },
   },
@@ -110,50 +110,50 @@ security: {
 
 ### styleDirective
 
-外部スタイルやカスタムハッシュを追加:
+Add external styles or custom hashes:
 
 ```typescript
 security: {
   csp: {
     styleDirective: {
       resources: ["'self'"],
-      // Tailwind のインラインスタイル等のカスタムハッシュ
+      // Custom hashes for Tailwind inline styles, etc.
       hashes: [],
     },
   },
 }
 ```
 
-## security.checkOrigin — CSRF 保護
+## security.checkOrigin — CSRF Protection
 
-### 概要
+### Overview
 
-Astro 4.9+ で導入。`Origin` ヘッダーを自動検証し、CSRF 攻撃を防止。
+Introduced in Astro 4.9+. Automatically validates the `Origin` header to prevent CSRF attacks.
 
 ```typescript
 security: {
-  checkOrigin: true, // デフォルト: true
+  checkOrigin: true, // Default: true
 }
 ```
 
-### 動作
+### Behavior
 
-- `POST`, `PATCH`, `DELETE`, `PUT` リクエストの `Origin` ヘッダーを検証
-- 不一致の場合は 403 を返す
-- `content-type` が `application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain` の場合に適用
-- Astro Actions (`accept: "form"`) は自動的に保護される
+- Validates the `Origin` header on `POST`, `PATCH`, `DELETE`, `PUT` requests
+- Returns 403 on mismatch
+- Applies when `content-type` is `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`
+- Astro Actions (`accept: "form"`) are automatically protected
 
-### 現状との比較
+### Comparison with Current State
 
-| 項目 | Before (手動) | After (checkOrigin) |
-|------|--------------|---------------------|
-| CSRF 保護 | Actions の `_astroAction` フィールドのみ | Origin ヘッダー検証 + Actions |
-| 対象 | フォーム送信のみ | 全 POST/PATCH/DELETE/PUT |
-| 設定 | 不要 (自動) | 不要 (デフォルト有効) |
+| Item | Before (manual) | After (checkOrigin) |
+|------|-----------------|---------------------|
+| CSRF protection | Actions `_astroAction` field only | Origin header validation + Actions |
+| Scope | Form submissions only | All POST/PATCH/DELETE/PUT |
+| Configuration | Not required (automatic) | Not required (enabled by default) |
 
-## security.allowedDomains — Host Header 検証
+## security.allowedDomains — Host Header Validation
 
-### Cloudflare Workers での活用
+### Usage with Cloudflare Workers
 
 ```typescript
 security: {
@@ -170,15 +170,15 @@ security: {
 }
 ```
 
-### 効果
+### Effects
 
-- `X-Forwarded-Host` ヘッダーの偽装を防止
-- `Astro.url` が正しいホスト名を返すことを保証
-- Cloudflare Workers の背後でのホストヘッダーインジェクション攻撃を防止
+- Prevents `X-Forwarded-Host` header spoofing
+- Guarantees that `Astro.url` returns the correct hostname
+- Prevents host header injection attacks behind Cloudflare Workers
 
 ## security.actionBodySizeLimit
 
-### デフォルト
+### Default
 
 ```typescript
 security: {
@@ -186,9 +186,9 @@ security: {
 }
 ```
 
-### カスタマイズ
+### Customization
 
-ファイルアップロードを伴う Action がある場合に増加:
+Increase when there are Actions that involve file uploads:
 
 ```typescript
 security: {
@@ -196,63 +196,63 @@ security: {
 }
 ```
 
-現在のプロジェクトではファイルアップロードは不要のためデフォルトで十分。
+The current project does not require file uploads, so the default is sufficient.
 
-## ミドルウェア CSP からの移行
+## Migration from Middleware CSP
 
-### 移行手順
+### Migration Steps
 
-1. **`astro.config.ts` に `security.csp` を追加**
-2. **middleware.ts の CSP ヘッダーを削除**:
+1. **Add `security.csp` to `astro.config.ts`**
+2. **Remove CSP header from middleware.ts**:
 
 ```typescript
-// Before: 手動 CSP
+// Before: Manual CSP
 const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
-  ["Content-Security-Policy", "..."],  // ← 削除
+  ["Content-Security-Policy", "..."],  // ← Remove
   ["X-Content-Type-Options", "nosniff"],
   ["X-Frame-Options", "DENY"],
   ["Referrer-Policy", "strict-origin-when-cross-origin"],
 ];
 
-// After: CSP 以外のヘッダーのみ
+// After: Headers other than CSP only
 const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
-  // CSP は Astro が <meta> タグで管理
+  // CSP is managed by Astro via <meta> tag
   ["X-Content-Type-Options", "nosniff"],
   ["X-Frame-Options", "DENY"],
   ["Referrer-Policy", "strict-origin-when-cross-origin"],
 ];
 ```
 
-1. **`'unsafe-inline'` の削除確認**: Astro CSP はハッシュベースなので `'unsafe-inline'` は不要。`is:inline` スクリプトも自動的にハッシュが計算される。
+1. **Confirm removal of `'unsafe-inline'`**: Since Astro CSP is hash-based, `'unsafe-inline'` is unnecessary. `is:inline` scripts also have their hashes automatically computed.
 
-### 制約事項
+### Constraints
 
-| 制約 | 影響 | 対策 |
-|------|------|------|
-| `<ClientRouter />` 非対応 | View Transitions SPA モード | ブラウザネイティブ View Transition API を使用 |
-| Shiki 非対応 | コードハイライト | Prism を使用 (本プロジェクトでは該当なし) |
-| `dev` モードで無効 | 開発中はテスト不可 | `build` + `preview` でテスト |
-| 外部スクリプト | 自動ハッシュ計算対象外 | `scriptDirective.hashes` で手動追加 |
+| Constraint | Impact | Mitigation |
+|------------|--------|------------|
+| `<ClientRouter />` not supported | View Transitions SPA mode | Use the browser-native View Transition API |
+| Shiki not supported | Code highlighting | Use Prism (not applicable to this project) |
+| Disabled in `dev` mode | Cannot test during development | Test with `build` + `preview` |
+| External scripts | Not included in automatic hash computation | Manually add via `scriptDirective.hashes` |
 
-### CSP ヘッダー vs `<meta>` タグ
+### CSP Header vs `<meta>` Tag
 
-| 方式 | Astro CSP (meta) | middleware (header) |
-|------|------------------|---------------------|
-| `frame-ancestors` | `<meta>` では無効 | ヘッダーで有効 |
-| `report-uri` | `<meta>` では無効 | ヘッダーで有効 |
-| 動的ポリシー | ページ固有 | リクエスト全体 |
+| Approach | Astro CSP (meta) | middleware (header) |
+|----------|------------------|---------------------|
+| `frame-ancestors` | Ineffective in `<meta>` | Effective in header |
+| `report-uri` | Ineffective in `<meta>` | Effective in header |
+| Dynamic policies | Per-page | Per-request |
 
-**重要**: `frame-ancestors` は `<meta>` タグでは無効。`X-Frame-Options: DENY` をミドルウェアで引き続き設定するか、Cloudflare Workers の応答ヘッダーで `frame-ancestors 'none'` を追加する。
+**Important**: `frame-ancestors` is ineffective in `<meta>` tags. Continue setting `X-Frame-Options: DENY` in middleware, or add `frame-ancestors 'none'` via Cloudflare Workers response headers.
 
-## 移行チェックリスト
+## Migration Checklist
 
-- [ ] `astro.config.ts` に `security.csp` 設定を追加
-- [ ] `security.csp.directives` に `default-src`, `img-src`, `connect-src`, `font-src` を設定
-- [ ] middleware.ts から `Content-Security-Policy` ヘッダーを削除
-- [ ] `'unsafe-inline'` が不要になったことを確認 (ハッシュベースに移行)
-- [ ] `X-Frame-Options: DENY` は middleware に維持 (`<meta>` では `frame-ancestors` 無効)
-- [ ] `security.allowedDomains` に prod/dev ドメインを設定
-- [ ] `security.checkOrigin: true` がデフォルト有効であることを確認
-- [ ] `astro build && astro preview` で CSP 動作をテスト
-- [ ] ブラウザの開発者ツールで CSP 違反がないことを確認
-- [ ] fonts 移行 (13_FONTS_OPTIMIZATION.md) 完了後、`font-src` から外部ドメインを削除
+- [ ] Add `security.csp` configuration to `astro.config.ts`
+- [ ] Set `default-src`, `img-src`, `connect-src`, `font-src` in `security.csp.directives`
+- [ ] Remove `Content-Security-Policy` header from middleware.ts
+- [ ] Confirm `'unsafe-inline'` is no longer needed (migrated to hash-based)
+- [ ] Keep `X-Frame-Options: DENY` in middleware (`frame-ancestors` is ineffective in `<meta>`)
+- [ ] Set prod/dev domains in `security.allowedDomains`
+- [ ] Confirm `security.checkOrigin: true` is enabled by default
+- [ ] Test CSP behavior with `astro build && astro preview`
+- [ ] Verify no CSP violations in browser developer tools
+- [ ] After fonts migration (13_FONTS_OPTIMIZATION.md) is complete, remove external domains from `font-src`

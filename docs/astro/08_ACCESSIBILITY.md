@@ -1,31 +1,31 @@
-# アクセシビリティ改善
+# Accessibility Improvements
 
-## 現状の評価
+## Current Assessment
 
-### 良い点
+### Strengths
 
-- `skip-to-content` リンクが Base.astro にある
-- semantic HTML (`<main>`, `<nav>`, `<header>`, `<footer>`) を使用
-- `FlashMessage` に `role="status"` あり
+- `skip-to-content` link exists in Base.astro
+- Uses semantic HTML (`<main>`, `<nav>`, `<header>`, `<footer>`)
+- `FlashMessage` has `role="status"`
 
-### 主要な課題
+### Key Issues
 
-1. **keyboard navigation** — dialog, dropdown, menu で不十分
-2. **focus management** — dialog open/close 時の focus 制御なし
-3. **ARIA attributes** — ほとんどのインタラクティブ要素で不足
-4. **color contrast** — ステータスインジケータが色のみに依存
-5. **motion** — `prefers-reduced-motion` 未対応のアニメーション
+1. **keyboard navigation** — Insufficient for dialog, dropdown, and menu
+2. **focus management** — No focus control on dialog open/close
+3. **ARIA attributes** — Missing on most interactive elements
+4. **color contrast** — Status indicators rely on color alone
+5. **motion** — Animations not respecting `prefers-reduced-motion`
 
-## コンポーネント別改善
+## Per-Component Improvements
 
 ### Dialog (ChannelConfigForm, ChannelAddModal, DeleteChannelDialog)
 
 ```tsx
-// useDialog.ts — アクセシブルな dialog hook
+// useDialog.ts — Accessible dialog hook
 function useDialog(ref: RefObject<HTMLDialogElement>) {
   const open = useCallback(() => {
     ref.current?.showModal();
-    // 最初のフォーカス可能要素にフォーカス
+    // Focus the first focusable element
     const firstFocusable = ref.current?.querySelector<HTMLElement>(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
@@ -34,19 +34,19 @@ function useDialog(ref: RefObject<HTMLDialogElement>) {
 
   const close = useCallback(() => {
     ref.current?.close();
-    // トリガー要素にフォーカスを戻す
+    // Return focus to the trigger element
   }, [ref]);
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
 
-    // backdrop click で close
+    // Close on backdrop click
     const handleClick = (e: MouseEvent) => {
       if (e.target === dialog) close();
     };
 
-    // focus trap
+    // Focus trap
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
       const focusable = dialog.querySelectorAll<HTMLElement>(
@@ -76,7 +76,7 @@ function useDialog(ref: RefObject<HTMLDialogElement>) {
 }
 ```
 
-**dialog の ARIA 属性**:
+**Dialog ARIA attributes**:
 
 ```html
 <dialog
@@ -91,7 +91,7 @@ function useDialog(ref: RefObject<HTMLDialogElement>) {
 
 ### Dropdown / Menu (UserMenu, LanguageSelector)
 
-現在の `<details data-auto-close>` は WAI-ARIA menu pattern に準拠していない。
+The current `<details data-auto-close>` does not conform to the WAI-ARIA menu pattern.
 
 ```tsx
 // WAI-ARIA menu button pattern
@@ -155,7 +155,7 @@ function DropdownMenu({ trigger, items }) {
 }
 ```
 
-### Radio Group (ChannelConfigForm の MemberType)
+### Radio Group (ChannelConfigForm MemberType)
 
 ```tsx
 // WAI-ARIA radio group pattern
@@ -242,7 +242,7 @@ function CustomMemberPicker({ members, selected, onChange }) {
 }
 ```
 
-### テーブル (ChannelTable)
+### Table (ChannelTable)
 
 ```html
 <table aria-label="Channel configurations">
@@ -261,7 +261,7 @@ function CustomMemberPicker({ members, selected, onChange }) {
       <td><!-- language --></td>
       <td><!-- member type --></td>
       <td>
-        <!-- ステータスは色だけでなくテキストも表示 -->
+        <!-- Status shows text in addition to color -->
         <span aria-label="Active">
           <span class="status-dot bg-green-500" aria-hidden="true" />
           Active
@@ -276,7 +276,7 @@ function CustomMemberPicker({ members, selected, onChange }) {
 </table>
 ```
 
-## グローバル改善
+## Global Improvements
 
 ### 1. `prefers-reduced-motion`
 
@@ -310,10 +310,10 @@ function CustomMemberPicker({ members, selected, onChange }) {
 
 ### 2. `prefers-color-scheme`
 
-theme.ts (将来の Nano Store) で system preference を検出:
+Detect system preference in theme.ts (future Nano Store):
 
 ```typescript
-// 初期テーマ判定
+// Initial theme determination
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 const storedTheme = localStorage.getItem("theme");
 const initialTheme = storedTheme ?? (prefersDark.matches ? "dark" : "light");
@@ -322,19 +322,19 @@ const initialTheme = storedTheme ?? (prefersDark.matches ? "dark" : "light");
 ### 3. Focus Visible
 
 ```css
-/* keyboard focus のみリングを表示 */
+/* Show ring only for keyboard focus */
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-/* mouse click ではリングを表示しない */
+/* Do not show ring for mouse clicks */
 :focus:not(:focus-visible) {
   outline: none;
 }
 ```
 
-### 4. Screen Reader Only ユーティリティ
+### 4. Screen Reader Only Utility
 
 ```css
 .sr-only {
@@ -350,18 +350,18 @@ const initialTheme = storedTheme ?? (prefersDark.matches ? "dark" : "light");
 }
 ```
 
-Tailwind CSS v4 では `sr-only` クラスがビルトイン。
+In Tailwind CSS v4, the `sr-only` class is built-in.
 
 ### 5. Live Regions
 
 ```html
-<!-- 操作結果の通知 -->
+<!-- Notification of operation results -->
 <div aria-live="polite" aria-atomic="true" class="sr-only" id="status-announcer">
-  <!-- JS で動的にテキストを設定 -->
+  <!-- Text set dynamically via JS -->
 </div>
 ```
 
-React island 内:
+Inside React islands:
 
 ```tsx
 function StatusAnnouncer() {
@@ -374,9 +374,9 @@ function StatusAnnouncer() {
 }
 ```
 
-## テスト
+## Testing
 
-### axe-core による自動テスト
+### Automated Testing with axe-core
 
 ```typescript
 // vitest + @axe-core/react
@@ -392,7 +392,7 @@ test("ChannelConfigModal has no a11y violations", async () => {
 });
 ```
 
-### keyboard navigation テスト
+### Keyboard Navigation Testing
 
 ```typescript
 import { screen, fireEvent } from "@testing-library/react";
@@ -408,18 +408,18 @@ test("dialog traps focus", () => {
 });
 ```
 
-## WCAG 2.1 AA チェックリスト
+## WCAG 2.1 AA Checklist
 
-- [ ] **1.1.1** 非テキストコンテンツに代替テキスト
-- [ ] **1.3.1** 情報と関係性が構造で伝わる (semantic HTML)
-- [ ] **1.4.1** 色だけに依存しない (ステータスインジケータ)
-- [ ] **1.4.3** コントラスト比 4.5:1 以上
-- [ ] **1.4.11** 非テキストのコントラスト比 3:1 以上
-- [ ] **2.1.1** すべての機能がキーボードで操作可能
-- [ ] **2.1.2** キーボードトラップなし
-- [ ] **2.4.1** ブロックスキップメカニズム (skip-to-content)
-- [ ] **2.4.3** フォーカス順序が論理的
-- [ ] **2.4.7** フォーカスが視覚的に見える
-- [ ] **3.2.1** フォーカス時に予期しない変更なし
-- [ ] **4.1.2** すべてのUI要素に name, role, value
-- [ ] **4.1.3** ステータスメッセージがプログラムで判断可能
+- [ ] **1.1.1** Alternative text for non-text content
+- [ ] **1.3.1** Information and relationships conveyed through structure (semantic HTML)
+- [ ] **1.4.1** Not relying on color alone (status indicators)
+- [ ] **1.4.3** Contrast ratio of 4.5:1 or higher
+- [ ] **1.4.11** Non-text contrast ratio of 3:1 or higher
+- [ ] **2.1.1** All functionality operable via keyboard
+- [ ] **2.1.2** No keyboard traps
+- [ ] **2.4.1** Block skip mechanism (skip-to-content)
+- [ ] **2.4.3** Logical focus order
+- [ ] **2.4.7** Focus is visually apparent
+- [ ] **3.2.1** No unexpected changes on focus
+- [ ] **4.1.2** All UI elements have name, role, and value
+- [ ] **4.1.3** Status messages are programmatically determinable

@@ -1,8 +1,8 @@
-# セキュリティ改善
+# Security Improvements
 
-## 現状の実装
+## Current Implementation
 
-### middleware.ts のセキュリティヘッダー
+### Security Headers in middleware.ts
 
 ```typescript
 // securityHeaders middleware
@@ -19,79 +19,79 @@ const headers = {
 };
 ```
 
-### 認証
+### Authentication
 
 - Discord OAuth2 (authorization code flow)
-- セッションベース (Cloudflare KV or D1)
-- ミドルウェアで認証チェック + トークンリフレッシュ (5分バッファ)
-- dev 環境ではモックユーザー
+- Session-based (Cloudflare KV or D1)
+- Auth check + token refresh (5-minute buffer) in middleware
+- Mock user in dev environment
 
 ### Astro Actions
 
-- `accept: "form"` — Astro が自動 CSRF 保護
-- `requireAuth()` ヘルパーで認証確認
-- Zod バリデーション
+- `accept: "form"` — Astro provides automatic CSRF protection
+- `requireAuth()` helper for auth verification
+- Zod validation
 
-## 課題と改善
+## Issues and Improvements
 
-### 1. CSP の `unsafe-inline` 問題
+### 1. CSP `unsafe-inline` Problem
 
-→ **詳細な移行ガイド**: [19_CSP_BUILTIN.md](./19_CSP_BUILTIN.md) (Astro 6 ビルトイン CSP 設定、`security.csp` / `security.checkOrigin` / `security.allowedDomains` の完全ガイド)
+-> **Detailed migration guide**: [19_CSP_BUILTIN.md](./19_CSP_BUILTIN.md) (Astro 6 built-in CSP configuration, complete guide for `security.csp` / `security.checkOrigin` / `security.allowedDomains`)
 
-**現状**: `script-src 'self' 'unsafe-inline'` — XSS リスクの緩和が不十���
+**Current state**: `script-src 'self' 'unsafe-inline'` — Insufficient XSS risk mitigation
 
-**原因**:
+**Cause**:
 
-- Base.astro のテーマ初期化 `<script is:inline>` が `unsafe-inline` を要求
-- `<ClientRouter />` (View Transitions) が Astro 6 の built-in CSP と非互換
+- Theme initialization `<script is:inline>` in Base.astro requires `unsafe-inline`
+- `<ClientRouter />` (View Transitions) is incompatible with Astro 6's built-in CSP
 
-**改善案**:
+**Proposed improvements**:
 
-#### 短期: nonce ベース CSP
+#### Short-term: Nonce-based CSP
 
 ```typescript
 // middleware.ts
 const nonce = crypto.randomUUID();
 const csp = `default-src 'self'; script-src 'self' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; ...`;
 
-// Astro.locals に nonce を設定
+// Set nonce in Astro.locals
 Astro.locals.cspNonce = nonce;
 ```
 
 ```astro
 <!-- Base.astro -->
 <script is:inline nonce={Astro.locals.cspNonce}>
-  // テーマ初期化
+  // Theme initialization
 </script>
 ```
 
-**注意**: Astro が生成する inline script には自動で nonce が付与されないため、手動設定が必要。
+**Note**: Astro does not automatically add nonces to generated inline scripts, so manual configuration is required.
 
-#### 長期: MPA View Transitions + built-in CSP (Astro MCP 検証済み)
+#### Long-term: MPA View Transitions + built-in CSP (Verified via Astro MCP)
 
-Astro 6 の `security.csp` は `<meta>` タグに SHA-256 ハッシュを使用する方式。**`<ClientRouter />` と非互換**（確認済み）。
+Astro 6's `security.csp` uses SHA-256 hashes in `<meta>` tags. **Incompatible with `<ClientRouter />`** (confirmed).
 
-`security.csp` 有効時、Astro は自動的に:
+When `security.csp` is enabled, Astro automatically:
 
-- inline script の SHA-256 ハッシュを `<meta>` タグに含める
-- `unsafe-inline` が指定されていてもハッシュが存在すれば自動で無視される
-- Runtime API `Astro.csp?.insertDirective()` で動的にディレクティブ追加可能
+- Includes SHA-256 hashes of inline scripts in `<meta>` tags
+- Automatically ignores `unsafe-inline` when hashes are present
+- Allows dynamic directive addition via the Runtime API `Astro.csp?.insertDirective()`
 
-将来的に:
+In the future:
 
-1. `<ClientRouter />` を削除
-2. ネイティブブラウザの MPA view transitions (`@view-transition`) に移行
-3. Astro built-in CSP を有効化
+1. Remove `<ClientRouter />`
+2. Migrate to native browser MPA view transitions (`@view-transition`)
+3. Enable Astro built-in CSP
 
 ```typescript
-// 将来の astro.config.ts
+// Future astro.config.ts
 export default defineConfig({
   security: {
     csp: {
       directives: {
         "default-src": ["self"],
         "script-src": ["self"],
-        "style-src": ["self", "unsafe-inline"], // Tailwind のため
+        "style-src": ["self", "unsafe-inline"], // For Tailwind
         "img-src": ["self", "https://cdn.discordapp.com", "data:"],
         "font-src": ["self"],
         "frame-ancestors": ["none"],
@@ -101,21 +101,21 @@ export default defineConfig({
 });
 ```
 
-### 2. CSRF 保護
+### 2. CSRF Protection
 
-→ **Actions パターン詳細**: [17_ACTIONS_PATTERNS.md](./17_ACTIONS_PATTERNS.md) (getActionContext() 認証ゲーティング、エラーコード、入力バリデーション)
+-> **Actions pattern details**: [17_ACTIONS_PATTERNS.md](./17_ACTIONS_PATTERNS.md) (getActionContext() auth gating, error codes, input validation)
 
-**現状**: Astro Actions の `accept: "form"` が自動 CSRF 保護を提供。
+**Current state**: Astro Actions' `accept: "form"` provides automatic CSRF protection.
 
-**改善点**:
+**Areas for improvement**:
 
-- `change-locale` API エンドポイントが Astro Actions ではなく生の POST endpoint → CSRF 保護なし
-- `guilds/[guildId]/channels.ts` GET endpoint は CSRF 不要だが、認証チェック要確認
+- The `change-locale` API endpoint is a raw POST endpoint, not an Astro Action -> No CSRF protection
+- The `guilds/[guildId]/channels.ts` GET endpoint doesn't need CSRF, but auth check should be verified
 
-**改善案**:
+**Proposed improvement**:
 
 ```typescript
-// change-locale を Astro Action に移行
+// Migrate change-locale to an Astro Action
 export const server = {
   changeLocale: defineAction({
     accept: "form",
@@ -125,24 +125,24 @@ export const server = {
     handler: async (input, context) => {
       const session = context.locals.session;
       session.set("locale", input.locale);
-      // Astro Action の CSRF 保護が自動で効く
+      // Astro Action's CSRF protection is automatically applied
     },
   }),
 };
 ```
 
-### 3. OAuth セキュリティ
+### 3. OAuth Security
 
-**現状の確認事項**:
+**Current verification items**:
 
-- [ ] state パラメータが `crypto.randomUUID()` で生成されている
-- [ ] state がセッションに保存され、callback で検証されている
-- [ ] access token がクライアントに露出していない
-- [ ] refresh token の保存場所が安全
+- [ ] state parameter is generated with `crypto.randomUUID()`
+- [ ] state is stored in session and verified at callback
+- [ ] access token is not exposed to the client
+- [ ] refresh token storage location is secure
 
-**改善案**:
+**Proposed improvement**:
 
-#### PKCE (Proof Key for Code Exchange) 対応
+#### PKCE (Proof Key for Code Exchange) Support
 
 ```typescript
 // auth/discord.ts
@@ -159,7 +159,7 @@ authUrl.searchParams.set("code_challenge_method", "S256");
 ```
 
 ```typescript
-// PKCE ヘルパー
+// PKCE helpers
 function generateCodeVerifier(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
@@ -174,15 +174,15 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
 }
 ```
 
-### 4. API エンドポイントの認証
+### 4. API Endpoint Authentication
 
-**改善点**:
+**Areas for improvement**:
 
-- `guilds/[guildId]/channels.ts` — ユーザーがそのギルドのメンバーかどうかの検証
-- レート制限の実装
+- `guilds/[guildId]/channels.ts` — Verify that the user is a member of that guild
+- Implement rate limiting
 
 ```typescript
-// API エンドポイントの認証パターン
+// API endpoint authentication pattern
 export const GET: APIRoute = async (context) => {
   const session = context.locals.session;
   const user = session.get("user");
@@ -195,7 +195,7 @@ export const GET: APIRoute = async (context) => {
 
   const guildId = context.params.guildId;
 
-  // ユーザーのギルドメンバーシップを検証
+  // Verify user's guild membership
   const guilds = session.get("guildSummaries") ?? [];
   const hasAccess = guilds.some(g => g.id === guildId);
 
@@ -205,53 +205,53 @@ export const GET: APIRoute = async (context) => {
     });
   }
 
-  // ... チャンネル一覧取得
+  // ... fetch channel list
 };
 ```
 
-### 5. セッションセキュリティ — Astro 組み込み Sessions API (Astro MCP 検証済み)
+### 5. Session Security — Astro Built-in Sessions API (Verified via Astro MCP)
 
-→ **セッション管理詳細**: [18_SESSION_MANAGEMENT.md](./18_SESSION_MANAGEMENT.md) (Cookie 設定、TTL、アイドルタイムアウト、トークンリフレッシュ競合防止)
+-> **Session management details**: [18_SESSION_MANAGEMENT.md](./18_SESSION_MANAGEMENT.md) (Cookie configuration, TTL, idle timeout, token refresh race condition prevention)
 
-**Astro 5.7+ で `session` API が組み込み**。Cloudflare adapter は KV を自動プロビジョニング。
+**Astro 5.7+ includes a built-in `session` API**. The Cloudflare adapter auto-provisions KV.
 
-**現在の自前セッション管理 → Astro Sessions API に移行**:
+**Migrate from custom session management to Astro Sessions API**:
 
 ```typescript
-// astro.config.ts — Cloudflare adapter は自動でセッションドライバーを設定
-// sessionKVBindingName のカスタマイズも可能
+// astro.config.ts — Cloudflare adapter automatically configures the session driver
+// sessionKVBindingName can also be customized
 adapter: cloudflare({
-  sessionKVBindingName: 'SESSION', // デフォルト
+  sessionKVBindingName: 'SESSION', // Default
 })
 ```
 
 ```typescript
-// 使用例: ページ内
+// Usage example: within a page
 const user = await Astro.session?.get('user');
 Astro.session?.set('locale', 'ja');
 
-// API endpoint 内
+// Within an API endpoint
 export async function POST({ session }: APIContext) {
   const cart = await session.get('cart');
   session.set('cart', [...cart, newItem]);
 }
 
-// Actions 内
+// Within Actions
 handler: async (input, context) => {
   await context.session?.set('preference', input.value);
 }
 ```
 
-**セキュリティ機能**:
+**Security features**:
 
-- `session.regenerate()` — セッション ID 再生成（セッション固定攻撃対策）
-- `session.destroy()` — セッション破棄（ログアウト時）
-- `session.set(key, value, { ttl: seconds })` — TTL 付きデータ保存
-- Cookie には session ID のみ格納、データはサーバーサイド (KV) に保存
+- `session.regenerate()` — Regenerate session ID (session fixation attack prevention)
+- `session.destroy()` — Destroy session (on logout)
+- `session.set(key, value, { ttl: seconds })` — Store data with TTL
+- Only the session ID is stored in the cookie; data is stored server-side (KV)
 
 ```typescript
-// callback.ts — OAuth 成功後
-Astro.session?.regenerate(); // セッション固定攻撃対策
+// callback.ts — After successful OAuth
+Astro.session?.regenerate(); // Session fixation attack prevention
 Astro.session?.set("user", discordUser);
 Astro.session?.set("accessToken", tokens.access_token, { ttl: 3600 });
 ```
@@ -262,31 +262,31 @@ Astro.session?.destroy();
 return Astro.redirect('/');
 ```
 
-### 6. エラーメッセージの安全性
+### 6. Error Message Safety
 
-**現状**: Action のエラーメッセージがそのままクライアントに表示される可能性
+**Current state**: Action error messages may be displayed directly to the client
 
-**改善案**:
+**Proposed improvement**:
 
 ```typescript
-// エラーメッセージのサニタイズ
+// Error message sanitization
 function safeErrorMessage(error: unknown): string {
   if (error instanceof ActionError) {
-    // ActionError は意図的に作成されたメッセージなので安全
+    // ActionError messages are intentionally crafted, so they are safe
     return error.message;
   }
-  // 予期しないエラーは汎用メッセージ
+  // Use a generic message for unexpected errors
   console.error("Unexpected error:", error);
   return "An unexpected error occurred. Please try again.";
 }
 ```
 
-### 7. 入力バリデーションの強化
+### 7. Strengthening Input Validation
 
-**現状の Zod スキーマ**:
+**Current Zod schema**:
 
 ```typescript
-// actions/index.ts の既存バリデーション
+// Existing validation in actions/index.ts
 input: z.object({
   guildId: z.string(),
   channelId: z.string(),
@@ -296,7 +296,7 @@ input: z.object({
 })
 ```
 
-**改善案**: より厳密なバリデーション
+**Proposed improvement**: Stricter validation
 
 ```typescript
 input: z.object({
@@ -310,11 +310,11 @@ input: z.object({
 })
 ```
 
-### 8. 環境変数の型安全性 — `astro:env` API (Astro MCP 検証済み)
+### 8. Type Safety for Environment Variables — `astro:env` API (Verified via Astro MCP)
 
-**現状**: `import.meta.env.SECRET_*` で環境変数にアクセス、型安全性なし。
+**Current state**: Environment variables accessed via `import.meta.env.SECRET_*`, with no type safety.
 
-**改善案**: `astro:env` スキーマで型安全 + バリデーション
+**Proposed improvement**: Type safety + validation via `astro:env` schema
 
 ```typescript
 // astro.config.ts
@@ -334,24 +334,24 @@ export default defineConfig({
 ```
 
 ```typescript
-// 使用例
+// Usage example
 import { DISCORD_CLIENT_ID } from "astro:env/server";
 import { PUBLIC_SITE_URL } from "astro:env/client";
 ```
 
-**Cloudflare Workers との互換性**: `cloudflare:workers` の `env` オブジェクトと `astro:env` API の両方で環境変数にアクセス可能。
+**Cloudflare Workers compatibility**: Environment variables are accessible via both the `cloudflare:workers` `env` object and the `astro:env` API.
 
-## セキュリティチェックリスト
+## Security Checklist
 
-- [ ] CSP ヘッダーから `unsafe-inline` を削除 (nonce ベースに移行)
-- [ ] 全 API エンドポイントに認証チェック
-- [ ] CSRF 保護が全フォームで有効
-- [ ] OAuth に PKCE 追加
-- [ ] Astro Sessions API に移行 + `session.regenerate()` でセッション固定対策
-- [ ] エラーメッセージがサーバー内部情報を漏洩しない
-- [ ] 入力バリデーションが Discord snowflake 形式を検証
-- [ ] レート制限の実装
-- [ ] `Permissions-Policy` ヘッダーの見直し
-- [ ] `Strict-Transport-Security` (HSTS) ヘッダーの追加
-- [ ] `astro:env` スキーマで環境変数の型安全性を確保
-- [ ] セッションデータの TTL 設定 (access token 等)
+- [ ] Remove `unsafe-inline` from CSP header (migrate to nonce-based)
+- [ ] Auth checks on all API endpoints
+- [ ] CSRF protection enabled on all forms
+- [ ] Add PKCE to OAuth
+- [ ] Migrate to Astro Sessions API + session fixation prevention with `session.regenerate()`
+- [ ] Error messages do not leak server internals
+- [ ] Input validation verifies Discord snowflake format
+- [ ] Implement rate limiting
+- [ ] Review `Permissions-Policy` header
+- [ ] Add `Strict-Transport-Security` (HSTS) header
+- [ ] Ensure type safety for environment variables with `astro:env` schema
+- [ ] Set TTL on session data (access tokens, etc.)

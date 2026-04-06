@@ -1,23 +1,23 @@
-# Nano Stores による状態管理設計
+# State Management Design with Nano Stores
 
-## なぜ Nano Stores か
+## Why Nano Stores
 
-| 選択肢 | メリット | デメリット |
-|--------|---------|-----------|
-| **Nano Stores** | Astro 公式推奨、フレームワーク非依存、2KB、island 間共有 | エコシステムが小さい |
-| React Context | React 標準 | island 間で共有不可 (各 island が独立した React tree) |
-| Zustand | 豊富な機能 | Astro との統合が非公式 |
-| Jotai | atom ベースで相性良い | Astro 用の adapter がない |
+| Option | Pros | Cons |
+|--------|------|------|
+| **Nano Stores** | Officially recommended by Astro, framework-agnostic, 2KB, shared across islands | Small ecosystem |
+| React Context | React standard | Cannot share across islands (each island is an independent React tree) |
+| Zustand | Rich features | Non-official integration with Astro |
+| Jotai | Atom-based, good compatibility | No adapter for Astro |
 
-**Nano Stores を選択する最大の理由**: Astro Islands は各 island が独立した React ルートであり、React Context は island をまたげない。Nano Stores はフレームワーク非依存のため、複数の独立した React island 間で状態を共有できる。
+**The primary reason for choosing Nano Stores**: Astro Islands are independent React roots, and React Context cannot span across islands. Since Nano Stores is framework-agnostic, it can share state across multiple independent React islands.
 
-## 依存パッケージ
+## Dependencies
 
 ```bash
 pnpm add nanostores @nanostores/react
 ```
 
-## Store 設計
+## Store Design
 
 ### 1. Theme Store
 
@@ -30,7 +30,7 @@ type Theme = "light" | "dark";
 export const $theme = atom<Theme>("light");
 
 onMount($theme, () => {
-  // localStorage から初期値を取得
+  // Get initial value from localStorage
   const stored = localStorage.getItem("theme") as Theme | null;
   if (stored) {
     $theme.set(stored);
@@ -38,7 +38,7 @@ onMount($theme, () => {
     $theme.set("dark");
   }
 
-  // system preference の変更を監視
+  // Watch for system preference changes
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
   const handler = (e: MediaQueryListEvent) => {
     if (!localStorage.getItem("theme")) {
@@ -49,14 +49,14 @@ onMount($theme, () => {
   return () => mq.removeEventListener("change", handler);
 });
 
-// theme 変更時に localStorage + DOM を更新
+// Update localStorage + DOM when theme changes
 $theme.listen((theme) => {
   localStorage.setItem("theme", theme);
   document.documentElement.classList.toggle("dark", theme === "dark");
 });
 ```
 
-**使用箇所**: ThemeToggle, UserMenu
+**Used by**: ThemeToggle, UserMenu
 
 ### 2. Channel Actions Store
 
@@ -78,17 +78,17 @@ type ChannelToDelete = {
   channelName: string;
 } | null;
 
-// 編集対象のチャンネル
+// Channel being edited
 export const $channelToEdit = atom<ChannelToEdit>(null);
 
-// 削除対象のチャンネル
+// Channel being deleted
 export const $channelToDelete = atom<ChannelToDelete>(null);
 
-// チャンネル追加モーダルの表示
+// Show add channel modal
 export const $showAddModal = atom<boolean>(false);
 ```
 
-**使用箇所**: ChannelTable (ボタンクリック) → ChannelConfigModal, DeleteChannelDialog, ChannelAddModal
+**Used by**: ChannelTable (button clicks) → ChannelConfigModal, DeleteChannelDialog, ChannelAddModal
 
 ### 3. Channel Data Store
 
@@ -109,7 +109,7 @@ export const $channelData = map<ChannelDataState>({
   error: null,
 });
 
-// 楽観的更新ヘルパー
+// Optimistic update helper
 export function optimisticUpdate(
   channelId: string,
   update: Partial<ChannelConfig>,
@@ -137,7 +137,7 @@ export function optimisticRemove(channelId: string) {
 }
 ```
 
-**使用箇所**: ChannelTable, ChannelConfigModal (保存後), ChannelAddModal (追加後), DeleteChannelDialog (削除後)
+**Used by**: ChannelTable, ChannelConfigModal (after save), ChannelAddModal (after add), DeleteChannelDialog (after delete)
 
 ### 4. Flash Message Store
 
@@ -161,7 +161,7 @@ export function showFlash(
   const id = crypto.randomUUID();
   $flash.set({ id, type, message });
   setTimeout(() => {
-    // 同じメッセージの場合のみクリア (新しいメッセージが上書きしていない場合)
+    // Only clear if the same message (i.e., a new message hasn't overwritten it)
     if ($flash.get()?.id === id) {
       $flash.set(null);
     }
@@ -169,9 +169,9 @@ export function showFlash(
 }
 ```
 
-**使用箇所**: FlashMessage, 各 Action の結果表示
+**Used by**: FlashMessage, result display for each Action
 
-## データフロー図
+## Data Flow Diagram
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
@@ -201,9 +201,9 @@ export function showFlash(
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 初期データの受け渡し
+## Initial Data Passing
 
-Astro ページの frontmatter でサーバーサイドデータを取得し、React island の props として渡す。island 内で Nano Store に初期値を設定する:
+Server-side data is fetched in the Astro page frontmatter and passed as props to React islands. Inside the island, initial values are set in the Nano Store:
 
 ```tsx
 // ChannelTable.tsx
@@ -211,7 +211,7 @@ import { useEffect } from "react";
 import { $channelData } from "../stores/channel-data";
 
 export function ChannelTable({ initialChannels }: { initialChannels: ChannelConfig[] }) {
-  // 初回マウント時に Nano Store を初期化
+  // Initialize Nano Store on first mount
   useEffect(() => {
     $channelData.setKey("channels", initialChannels);
   }, [initialChannels]);
@@ -221,15 +221,15 @@ export function ChannelTable({ initialChannels }: { initialChannels: ChannelConf
 }
 ```
 
-## PRG → 楽観的 UI への移行
+## Migration from PRG to Optimistic UI
 
-### Before (現在の PRG パターン)
+### Before (Current PRG Pattern)
 
 ```text
 User clicks "Save" → POST /action → Server processes → Redirect → Full page reload → New data displayed
 ```
 
-### After (楽観的 UI)
+### After (Optimistic UI)
 
 ```text
 User clicks "Save" → Optimistic update to $channelData → POST /action → 
@@ -241,59 +241,59 @@ User clicks "Save" → Optimistic update to $channelData → POST /action →
 async function handleSave(config: ChannelConfig) {
   const previous = $channelData.get().channels;
 
-  // 1. 楽観的更新
+  // 1. Optimistic update
   optimisticUpdate(config.id, config);
   showFlash("success", "Channel updated");
 
-  // 2. サーバーに送信
+  // 2. Send to server
   const result = await actions.updateChannel(config);
 
   if (result.error) {
-    // 3. ロールバック
+    // 3. Rollback
     $channelData.setKey("channels", previous);
     showFlash("error", result.error.message);
   }
 }
 ```
 
-## 注意事項
+## Notes
 
-### SSR と Hydration の整合性
+### SSR and Hydration Consistency
 
-- Nano Store の初期値は SSR 時には空 → hydration mismatch が起きうる
-- 対策: `client:only="react"` を使うか、初期値を props で渡して `useEffect` で Store に設定
+- Nano Store initial values are empty during SSR, which can cause hydration mismatch
+- Workaround: Use `client:only="react"`, or pass initial values via props and set them in the Store with `useEffect`
 
-### `onMount` パターン (Astro MCP 検証済み)
+### `onMount` Pattern (Verified via Astro MCP)
 
-Nano Stores の `onMount` はブラウザ側でのみ実行される。SSR 環境では呼ばれないため、localStorage やブラウザ API の初期化に安全に使用できる:
+Nano Stores' `onMount` only runs on the browser side. It is not called in SSR environments, making it safe to use for localStorage and browser API initialization:
 
 ```typescript
 import { atom, onMount } from "nanostores";
 
 export const $theme = atom<"light" | "dark">("light");
 
-// onMount はストアに最初のサブスクライバーが付いた時のみ実行される
-// SSR 環境では実行されない → hydration mismatch を回避
+// onMount only runs when the first subscriber is attached to the store
+// It does not run in SSR environments → avoids hydration mismatch
 onMount($theme, () => {
   const stored = localStorage.getItem("theme");
   if (stored) $theme.set(stored as "light" | "dark");
-  // クリーンアップ関数を返せる
+  // Can return a cleanup function
   return () => { /* cleanup */ };
 });
 ```
 
 **`.get()` vs `useStore()`**:
 
-- `.get()` — 現在値の1回取得。副作用やイベントハンドラ内で使用
-- `useStore($store)` — リアクティブなサブスクリプション。React コンポーネントのレンダリングに使用
+- `.get()` — One-time read of the current value. Use in side effects and event handlers
+- `useStore($store)` — Reactive subscription. Use for React component rendering
 
-### View Transitions との共存
+### Coexistence with View Transitions
 
-- `<ClientRouter />` でページ遷移しても Nano Store のインスタンスは維持される
-- `transition:persist` の island は再マウントされないため Store の値も保持
-- ページ遷移時に Store をリセットする必要がある場合は `astro:before-preparation` で `$store.set(initialValue)` を呼ぶ
+- Nano Store instances are preserved even when navigating with `<ClientRouter />`
+- Islands with `transition:persist` are not remounted, so Store values are also preserved
+- If you need to reset a Store on page navigation, call `$store.set(initialValue)` in `astro:before-preparation`
 
-### テスト
+### Testing
 
-- Store 単体テスト: `$store.set()` → `$store.get()` で状態を検証
-- コンポーネントテスト: `@testing-library/react` + Store のモック
+- Store unit tests: Verify state with `$store.set()` → `$store.get()`
+- Component tests: `@testing-library/react` + Store mocks

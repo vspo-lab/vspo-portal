@@ -1,27 +1,27 @@
-# 全ページ改善点
+# All Page Improvements
 
-## 1. `pages/index.astro` — ランディングページ
+## 1. `pages/index.astro` — Landing Page
 
-### 現状 (266行)
+### Current State (266 lines)
 
-- 認証済みユーザーは `/dashboard` へリダイレクト
-- Hero セクション、Bot Stats (DigitRoll)、Feature Cards (dialog popup)、CTA
-- 30行の `<script>` で feature popup トリガー (AbortController パターン)
+- Authenticated users are redirected to `/dashboard`
+- Hero section, Bot Stats (DigitRoll), Feature Cards (dialog popup), CTA
+- 30-line `<script>` for feature popup trigger (AbortController pattern)
 
-### 改善点
+### Improvements
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | Feature popup が vanilla JS | `FeatureShowcase` React island (`client:visible`) に移行 |
-| **Server Islands** | Bot Stats の API 呼び出しがページ全体のTTFBを遅延 | `<BotStats server:defer>` で遅延レンダリング |
-| **パフォーマンス** | Google Fonts のプリロードが Base.astro にある | LP のみの Fonts は LP でプリロード。Dashboard では不要 |
-| **SEO** | 構造化データなし | `application/ld+json` で WebApplication schema 追加 |
-| **a11y** | Feature card の dialog trigger が `<div>` | `<button>` に変更、`aria-haspopup="dialog"` 追加 |
-| **a11y** | DigitRoll に `aria-live` なし | `aria-live="polite"` + 読み上げ用の hidden text |
-| **i18n** | Hero のテキストが dict.ts にあるがSEO用のメタは未翻訳 | `<html lang>` + alternateLinks + hreflang |
-| **コード品質** | feature popup script の AbortController パターン | React 化で不要に |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | Feature popup uses vanilla JS | Migrate to `FeatureShowcase` React island (`client:visible`) |
+| **Server Islands** | Bot Stats API call delays overall page TTFB | Lazy render with `<BotStats server:defer>` |
+| **Performance** | Google Fonts preload is in Base.astro | Preload LP-only fonts in LP. Not needed in Dashboard |
+| **SEO** | No structured data | Add WebApplication schema via `application/ld+json` |
+| **a11y** | Feature card dialog trigger is a `<div>` | Change to `<button>`, add `aria-haspopup="dialog"` |
+| **a11y** | DigitRoll has no `aria-live` | Add `aria-live="polite"` + hidden text for screen readers |
+| **i18n** | Hero text is in dict.ts but SEO meta is not translated | Add `<html lang>` + alternateLinks + hreflang |
+| **Code quality** | AbortController pattern in feature popup script | Becomes unnecessary with React migration |
 
-### 移行後の構造
+### Structure After Migration
 
 ```astro
 ---
@@ -42,43 +42,43 @@ const features = getFeatures(locale);
 
 ---
 
-## 2. `pages/404.astro` — Not Found ページ
+## 2. `pages/404.astro` — Not Found Page
 
-### 現状
+### Current State
 
-- シンプルな静的ページ、Button コンポーネント使用
+- Simple static page using the Button component
 
-### 改善点
+### Improvements
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **a11y** | ページタイトルに "404" がない | `<title>404 - Page Not Found</title>` |
-| **UX** | 戻るボタンのみ | 「ダッシュボードに戻る」リンクも追加 |
-| **i18n** | テキストが翻訳済みか要確認 | dict.ts に 404 テキスト追加 |
-| **SEO** | `<meta name="robots" content="noindex">` なし | 追加する |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **a11y** | Page title does not include "404" | `<title>404 - Page Not Found</title>` |
+| **UX** | Only a back button | Also add a "Return to Dashboard" link |
+| **i18n** | Verify text is translated | Add 404 text to dict.ts |
+| **SEO** | Missing `<meta name="robots" content="noindex">` | Add it |
 
 ---
 
-## 3. `pages/dashboard/index.astro` — サーバー一覧ページ
+## 3. `pages/dashboard/index.astro` — Server List Page
 
-### 現状
+### Current State
 
-- `ListGuildsUsecase.execute()` でギルド一覧取得
-- セッションにギルドサマリーをキャッシュ
-- installed / not-installed セクションで GuildCard 表示
+- Fetches guild list via `ListGuildsUsecase.execute()`
+- Caches guild summary in session
+- Displays GuildCards in installed / not-installed sections
 
-### 改善点
+### Improvements
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Server Islands** | ギルドごとのチャンネル数をメインレンダリングで取得 | チャンネル数表示を `server:defer` で遅延ロード |
-| **パフォーマンス** | セッションキャッシュの有効期限がない | TTL 付きキャッシュまたは stale-while-revalidate パターン |
-| **UX** | ギルドが0件の場合の empty state が貧弱 | イラスト + 「Botを招待する」CTA ボタン |
-| **UX** | ローディング状態がない | Skeleton UI for guild cards |
-| **a11y** | セクション見出しの階層が不適切な場合あり | `<h2>` installed / `<h2>` not-installed |
-| **エラーハンドリング** | Discord API エラー時の UX | ErrorAlert + リトライボタン |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Server Islands** | Channel count per guild is fetched during main rendering | Lazy-load channel count display with `server:defer` |
+| **Performance** | Session cache has no expiration | TTL-based cache or stale-while-revalidate pattern |
+| **UX** | Poor empty state when there are 0 guilds | Illustration + "Invite Bot" CTA button |
+| **UX** | No loading state | Skeleton UI for guild cards |
+| **a11y** | Section heading hierarchy may be incorrect | `<h2>` installed / `<h2>` not-installed |
+| **Error handling** | UX when Discord API errors occur | ErrorAlert + retry button |
 
-### 移行後の構造
+### Structure After Migration
 
 ```astro
 ---
@@ -112,29 +112,29 @@ const guilds = await ListGuildsUsecase.execute(session);
 
 ---
 
-## 4. `pages/dashboard/[guildId].astro` — ギルド詳細ページ (チャンネル設定)
+## 4. `pages/dashboard/[guildId].astro` — Guild Detail Page (Channel Settings)
 
-### 現状 (181行)
+### Current State (181 lines)
 
-- 最も複雑なページ。キャッシュされたギルドサマリー、並列データ取得、Astro Action results 処理
-- ChannelTable, ChannelConfigForm, DeleteChannelDialog, ChannelAddModal を含む
-- 8行の `<script>` で View Transitions 時の dialog close 処理
+- The most complex page. Cached guild summary, parallel data fetching, Astro Action results processing
+- Contains ChannelTable, ChannelConfigForm, DeleteChannelDialog, ChannelAddModal
+- 8-line `<script>` for dialog close handling during View Transitions
 
-### 改善点
+### Improvements
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | 全 dialog/form が vanilla JS | React islands に移行 (02_REACT_MIGRATION.md 参照) |
-| **Islands** | dialog close script が View Transitions 対策 | React 化でアンマウント時に自動クリーンアップ → 不要 |
-| **状態管理** | チャンネル追加後に PRG でページリロード | Nano Store + 楽観的UI更新 |
-| **状態管理** | Action result (flash message) がセッション経由 | Nano Store の `$flashMessage` で管理 |
-| **パフォーマンス** | 並列データ取得は良い。だがエラー時の partial render なし | `Promise.allSettled` + エラー部分のみ ErrorAlert |
-| **UX** | チャンネルが0件の empty state | 「チャンネルを追加」ボタン付き empty state |
-| **UX** | 設定保存後のフィードバックが PRG 後の flash のみ | 楽観的UI + inline success indicator |
-| **a11y** | dialog の focus management が手動 JS | React useDialog hook で自動 focus trap |
-| **セキュリティ** | Action result のエラーメッセージがそのまま表示 | エラーメッセージのサニタイズ |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | All dialogs/forms use vanilla JS | Migrate to React islands (see 02_REACT_MIGRATION.md) |
+| **Islands** | Dialog close script is a View Transitions workaround | Automatic cleanup on unmount with React, making this unnecessary |
+| **State management** | Page reloads via PRG after channel addition | Nano Store + optimistic UI updates |
+| **State management** | Action result (flash message) goes through session | Manage via Nano Store's `$flashMessage` |
+| **Performance** | Parallel data fetching is good, but no partial render on error | `Promise.allSettled` + ErrorAlert only for failed parts |
+| **UX** | Empty state when there are 0 channels | Empty state with "Add Channel" button |
+| **UX** | Feedback after saving settings is only a flash after PRG | Optimistic UI + inline success indicator |
+| **a11y** | Dialog focus management is manual JS | Automatic focus trap via React useDialog hook |
+| **Security** | Action result error messages displayed as-is | Sanitize error messages |
 
-### 移行後の構造
+### Structure After Migration
 
 ```astro
 ---
@@ -152,92 +152,92 @@ const [channels, members] = await Promise.allSettled([
     members={members}
     guildId={guildId}
   />
-  <!-- ChannelConfigPanel 内に ConfigModal, DeleteDialog, AddModal を統合 -->
+  <!-- ConfigModal, DeleteDialog, AddModal are integrated within ChannelConfigPanel -->
 </Dashboard>
 ```
 
 ---
 
-## 5. `pages/dashboard/announcements.astro` — グローバルお知らせ
+## 5. `pages/dashboard/announcements.astro` — Global Announcements
 
-### 現状
+### Current State
 
-- 全お知らせデータを `announcements.ts` から取得
-- ギルドコンテキストなし
+- Fetches all announcement data from `announcements.ts`
+- No guild context
 
-### 改善点
+### Improvements
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **重複** | `[guildId]/announcements.astro` とほぼ同じ | 共通コンポーネント `AnnouncementList` に抽出 |
-| **パフォーマンス** | 全件レンダリング | ページネーションまたは仮想スクロール |
-| **UX** | フィルタリング・検索なし | タイプ別フィルタ、日付範囲 |
-| **i18n** | 日付フォーマットがロケール対応済みか確認 | `Intl.DateTimeFormat` でロケール指定 |
-| **a11y** | お知らせカードのセマンティクス | `<article>` + `<time datetime>` |
-
----
-
-## 6. `pages/dashboard/[guildId]/announcements.astro` — ギルド別お知らせ
-
-### 現状
-
-- ギルドデータをサイドバー用に取得
-- それ以外は `announcements.astro` とほぼ同一
-
-### 改善点
-
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **重複** | グローバル版との重複 | `AnnouncementList.astro` 共通コンポーネント化 |
-| **データ** | ギルド固有のお知らせフィルタがない | ギルドに関連するお知らせのみ表示 |
-| **ナビゲーション** | パンくずリストなし | `Guild Name > Announcements` のパンくず追加 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Duplication** | Nearly identical to `[guildId]/announcements.astro` | Extract into a shared `AnnouncementList` component |
+| **Performance** | Renders all items | Pagination or virtual scrolling |
+| **UX** | No filtering or search | Filter by type, date range |
+| **i18n** | Verify date formatting is locale-aware | Specify locale with `Intl.DateTimeFormat` |
+| **a11y** | Announcement card semantics | `<article>` + `<time datetime>` |
 
 ---
 
-## 7. `pages/auth/discord.ts` — OAuth 開始エンドポイント
+## 6. `pages/dashboard/[guildId]/announcements.astro` — Guild-Specific Announcements
 
-### 現状
+### Current State
 
-- OAuth URL 構築、state をセッション保存、302 リダイレクト
+- Fetches guild data for the sidebar
+- Otherwise nearly identical to `announcements.astro`
 
-### 改善点
+### Improvements
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **セキュリティ** | state パラメータの生成方法を確認 | `crypto.randomUUID()` 使用を確認 |
-| **セキュリティ** | PKCE (Proof Key for Code Exchange) 未対応の可能性 | PKCE 対応追加 |
-| **エラー** | Discord が応答しない場合のタイムアウト | redirect URL 構築時のバリデーション強化 |
-
----
-
-## 8. `pages/api/guilds/[guildId]/channels.ts` — チャンネル一覧 API
-
-### 現状
-
-- GET endpoint。ギルドの Discord チャンネルを返す
-- ChannelAddModal から fetch で呼ばれる
-
-### 改善点
-
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **セキュリティ** | ギルドの権限チェック | ユーザーがそのギルドのメンバーか検証 |
-| **パフォーマンス** | レスポンスキャッシュなし | `Cache-Control` ヘッダー (short TTL) |
-| **型安全性** | レスポンス型の明示 | Zod schema でレスポンス型を定義 |
-| **エラー** | Discord API エラーのハンドリング | 適切な HTTP ステータスコード + エラーメッセージ |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Duplication** | Duplicates the global version | Extract into a shared `AnnouncementList.astro` component |
+| **Data** | No guild-specific announcement filter | Show only announcements related to the guild |
+| **Navigation** | No breadcrumbs | Add `Guild Name > Announcements` breadcrumb |
 
 ---
 
-## 9. `pages/api/change-locale.ts` — ロケール変更 API
+## 7. `pages/auth/discord.ts` — OAuth Start Endpoint
 
-### 現状
+### Current State
 
-- POST endpoint。セッションにロケール保存、リダイレクト
+- Builds OAuth URL, saves state to session, 302 redirect
 
-### 改善点
+### Improvements
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **UX** | ページリロードが発生 | Astro の i18n ルーティングを活用して URL ベースのロケール切替に移行 |
-| **セキュリティ** | CSRF 保護の確認 | Astro Actions に移行すれば自動 CSRF 保護 |
-| **バリデーション** | ロケール値のバリデーション | 許可されたロケールのみ受付 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Security** | Verify state parameter generation method | Confirm `crypto.randomUUID()` is used |
+| **Security** | Possibly missing PKCE (Proof Key for Code Exchange) support | Add PKCE support |
+| **Error** | Timeout when Discord is unresponsive | Strengthen validation when building redirect URL |
+
+---
+
+## 8. `pages/api/guilds/[guildId]/channels.ts` — Channel List API
+
+### Current State
+
+- GET endpoint. Returns Discord channels for a guild
+- Called via fetch from ChannelAddModal
+
+### Improvements
+
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Security** | Guild permission check | Verify the user is a member of the guild |
+| **Performance** | No response caching | `Cache-Control` header (short TTL) |
+| **Type safety** | Response type not explicit | Define response type with Zod schema |
+| **Error** | Discord API error handling | Appropriate HTTP status codes + error messages |
+
+---
+
+## 9. `pages/api/change-locale.ts` — Locale Change API
+
+### Current State
+
+- POST endpoint. Saves locale to session, redirects
+
+### Improvements
+
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **UX** | Causes a page reload | Migrate to URL-based locale switching using Astro's i18n routing |
+| **Security** | Verify CSRF protection | Migrating to Astro Actions provides automatic CSRF protection |
+| **Validation** | Locale value validation | Accept only allowed locales |

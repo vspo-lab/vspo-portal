@@ -1,65 +1,65 @@
-# Cloudflare Workers 統合改善
+# Cloudflare Workers Integration Improvements
 
-## 現状
+## Current State
 
-- `@astrojs/cloudflare` adapter 使用
-- `wrangler.jsonc` で KV, D1 バインディング設定
-- セッション管理は自前実装
+- Using `@astrojs/cloudflare` adapter
+- KV and D1 bindings configured in `wrangler.jsonc`
+- Session management is a custom implementation
 
-## 改善項目
+## Improvements
 
-### 1. Astro Sessions API への移行
+### 1. Migration to Astro Sessions API
 
-**現状**: 自前のセッション管理 (middleware.ts 内で手動に cookie / KV を操作)
+**Current**: Custom session management (manually operating cookies / KV in middleware.ts)
 
-**改善**: Astro 5.7+ の組み込み Sessions API を使用
+**Improvement**: Use the built-in Sessions API from Astro 5.7+
 
 ```typescript
-// Cloudflare adapter は自動で KV をセッションストレージとして使用
-// wrangler.jsonc に KV バインディング定義不要 (自動プロビジョニング)
+// Cloudflare adapter automatically uses KV as session storage
+// No need to define KV binding in wrangler.jsonc (auto-provisioned)
 
 // astro.config.ts
 adapter: cloudflare({
-  sessionKVBindingName: 'SESSION', // デフォルト名、カスタマイズ可能
+  sessionKVBindingName: 'SESSION', // Default name, customizable
 })
 ```
 
 ```typescript
-// ページ内での使用
+// Usage in pages
 const user = await Astro.session?.get('user');
 Astro.session?.set('lastVisit', new Date());
 
-// API endpoint 内での使用
+// Usage in API endpoints
 export async function POST({ session }: APIContext) {
   session.set('cart', updatedCart);
   return Response.json({ success: true });
 }
 
-// Actions 内での使用
+// Usage in Actions
 handler: async (input, context) => {
   const user = await context.session?.get('user');
   // ...
 }
 
-// Middleware 内での使用
+// Usage in Middleware
 export const onRequest = defineMiddleware(async (context, next) => {
   context.session?.set('lastVisit', new Date());
   return next();
 });
 ```
 
-**セッション操作**:
+**Session operations**:
 
-- `session.get(key)` — データ取得
-- `session.set(key, value, { ttl })` — TTL 付きデータ保存
-- `session.regenerate()` — セッション ID 再生成 (認証後)
-- `session.destroy()` — セッション破棄 (ログアウト)
+- `session.get(key)` — Retrieve data
+- `session.set(key, value, { ttl })` — Save data with TTL
+- `session.regenerate()` — Regenerate session ID (after authentication)
+- `session.destroy()` — Destroy session (logout)
 
-### 2. 環境変数の型安全化 (`astro:env`)
+### 2. Type-safe Environment Variables (`astro:env`)
 
-**現状**: `import.meta.env.SECRET_*` で型安全性なし
+**Current**: No type safety with `import.meta.env.SECRET_*`
 
-**改善**:
+**Improvement**:
 
 ```typescript
 // astro.config.ts
@@ -68,11 +68,11 @@ import { defineConfig, envField } from "astro/config";
 export default defineConfig({
   env: {
     schema: {
-      // Server secrets (クライアントに露出しない)
+      // Server secrets (not exposed to client)
       DISCORD_CLIENT_ID: envField.string({ context: "server", access: "secret" }),
       DISCORD_CLIENT_SECRET: envField.string({ context: "server", access: "secret" }),
       BOT_API_BASE_URL: envField.string({ context: "server", access: "public" }),
-      // Client public (クライアントでも使用可能)
+      // Client public (also available on client)
       PUBLIC_SITE_URL: envField.string({ context: "client", access: "public", optional: true }),
     },
   },
@@ -80,12 +80,12 @@ export default defineConfig({
 ```
 
 ```typescript
-// 使用: 型安全なインポート
+// Usage: type-safe imports
 import { DISCORD_CLIENT_ID, BOT_API_BASE_URL } from "astro:env/server";
 import { PUBLIC_SITE_URL } from "astro:env/client";
 ```
 
-**Cloudflare 固有の環境変数**: `cloudflare:workers` の `env` オブジェクトからもアクセス可能:
+**Cloudflare-specific environment variables**: Also accessible from the `env` object in `cloudflare:workers`:
 
 ```typescript
 import { env } from 'cloudflare:workers';
@@ -94,73 +94,73 @@ const myKV = env.MY_KV;
 
 ### 3. Cloudflare Images Binding
 
-**現状**: 画像は静的ファイルとして配信
+**Current**: Images served as static files
 
-**改善**: Cloudflare Images Binding でオンデマンド画像変換
+**Improvement**: On-demand image transformation with Cloudflare Images Binding
 
 ```typescript
 // astro.config.ts
 adapter: cloudflare({
-  imageService: 'cloudflare-binding', // デフォルト
-  // ビルド時はローカル変換、ランタイムは Cloudflare Images
+  imageService: 'cloudflare-binding', // Default
+  // Local transformation at build time, Cloudflare Images at runtime
   imageService: { build: 'compile', runtime: 'cloudflare-binding' },
 })
 ```
 
-- ビルド時の静的画像は `compile` で最適化
-- SSR ページのオンデマンド画像は Cloudflare Images で変換
-- バインディングは自動プロビジョニング
+- Static images at build time are optimized with `compile`
+- On-demand images on SSR pages are transformed with Cloudflare Images
+- Bindings are auto-provisioned
 
-### 4. Execution Context の活用
+### 4. Leveraging Execution Context
 
 ```typescript
-// waitUntil でレスポンス後に非同期処理を実行
+// Execute async processing after the response with waitUntil
 const cfContext = Astro.locals.cfContext;
 cfContext.waitUntil(
-  // ログ送信やキャッシュ更新など
+  // Log shipping, cache updates, etc.
   sendAnalytics(request)
 );
 ```
 
-### 5. `cf` オブジェクトによる地域情報
+### 5. Region Information via the `cf` Object
 
 ```typescript
-// リクエストの地域情報にアクセス
+// Access request region information
 const cf = Astro.request.cf;
-const country = cf?.country; // "JP", "US" 等
-// ロケール自動検出に活用可能
+const country = cf?.country; // "JP", "US", etc.
+// Can be used for automatic locale detection
 ```
 
-### 6. Wrangler 設定の簡素化
+### 6. Simplifying Wrangler Configuration
 
-Astro 6 + `@astrojs/cloudflare` v13 では、基本設定のみの `wrangler.jsonc` は不要:
+With Astro 6 + `@astrojs/cloudflare` v13, a `wrangler.jsonc` with only basic settings is unnecessary:
 
 ```jsonc
-// 最小構成 — カスタムバインディングがある場合のみ必要
+// Minimal configuration — only needed when custom bindings exist
 {
   "name": "bot-dashboard",
-  // KV, D1 等のバインディングがある場合のみ記述
+  // Only specify when KV, D1, etc. bindings are needed
   "kv_namespaces": [{ "binding": "SESSION", "id": "..." }],
   "d1_databases": [{ "binding": "DB", "database_id": "..." }]
 }
 ```
 
-### 7. Static Assets のキャッシュ
+### 7. Static Assets Caching
 
-Astro がビルドしたアセットはハッシュ付きファイル名のため、長期キャッシュが自動適用。
+Assets built by Astro have hashed filenames, so long-term caching is automatically applied.
 
-カスタムヘッダーが必要な場合は `public/_headers`:
+If custom headers are needed, use `public/_headers`:
 
 ```text
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 ```
 
-## 移行チェックリスト
+## Migration Checklist
 
-- [ ] 自前セッション管理 → Astro Sessions API に移行
-- [ ] 環境変数を `astro:env` スキーマに定義
-- [ ] Cloudflare Images Binding の動作確認
-- [ ] `waitUntil()` でバックグラウンド処理を最適化
-- [ ] `cf.country` を活用したロケール自動検出の検討
-- [ ] wrangler.jsonc の不要設定を削除
+- [ ] Migrate custom session management to Astro Sessions API
+- [ ] Define environment variables in `astro:env` schema
+- [ ] Verify Cloudflare Images Binding functionality
+- [ ] Optimize background processing with `waitUntil()`
+- [ ] Consider automatic locale detection using `cf.country`
+- [ ] Remove unnecessary settings from wrangler.jsonc

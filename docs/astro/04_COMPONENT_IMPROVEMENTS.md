@@ -1,58 +1,58 @@
-# 全コンポーネント改善点
+# All Component Improvements
 
 ## Channel Feature (`features/channel/`)
 
-### ChannelTable.astro (172行)
+### ChannelTable.astro (172 lines)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | Edit/Delete ボタンが `data-action-*` 属性で vanilla JS に依存 | React island の props callback に変更 |
-| **a11y** | テーブルに `aria-label` なし | `aria-label="Channel configurations"` |
-| **a11y** | アクションボタンに `aria-label` なし | `aria-label="Edit {channelName}"` |
-| **a11y** | ステータスインジケータが色のみ | アイコン + テキストラベル追加 |
-| **UX** | カスタムメンバーのアバターオーバーフロー (+N) がクリック不可 | ツールチップまたはポップオーバーで全メンバー表示 |
-| **UX** | ソート機能なし | チャンネル名、言語、タイプでソート |
-| **レスポンシブ** | モバイルでテーブルが横スクロール | カード表示に切り替え (`<dl>` ベース) |
-| **パフォーマンス** | チャンネル数が多い場合の全件レンダリング | 仮想スクロールまたはページネーション |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | Edit/Delete buttons depend on vanilla JS via `data-action-*` attributes | Change to React island props callbacks |
+| **a11y** | Table has no `aria-label` | `aria-label="Channel configurations"` |
+| **a11y** | Action buttons have no `aria-label` | `aria-label="Edit {channelName}"` |
+| **a11y** | Status indicator uses color only | Add icon + text label |
+| **UX** | Custom member avatar overflow (+N) is not clickable | Show all members via tooltip or popover |
+| **UX** | No sort functionality | Sort by channel name, language, type |
+| **Responsive** | Table scrolls horizontally on mobile | Switch to card layout (`<dl>` based) |
+| **Performance** | Renders all items when channel count is high | Virtual scrolling or pagination |
 
-### ChannelConfigForm.astro (600行 — 最大のコンポーネント)
+### ChannelConfigForm.astro (600 lines — largest component)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | 320行の vanilla JS | React `ChannelConfigModal` に完全移行 |
-| **コード品質** | Astro コンポーネント部分とスクリプト部分が混在 | Astro wrapper (server data) + React island (client UI) に分離 |
-| **状態管理** | DOM 操作で状態管理 | `useReducer` で ConfigFormState を管理 |
-| **バリデーション** | クライアント側バリデーションなし | Zod schema + リアルタイムバリデーション |
-| **a11y** | radio group に `role="radiogroup"` なし | WAI-ARIA radio group パターン |
-| **a11y** | custom member dropdown の keyboard navigation なし | `aria-expanded`, `aria-activedescendant`, arrow key navigation |
-| **a11y** | chip の削除ボタンに label なし | `aria-label="Remove {memberName}"` |
-| **a11y** | focus trap が dialog 内で実装されていない | `useDialog` hook で focus trap |
-| **UX** | 検索フィルタのデバウンスなし | 300ms デバウンス |
-| **UX** | 保存ボタンの disabled 判定が不完全 | 変更検知 (dirty check) による disabled 制御 |
-| **UX** | リセット確認なし | 変更がある場合の確認ダイアログ |
-| **型安全性** | フォームデータの型が暗黙的 | ConfigFormState 型 + Zod schema |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | 320 lines of vanilla JS | Fully migrate to React `ChannelConfigModal` |
+| **Code quality** | Astro component and script parts are interleaved | Separate into Astro wrapper (server data) + React island (client UI) |
+| **State management** | State managed via DOM manipulation | Manage ConfigFormState with `useReducer` |
+| **Validation** | No client-side validation | Zod schema + real-time validation |
+| **a11y** | Radio group missing `role="radiogroup"` | WAI-ARIA radio group pattern |
+| **a11y** | No keyboard navigation for custom member dropdown | `aria-expanded`, `aria-activedescendant`, arrow key navigation |
+| **a11y** | Chip delete buttons have no label | `aria-label="Remove {memberName}"` |
+| **a11y** | Focus trap not implemented within dialog | Focus trap via `useDialog` hook |
+| **UX** | No debounce on search filter | 300ms debounce |
+| **UX** | Incomplete disabled state for save button | Disabled control via change detection (dirty check) |
+| **UX** | No reset confirmation | Confirmation dialog when there are changes |
+| **Type safety** | Form data types are implicit | ConfigFormState type + Zod schema |
 
-### ChannelAddModal.astro (215行)
+### ChannelAddModal.astro (215 lines)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | 110行の vanilla JS + template clone | React `ChannelAddModal` に移行 |
-| **UX** | ローディング状態が不十分 | Skeleton UI + loading spinner |
-| **UX** | エラー状態の表示 | fetch 失敗時の retry ボタン |
-| **UX** | 追加済みチャンネルの表示 | グレーアウト + "already registered" ラベル |
-| **a11y** | 検索入力に `aria-label` なし | `aria-label="Search channels"` |
-| **a11y** | チャンネルリストが `role="listbox"` でない | listbox パターン適用 |
-| **パフォーマンス** | 毎回 API fetch | キャッシュ + stale-while-revalidate |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | 110 lines of vanilla JS + template clone | Migrate to React `ChannelAddModal` |
+| **UX** | Insufficient loading state | Skeleton UI + loading spinner |
+| **UX** | Error state display | Retry button on fetch failure |
+| **UX** | Display of already-added channels | Gray out + "already registered" label |
+| **a11y** | Search input has no `aria-label` | `aria-label="Search channels"` |
+| **a11y** | Channel list is not `role="listbox"` | Apply listbox pattern |
+| **Performance** | API fetch on every open | Cache + stale-while-revalidate |
 
-### DeleteChannelDialog.astro (111行)
+### DeleteChannelDialog.astro (111 lines)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | 30行の vanilla JS | React `DeleteChannelDialog` に移行 |
-| **UX** | 削除確認が簡素 | チャンネル名の入力確認 (destructive action protection) |
-| **a11y** | dialog の `aria-labelledby` / `aria-describedby` | 適切な ID 参照設定 |
-| **a11y** | focus が削除ボタンに自動移動しない | キャンセルボタンに初期 focus |
-| **エラー** | 削除失敗時のフィードバック | inline error message |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | 30 lines of vanilla JS | Migrate to React `DeleteChannelDialog` |
+| **UX** | Simple delete confirmation | Channel name input confirmation (destructive action protection) |
+| **a11y** | Dialog `aria-labelledby` / `aria-describedby` | Set proper ID references |
+| **a11y** | Focus does not auto-move to delete button | Initial focus on cancel button |
+| **Error** | No feedback on delete failure | Inline error message |
 
 ---
 
@@ -60,13 +60,13 @@
 
 ### UserMenu.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
+| Category | Problem | Improvement |
+|----------|---------|-------------|
 | **Islands** | `<details data-auto-close>` + global JS | React `UserMenu` island (`client:idle`) |
-| **a11y** | `<details>` が menu パターンに適さない | `role="menu"` + `aria-expanded` + keyboard navigation |
-| **UX** | アバター画像の fallback | `AvatarFallback` コンポーネントのイニシャル表示 |
-| **UX** | LanguageSelector と ThemeToggle が menu 内にネスト | React 化で子コンポーネントとして統合 |
-| **セキュリティ** | logout が `<form>` POST | 良い。維持する |
+| **a11y** | `<details>` is not suitable for menu pattern | `role="menu"` + `aria-expanded` + keyboard navigation |
+| **UX** | Avatar image fallback | Initial display using `AvatarFallback` component |
+| **UX** | LanguageSelector and ThemeToggle nested in menu | Integrate as child components after React migration |
+| **Security** | Logout uses `<form>` POST | Good. Keep as-is |
 
 ---
 
@@ -74,108 +74,108 @@
 
 ### Header.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **構造** | slot でサイドバートグルを受け取る | 維持（良いパターン） |
-| **a11y** | skip-to-content リンクが Base.astro にある | Header 内に移動して一貫性確保 |
-| **レスポンシブ** | モバイルナビゲーションが Dashboard.astro 側 | Header 内に統合検討 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Structure** | Receives sidebar toggle via slot | Keep (good pattern) |
+| **a11y** | Skip-to-content link is in Base.astro | Move into Header for consistency |
+| **Responsive** | Mobile navigation is in Dashboard.astro | Consider integrating into Header |
 
 ### Footer.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **SEO** | 構造化データなし | `<footer role="contentinfo">` 確認 |
-| **a11y** | リンクの `aria-label` | 外部リンクに `rel="noopener noreferrer"` 確認 |
-| **i18n** | フッターテキストの翻訳 | dict.ts に追加 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **SEO** | No structured data | Verify `<footer role="contentinfo">` |
+| **a11y** | Link `aria-label` | Verify `rel="noopener noreferrer"` on external links |
+| **i18n** | Footer text translation | Add to dict.ts |
 
 ### Button.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **構造** | 6 variants + 4 sizes は良い設計 | 維持 |
-| **a11y** | `disabled` 属性サポート | `aria-disabled` も併用 |
-| **UX** | loading state なし | `isLoading` prop + spinner icon |
-| **型安全性** | `as="a"` の型 | polymorphic component の型改善 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Structure** | 6 variants + 4 sizes is good design | Keep |
+| **a11y** | `disabled` attribute support | Also use `aria-disabled` |
+| **UX** | No loading state | `isLoading` prop + spinner icon |
+| **Type safety** | Types for `as="a"` | Improve polymorphic component typing |
 
 ### IconButton.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **a11y** | `aria-label` 必須の強制なし | props で `aria-label` を required に |
-| **a11y** | アイコンのみボタンのタッチターゲット | 最小 44x44px 確保 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **a11y** | `aria-label` not enforced as required | Make `aria-label` required in props |
+| **a11y** | Touch target for icon-only buttons | Ensure minimum 44x44px |
 
 ### Card.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **構造** | 汎用カード。問題なし | 維持 |
-| **a11y** | カードがインタラクティブな場合のセマンティクス | `role="link"` or `<a>` wrapper |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Structure** | Generic card. No issues | Keep |
+| **a11y** | Semantics when card is interactive | `role="link"` or `<a>` wrapper |
 
 ### FlashMessage.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | CSS animation + 5行 JS | React `FlashMessage` island (`client:idle`) |
-| **a11y** | `role="status"` + `aria-live="polite"` 確認 | `role="alert"` for error type |
-| **UX** | dismiss ボタンなし | 手動 dismiss + auto-dismiss |
-| **UX** | 複数 flash の表示 | toast stack パターン |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | CSS animation + 5-line JS | React `FlashMessage` island (`client:idle`) |
+| **a11y** | Verify `role="status"` + `aria-live="polite"` | `role="alert"` for error type |
+| **UX** | No dismiss button | Manual dismiss + auto-dismiss |
+| **UX** | Display of multiple flash messages | Toast stack pattern |
 
 ### ErrorAlert.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **a11y** | `role="alert"` 確認 | `aria-live="assertive"` for errors |
-| **UX** | リトライアクションなし | `onRetry` callback 追加 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **a11y** | Verify `role="alert"` | `aria-live="assertive"` for errors |
+| **UX** | No retry action | Add `onRetry` callback |
 
 ### ThemeToggle.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | 12行 JS + theme.ts import | React `ThemeToggle` island (`client:load`) |
-| **a11y** | toggle 状態の `aria-pressed` | `aria-pressed={isDark}` |
-| **UX** | system preference 追従 | `prefers-color-scheme` media query 対応 + "system" option |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | 12-line JS + theme.ts import | React `ThemeToggle` island (`client:load`) |
+| **a11y** | Toggle state `aria-pressed` | `aria-pressed={isDark}` |
+| **UX** | System preference tracking | `prefers-color-scheme` media query support + "system" option |
 
 ### LanguageSelector.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | header variant が `<details>` + global JS | React island (`client:idle`) |
-| **構造** | 2 variants (header, dropdown) | variant prop で統合 or 別コンポーネント |
-| **UX** | セッションベースのロケール切替 | Astro i18n URL ベースルーティングに移行 |
-| **a11y** | `<details>` が listbox パターンに適さない | `role="listbox"` + `aria-selected` |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | Header variant uses `<details>` + global JS | React island (`client:idle`) |
+| **Structure** | 2 variants (header, dropdown) | Unify with variant prop or separate components |
+| **UX** | Session-based locale switching | Migrate to Astro i18n URL-based routing |
+| **a11y** | `<details>` is not suitable for listbox pattern | `role="listbox"` + `aria-selected` |
 
 ### MenuItem.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **構造** | 静的メニュー項目 | 維持 |
-| **a11y** | `role="menuitem"` | 親要素の `role="menu"` との整合性確認 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Structure** | Static menu item | Keep |
+| **a11y** | `role="menuitem"` | Verify consistency with parent element's `role="menu"` |
 
 ### AvatarFallback.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **構造** | 画像 fallback | 維持 |
-| **a11y** | `alt` テキスト | ユーザー名を含む alt テキスト |
-| **UX** | イニシャル表示 | SVG ベースのイニシャルアバター |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Structure** | Image fallback | Keep |
+| **a11y** | `alt` text | Alt text including the username |
+| **UX** | Initial display | SVG-based initial avatar |
 
-### dialog-helpers.ts (vanilla JS — 削除対象)
+### dialog-helpers.ts (vanilla JS — to be deleted)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **全体** | React 移行後は不要 | `useDialog` hook に置換後、削除 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Overall** | Unnecessary after React migration | Replace with `useDialog` hook, then delete |
 
-### close-on-outside-click.ts (vanilla JS — 削除対象)
+### close-on-outside-click.ts (vanilla JS — to be deleted)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **全体** | React 移行後は不要 | `useClickOutside` hook に置換後、削除 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Overall** | Unnecessary after React migration | Replace with `useClickOutside` hook, then delete |
 
-### theme.ts (vanilla JS — 削除対象)
+### theme.ts (vanilla JS — to be deleted)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **全体** | React 移行後は不要 | Nano Store `$theme` + `useTheme` hook に置換後、削除 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Overall** | Unnecessary after React migration | Replace with Nano Store `$theme` + `useTheme` hook, then delete |
 
 ---
 
@@ -183,12 +183,12 @@
 
 ### GuildCard.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **構造** | サーバーレンダリングで完結 | 維持 |
-| **Server Islands** | チャンネル数の取得がページ全体を遅延 | `server:defer` で遅延表示 |
-| **UX** | Bot 未インストールギルドの CTA | 招待リンクの表示改善 |
-| **a11y** | カードリンクのフォーカス表示 | `focus-visible` リング |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Structure** | Fully server-rendered | Keep |
+| **Server Islands** | Channel count fetch delays the entire page | Lazy display with `server:defer` |
+| **UX** | CTA for guilds without Bot installed | Improve invite link display |
+| **a11y** | Card link focus display | `focus-visible` ring |
 
 ---
 
@@ -196,27 +196,27 @@
 
 ### FeaturePopup.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **Islands** | index.astro の script で制御 | `FeatureShowcase` React island に統合 |
-| **a11y** | dialog の focus trap なし | `useDialog` hook |
-| **a11y** | close ボタンの `aria-label` | `aria-label="Close"` |
-| **UX** | 画像プレースホルダ | 実際のスクリーンショットまたはイラスト |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Islands** | Controlled by script in index.astro | Integrate into `FeatureShowcase` React island |
+| **a11y** | No focus trap in dialog | `useDialog` hook |
+| **a11y** | Close button `aria-label` | `aria-label="Close"` |
+| **UX** | Image placeholder | Use actual screenshots or illustrations |
 
 ### ScrollReveal.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **パフォーマンス** | CSS-only で良い | 維持 |
-| **a11y** | `prefers-reduced-motion` 対応 | `@media (prefers-reduced-motion: reduce)` でアニメーション無効化 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Performance** | CSS-only is good | Keep |
+| **a11y** | `prefers-reduced-motion` support | Disable animation with `@media (prefers-reduced-motion: reduce)` |
 
 ### DigitRoll.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **パフォーマンス** | CSS-only アニメーション | 維持 |
-| **a11y** | 読み上げ対応 | `aria-label` で数値全体を読み上げ、個別数字は `aria-hidden` |
-| **a11y** | `prefers-reduced-motion` 対応 | アニメーションなしで即表示 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Performance** | CSS-only animation | Keep |
+| **a11y** | Screen reader support | Read the full number via `aria-label`, mark individual digits with `aria-hidden` |
+| **a11y** | `prefers-reduced-motion` support | Display immediately without animation |
 
 ---
 
@@ -224,21 +224,21 @@
 
 ### Base.astro
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **セキュリティ** | テーマ初期化が `is:inline` | FOUC 防止のため維持。ただしCSP `unsafe-inline` が必要 |
-| **パフォーマンス** | Google Fonts のプリロード | フォント表示戦略: `font-display: swap` 確認 |
-| **a11y** | `<html lang>` がロケールに連動 | 確認・修正 |
-| **SEO** | alternate/hreflang なし | `<link rel="alternate" hreflang="en">` 追加 |
-| **型安全性** | `interface Props` 使用 | Zod schema に移行 (プロジェクト規約) |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Security** | Theme initialization uses `is:inline` | Keep for FOUC prevention. However, CSP `unsafe-inline` is required |
+| **Performance** | Google Fonts preload | Font display strategy: verify `font-display: swap` |
+| **a11y** | `<html lang>` linked to locale | Verify and fix |
+| **SEO** | No alternate/hreflang | Add `<link rel="alternate" hreflang="en">` |
+| **Type safety** | Uses `interface Props` | Migrate to Zod schema (project convention) |
 
-### Dashboard.astro (140行)
+### Dashboard.astro (140 lines)
 
-| カテゴリ | 問題 | 改善案 |
-|---------|------|--------|
-| **構造** | サイドバー + メインコンテンツ | 維持 |
-| **Islands** | モバイルハンバーガーメニューが `<details>` | React island に移行検討 |
-| **a11y** | サイドバーの `nav` + `aria-label` | `aria-label="Dashboard navigation"` |
-| **a11y** | active route の `aria-current="page"` | 追加 |
-| **レスポンシブ** | サイドバーの表示/非表示 | CSS `@container` queries 検討 |
-| **UX** | サイドバーの折りたたみ状態が永続化されない | localStorage でサイドバー状態保存 |
+| Category | Problem | Improvement |
+|----------|---------|-------------|
+| **Structure** | Sidebar + main content | Keep |
+| **Islands** | Mobile hamburger menu uses `<details>` | Consider migrating to React island |
+| **a11y** | Sidebar `nav` + `aria-label` | `aria-label="Dashboard navigation"` |
+| **a11y** | `aria-current="page"` for active route | Add |
+| **Responsive** | Sidebar show/hide | Consider CSS `@container` queries |
+| **UX** | Sidebar collapsed state is not persisted | Save sidebar state to localStorage |

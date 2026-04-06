@@ -1,18 +1,18 @@
-# 高度な Astro 機能の活用
+# Advanced Astro Feature Utilization
 
-## 1. 実験的ルートキャッシング (Astro 6)
+## 1. Experimental Route Caching (Astro 6)
 
-### 概要
+### Overview
 
-Astro 6 の `experimental.routeCache` はサーバーレンダリングされたページのレスポンスをキャッシュし、同一リクエストへの再レンダリングを回避する。
+Astro 6's `experimental.routeCache` caches responses from server-rendered pages, avoiding re-rendering for identical requests.
 
-### 現状の課題
+### Current Issues
 
-- ダッシュボードページは毎リクエスト SSR — ギルド一覧やチャンネル設定は頻繁に変わらない
-- Cloudflare Workers の CPU 時間制限内で効率よくレスポンスを返したい
-- Bot API (Service Binding) への不要な呼び出しを削減したい
+- Dashboard pages are SSR on every request — guild lists and channel settings do not change frequently
+- Want to return responses efficiently within Cloudflare Workers CPU time limits
+- Want to reduce unnecessary calls to the Bot API (Service Binding)
 
-### 設定
+### Configuration
 
 ```typescript
 // astro.config.ts
@@ -25,14 +25,14 @@ export default defineConfig({
 });
 ```
 
-### ページでのキャッシュ設定
+### Cache Configuration in Pages
 
 ```astro
 ---
 // pages/dashboard/guilds.astro
 const cache = Astro.routeCache;
 
-// 5分キャッシュ + 1時間の stale-while-revalidate
+// 5 minute cache + 1 hour stale-while-revalidate
 cache.set({
   maxAge: 300,        // 5 minutes
   swr: 3600,          // 1 hour stale-while-revalidate
@@ -43,47 +43,47 @@ const guilds = await fetchGuilds();
 ---
 ```
 
-### キャッシュ無効化
+### Cache Invalidation
 
 ```typescript
-// Action でチャンネル追加後にキャッシュを無効化
+// Invalidate cache after adding a channel in an Action
 import { cacheInvalidate } from "astro:cache";
 
 handler: async (input, context) => {
   await addChannel(input);
-  // ギルド関連のキャッシュを全て無効化
+  // Invalidate all guild-related caches
   await cacheInvalidate({ tags: [`guild:${input.guildId}`] });
   return { success: true };
 }
 ```
 
-### 適用候補
+### Candidate Pages
 
-| ページ | キャッシュ戦略 | 理由 |
-|--------|--------------|------|
-| `/` (LP) | `maxAge: 3600` | 静的コンテンツ、変更頻度低 |
-| `/announcements` | `maxAge: 1800` | お知らせは頻繁に変わらない |
-| `/dashboard/guilds` | `maxAge: 300, swr: 3600` | ギルド一覧は短めキャッシュ |
-| `/dashboard/[guildId]` | `maxAge: 60, swr: 300` | チャンネル設定は更新頻度が高い |
+| Page | Cache Strategy | Reason |
+|------|---------------|--------|
+| `/` (LP) | `maxAge: 3600` | Static content, low change frequency |
+| `/announcements` | `maxAge: 1800` | Announcements do not change frequently |
+| `/dashboard/guilds` | `maxAge: 300, swr: 3600` | Guild list uses a shorter cache |
+| `/dashboard/[guildId]` | `maxAge: 60, swr: 300` | Channel settings have a higher update frequency |
 
-### 注意点
+### Caveats
 
-- **実験的機能**: API が変更される可能性あり
-- **認証との整合性**: ユーザー別にキャッシュキーを分ける必要あり (`tags: ["user:xxx"]`)
-- **Cloudflare Workers**: `memoryCache()` はワーカーのライフサイクルに依存。KV や Cache API との併用を検討
+- **Experimental feature**: The API may change
+- **Consistency with authentication**: Cache keys must be separated per user (`tags: ["user:xxx"]`)
+- **Cloudflare Workers**: `memoryCache()` depends on the worker lifecycle. Consider combining with KV or the Cache API
 
 ## 2. Page Partials
 
-### 概要
+### Overview
 
-`export const partial = true` を設定したページは `<html>` / `<head>` / `<body>` を含まない HTML フラグメントを返す。htmx や fetch ベースの部分更新に最適。
+Pages with `export const partial = true` return HTML fragments without `<html>` / `<head>` / `<body>`. Ideal for partial updates using htmx or fetch.
 
-### 現状の課題
+### Current Issues
 
-- チャンネル追加・削除後にフルページリロードしている
-- React Islands で部分更新しているが、SSR されたテーブルの再取得は MPA リロード
+- Full page reload after adding/removing channels
+- Partial updates are done via React Islands, but re-fetching SSR-rendered tables requires MPA reload
 
-### 活用パターン: テーブル部分更新
+### Usage Pattern: Table Partial Update
 
 ```astro
 ---
@@ -103,7 +103,7 @@ const channels = await fetchChannels(guildId);
 </table>
 ```
 
-### クライアント側 (React コンポーネント)
+### Client Side (React Component)
 
 ```tsx
 // features/channel/components/ChannelTableRefresher.tsx
@@ -114,28 +114,28 @@ const refreshTable = async (guildId: string) => {
 };
 ```
 
-### Partial vs React Island の使い分け
+### Choosing Between Partial and React Island
 
-| 方法 | データ取得 | 状態管理 | 適用場面 |
-|------|-----------|---------|---------|
-| Page Partial | サーバー (SSR) | なし | テーブル再描画、リスト更新 |
-| React Island | クライアント | React state | フォーム、モーダル、リアルタイム UI |
-| MPA リロード | サーバー (SSR) | なし | ページ遷移、フォーム送信後 |
+| Method | Data Fetching | State Management | Suitable For |
+|--------|--------------|-----------------|-------------|
+| Page Partial | Server (SSR) | None | Table re-rendering, list updates |
+| React Island | Client | React state | Forms, modals, real-time UI |
+| MPA Reload | Server (SSR) | None | Page navigation, post-form submission |
 
-### メリット
+### Benefits
 
-- サーバーサイドのデータ取得ロジックを再利用できる
-- クライアントに JSON API を別途用意する必要がない
-- SEO 不要なダッシュボード内で特に有効
+- Reuse server-side data fetching logic
+- No need to provide a separate JSON API for the client
+- Particularly effective within dashboards where SEO is not needed
 
-## 3. カスタムエラーページ
+## 3. Custom Error Pages
 
-### 現状
+### Current State
 
-- `404.astro` は存在する (ランディングページへの誘導ボタン付き)
-- `500.astro` は未実装
+- `404.astro` exists (with a button directing to the landing page)
+- `500.astro` is not implemented
 
-### 500.astro の追加
+### Adding 500.astro
 
 ```astro
 ---
@@ -165,17 +165,17 @@ const t = {
 
 ### error prop (Astro 4.11+)
 
-- `Astro.props.error` はサーバーエラーの `Error` オブジェクト
-- 本番環境ではユーザーにスタックトレースを表示しない
-- `Astro.locals` はミドルウェアで設定済みの値が利用可能 (ロケール等)
+- `Astro.props.error` is the `Error` object from the server error
+- Do not display stack traces to users in production
+- `Astro.locals` retains values set by middleware (e.g., locale)
 
-## 4. Astro.rewrite() パターン
+## 4. Astro.rewrite() Pattern
 
-### 概要
+### Overview
 
-`Astro.rewrite()` はページコンポーネント内でリクエストを別ルートに書き換える。URL は変わらない。
+`Astro.rewrite()` rewrites a request to a different route within a page component. The URL does not change.
 
-### 活用パターン 1: 条件付き 404 フォールバック
+### Usage Pattern 1: Conditional 404 Fallback
 
 ```astro
 ---
@@ -187,7 +187,7 @@ if (!guild) {
 ---
 ```
 
-### 活用パターン 2: 機能フラグによる出し分け
+### Usage Pattern 2: Feature Flag-based Switching
 
 ```astro
 ---
@@ -197,29 +197,29 @@ if (hasNewSettings) {
   return Astro.rewrite("/dashboard/settings-v2");
 }
 ---
-<!-- 旧 UI -->
+<!-- Legacy UI -->
 ```
 
-### middleware の rewrite との違い
+### Difference from Middleware rewrite
 
-| 方法 | 実行タイミング | 用途 |
-|------|--------------|------|
-| `context.rewrite()` (middleware) | ページ処理前 | ルーティング変更、認証フォールバック |
-| `Astro.rewrite()` (ページ) | ページ処理中 | データ取得結果による分岐 |
+| Method | Execution Timing | Use Case |
+|--------|-----------------|----------|
+| `context.rewrite()` (middleware) | Before page processing | Routing changes, auth fallback |
+| `Astro.rewrite()` (page) | During page processing | Branching based on data fetch results |
 
-## 5. Astro 6 Breaking Changes 対策
+## 5. Astro 6 Breaking Changes Preparation
 
-### 把握すべき主要変更
+### Key Changes to Be Aware Of
 
-| 変更 | 影響 | 対応 |
-|------|------|------|
-| `squoosh` → `sharp` | 画像最適化ライブラリ変更 | `sharp` がデフォルト、Cloudflare では `passthroughImageService` |
-| Legacy content collections 削除 | `src/content/` の古い API | 本プロジェクトは未使用 → 影響なし |
-| `astro:env` が安定版 | 実験的フラグ不要 | `experimental.env` を削除可能 |
-| Markdown 設定リネーム | `markdown.remarkPlugins` → 変更なし | 本プロジェクトは Markdown 未使用 |
-| Cookie encoding | 一部の cookie 値のエンコーディング変更 | セッション cookie の互換性確認 |
+| Change | Impact | Action |
+|--------|--------|--------|
+| `squoosh` → `sharp` | Image optimization library change | `sharp` is now default; use `passthroughImageService` for Cloudflare |
+| Legacy content collections removed | Old API in `src/content/` | Not used in this project → no impact |
+| `astro:env` is now stable | Experimental flag no longer needed | Can remove `experimental.env` |
+| Markdown config rename | `markdown.remarkPlugins` → unchanged | Markdown not used in this project |
+| Cookie encoding | Encoding change for some cookie values | Verify session cookie compatibility |
 
-### Cloudflare Workers 固有の注意
+### Cloudflare Workers-specific Notes
 
 ```typescript
 // astro.config.ts
@@ -230,7 +230,7 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare({
     imageService: "passthroughImageService",
-    // Astro 6: platformProxy の設定変更を確認
+    // Astro 6: Verify platformProxy configuration changes
     platformProxy: {
       enabled: true,
     },
@@ -238,21 +238,21 @@ export default defineConfig({
 });
 ```
 
-### アップグレードチェックリスト
+### Upgrade Checklist
 
-- [ ] `astro@6` へのアップグレード
-- [ ] `@astrojs/cloudflare` の対応バージョン確認
-- [ ] 実験的フラグの整理 (`astro:env` → 安定版)
-- [ ] Cookie エンコーディングの互換性テスト
-- [ ] `sharp` vs `passthroughImageService` の動作確認
+- [ ] Upgrade to `astro@6`
+- [ ] Verify compatible version of `@astrojs/cloudflare`
+- [ ] Clean up experimental flags (`astro:env` → stable)
+- [ ] Test cookie encoding compatibility
+- [ ] Verify `sharp` vs `passthroughImageService` behavior
 
-## 6. View Transitions の強化
+## 6. View Transitions Enhancement
 
-### 現状
+### Current State
 
-`10_VIEW_TRANSITIONS.md` で MPA ページ遷移の高速化を扱っている。追加で検討すべき点:
+`10_VIEW_TRANSITIONS.md` covers MPA page transition acceleration. Additional points to consider:
 
-### ページ遷移中のローディング状態
+### Loading State During Page Transitions
 
 ```astro
 <script>
@@ -265,41 +265,41 @@ export default defineConfig({
 </script>
 ```
 
-### フォーム送信後の遷移
+### Transitions After Form Submission
 
-Astro Actions (`accept: "form"`) の送信後、MPA リロードが発生する。View Transitions と組み合わせることでスムーズな遷移を実現:
+After submitting Astro Actions (`accept: "form"`), an MPA reload occurs. Combining with View Transitions enables smooth transitions:
 
 ```astro
 <form method="POST" action={actions.addChannel} data-astro-reload>
-  <!-- data-astro-reload: View Transitions をスキップしてフルリロード -->
-  <!-- フォーム送信ではデータ整合性のためリロードを優先 -->
+  <!-- data-astro-reload: Skip View Transitions and do a full reload -->
+  <!-- Prioritize reload for data integrity on form submissions -->
 </form>
 ```
 
-## 移行チェックリスト
+## Migration Checklist
 
-### ルートキャッシング
+### Route Caching
 
-- [ ] `experimental.routeCache` の有効化を検討
-- [ ] ページごとのキャッシュ戦略を定義
-- [ ] ユーザー別キャッシュキーの設計
-- [ ] Action 後のキャッシュ無効化パターンの実装
+- [ ] Consider enabling `experimental.routeCache`
+- [ ] Define cache strategy per page
+- [ ] Design per-user cache keys
+- [ ] Implement post-Action cache invalidation pattern
 
 ### Page Partials
 
-- [ ] チャンネルテーブルの部分更新 Partial を作成
-- [ ] React コンポーネントからの Partial fetch ヘルパーを作成
-- [ ] MPA リロードから Partial 更新への段階的移行
+- [ ] Create a channel table partial update
+- [ ] Create a Partial fetch helper for React components
+- [ ] Gradual migration from MPA reload to Partial updates
 
-### エラーページ
+### Error Pages
 
-- [ ] `src/pages/500.astro` の作成
-- [ ] i18n 対応 (locale を `Astro.locals` から取得)
-- [ ] 開発環境でのエラー詳細表示
+- [ ] Create `src/pages/500.astro`
+- [ ] i18n support (retrieve locale from `Astro.locals`)
+- [ ] Error detail display in development environment
 
-### Astro 6 対応
+### Astro 6 Preparation
 
-- [ ] Breaking changes の影響評価
-- [ ] Cloudflare adapter の互換性確認
-- [ ] Cookie エンコーディングのテスト
-- [ ] 実験的フラグの棚卸し
+- [ ] Evaluate breaking changes impact
+- [ ] Verify Cloudflare adapter compatibility
+- [ ] Test cookie encoding
+- [ ] Audit experimental flags
