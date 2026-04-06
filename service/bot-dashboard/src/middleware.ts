@@ -6,6 +6,9 @@ import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
 /** Buffer in ms — refresh 5 minutes before actual expiry. */
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;
 
+/** Idle timeout — destroy session after 2 hours of inactivity. */
+const IDLE_TIMEOUT_MS = 2 * 60 * 60 * 1000;
+
 const MOCK_USER = {
   id: "000000000000000000",
   username: "dev-user",
@@ -24,11 +27,13 @@ const MOCK_USER = {
 const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
   [
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com data:; connect-src 'self' https://discord.com; frame-ancestors 'none'",
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https://cdn.discordapp.com data:; connect-src 'self' https://discord.com; frame-ancestors 'none'",
   ],
   ["X-Content-Type-Options", "nosniff"],
   ["X-Frame-Options", "DENY"],
   ["Referrer-Policy", "strict-origin-when-cross-origin"],
+  ["Strict-Transport-Security", "max-age=31536000; includeSubDomains"],
+  ["Permissions-Policy", "camera=(), microphone=(), geolocation=()"],
 ] as const;
 
 /**
@@ -71,12 +76,22 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Read session values in parallel to reduce KV round-trips
-  const [sessionLocale, user, expiresAt, accessToken] = await Promise.all([
-    context.session?.get("locale"),
-    context.session?.get("user"),
-    context.session?.get("expiresAt"),
-    context.session?.get("accessToken"),
-  ]);
+  const [sessionLocale, user, expiresAt, accessToken, lastActivity] =
+    await Promise.all([
+      context.session?.get("locale"),
+      context.session?.get("user"),
+      context.session?.get("expiresAt"),
+      context.session?.get("accessToken"),
+      context.session?.get("lastActivity"),
+    ]);
+
+  // Idle timeout — destroy session if inactive for 2 hours
+  const now = getCurrentUTCDate().getTime();
+  if (user && lastActivity && now - (lastActivity as number) > IDLE_TIMEOUT_MS) {
+    context.session?.destroy();
+    return context.redirect("/?error=auth_failed");
+  }
+  context.session?.set("lastActivity", now);
 
   const locale = sessionLocale ?? "ja";
   context.locals.locale = locale;
@@ -95,7 +110,6 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Check token expiry and refresh if needed
-  const now = getCurrentUTCDate().getTime();
 
   if (now >= (expiresAt ?? 0) - REFRESH_BUFFER_MS) {
     const refreshToken = await context.session?.get("refreshToken");
