@@ -40,8 +40,8 @@ interface ChannelConfigModalProps {
 
 export function ChannelConfigModal({
   guildId,
-  updateActionUrl,
-  resetActionUrl,
+  onUpdate,
+  onReset,
   creators,
   translations,
   languageOptions,
@@ -56,8 +56,8 @@ export function ChannelConfigModal({
       key={channel.channelId}
       guildId={guildId}
       channel={channel}
-      updateActionUrl={updateActionUrl}
-      resetActionUrl={resetActionUrl}
+      onUpdate={onUpdate}
+      onReset={onReset}
       creators={creators}
       translations={translations}
       languageOptions={languageOptions}
@@ -69,8 +69,8 @@ export function ChannelConfigModal({
 function ChannelConfigModalInner({
   guildId,
   channel,
-  updateActionUrl,
-  resetActionUrl,
+  onUpdate,
+  onReset,
   creators,
   translations,
   languageOptions,

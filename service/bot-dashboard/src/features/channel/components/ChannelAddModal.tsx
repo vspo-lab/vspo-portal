@@ -49,9 +49,9 @@ export function ChannelAddModal({
     fetch(`/api/guilds/${guildId}/channels`)
       .then((res) => {
         if (!res.ok) throw new Error("fetch failed");
-        return res.json();
+        return res.json() as Promise<Channel[]>;
       })
-      .then((data: Channel[]) => {
+      .then((data) => {
         setChannels(data);
         setLoading(false);
       })

@@ -40,7 +40,6 @@ export default defineConfig({
     cookie: {
       name: "vspo-dash-session",
       sameSite: "lax",
-      httpOnly: true,
       secure: true,
     },
     ttl: 86400,
