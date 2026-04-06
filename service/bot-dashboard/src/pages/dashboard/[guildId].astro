@@ -2,17 +2,18 @@
 import { actions } from "astro:actions";
 import Button from "~/features/shared/components/Button.astro";
 import { env } from "cloudflare:workers";
-import ChannelAddModal from "~/features/channel/components/ChannelAddModal.astro";
-import ChannelConfigForm from "~/features/channel/components/ChannelConfigForm.astro";
 import ChannelTable from "~/features/channel/components/ChannelTable.astro";
-import DeleteChannelDialog from "~/features/channel/components/DeleteChannelDialog.astro";
+import { DeleteChannelDialog } from "~/features/channel/components/DeleteChannelDialog";
+import { ChannelAddModal } from "~/features/channel/components/ChannelAddModal";
+import { ChannelConfigModal } from "~/features/channel/components/ChannelConfigModal";
 import ErrorAlert from "~/features/shared/components/ErrorAlert.astro";
 import FlashMessage from "~/features/shared/components/FlashMessage.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { GuildSummary } from "~/features/guild/domain/guild";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
-import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
+import { MemberType } from "~/features/channel/domain/member-type";
+import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/dict";
 
 const locale = Astro.locals.locale;
 const { guildId } = Astro.params;
@@ -75,7 +76,54 @@ const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;
 const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
 
+const allCreators = [...creators.jp, ...creators.en];
 
+const memberTypeOptions = MemberType.schema.options.map((value) => ({
+  value,
+  label: t(locale, memberTypeKey(value)),
+  description: t(locale, memberTypeDescKey(value)),
+}));
+
+const languageOptions = ["ja", "en", "fr", "de", "es", "cn", "tw", "ko", "default"].map((lang) => ({
+  value: lang,
+  label: t(locale, languageDisplayKey(lang)),
+}));
+
+const configTranslations = {
+  title: t(locale, "channelConfig.title", { channelName: "{channelName}" }),
+  close: t(locale, "channelConfig.close"),
+  language: t(locale, "channelConfig.language"),
+  memberType: t(locale, "channelConfig.memberType"),
+  customMembers: t(locale, "channelConfig.customMembers"),
+  selected: t(locale, "channelConfig.members.selected", { count: "{count}" }),
+  search: t(locale, "channelConfig.members.search"),
+  jpGroup: t(locale, "channelConfig.members.jpGroup"),
+  enGroup: t(locale, "channelConfig.members.enGroup"),
+  selectAll: t(locale, "channelConfig.members.selectAll"),
+  deselectAll: t(locale, "channelConfig.members.deselectAll"),
+  reset: t(locale, "channelConfig.reset"),
+  cancel: t(locale, "channelConfig.cancel"),
+  save: t(locale, "channelConfig.save"),
+};
+
+const deleteTranslations = {
+  heading: t(locale, "channel.deleteConfirm", { channelName: "{channelName}" }),
+  description: t(locale, "channel.deleteConfirm.desc"),
+  cancel: t(locale, "channel.deleteConfirm.cancel"),
+  submit: t(locale, "channel.deleteConfirm.submit"),
+};
+
+const addTranslations = {
+  title: t(locale, "channel.add"),
+  search: t(locale, "channel.add.search"),
+  loading: "Loading...",
+  error: t(locale, "channel.add.error"),
+  empty: t(locale, "channel.add.empty"),
+  submit: t(locale, "channel.add.submit"),
+  registered: t(locale, "channel.add.registered"),
+  cancel: t(locale, "channel.add.cancel"),
+  close: t(locale, "channelConfig.close"),
+};
 ---
 
 <Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
@@ -150,31 +198,43 @@ const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
     </div>
 
     {/* Configuration Matrix */}
-    <ChannelTable channels={channels} creators={[...creators.jp, ...creators.en]} />
+    <ChannelTable channels={channels} creators={allCreators} />
 
-    {/* Hidden modals */}
-    <ChannelConfigForm
-      creators={[...creators.jp, ...creators.en]}
-      guildId={guildId}
-      channels={channels}
-      titleTemplate={t(locale, 'channelConfig.title', { channelName: '{channelName}' })}
-      selectedTemplate={t(locale, 'channelConfig.members.selected', { count: '{count}' })}
+    {/* Channel data for bridge script */}
+    <div id="config-modal" class="hidden"
+      data-channels={JSON.stringify(channels)}
     />
 
-    <DeleteChannelDialog guildId={guildId} />
+    {/* React dialog islands */}
+    <ChannelConfigModal
+      client:load
+      guildId={guildId}
+      updateActionUrl={actions.updateChannel}
+      resetActionUrl={actions.resetChannel}
+      creators={allCreators}
+      translations={configTranslations}
+      languageOptions={languageOptions}
+      memberTypeOptions={memberTypeOptions}
+    />
 
-    <ChannelAddModal guildId={guildId} />
+    <DeleteChannelDialog
+      client:load
+      guildId={guildId}
+      actionUrl={actions.deleteChannel}
+      translations={deleteTranslations}
+    />
+
+    <ChannelAddModal
+      client:load
+      guildId={guildId}
+      actionUrl={actions.addChannel}
+      registeredChannelIds={channels.map((c) => c.channelId)}
+      translations={addTranslations}
+    />
   </div>
 
 </Dashboard>
 
 <script>
-  // Close open dialogs before page transition to prevent stale top-layer state
-  document.addEventListener("astro:before-preparation", () => {
-    for (const d of document.querySelectorAll("dialog[open]")) (d as HTMLDialogElement).close();
-  });
-
-  document.addEventListener("astro:after-swap", () => {
-    for (const d of document.querySelectorAll("dialog[open]")) (d as HTMLDialogElement).close();
-  });
+  import "~/features/channel/components/channel-table-bridge";
 </script>
