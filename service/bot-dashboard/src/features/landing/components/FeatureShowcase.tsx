@@ -12,7 +12,13 @@ export type FeatureItem = {
 type FeatureShowcaseProps = {
   features: FeatureItem[];
   closeLabel: string;
-  imagePlaceholder: string;
+};
+
+const featureImages: Record<FeatureItem["icon"], string> = {
+  list: "/features/feature-list",
+  filter: "/features/feature-filter",
+  realtime: "/features/feature-realtime",
+  settings: "/features/feature-settings",
 };
 
 const featureIcons: Record<FeatureItem["icon"], string> = {
@@ -27,7 +33,6 @@ const featureIcons: Record<FeatureItem["icon"], string> = {
 export function FeatureShowcase({
   features,
   closeLabel,
-  imagePlaceholder,
 }: FeatureShowcaseProps) {
   const [activeFeatureId, setActiveFeatureId] = useState<string | null>(null);
   const activeFeature = features.find((f) => f.id === activeFeatureId);
@@ -47,7 +52,7 @@ export function FeatureShowcase({
           >
             <button
               type="button"
-              className="w-full cursor-pointer rounded-xl bg-surface-container p-6 text-left transition-shadow hover:shadow-card"
+              className="flex h-full w-full cursor-pointer flex-col rounded-xl bg-surface-container p-6 text-left transition-shadow hover:shadow-card"
               aria-haspopup="dialog"
               onClick={() => setActiveFeatureId(feature.id)}
             >
@@ -129,24 +134,19 @@ export function FeatureShowcase({
                   </svg>
                 </button>
               </div>
-              <div className="aspect-video w-full overflow-hidden rounded-lg bg-surface-container">
-                <div className="flex h-full items-center justify-center text-sm text-on-surface-variant">
-                  <svg
-                    className="mr-2 h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  {imagePlaceholder}
-                </div>
+              <div className="w-full overflow-hidden rounded-lg bg-surface-container">
+                <picture>
+                  <source
+                    srcSet={`${featureImages[activeFeature.icon]}.webp`}
+                    type="image/webp"
+                  />
+                  <img
+                    src={`${featureImages[activeFeature.icon]}.png`}
+                    alt={activeFeature.title}
+                    className="h-auto w-full object-cover"
+                    loading="lazy"
+                  />
+                </picture>
               </div>
               <p className="text-sm leading-relaxed text-on-surface-variant">
                 {activeFeature.description}
