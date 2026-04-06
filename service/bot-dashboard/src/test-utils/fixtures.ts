@@ -11,10 +11,8 @@ export const mockLocals = (overrides?: {
   locale?: Locale;
   user?: typeof mockUser | null;
   accessToken?: string | null;
-  cspNonce?: string;
 }) => ({
   locale: overrides?.locale ?? ("ja" as Locale),
   user: overrides?.user ?? mockUser,
   accessToken: overrides?.accessToken ?? "mock-token",
-  cspNonce: overrides?.cspNonce ?? "test-nonce",
 });

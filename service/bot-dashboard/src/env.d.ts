@@ -40,6 +40,5 @@ declare namespace App {
     user: SessionData["user"] | null;
     accessToken: string | null;
     locale: import("~/i18n/dict").Locale;
-    cspNonce: string;
   }
 }

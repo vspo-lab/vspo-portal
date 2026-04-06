@@ -35,11 +35,19 @@ const STATIC_HEADERS: ReadonlyArray<readonly [string, string]> = [
   ["Permissions-Policy", "camera=(), microphone=(), geolocation=()"],
 ] as const;
 
-/** Builds the CSP header value with a per-request nonce for inline scripts. */
-const buildCspHeader = (nonce: string): string =>
+/**
+ * Builds the CSP header value.
+ *
+ * While `<ClientRouter />` is active, Astro emits nonce-less inline hydration
+ * scripts for React islands. Including a nonce in `script-src` causes the
+ * browser to ignore `'unsafe-inline'` (CSP Level 2 spec), which blocks those
+ * hydration scripts. Therefore, the nonce is intentionally omitted here and
+ * `'unsafe-inline'` is used until the project migrates to hash-based CSP.
+ */
+const buildCspHeader = (): string =>
   [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
+    "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self'",
     "img-src 'self' https://cdn.discordapp.com data:",
@@ -47,13 +55,10 @@ const buildCspHeader = (nonce: string): string =>
     "frame-ancestors 'none'",
   ].join("; ");
 
-/** Middleware: generates CSP nonce and sets security headers on every response. */
-const securityHeaders = defineMiddleware(async (context, next) => {
-  const nonce = crypto.randomUUID().replace(/-/g, "");
-  context.locals.cspNonce = nonce;
-
+/** Middleware: sets security headers on every response. */
+const securityHeaders = defineMiddleware(async (_context, next) => {
   const response = await next();
-  response.headers.set("Content-Security-Policy", buildCspHeader(nonce));
+  response.headers.set("Content-Security-Policy", buildCspHeader());
   for (const [name, value] of STATIC_HEADERS) {
     response.headers.set(name, value);
   }
