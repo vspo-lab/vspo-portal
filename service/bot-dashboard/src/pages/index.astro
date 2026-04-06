@@ -141,6 +141,37 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
         </div>
       </section>
 
+      {/* Getting Started */}
+      <section class="px-6 py-16 sm:py-24">
+        <div class="mx-auto max-w-4xl">
+          <ScrollReveal animation="fade-in-up" class="mb-12 text-center">
+            <h2 class="mb-3 font-heading text-2xl font-extrabold tracking-tight text-on-surface sm:text-3xl">{t(locale, "login.howto")}</h2>
+            <p class="text-on-surface-variant">{t(locale, "login.howto.desc")}</p>
+          </ScrollReveal>
+
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <ScrollReveal animation="fade-in-up" class="flex flex-col items-center rounded-2xl bg-surface-container-low p-8 text-center">
+              <span class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vspo-purple text-lg font-bold text-white">1</span>
+              <h3 class="mb-2 font-heading text-lg font-bold text-on-surface">{t(locale, "login.howto.step1.title")}</h3>
+              <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.howto.step1.desc")}</p>
+            </ScrollReveal>
+
+            <ScrollReveal animation="fade-in-up" delay={100} class="flex flex-col items-center rounded-2xl bg-surface-container-low p-8 text-center">
+              <span class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-vspo-purple text-lg font-bold text-white">2</span>
+              <h3 class="mb-2 font-heading text-lg font-bold text-on-surface">{t(locale, "login.howto.step2.title")}</h3>
+              <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.howto.step2.desc")}</p>
+              <code class="mt-3 inline-block rounded-lg bg-surface-container px-3 py-1.5 text-sm font-medium text-vspo-purple">/setting</code>
+            </ScrollReveal>
+
+            <ScrollReveal animation="fade-in-up" delay={200} class="flex flex-col items-center rounded-2xl bg-surface-container-low p-8 text-center">
+              <span class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success text-lg font-bold text-white">&#10003;</span>
+              <h3 class="mb-2 font-heading text-lg font-bold text-on-surface">{t(locale, "login.howto.step3.title")}</h3>
+              <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.howto.step3.desc")}</p>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section class="bg-surface-container-lowest px-6 py-16 sm:py-24">
         <div class="mx-auto max-w-4xl">
@@ -159,6 +190,61 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
             ]}
             closeLabel={t(locale, "login.feature.close")}
           />
+        </div>
+      </section>
+
+      {/* /setting Command Section */}
+      <section class="px-6 py-16 sm:py-24">
+        <div class="mx-auto max-w-4xl">
+          <ScrollReveal animation="fade-in-up" class="mb-12 text-left">
+            <div class="mb-3 flex items-center gap-3">
+              <code class="rounded-lg bg-vspo-purple/10 px-3 py-1 text-sm font-bold text-vspo-purple">/setting</code>
+            </div>
+            <h2 class="mb-3 font-heading text-2xl font-extrabold tracking-tight text-on-surface sm:text-3xl">{t(locale, "login.command")}</h2>
+            <p class="max-w-xl text-on-surface-variant">{t(locale, "login.command.desc")}</p>
+          </ScrollReveal>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <ScrollReveal animation="fade-in-up" class="flex gap-4 rounded-xl border border-border/50 bg-surface-container-low p-5">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-success/10">
+                <svg class="h-5 w-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+              </div>
+              <div>
+                <h3 class="mb-1 font-heading text-base font-bold text-on-surface">{t(locale, "login.command.add.title")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.command.add.desc")}</p>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal animation="fade-in-up" delay={100} class="flex gap-4 rounded-xl border border-border/50 bg-surface-container-low p-5">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-destructive/10">
+                <svg class="h-5 w-5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </div>
+              <div>
+                <h3 class="mb-1 font-heading text-base font-bold text-on-surface">{t(locale, "login.command.remove.title")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.command.remove.desc")}</p>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal animation="fade-in-up" delay={200} class="flex gap-4 rounded-xl border border-border/50 bg-surface-container-low p-5">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-info/10">
+                <svg class="h-5 w-5 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" /></svg>
+              </div>
+              <div>
+                <h3 class="mb-1 font-heading text-base font-bold text-on-surface">{t(locale, "login.command.lang.title")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.command.lang.desc")}</p>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal animation="fade-in-up" delay={300} class="flex gap-4 rounded-xl border border-border/50 bg-surface-container-low p-5">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-vspo-purple/10">
+                <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+              </div>
+              <div>
+                <h3 class="mb-1 font-heading text-base font-bold text-on-surface">{t(locale, "login.command.member.title")}</h3>
+                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.command.member.desc")}</p>
+              </div>
+            </ScrollReveal>
+          </div>
         </div>
       </section>
 

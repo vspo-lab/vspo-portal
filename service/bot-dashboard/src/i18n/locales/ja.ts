@@ -36,6 +36,33 @@ export const ja = {
   "login.feature.close": "閉じる",
   "login.feature.imagePlaceholder": "準備中",
 
+  // Getting Started
+  "login.howto": "かんたん3ステップ",
+  "login.howto.desc": "すぐに使い始められます。",
+  "login.howto.step1.title": "Bot をサーバーに追加",
+  "login.howto.step1.desc": "「サーバーに追加する」ボタンからBotを招待します。",
+  "login.howto.step2.title": "/setting で初期設定",
+  "login.howto.step2.desc":
+    "Discordで /setting を実行し、通知チャンネルと言語を設定します。",
+  "login.howto.step3.title": "配信予定が届く",
+  "login.howto.step3.desc":
+    "ぶいすぽっ!メンバーの配信予定が自動で通知されます。",
+
+  // Command Section
+  "login.command": "/setting コマンド",
+  "login.command.desc":
+    "Discordから直接設定できるスラッシュコマンドです。",
+  "login.command.add.title": "Bot を追加",
+  "login.command.add.desc": "チャンネルに Bot を追加して通知を開始します。",
+  "login.command.remove.title": "Bot を削除",
+  "login.command.remove.desc": "通知を停止し、チャンネルからBotを解除します。",
+  "login.command.lang.title": "言語設定",
+  "login.command.lang.desc":
+    "通知の表示言語を日本語・英語など8言語から選択できます。",
+  "login.command.member.title": "メンバー選択",
+  "login.command.member.desc":
+    "JP / EN / 全メンバー / カスタムから通知対象を選べます。",
+
   // Dashboard
   "dashboard.servers": "サーバー一覧",
   "dashboard.servers.desc": "Bot が導入されているサーバーの設定を管理します。",

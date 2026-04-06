@@ -41,6 +41,36 @@ export const en: Record<keyof typeof ja, string> = {
   "login.feature.close": "Close",
   "login.feature.imagePlaceholder": "Coming soon",
 
+  // Getting Started
+  "login.howto": "3 Easy Steps",
+  "login.howto.desc": "Get started in minutes.",
+  "login.howto.step1.title": "Add Bot to your server",
+  "login.howto.step1.desc":
+    "Invite the bot using the 'Add to Server' button.",
+  "login.howto.step2.title": "Run /setting",
+  "login.howto.step2.desc":
+    "Execute /setting in Discord to configure your notification channel and language.",
+  "login.howto.step3.title": "Receive schedules",
+  "login.howto.step3.desc":
+    "VSPO! member stream schedules are automatically sent to your channel.",
+
+  // Command Section
+  "login.command": "/setting Command",
+  "login.command.desc":
+    "A slash command to configure the bot directly from Discord.",
+  "login.command.add.title": "Add Bot",
+  "login.command.add.desc":
+    "Add the bot to a channel and start receiving notifications.",
+  "login.command.remove.title": "Remove Bot",
+  "login.command.remove.desc":
+    "Stop notifications and remove the bot from the channel.",
+  "login.command.lang.title": "Language",
+  "login.command.lang.desc":
+    "Choose from 8 languages including English and Japanese.",
+  "login.command.member.title": "Member Selection",
+  "login.command.member.desc":
+    "Filter notifications by JP, EN, All, or Custom members.",
+
   // Dashboard
   "dashboard.servers": "Servers",
   "dashboard.servers.desc":
