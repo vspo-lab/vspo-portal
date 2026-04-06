@@ -45,8 +45,7 @@ export const en: Record<keyof typeof ja, string> = {
   "login.howto": "3 Easy Steps",
   "login.howto.desc": "Get started in minutes.",
   "login.howto.step1.title": "Add Bot to your server",
-  "login.howto.step1.desc":
-    "Invite the bot using the 'Add to Server' button.",
+  "login.howto.step1.desc": "Invite the bot using the 'Add to Server' button.",
   "login.howto.step2.title": "Run /setting",
   "login.howto.step2.desc":
     "Execute /setting in Discord to configure your notification channel and language.",

@@ -50,8 +50,7 @@ export const ja = {
 
   // Command Section
   "login.command": "/setting コマンド",
-  "login.command.desc":
-    "Discordから直接設定できるスラッシュコマンドです。",
+  "login.command.desc": "Discordから直接設定できるスラッシュコマンドです。",
   "login.command.add.title": "Bot を追加",
   "login.command.add.desc": "チャンネルに Bot を追加して通知を開始します。",
   "login.command.remove.title": "Bot を削除",
