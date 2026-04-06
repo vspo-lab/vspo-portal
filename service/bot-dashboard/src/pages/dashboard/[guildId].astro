@@ -1,18 +1,14 @@
 ---
-import { actions } from "astro:actions";
 import Button from "~/features/shared/components/Button.astro";
 import { env } from "cloudflare:workers";
-import ChannelAddModal from "~/features/channel/components/ChannelAddModal.astro";
-import ChannelConfigForm from "~/features/channel/components/ChannelConfigForm.astro";
-import ChannelTable from "~/features/channel/components/ChannelTable.astro";
-import DeleteChannelDialog from "~/features/channel/components/DeleteChannelDialog.astro";
+import { GuildDashboardIsland } from "~/features/channel/components/GuildDashboardIsland";
 import ErrorAlert from "~/features/shared/components/ErrorAlert.astro";
-import FlashMessage from "~/features/shared/components/FlashMessage.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { GuildSummary } from "~/features/guild/domain/guild";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
-import { t, memberTypeKey, languageDisplayKey } from "~/i18n/dict";
+import { MemberType } from "~/features/channel/domain/member-type";
+import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/dict";
 
 const locale = Astro.locals.locale;
 const { guildId } = Astro.params;
@@ -25,30 +21,6 @@ const user = Astro.locals.user;
 if (!accessToken || !user) {
   return Astro.redirect("/");
 }
-
-// Check for action results (form submissions)
-const addResult = Astro.getActionResult(actions.addChannel);
-const updateResult = Astro.getActionResult(actions.updateChannel);
-const deleteResult = Astro.getActionResult(actions.deleteChannel);
-const resetResult = Astro.getActionResult(actions.resetChannel);
-
-// If an action succeeded, redirect to refresh the page data
-if (addResult?.data?.success || updateResult?.data?.success || deleteResult?.data?.success || resetResult?.data?.success) {
-  const flashType = addResult?.data ? "add" : updateResult?.data ? "update" : deleteResult?.data ? "delete" : "reset";
-  return Astro.redirect(`/dashboard/${guildId}?flash=${flashType}`);
-}
-
-// Check for flash message from redirect
-const flashType = Astro.url.searchParams.get("flash");
-const flashMessages: Record<string, string> = {
-  add: t(locale, "toast.addSuccess"),
-  update: t(locale, "toast.updateSuccess"),
-  delete: t(locale, "toast.deleteSuccess"),
-  reset: t(locale, "toast.resetSuccess"),
-};
-
-// Get action error if any
-const actionError = addResult?.error ?? updateResult?.error ?? deleteResult?.error ?? resetResult?.error ?? null;
 
 // Use cached guild summaries from session (set by /dashboard) to avoid the heavy
 // ListGuildsUsecase call on every guild detail navigation.
@@ -75,7 +47,86 @@ const channels = channelsResult.err ? [] : channelsResult.val.channels;
 const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;
 const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
 
+const allCreators = [...creators.jp, ...creators.en];
 
+const memberTypeOptions = MemberType.schema.options.map((value) => ({
+  value,
+  label: t(locale, memberTypeKey(value)),
+  description: t(locale, memberTypeDescKey(value)),
+}));
+
+const languageOptions = ["ja", "en", "fr", "de", "es", "cn", "tw", "ko", "default"].map((lang) => ({
+  value: lang,
+  label: t(locale, languageDisplayKey(lang)),
+}));
+
+const configTranslations = {
+  title: t(locale, "channelConfig.title", { channelName: "{channelName}" }),
+  close: t(locale, "channelConfig.close"),
+  language: t(locale, "channelConfig.language"),
+  memberType: t(locale, "channelConfig.memberType"),
+  customMembers: t(locale, "channelConfig.customMembers"),
+  selected: t(locale, "channelConfig.members.selected", { count: "{count}" }),
+  search: t(locale, "channelConfig.members.search"),
+  jpGroup: t(locale, "channelConfig.members.jpGroup"),
+  enGroup: t(locale, "channelConfig.members.enGroup"),
+  selectAll: t(locale, "channelConfig.members.selectAll"),
+  deselectAll: t(locale, "channelConfig.members.deselectAll"),
+  reset: t(locale, "channelConfig.reset"),
+  cancel: t(locale, "channelConfig.cancel"),
+  save: t(locale, "channelConfig.save"),
+};
+
+const deleteTranslations = {
+  heading: t(locale, "channel.deleteConfirm", { channelName: "{channelName}" }),
+  description: t(locale, "channel.deleteConfirm.desc"),
+  cancel: t(locale, "channel.deleteConfirm.cancel"),
+  submit: t(locale, "channel.deleteConfirm.submit"),
+};
+
+const addTranslations = {
+  title: t(locale, "channel.add"),
+  search: t(locale, "channel.add.search"),
+  loading: "Loading...",
+  error: t(locale, "channel.add.error"),
+  empty: t(locale, "channel.add.empty"),
+  submit: t(locale, "channel.add.submit"),
+  registered: t(locale, "channel.add.registered"),
+  cancel: t(locale, "channel.add.cancel"),
+  close: t(locale, "channelConfig.close"),
+};
+
+const tableTranslations = {
+  title: t(locale, "channel.table"),
+  addChannel: t(locale, "channel.add"),
+  channelName: t(locale, "channel.name"),
+  language: t(locale, "channel.language"),
+  members: t(locale, "channel.members"),
+  status: t(locale, "channel.status"),
+  actions: t(locale, "channel.actions"),
+  edit: t(locale, "channel.edit"),
+  delete: t(locale, "channel.delete"),
+  empty: t(locale, "channel.empty"),
+  active: t(locale, "channel.status.active"),
+  paused: t(locale, "channel.status.paused"),
+};
+
+const flashTranslations = {
+  addSuccess: t(locale, "toast.addSuccess"),
+  updateSuccess: t(locale, "toast.updateSuccess"),
+  deleteSuccess: t(locale, "toast.deleteSuccess"),
+  resetSuccess: t(locale, "toast.resetSuccess"),
+  error: t(locale, "toast.error"),
+  dismiss: t(locale, "toast.dismiss"),
+};
+
+const langChipLabels = Object.fromEntries(
+  ["ja", "en", "fr", "de", "es", "cn", "tw", "ko", "default"].map((l) => [l, t(locale, languageDisplayKey(l))])
+);
+
+const memberTypeLabelsMap = Object.fromEntries(
+  MemberType.schema.options.map((v) => [v, t(locale, memberTypeKey(v))])
+);
 ---
 
 <Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
@@ -104,10 +155,6 @@ const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
           {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
         </p>
       </div>
-      <Button as="button" type="button" variant="primary" data-action-add class="gap-2 sm:hidden">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-        {t(locale, "channel.add")}
-      </Button>
     </div>
 
     {/* Stats Bento Grid */}
@@ -136,45 +183,29 @@ const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
       </div>
     </div>
 
-    {/* Alerts container */}
-    <div class="space-y-4">
-      {flashType && flashMessages[flashType] && (
-        <FlashMessage result={{ data: { success: true } }} successMessage={flashMessages[flashType]} />
-      )}
-      {actionError && (
-        <FlashMessage result={{ error: { message: actionError.message } }} />
-      )}
-      {fetchError && (
-        <ErrorAlert message={t(locale, "dashboard.error", { message: fetchError.message })} retryHref={`/dashboard/${guildId}`} retryLabel={t(locale, "toast.retry")} />
-      )}
-    </div>
+    {fetchError && (
+      <ErrorAlert message={t(locale, "dashboard.error", { message: fetchError.message })} retryHref={`/dashboard/${guildId}`} retryLabel={t(locale, "toast.retry")} />
+    )}
 
-    {/* Configuration Matrix */}
-    <ChannelTable channels={channels} creators={[...creators.jp, ...creators.en]} />
-
-    {/* Hidden modals */}
-    <ChannelConfigForm
-      creators={[...creators.jp, ...creators.en]}
+    {/* Single React island: table + modals + flash + optimistic UI */}
+    <GuildDashboardIsland
+      client:load
       guildId={guildId}
-      channels={channels}
-      titleTemplate={t(locale, 'channelConfig.title', { channelName: '{channelName}' })}
-      selectedTemplate={t(locale, 'channelConfig.members.selected', { count: '{count}' })}
+      initialChannels={channels}
+      creators={allCreators}
+      translations={{
+        table: tableTranslations,
+        config: configTranslations,
+        deleteDialog: deleteTranslations,
+        addModal: addTranslations,
+        flash: flashTranslations,
+      }}
+      languageOptions={languageOptions}
+      memberTypeOptions={memberTypeOptions}
+      langChipLabels={langChipLabels}
+      memberTypeLabels={memberTypeLabelsMap}
     />
-
-    <DeleteChannelDialog guildId={guildId} />
-
-    <ChannelAddModal guildId={guildId} />
   </div>
 
 </Dashboard>
 
-<script>
-  // Close open dialogs before page transition to prevent stale top-layer state
-  document.addEventListener("astro:before-preparation", () => {
-    for (const d of document.querySelectorAll("dialog[open]")) (d as HTMLDialogElement).close();
-  });
-
-  document.addEventListener("astro:after-swap", () => {
-    for (const d of document.querySelectorAll("dialog[open]")) (d as HTMLDialogElement).close();
-  });
-</script>

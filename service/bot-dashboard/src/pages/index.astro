@@ -6,7 +6,7 @@ import Footer from "~/features/shared/components/Footer.astro";
 import Button from "~/features/shared/components/Button.astro";
 import ScrollReveal from "~/features/landing/components/ScrollReveal.astro";
 import DigitRoll from "~/features/landing/components/DigitRoll.astro";
-import FeaturePopup from "~/features/landing/components/FeaturePopup.astro";
+import { FeatureShowcase } from "~/features/landing/components/FeatureShowcase";
 import { t } from "~/i18n/dict";
 import { buildBotInviteUrl } from "~/features/guild/domain/guild";
 import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
@@ -166,62 +166,17 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
             <p class="max-w-xl text-on-surface-variant">{t(locale, "login.features.desc")}</p>
           </ScrollReveal>
 
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <ScrollReveal animation="fade-in-up" delay={0}>
-              <button type="button" class="feature-card-trigger w-full cursor-pointer rounded-xl bg-surface-container p-6 text-left transition-shadow hover:shadow-card" data-feature="feature-list" aria-haspopup="dialog" aria-controls="feature-list">
-                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
-                  <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                </div>
-                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.list")}</h3>
-                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.list.desc")}</p>
-              </button>
-            </ScrollReveal>
-
-            <ScrollReveal animation="fade-in-up" delay={100}>
-              <button type="button" class="feature-card-trigger w-full cursor-pointer rounded-xl bg-surface-container p-6 text-left transition-shadow hover:shadow-card" data-feature="feature-filter" aria-haspopup="dialog" aria-controls="feature-filter">
-                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary/10">
-                  <svg class="h-5 w-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                </div>
-                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.filter")}</h3>
-                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.filter.desc")}</p>
-              </button>
-            </ScrollReveal>
-
-            <ScrollReveal animation="fade-in-up" delay={200}>
-              <button type="button" class="feature-card-trigger w-full cursor-pointer rounded-xl bg-surface-container p-6 text-left transition-shadow hover:shadow-card" data-feature="feature-realtime" aria-haspopup="dialog" aria-controls="feature-realtime">
-                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
-                  <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.realtime")}</h3>
-                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.realtime.desc")}</p>
-              </button>
-            </ScrollReveal>
-
-            <ScrollReveal animation="fade-in-up" delay={300}>
-              <button type="button" class="feature-card-trigger w-full cursor-pointer rounded-xl bg-surface-container p-6 text-left transition-shadow hover:shadow-card" data-feature="feature-settings" aria-haspopup="dialog" aria-controls="feature-settings">
-                <div class="feature-icon mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-vspo-purple/10">
-                  <svg class="h-5 w-5 text-vspo-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h3 class="mb-1 font-heading text-lg font-bold text-on-surface">{t(locale, "login.feature.settings")}</h3>
-                <p class="text-sm leading-relaxed text-on-surface-variant">{t(locale, "login.feature.settings.desc")}</p>
-              </button>
-            </ScrollReveal>
-          </div>
-
-          {/* Feature Popups */}
-          <FeaturePopup id="feature-list" title={t(locale, "login.feature.list")} description={t(locale, "login.feature.list.desc")} closeLabel={t(locale, "login.feature.close")} imagePlaceholder={t(locale, "login.feature.imagePlaceholder")} />
-          <FeaturePopup id="feature-filter" title={t(locale, "login.feature.filter")} description={t(locale, "login.feature.filter.desc")} closeLabel={t(locale, "login.feature.close")} imagePlaceholder={t(locale, "login.feature.imagePlaceholder")} />
-          <FeaturePopup id="feature-realtime" title={t(locale, "login.feature.realtime")} description={t(locale, "login.feature.realtime.desc")} closeLabel={t(locale, "login.feature.close")} imagePlaceholder={t(locale, "login.feature.imagePlaceholder")} />
-          <FeaturePopup id="feature-settings" title={t(locale, "login.feature.settings")} description={t(locale, "login.feature.settings.desc")} closeLabel={t(locale, "login.feature.close")} imagePlaceholder={t(locale, "login.feature.imagePlaceholder")} />
+          <FeatureShowcase
+            client:visible
+            features={[
+              { id: "feature-list", icon: "list", title: t(locale, "login.feature.list"), description: t(locale, "login.feature.list.desc"), iconColor: "text-vspo-purple", iconBgColor: "bg-vspo-purple/10" },
+              { id: "feature-filter", icon: "filter", title: t(locale, "login.feature.filter"), description: t(locale, "login.feature.filter.desc"), iconColor: "text-tertiary", iconBgColor: "bg-tertiary/10" },
+              { id: "feature-realtime", icon: "realtime", title: t(locale, "login.feature.realtime"), description: t(locale, "login.feature.realtime.desc"), iconColor: "text-vspo-purple", iconBgColor: "bg-vspo-purple/10" },
+              { id: "feature-settings", icon: "settings", title: t(locale, "login.feature.settings"), description: t(locale, "login.feature.settings.desc"), iconColor: "text-vspo-purple", iconBgColor: "bg-vspo-purple/10" },
+            ]}
+            closeLabel={t(locale, "login.feature.close")}
+            imagePlaceholder={t(locale, "login.feature.imagePlaceholder")}
+          />
         </div>
       </section>
 
@@ -264,33 +219,3 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
   </div>
 </Base>
 
-<script>
-  let ac = new AbortController();
-
-  function initFeaturePopups() {
-    ac.abort();
-    ac = new AbortController();
-    const { signal } = ac;
-
-    document.querySelectorAll<HTMLButtonElement>(".feature-card-trigger").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.dataset.feature;
-        if (id) {
-          const dialog = document.getElementById(id) as HTMLDialogElement | null;
-          if (dialog && !dialog.open) dialog.showModal();
-        }
-      }, { signal });
-    });
-
-    document.querySelectorAll<HTMLDialogElement>(".feature-popup").forEach((dialog) => {
-      const closeBtn = dialog.querySelector(".feature-popup-close");
-      closeBtn?.addEventListener("click", () => dialog.close(), { signal });
-      dialog.addEventListener("click", (e) => {
-        if (e.target === dialog) dialog.close();
-      }, { signal });
-    });
-  }
-
-  initFeaturePopups();
-  document.addEventListener("astro:page-load", initFeaturePopups);
-</script>

@@ -41,7 +41,7 @@ pnpm build && pnpm preview
 
 ---
 
-## Phase 2: Shared Hooks & Stores
+## Phase 2: Shared Hooks & Stores — DONE (2-7 deferred to Phase 5)
 
 ### Dependencies: Phase 1 complete
 
@@ -91,6 +91,10 @@ pnpm build && pnpm preview
 
 ### 3-1: ThemeToggle Details — DONE
 
+### 3-2: FlashMessage Details — DONE
+
+Implemented as `ClientFlashMessage.tsx` (`client:idle`). Reads from `$flash` Nano Store. Auto-dismiss via `showFlash()` timer (5s). Dismiss button calls `dismissFlash()`.
+
 ```yaml
 ThemeToggle.astro (server: icon display) → ThemeToggle.tsx (client:load)
   - Uses useTheme() hook
@@ -125,7 +129,7 @@ FeatureShowcase.tsx (client:visible)
 
 ---
 
-## Phase 4: Large Form Islands
+## Phase 4: Large Form Islands — DONE
 
 ### Dependencies: Phase 3 complete (hooks and stores verified)
 

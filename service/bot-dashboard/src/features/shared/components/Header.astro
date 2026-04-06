@@ -1,7 +1,7 @@
 ---
-import LanguageSelector from "~/features/shared/components/LanguageSelector.astro";
-import ThemeToggle from "~/features/shared/components/ThemeToggle.astro";
-import UserMenu from "~/features/auth/components/UserMenu.astro";
+import { LanguageSelectorIsland } from "~/features/shared/components/LanguageSelectorIsland";
+import { ThemeToggle } from "~/features/shared/components/ThemeToggle";
+import { UserMenuIsland } from "~/features/auth/components/UserMenuIsland";
 import { t } from "~/i18n/dict";
 
 type Props = {
@@ -11,6 +11,11 @@ type Props = {
 const { user = null } = Astro.props;
 const { locale } = Astro.locals;
 const returnTo = Astro.url.pathname + Astro.url.search;
+
+const localeLabels = {
+  ja: t(locale, "settings.language.ja"),
+  en: t(locale, "settings.language.en"),
+};
 ---
 
 <header class="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border/50 bg-surface/80 px-4 backdrop-blur-lg sm:px-6">
@@ -21,8 +26,28 @@ const returnTo = Astro.url.pathname + Astro.url.search;
     </a>
   </div>
   <div class="flex items-center gap-2">
-    <LanguageSelector currentLocale={locale} returnTo={returnTo} variant="header" />
-    <ThemeToggle />
-    {user && <UserMenu displayName={user.displayName} avatarUrl={user.avatarUrl} />}
+    <LanguageSelectorIsland
+      client:idle
+      currentLocale={locale}
+      returnTo={returnTo}
+      label={t(locale, "settings.language")}
+      localeLabels={localeLabels}
+    />
+    <ThemeToggle client:load label={t(locale, "settings.theme.toggle")} />
+    {user && (
+      <UserMenuIsland
+        client:idle
+        displayName={user.displayName}
+        avatarUrl={user.avatarUrl}
+        translations={{
+          language: t(locale, "settings.language"),
+          theme: t(locale, "settings.theme"),
+          logout: t(locale, "auth.logout"),
+        }}
+        localeLabels={localeLabels}
+        currentLocale={locale}
+        returnTo={returnTo}
+      />
+    )}
   </div>
 </header>

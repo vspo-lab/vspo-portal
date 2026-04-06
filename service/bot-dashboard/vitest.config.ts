@@ -9,7 +9,11 @@ export default getViteConfig(
       coverage: {
         provider: "v8",
         reporter: ["text", "json", "html"],
-        include: ["src/features/**/*.ts", "src/components/**/*.astro"],
+        include: [
+          "src/features/**/*.ts",
+          "src/features/**/*.tsx",
+          "src/components/**/*.astro",
+        ],
         exclude: [
           "src/**/*.test.{ts,tsx}",
           "src/**/index.ts",

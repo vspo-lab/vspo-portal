@@ -11,18 +11,12 @@ import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-cha
  */
 export const GET: APIRoute = async ({ params, locals }) => {
   if (!locals.user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { guildId } = params;
-  if (!guildId) {
-    return new Response(JSON.stringify({ error: "Missing guildId" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+  if (!guildId || !/^\d{17,20}$/.test(guildId)) {
+    return Response.json({ error: "Invalid guildId" }, { status: 400 });
   }
 
   const result = await VspoChannelApiRepository.listGuildChannels(
@@ -31,13 +25,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
   );
 
   if (result.err) {
-    return new Response(JSON.stringify({ error: result.err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json({ error: result.err.message }, { status: 500 });
   }
 
-  return new Response(JSON.stringify(result.val), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(result.val);
 };
