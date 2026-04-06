@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
 import { useStore } from "@nanostores/react";
-import { $theme, initTheme, toggleTheme, type Theme } from "../stores/theme";
+import { useEffect, useRef } from "react";
+import { $theme, initTheme, type Theme, toggleTheme } from "../stores/theme";
 
 export interface ThemeHook {
   theme: Theme;

@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
+
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { $flash, showFlash } from "../../stores/flash";
 import { ClientFlashMessage } from "../ClientFlashMessage";
-import { $flash, showFlash, dismissFlash } from "../../stores/flash";
 
 describe("ClientFlashMessage", () => {
   beforeEach(() => {

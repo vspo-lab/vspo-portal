@@ -1,14 +1,25 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from "vitest";
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ChannelConfigModal } from "../ChannelConfigModal";
+import { beforeEach, describe, expect, it } from "vitest";
 import { $channelToEdit } from "../../stores/channel-actions";
+import { ChannelConfigModal } from "../ChannelConfigModal";
 
 const creators = [
-  { id: "c1", name: "Hinano", memberType: "vspo_jp" as const, thumbnailUrl: null },
+  {
+    id: "c1",
+    name: "Hinano",
+    memberType: "vspo_jp" as const,
+    thumbnailUrl: null,
+  },
   { id: "c2", name: "Ema", memberType: "vspo_jp" as const, thumbnailUrl: null },
-  { id: "c3", name: "Remia", memberType: "vspo_en" as const, thumbnailUrl: null },
+  {
+    id: "c3",
+    name: "Remia",
+    memberType: "vspo_en" as const,
+    thumbnailUrl: null,
+  },
 ];
 
 const translations = {

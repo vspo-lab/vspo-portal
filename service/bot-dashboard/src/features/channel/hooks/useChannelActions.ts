@@ -1,16 +1,16 @@
 import { actions } from "astro:actions";
 import { showFlash } from "~/features/shared/stores/flash";
-import {
-  optimisticAdd,
-  optimisticUpdate,
-  optimisticRemove,
-} from "../stores/channel-data";
+import type { ChannelConfigType } from "../domain/channel-config";
 import {
   closeAddModal,
-  closeEditModal,
   closeDeleteDialog,
+  closeEditModal,
 } from "../stores/channel-actions";
-import type { ChannelConfigType } from "../domain/channel-config";
+import {
+  optimisticAdd,
+  optimisticRemove,
+  optimisticUpdate,
+} from "../stores/channel-data";
 
 interface ChannelActionTranslations {
   addSuccess: string;
@@ -25,7 +25,11 @@ interface ChannelActionTranslations {
  * Each operation: close modal → optimistic update → API call → flash / rollback.
  */
 export function createChannelActions(translations: ChannelActionTranslations) {
-  const addChannel = async (guildId: string, channelId: string, channelName: string) => {
+  const addChannel = async (
+    guildId: string,
+    channelId: string,
+    channelName: string,
+  ) => {
     closeAddModal();
     const newChannel: ChannelConfigType = {
       channelId,

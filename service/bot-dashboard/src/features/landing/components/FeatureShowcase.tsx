@@ -39,7 +39,11 @@ export function FeatureShowcase({
           <div
             key={feature.id}
             data-scroll-reveal="fade-in-up"
-            style={i > 0 ? { "--reveal-delay": `${i * 100}ms` } as React.CSSProperties : undefined}
+            style={
+              i > 0
+                ? ({ "--reveal-delay": `${i * 100}ms` } as React.CSSProperties)
+                : undefined
+            }
           >
             <button
               type="button"
@@ -92,6 +96,9 @@ export function FeatureShowcase({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
           onClick={(e) => {
             if (e.target === e.currentTarget) setActiveFeatureId(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setActiveFeatureId(null);
           }}
         >
           <div className="mx-4 max-w-lg rounded-2xl border border-border bg-surface p-0 text-on-surface shadow-xl">

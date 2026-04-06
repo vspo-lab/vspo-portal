@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi } from "vitest";
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { DeleteChannelDialog } from "../DeleteChannelDialog";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { $channelToDelete } from "../../stores/channel-actions";
+import { DeleteChannelDialog } from "../DeleteChannelDialog";
 
 const translations = {
   heading: "Delete #{channelName}?",

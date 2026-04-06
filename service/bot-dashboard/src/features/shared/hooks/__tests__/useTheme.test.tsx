@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useTheme } from "../useTheme";
+
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
 import { $theme } from "../../stores/theme";
+import { useTheme } from "../useTheme";
 
 describe("useTheme", () => {
   beforeEach(() => {

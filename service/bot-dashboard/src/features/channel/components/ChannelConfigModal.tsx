@@ -1,17 +1,21 @@
-import { useCallback, useMemo, useState } from "react";
 import { useStore } from "@nanostores/react";
+import { useCallback, useMemo, useState } from "react";
+import type { CreatorType } from "~/features/shared/domain/creator";
 import {
   $channelToEdit,
   closeEditModal,
   type EditableChannel,
 } from "../stores/channel-actions";
-import type { CreatorType } from "~/features/shared/domain/creator";
 
 interface ChannelConfigModalProps {
   guildId: string;
   updateActionUrl?: string;
   resetActionUrl?: string;
-  onUpdate?: (guildId: string, channelId: string, patch: { language: string; memberType: string; customMemberIds?: string[] }) => void;
+  onUpdate?: (
+    guildId: string,
+    channelId: string,
+    patch: { language: string; memberType: string; customMemberIds?: string[] },
+  ) => void;
   onReset?: (guildId: string, channelId: string) => void;
   creators: CreatorType[];
   translations: {
@@ -147,6 +151,9 @@ function ChannelConfigModalInner({
       onClick={(e) => {
         if (e.target === e.currentTarget) closeEditModal();
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") closeEditModal();
+      }}
     >
       <div className="animate-modal-in glass mx-2 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6">
         {/* Header */}
@@ -218,7 +225,9 @@ function ChannelConfigModalInner({
                     name="memberType"
                     value={opt.value}
                     checked={memberType === opt.value}
-                    onChange={() => setMemberType(opt.value as EditableChannel["memberType"])}
+                    onChange={() =>
+                      setMemberType(opt.value as EditableChannel["memberType"])
+                    }
                     className="mt-0.5 accent-vspo-purple"
                     aria-label={opt.label}
                   />
@@ -275,6 +284,7 @@ function ChannelConfigModalInner({
                         >
                           <svg
                             className="h-2.5 w-2.5"
+                            aria-hidden="true"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"

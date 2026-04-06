@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import type { ChannelConfigType } from "../../domain/channel-config";
 import {
   $channels,
   initChannels,
   optimisticAdd,
-  optimisticUpdate,
   optimisticRemove,
+  optimisticUpdate,
 } from "../channel-data";
-import type { ChannelConfigType } from "../../domain/channel-config";
 
 const ch1: ChannelConfigType = {
   channelId: "ch1",

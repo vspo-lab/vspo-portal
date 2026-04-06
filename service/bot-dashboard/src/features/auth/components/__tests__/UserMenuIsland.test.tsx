@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from "vitest";
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { UserMenuIsland } from "../UserMenuIsland";
+import { beforeEach, describe, expect, it } from "vitest";
 import { $theme } from "~/features/shared/stores/theme";
+import { UserMenuIsland } from "../UserMenuIsland";
 
 const defaultProps = {
   displayName: "TestUser",

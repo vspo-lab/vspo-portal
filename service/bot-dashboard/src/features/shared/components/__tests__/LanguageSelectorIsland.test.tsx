@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from "vitest";
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it } from "vitest";
 import { LanguageSelectorIsland } from "../LanguageSelectorIsland";
 
 describe("LanguageSelectorIsland", () => {

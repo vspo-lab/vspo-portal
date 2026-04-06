@@ -10,9 +10,7 @@ export const initChannels = (channels: ChannelConfigType[]): void => {
 };
 
 /** Optimistically add a channel. Returns rollback function. */
-export const optimisticAdd = (
-  channel: ChannelConfigType,
-): (() => void) => {
+export const optimisticAdd = (channel: ChannelConfigType): (() => void) => {
   const prev = $channels.get();
   $channels.set([...prev, channel]);
   return () => $channels.set(prev);
@@ -25,17 +23,13 @@ export const optimisticUpdate = (
 ): (() => void) => {
   const prev = $channels.get();
   $channels.set(
-    prev.map((ch) =>
-      ch.channelId === channelId ? { ...ch, ...patch } : ch,
-    ),
+    prev.map((ch) => (ch.channelId === channelId ? { ...ch, ...patch } : ch)),
   );
   return () => $channels.set(prev);
 };
 
 /** Optimistically remove a channel. Returns rollback function. */
-export const optimisticRemove = (
-  channelId: string,
-): (() => void) => {
+export const optimisticRemove = (channelId: string): (() => void) => {
   const prev = $channels.get();
   $channels.set(prev.filter((ch) => ch.channelId !== channelId));
   return () => $channels.set(prev);

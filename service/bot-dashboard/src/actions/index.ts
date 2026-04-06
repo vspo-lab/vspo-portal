@@ -6,7 +6,9 @@ import { AddChannelUsecase } from "~/features/channel/usecase/add-channel";
 import { DeleteChannelUsecase } from "~/features/channel/usecase/delete-channel";
 
 /** Discord Snowflake ID: 17-20 digit numeric string */
-const snowflake = z.string().regex(/^\d{17,20}$/, "Invalid Discord Snowflake ID");
+const snowflake = z
+  .string()
+  .regex(/^\d{17,20}$/, "Invalid Discord Snowflake ID");
 
 /** Throws UNAUTHORIZED if user is not authenticated */
 const requireAuth = (context: { locals: { user: unknown } }) => {

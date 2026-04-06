@@ -87,7 +87,11 @@ const auth = defineMiddleware(async (context, next) => {
 
   // Idle timeout — destroy session if inactive for 2 hours
   const now = getCurrentUTCDate().getTime();
-  if (user && lastActivity && now - (lastActivity as number) > IDLE_TIMEOUT_MS) {
+  if (
+    user &&
+    lastActivity &&
+    now - (lastActivity as number) > IDLE_TIMEOUT_MS
+  ) {
     context.session?.destroy();
     return context.redirect("/?error=auth_failed");
   }

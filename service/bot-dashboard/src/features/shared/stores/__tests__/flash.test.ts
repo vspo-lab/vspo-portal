@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { $flash, showFlash, dismissFlash } from "../flash";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { $flash, dismissFlash, showFlash } from "../flash";
 
 describe("flash store", () => {
   beforeEach(() => {

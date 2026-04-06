@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { useStore } from "@nanostores/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { $showAddModal, closeAddModal } from "../stores/channel-actions";
 
 interface Channel {
@@ -87,6 +87,9 @@ export function ChannelAddModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={(e) => {
         if (e.target === e.currentTarget) closeAddModal();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") closeAddModal();
       }}
     >
       <div className="animate-modal-in glass mx-2 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6">

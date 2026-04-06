@@ -1,15 +1,15 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
-  $channelToEdit,
   $channelToDelete,
+  $channelToEdit,
   $showAddModal,
-  openEditModal,
-  closeEditModal,
-  openDeleteDialog,
-  closeDeleteDialog,
-  openAddModal,
   closeAddModal,
+  closeDeleteDialog,
+  closeEditModal,
+  openAddModal,
+  openDeleteDialog,
+  openEditModal,
 } from "../channel-actions";
 
 describe("channel-actions store", () => {

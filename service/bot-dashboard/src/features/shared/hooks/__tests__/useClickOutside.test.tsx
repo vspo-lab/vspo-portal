@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi } from "vitest";
+
 import { renderHook } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { useClickOutside } from "../useClickOutside";
 
 describe("useClickOutside", () => {
@@ -17,9 +18,7 @@ describe("useClickOutside", () => {
     const outsideElement = document.createElement("div");
     document.body.appendChild(outsideElement);
 
-    document.dispatchEvent(
-      new MouseEvent("mousedown", { bubbles: true }),
-    );
+    document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
     // Handler should be called since the click target is not inside the ref element
     expect(handler).toHaveBeenCalledTimes(1);
@@ -35,9 +34,7 @@ describe("useClickOutside", () => {
 
     renderHook(() => useClickOutside(handler));
 
-    element.dispatchEvent(
-      new MouseEvent("mousedown", { bubbles: true }),
-    );
+    element.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
     // The default ref is not connected to this element, so we can't fully test this
     // without a component wrapper. This test validates the hook doesn't throw.

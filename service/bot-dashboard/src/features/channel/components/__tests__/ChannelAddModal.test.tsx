@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi } from "vitest";
+
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ChannelAddModal } from "../ChannelAddModal";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { $showAddModal } from "../../stores/channel-actions";
+import { ChannelAddModal } from "../ChannelAddModal";
 
 const translations = {
   title: "Add Channel",

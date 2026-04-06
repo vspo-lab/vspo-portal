@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { $theme, initTheme, toggleTheme } from "../theme";
 
 describe("theme store", () => {

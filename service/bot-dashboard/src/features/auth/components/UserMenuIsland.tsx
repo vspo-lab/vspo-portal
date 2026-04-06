@@ -87,11 +87,7 @@ export function UserMenuIsland({
             </p>
             <div className="mt-1 flex items-center gap-1">
               {Object.entries(localeLabels).map(([lang, langLabel]) => (
-                <form
-                  key={lang}
-                  method="post"
-                  action="/api/change-locale"
-                >
+                <form key={lang} method="post" action="/api/change-locale">
                   <input type="hidden" name="_returnTo" value={returnTo} />
                   <button
                     type="submit"
