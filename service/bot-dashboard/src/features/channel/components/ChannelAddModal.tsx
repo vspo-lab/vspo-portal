@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useStore } from "@nanostores/react";
 import { $showAddModal, closeAddModal } from "../stores/channel-actions";
 
@@ -9,7 +9,8 @@ interface Channel {
 
 interface ChannelAddModalProps {
   guildId: string;
-  actionUrl: string;
+  actionUrl?: string;
+  onAdd?: (guildId: string, channelId: string, channelName: string) => void;
   registeredChannelIds: string[];
   translations: {
     title: string;
@@ -26,7 +27,7 @@ interface ChannelAddModalProps {
 
 export function ChannelAddModal({
   guildId,
-  actionUrl,
+  onAdd,
   registeredChannelIds,
   translations,
 }: ChannelAddModalProps) {
@@ -35,8 +36,6 @@ export function ChannelAddModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
-  const channelIdRef = useRef<HTMLInputElement>(null);
   const registeredSet = useMemo(
     () => new Set(registeredChannelIds),
     [registeredChannelIds],
@@ -69,13 +68,10 @@ export function ChannelAddModal({
   }, [channels, search]);
 
   const handleSelect = useCallback(
-    (channelId: string) => {
-      if (channelIdRef.current && formRef.current) {
-        channelIdRef.current.value = channelId;
-        formRef.current.requestSubmit();
-      }
+    (channelId: string, channelName: string) => {
+      onAdd?.(guildId, channelId, channelName);
     },
-    [],
+    [guildId, onAdd],
   );
 
   if (!isOpen) return null;
@@ -171,7 +167,7 @@ export function ChannelAddModal({
                 type="button"
                 role="option"
                 aria-selected={false}
-                onClick={() => handleSelect(ch.id)}
+                onClick={() => handleSelect(ch.id, ch.name)}
                 className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition-colors hover:bg-surface-container-highest/30"
               >
                 <span className="flex items-center gap-2">
@@ -223,16 +219,6 @@ export function ChannelAddModal({
             ))}
           </div>
         )}
-
-        <form
-          ref={formRef}
-          method="POST"
-          action={actionUrl}
-          className="hidden"
-        >
-          <input type="hidden" name="guildId" value={guildId} />
-          <input type="hidden" name="channelId" value="" ref={channelIdRef} />
-        </form>
 
         <div className="mt-4 flex justify-end">
           <button

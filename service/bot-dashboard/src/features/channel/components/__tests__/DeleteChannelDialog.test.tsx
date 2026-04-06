@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DeleteChannelDialog } from "../DeleteChannelDialog";
@@ -17,11 +17,13 @@ describe("DeleteChannelDialog", () => {
     $channelToDelete.set(null);
   });
 
+  const onDelete = vi.fn();
+
   it("renders nothing when no channel targeted", () => {
     const { container } = render(
       <DeleteChannelDialog
         guildId="123456789012345678"
-        actionUrl="/actions/deleteChannel"
+        onDelete={onDelete}
         translations={translations}
       />,
     );
@@ -36,7 +38,7 @@ describe("DeleteChannelDialog", () => {
     render(
       <DeleteChannelDialog
         guildId="123456789012345678"
-        actionUrl="/actions/deleteChannel"
+        onDelete={onDelete}
         translations={translations}
       />,
     );
@@ -53,7 +55,7 @@ describe("DeleteChannelDialog", () => {
     render(
       <DeleteChannelDialog
         guildId="123456789012345678"
-        actionUrl="/actions/deleteChannel"
+        onDelete={onDelete}
         translations={translations}
       />,
     );
@@ -62,7 +64,8 @@ describe("DeleteChannelDialog", () => {
     expect($channelToDelete.get()).toBeNull();
   });
 
-  it("renders hidden form fields", () => {
+  it("calls onDelete when submit is clicked", async () => {
+    const user = userEvent.setup();
     $channelToDelete.set({
       channelId: "111222333444555666",
       channelName: "general",
@@ -70,17 +73,15 @@ describe("DeleteChannelDialog", () => {
     render(
       <DeleteChannelDialog
         guildId="123456789012345678"
-        actionUrl="/actions/deleteChannel"
+        onDelete={onDelete}
         translations={translations}
       />,
     );
-    const form = screen.getByRole("dialog").querySelector("form");
-    expect(form).toBeInTheDocument();
-    expect(
-      form?.querySelector<HTMLInputElement>('input[name="guildId"]')?.value,
-    ).toBe("123456789012345678");
-    expect(
-      form?.querySelector<HTMLInputElement>('input[name="channelId"]')?.value,
-    ).toBe("111222333444555666");
+
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    expect(onDelete).toHaveBeenCalledWith(
+      "123456789012345678",
+      "111222333444555666",
+    );
   });
 });

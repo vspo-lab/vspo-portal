@@ -155,6 +155,7 @@ const ja = {
   "toast.updateSuccess": "チャンネル設定を更新しました。",
   "toast.deleteSuccess": "チャンネル設定を削除しました。",
   "toast.resetSuccess": "チャンネル設定をデフォルトに戻しました。",
+  "toast.error": "操作に失敗しました。",
   "toast.dismiss": "閉じる",
   "toast.retry": "再読み込み",
 
@@ -330,6 +331,7 @@ const en: Record<keyof typeof ja, string> = {
   "toast.updateSuccess": "Channel settings updated.",
   "toast.deleteSuccess": "Channel configuration deleted.",
   "toast.resetSuccess": "Settings reset to default.",
+  "toast.error": "Operation failed.",
   "toast.dismiss": "Dismiss",
   "toast.retry": "Reload",
 

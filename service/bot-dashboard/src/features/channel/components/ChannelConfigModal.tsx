@@ -9,8 +9,10 @@ import type { CreatorType } from "~/features/shared/domain/creator";
 
 interface ChannelConfigModalProps {
   guildId: string;
-  updateActionUrl: string;
-  resetActionUrl: string;
+  updateActionUrl?: string;
+  resetActionUrl?: string;
+  onUpdate?: (guildId: string, channelId: string, patch: { language: string; memberType: string; customMemberIds?: string[] }) => void;
+  onReset?: (guildId: string, channelId: string) => void;
   creators: CreatorType[];
   translations: {
     title: string;
@@ -73,7 +75,7 @@ function ChannelConfigModalInner({
   translations,
   languageOptions,
   memberTypeOptions,
-}: Omit<ChannelConfigModalProps, never> & { channel: EditableChannel }) {
+}: ChannelConfigModalProps & { channel: EditableChannel }) {
   const [language, setLanguage] = useState(channel.language);
   const [memberType, setMemberType] = useState(channel.memberType);
   const [customIds, setCustomIds] = useState<Set<string>>(
@@ -175,16 +177,7 @@ function ChannelConfigModalInner({
           </button>
         </div>
 
-        {/* Update form */}
-        <form
-          id="update-channel-form"
-          method="POST"
-          action={updateActionUrl}
-          className="space-y-4"
-        >
-          <input type="hidden" name="guildId" value={guildId} />
-          <input type="hidden" name="channelId" value={channel.channelId} />
-
+        <div className="space-y-4">
           {/* Language */}
           <div className="space-y-2">
             <label htmlFor="language" className="text-sm font-medium">
@@ -359,19 +352,13 @@ function ChannelConfigModalInner({
               ))}
             </div>
           )}
-        </form>
-
-        {/* Reset form */}
-        <form method="POST" action={resetActionUrl} id="reset-channel-form">
-          <input type="hidden" name="guildId" value={guildId} />
-          <input type="hidden" name="channelId" value={channel.channelId} />
-        </form>
+        </div>
 
         {/* Footer buttons */}
         <div className="flex justify-end gap-2 pt-4">
           <button
-            type="submit"
-            form="reset-channel-form"
+            type="button"
+            onClick={() => onReset?.(guildId, channel.channelId)}
             className="mr-auto rounded-lg px-3 py-1.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest"
           >
             {translations.reset}
@@ -384,9 +371,15 @@ function ChannelConfigModalInner({
             {translations.cancel}
           </button>
           <button
-            type="submit"
-            form="update-channel-form"
+            type="button"
             disabled={isCustom && customIds.size === 0}
+            onClick={() =>
+              onUpdate?.(guildId, channel.channelId, {
+                language,
+                memberType,
+                customMemberIds: isCustom ? Array.from(customIds) : undefined,
+              })
+            }
             className="rounded-lg bg-vspo-purple px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-vspo-purple/90 disabled:opacity-50"
           >
             {translations.save}

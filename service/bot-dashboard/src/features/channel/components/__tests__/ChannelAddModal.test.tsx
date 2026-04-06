@@ -18,16 +18,18 @@ const translations = {
 };
 
 describe("ChannelAddModal", () => {
+  let onAdd: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
+    onAdd = vi.fn();
     $showAddModal.set(false);
-    vi.restoreAllMocks();
   });
 
   it("renders nothing when modal is closed", () => {
     const { container } = render(
       <ChannelAddModal
         guildId="123456789012345678"
-        actionUrl="/actions/addChannel"
+        onAdd={onAdd}
         registeredChannelIds={[]}
         translations={translations}
       />,
@@ -43,7 +45,7 @@ describe("ChannelAddModal", () => {
     render(
       <ChannelAddModal
         guildId="123456789012345678"
-        actionUrl="/actions/addChannel"
+        onAdd={onAdd}
         registeredChannelIds={[]}
         translations={translations}
       />,
@@ -66,7 +68,7 @@ describe("ChannelAddModal", () => {
     render(
       <ChannelAddModal
         guildId="123456789012345678"
-        actionUrl="/actions/addChannel"
+        onAdd={onAdd}
         registeredChannelIds={[]}
         translations={translations}
       />,
@@ -92,7 +94,7 @@ describe("ChannelAddModal", () => {
     render(
       <ChannelAddModal
         guildId="123456789012345678"
-        actionUrl="/actions/addChannel"
+        onAdd={onAdd}
         registeredChannelIds={["ch1"]}
         translations={translations}
       />,
@@ -118,7 +120,7 @@ describe("ChannelAddModal", () => {
     render(
       <ChannelAddModal
         guildId="123456789012345678"
-        actionUrl="/actions/addChannel"
+        onAdd={onAdd}
         registeredChannelIds={[]}
         translations={translations}
       />,
@@ -142,7 +144,7 @@ describe("ChannelAddModal", () => {
     render(
       <ChannelAddModal
         guildId="123456789012345678"
-        actionUrl="/actions/addChannel"
+        onAdd={onAdd}
         registeredChannelIds={[]}
         translations={translations}
       />,

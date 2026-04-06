@@ -6,7 +6,8 @@ import {
 
 interface DeleteChannelDialogProps {
   guildId: string;
-  actionUrl: string;
+  actionUrl?: string;
+  onDelete?: (guildId: string, channelId: string) => void;
   translations: {
     heading: string;
     description: string;
@@ -18,6 +19,7 @@ interface DeleteChannelDialogProps {
 export function DeleteChannelDialog({
   guildId,
   actionUrl,
+  onDelete,
   translations,
 }: DeleteChannelDialogProps) {
   const target = useStore($channelToDelete);
@@ -68,25 +70,22 @@ export function DeleteChannelDialog({
           </div>
         </div>
 
-        <form method="POST" action={actionUrl}>
-          <input type="hidden" name="guildId" value={guildId} />
-          <input type="hidden" name="channelId" value={target.channelId} />
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={closeDeleteDialog}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest"
-            >
-              {translations.cancel}
-            </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-destructive/90"
-            >
-              {translations.submit}
-            </button>
-          </div>
-        </form>
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={closeDeleteDialog}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest"
+          >
+            {translations.cancel}
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete?.(guildId, target.channelId)}
+            className="rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-destructive/90"
+          >
+            {translations.submit}
+          </button>
+        </div>
       </div>
     </div>
   );

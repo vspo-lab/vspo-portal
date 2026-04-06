@@ -31,7 +31,7 @@ const unwrapOrThrow = <T>(result: {
 
 export const server = {
   addChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: snowflake,
       channelId: snowflake,
@@ -51,7 +51,7 @@ export const server = {
   }),
 
   updateChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: snowflake,
       channelId: snowflake,
@@ -79,7 +79,7 @@ export const server = {
   }),
 
   resetChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: snowflake,
       channelId: snowflake,
@@ -100,7 +100,7 @@ export const server = {
   }),
 
   deleteChannel: defineAction({
-    accept: "form",
+    accept: "json",
     input: z.object({
       guildId: snowflake,
       channelId: snowflake,
