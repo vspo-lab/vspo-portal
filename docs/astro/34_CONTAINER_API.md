@@ -92,6 +92,7 @@ for (const key of ["DOMParser", "document", "window", /* ... */]) {
 ```
 
 This approach:
+
 - Runs in `node` environment (required by Astro 6 Container API)
 - Manually injects DOM APIs from `happy-dom` for HTML parsing and `@testing-library/dom` queries
 - Skips `astro.config.ts` to avoid Cloudflare adapter's Vite plugin conflicting with Vitest

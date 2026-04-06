@@ -20,11 +20,13 @@ The bot-dashboard does not currently leverage the Astro Dev Toolbar beyond its d
 ### Inspect
 
 Shows information about each [island](https://docs.astro.build/en/concepts/islands/) on the current page:
+
 - Component name and file path
 - Props passed to the island
 - Client directive used (`client:load`, `client:idle`, etc.)
 
 **Usage during migration**: When converting vanilla JS components to React islands, use Inspect to verify:
+
 - Correct props are passed
 - Appropriate client directive is selected
 - Server Islands are rendering with fallback
@@ -32,6 +34,7 @@ Shows information about each [island](https://docs.astro.build/en/concepts/islan
 ### Audit
 
 Runs automated audits on the current page:
+
 - **Performance**: Image dimensions, font loading, CLS indicators
 - **Accessibility**: Missing alt text, color contrast, ARIA attributes
 
@@ -40,6 +43,7 @@ Runs automated audits on the current page:
 ### Settings
 
 Configure toolbar behavior:
+
 - Verbose logging
 - Notification preferences
 - Toolbar placement (bottom-left, bottom-center, bottom-right)

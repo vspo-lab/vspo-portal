@@ -217,6 +217,7 @@ input: z.object({
 ### Current State
 
 `DeleteChannelDialog.astro` uses a native-like dialog with:
+
 - `aria-modal="true"` (good)
 - Keyboard trap with `close-on-outside-click.ts` (good)
 - Form submission for the actual delete action

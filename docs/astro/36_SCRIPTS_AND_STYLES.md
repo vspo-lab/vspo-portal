@@ -148,6 +148,7 @@ The project's vanilla JS should migrate to the custom element pattern before ful
 ```
 
 **Advantages**:
+
 - `this.querySelector()` scopes queries to the element instance
 - `connectedCallback()` runs per instance (safe for multiple uses)
 - Bundled and deduped by Astro

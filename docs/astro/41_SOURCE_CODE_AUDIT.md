@@ -355,6 +355,7 @@ Same issue in `ChannelAddModal.astro` (line 141): `setTimeout(() => { ... }, 100
 **File**: `src/layouts/Dashboard.astro` (lines 51-65)
 
 The sidebar navigation already has:
+
 - `<nav>` with `aria-label`
 - `aria-current="page"` on active links
 - Proper heading hierarchy with `<h2>` for guild name
@@ -436,6 +437,7 @@ Good — already validates allowed locales. Migration to Astro Action would use 
 ### 24. Session Data Shape Is Implicit
 
 The session stores multiple untyped keys:
+
 - `locale` (string)
 - `user` (object)
 - `accessToken` (string)

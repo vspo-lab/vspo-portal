@@ -84,7 +84,7 @@ const ChannelConfigSchema = z.object({
 }).strict(); // Rejects unexpected fields
 ```
 
-2. **Schema version tests**: Write tests that validate sample RPC responses against schemas:
+1. **Schema version tests**: Write tests that validate sample RPC responses against schemas:
 
 ```typescript
 // features/channel/domain/channel-config.test.ts

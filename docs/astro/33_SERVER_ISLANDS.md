@@ -80,6 +80,7 @@ import UserMenu from '../../auth/components/UserMenu.astro';
 ```
 
 Benefits:
+
 - The header renders instantly with a skeleton placeholder
 - `UserMenu` loads in parallel without blocking the page
 - The rest of the page can potentially be edge-cached
@@ -243,6 +244,7 @@ When using `<ClientRouter />` (View Transitions), server islands interact with t
 3. **Fallback content**: During transition, the fallback shows briefly before island content loads
 
 This means on client-side navigation, users may see:
+
 1. Old page → transition → new page with fallback → island content fills in
 
 This is generally acceptable and even desirable (fast perceived navigation). But for islands that are the primary content of a page, consider whether the double-flash (transition + island load) is a good UX.

@@ -422,12 +422,14 @@ The project uses `<ClientRouter />` in `Base.astro` for all pages. This adds a J
 ### Evaluation for This Project
 
 **Reasons to keep `<ClientRouter />`:**
+
 - React Islands rely on `transition:persist` to avoid remounting
 - `astro:before-swap` is used for theme persistence
 - Loading indicators use `astro:before-preparation`
 - Form submissions are intercepted by the router
 
 **Reasons to consider MPA transitions (future):**
+
 - Zero JS for transitions = better performance
 - No script re-initialization issues (`astro:page-load` pattern goes away)
 - No `AbortController` cleanup needed

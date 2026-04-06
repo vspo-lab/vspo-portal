@@ -142,6 +142,7 @@ These can be done immediately between larger tasks:
 ## Cross-References
 
 This document synthesizes priorities from all 39 topic docs:
+
 - Architecture: [01](./01_ISLANDS_ARCHITECTURE.md), [02](./02_REACT_MIGRATION.md), [05](./05_STATE_MANAGEMENT.md), [11](./11_IMPLEMENTATION_PLAN.md)
 - Quality: [08](./08_ACCESSIBILITY.md), [09](./09_SECURITY.md), [10](./10_TESTING.md), [31](./31_TYPE_SAFETY.md)
 - Performance: [06](./06_PERFORMANCE.md), [13](./13_FONTS_OPTIMIZATION.md), [25](./25_IMAGE_OPTIMIZATION.md), [33](./33_SERVER_ISLANDS.md)

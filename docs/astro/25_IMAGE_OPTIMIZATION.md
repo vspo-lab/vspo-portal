@@ -106,7 +106,7 @@ The Tailwind classes set the CSS display size (24px). The HTML `width`/`height` 
 
 Guild icons and user avatars are loaded directly from Discord CDN:
 
-```
+```text
 https://cdn.discordapp.com/avatars/{userId}/{hash}.png
 https://cdn.discordapp.com/icons/{guildId}/{hash}.png
 ```
@@ -497,6 +497,7 @@ const { width, height } = await inferRemoteSize(creator.thumbnailURL);
 ### Caveat
 
 `inferRemoteSize()` makes a network request to fetch image headers. For pages with many creator thumbnails (50+ creators), this adds latency during SSR. Consider:
+
 1. Caching the results if the same image appears on multiple pages
 2. Using known fixed dimensions (e.g., Discord avatars are always square) instead of inferring
 3. Only using this for images where you don't control the dimensions

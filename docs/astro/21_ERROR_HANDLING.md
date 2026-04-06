@@ -178,7 +178,8 @@ const errorMessage =
 
 The guild detail page (`[guildId].astro`) uses two separate patterns:
 
-**Pattern A: Post-Redirect-Get (PRG) with query parameter**
+### Pattern A: Post-Redirect-Get (PRG) with query parameter
+
 ```typescript
 // If action succeeded, redirect to refresh data
 if (addResult?.data?.success || ...) {
@@ -189,7 +190,8 @@ if (addResult?.data?.success || ...) {
 const flashType = Astro.url.searchParams.get("flash");
 ```
 
-**Pattern B: Direct `getActionResult()` for errors**
+### Pattern B: Direct `getActionResult()` for errors
+
 ```typescript
 const actionError = addResult?.error ?? updateResult?.error ?? ...;
 ```
@@ -357,6 +359,7 @@ import ChannelAddModalReact from "~/features/channel/components/ChannelAddModal"
 ### Note
 
 Error boundaries only catch errors during React rendering. They do not catch errors in:
+
 - Event handlers (use try-catch or Result pattern)
 - Async code (use `.catch()` or Result pattern)
 - Server-side rendering (handled by Astro's error pages)
