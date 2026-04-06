@@ -13,7 +13,7 @@ const propsSchema = z.object({
 type Props = z.infer<typeof propsSchema>;
 
 const { title, description, canonicalPath, noindex } = Astro.props;
-const { locale, cspNonce } = Astro.locals;
+const { locale } = Astro.locals;
 
 const siteUrl = Astro.site?.origin ?? "https://discord.vspo-schedule.com";
 const pageTitle = `${title} | ${t(locale, "app.title")}`;
@@ -71,7 +71,7 @@ const altPath = canonicalPath
       </>
     )}
 
-    <script is:inline nonce={cspNonce}>
+    <script is:inline>
       (function () {
         function applyTheme() {
           var stored = localStorage.getItem("theme");
