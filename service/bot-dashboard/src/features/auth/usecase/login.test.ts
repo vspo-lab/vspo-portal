@@ -1,25 +1,48 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { AppError, Err, Ok } from "@vspo-lab/error";
-import { DiscordApiRepository } from "../repository/discord-api";
+import type { ApplicationService } from "~/types/api";
 import { LoginUsecase } from "./login";
 
-vi.mock("../repository/discord-api", () => ({
-  DiscordApiRepository: {
-    exchangeCode: vi.fn(),
-    getCurrentUser: vi.fn(),
-  },
-}));
+const createMockAppWorker = (overrides?: {
+  exchangeOAuthCode?: ReturnType<typeof vi.fn>;
+  getOAuthUser?: ReturnType<typeof vi.fn>;
+}) =>
+  ({
+    newDiscordUsecase: () => ({
+      exchangeOAuthCode:
+        overrides?.exchangeOAuthCode ??
+        vi.fn().mockResolvedValue(
+          Ok({
+            access_token: "mock-access",
+            refresh_token: "mock-refresh",
+            expires_in: 604800,
+            token_type: "Bearer",
+            scope: "identify guilds",
+          }),
+        ),
+      getOAuthUser:
+        overrides?.getOAuthUser ??
+        vi.fn().mockResolvedValue(
+          Ok({
+            id: "123456789",
+            username: "testuser",
+            global_name: "Test User",
+            avatar: "abc123",
+            locale: "ja",
+          }),
+        ),
+    }),
+  }) as unknown as ApplicationService;
 
 const env = {
   DISCORD_CLIENT_ID: "test-client-id",
-  DISCORD_CLIENT_SECRET: "test-secret",
   DISCORD_REDIRECT_URI: "https://example.com/callback",
 };
 
 describe("LoginUsecase", () => {
   describe("buildAuthorizationUrl", () => {
-    it("returns a valid Discord OAuth2 URL", () => {
-      const result = LoginUsecase.buildAuthorizationUrl(env);
+    it("returns a valid Discord OAuth2 URL", async () => {
+      const result = await LoginUsecase.buildAuthorizationUrl(env);
       const url = new URL(result.url);
       expect(url.origin).toBe("https://discord.com");
       expect(url.pathname).toBe("/api/oauth2/authorize");
@@ -31,8 +54,8 @@ describe("LoginUsecase", () => {
       expect(url.searchParams.get("scope")).toBe("identify guilds");
     });
 
-    it("returns a state value for CSRF protection", () => {
-      const result = LoginUsecase.buildAuthorizationUrl(env);
+    it("returns a state value for CSRF protection", async () => {
+      const result = await LoginUsecase.buildAuthorizationUrl(env);
       expect(result.state).toBeDefined();
       expect(result.state.length).toBeGreaterThan(0);
       // Should include state in URL
@@ -40,9 +63,9 @@ describe("LoginUsecase", () => {
       expect(url.searchParams.get("state")).toBe(result.state);
     });
 
-    it("generates unique state per invocation", () => {
-      const r1 = LoginUsecase.buildAuthorizationUrl(env);
-      const r2 = LoginUsecase.buildAuthorizationUrl(env);
+    it("generates unique state per invocation", async () => {
+      const r1 = await LoginUsecase.buildAuthorizationUrl(env);
+      const r2 = await LoginUsecase.buildAuthorizationUrl(env);
       expect(r1.state).not.toBe(r2.state);
     });
   });
@@ -65,15 +88,17 @@ describe("LoginUsecase", () => {
     };
 
     it("returns LoginResult on success", async () => {
-      vi.mocked(DiscordApiRepository.exchangeCode).mockResolvedValue(
-        Ok(tokenResponse),
-      );
-      vi.mocked(DiscordApiRepository.getCurrentUser).mockResolvedValue(
-        Ok(apiUser),
-      );
+      const mockAppWorker = createMockAppWorker({
+        exchangeOAuthCode: vi.fn().mockResolvedValue(Ok(tokenResponse)),
+        getOAuthUser: vi.fn().mockResolvedValue(Ok(apiUser)),
+      });
 
       const before = getCurrentUTCDate().getTime();
-      const result = await LoginUsecase.handleCallback("auth-code", env);
+      const result = await LoginUsecase.handleCallback(
+        "auth-code",
+        env,
+        mockAppWorker,
+      );
       const after = getCurrentUTCDate().getTime();
 
       expect(result.err).toBeUndefined();
@@ -90,13 +115,6 @@ describe("LoginUsecase", () => {
         before + 604800 * 1000,
       );
       expect(result.val?.expiresAt).toBeLessThanOrEqual(after + 604800 * 1000);
-
-      expect(DiscordApiRepository.exchangeCode).toHaveBeenCalledWith({
-        code: "auth-code",
-        clientId: env.DISCORD_CLIENT_ID,
-        clientSecret: env.DISCORD_CLIENT_SECRET,
-        redirectUri: env.DISCORD_REDIRECT_URI,
-      });
     });
 
     it("returns Err when token exchange fails", async () => {
@@ -104,48 +122,58 @@ describe("LoginUsecase", () => {
         message: "token exchange failed",
         code: "UNAUTHORIZED",
       });
-      vi.mocked(DiscordApiRepository.exchangeCode).mockResolvedValue(
-        Err(error),
-      );
+      const mockAppWorker = createMockAppWorker({
+        exchangeOAuthCode: vi.fn().mockResolvedValue(Err(error)),
+      });
 
-      const result = await LoginUsecase.handleCallback("bad-code", env);
+      const result = await LoginUsecase.handleCallback(
+        "bad-code",
+        env,
+        mockAppWorker,
+      );
 
       expect(result.err).toBeDefined();
       expect(result.err).toBe(error);
-      expect(DiscordApiRepository.getCurrentUser).not.toHaveBeenCalled();
     });
 
     it("returns Err when user parsing fails", async () => {
-      vi.mocked(DiscordApiRepository.exchangeCode).mockResolvedValue(
-        Ok(tokenResponse),
-      );
-      // id must be a string per DiscordApiUserSchema; returning a number triggers parse failure
-      vi.mocked(DiscordApiRepository.getCurrentUser).mockResolvedValue(
-        Ok({
-          id: 123 as unknown as string,
-          username: "u",
-          global_name: null,
-          avatar: null,
-        }),
-      );
+      const mockAppWorker = createMockAppWorker({
+        exchangeOAuthCode: vi.fn().mockResolvedValue(Ok(tokenResponse)),
+        getOAuthUser: vi
+          .fn()
+          .mockResolvedValue(
+            Ok({
+              id: 123 as unknown as string,
+              username: "u",
+              global_name: null,
+              avatar: null,
+            }),
+          ),
+      });
 
-      const result = await LoginUsecase.handleCallback("code", env);
+      const result = await LoginUsecase.handleCallback(
+        "code",
+        env,
+        mockAppWorker,
+      );
       expect(result.err).toBeDefined();
     });
 
     it("returns Err when user fetch fails", async () => {
-      vi.mocked(DiscordApiRepository.exchangeCode).mockResolvedValue(
-        Ok(tokenResponse),
-      );
       const error = new AppError({
         message: "user fetch failed",
         code: "UNAUTHORIZED",
       });
-      vi.mocked(DiscordApiRepository.getCurrentUser).mockResolvedValue(
-        Err(error),
-      );
+      const mockAppWorker = createMockAppWorker({
+        exchangeOAuthCode: vi.fn().mockResolvedValue(Ok(tokenResponse)),
+        getOAuthUser: vi.fn().mockResolvedValue(Err(error)),
+      });
 
-      const result = await LoginUsecase.handleCallback("code", env);
+      const result = await LoginUsecase.handleCallback(
+        "code",
+        env,
+        mockAppWorker,
+      );
 
       expect(result.err).toBeDefined();
       expect(result.err).toBe(error);

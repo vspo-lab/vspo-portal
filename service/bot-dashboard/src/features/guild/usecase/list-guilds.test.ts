@@ -1,12 +1,12 @@
 import { AppError, Err, Ok } from "@vspo-lab/error";
-import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import { DiscordOAuthRpcRepository } from "~/features/auth/repository/discord-oauth-rpc";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import type { ApplicationService } from "~/types/api";
 import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
 import { ListGuildsUsecase } from "./list-guilds";
 
-vi.mock("~/features/auth/repository/discord-api", () => ({
-  DiscordApiRepository: {
+vi.mock("~/features/auth/repository/discord-oauth-rpc", () => ({
+  DiscordOAuthRpcRepository: {
     getUserGuilds: vi.fn(),
   },
 }));
@@ -53,7 +53,7 @@ const anotherNonOwnerGuild = {
 describe("ListGuildsUsecase", () => {
   describe("execute", () => {
     it("owner guilds are always admin, server check upgrades non-owner installed guilds", async () => {
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(
         Ok([ownerGuild, nonOwnerGuild, anotherNonOwnerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
@@ -80,7 +80,7 @@ describe("ListGuildsUsecase", () => {
     });
 
     it("falls back to owner-only when checkUserGuildAdmin fails", async () => {
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(
         Ok([ownerGuild, nonOwnerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
@@ -108,7 +108,7 @@ describe("ListGuildsUsecase", () => {
     });
 
     it("builds sidebarGuilds from installed admin guilds", async () => {
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(
         Ok([ownerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
@@ -139,7 +139,7 @@ describe("ListGuildsUsecase", () => {
     });
 
     it("does not fetch channel summaries when includeChannelSummary is false", async () => {
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(
         Ok([ownerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
@@ -167,7 +167,7 @@ describe("ListGuildsUsecase", () => {
         message: "guild fetch failed",
         code: "UNAUTHORIZED",
       });
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(
         Err(error),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
@@ -188,7 +188,7 @@ describe("ListGuildsUsecase", () => {
         message: "bot guild ids failed",
         code: "INTERNAL_SERVER_ERROR",
       });
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(
         Ok([ownerGuild]),
       );
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
@@ -205,7 +205,7 @@ describe("ListGuildsUsecase", () => {
     });
 
     it("returns empty arrays when no guilds exist", async () => {
-      vi.mocked(DiscordApiRepository.getUserGuilds).mockResolvedValue(Ok([]));
+      vi.mocked(DiscordOAuthRpcRepository.getUserGuilds).mockResolvedValue(Ok([]));
       vi.mocked(VspoGuildApiRepository.getBotGuildIds).mockResolvedValue(
         Ok(new Set()),
       );
