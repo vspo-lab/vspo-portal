@@ -48,6 +48,10 @@ type GuildDashboardIslandProps = {
       reset: string;
       cancel: string;
       save: string;
+      diffTitle: string;
+      diffLanguage: string;
+      diffMemberType: string;
+      diffCustomMembers: string;
     };
     deleteDialog: {
       heading: string;

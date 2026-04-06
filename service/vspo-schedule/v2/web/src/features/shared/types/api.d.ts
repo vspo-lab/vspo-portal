@@ -2523,6 +2523,58 @@ declare class DiscordService extends RpcTarget {
     userId: string,
     guildIds: string[],
   ): Promise<_vspo_lab_error.Result<Record<string, boolean>, _vspo_lab_error.AppError>>;
+  exchangeOAuthCode(params: {
+    code: string;
+    redirectUri: string;
+    codeVerifier?: string;
+  }): Promise<
+    _vspo_lab_error.Result<
+      {
+        access_token: string;
+        refresh_token: string;
+        expires_in: number;
+        token_type: string;
+        scope: string;
+      },
+      _vspo_lab_error.AppError
+    >
+  >;
+  refreshOAuthToken(refreshToken: string): Promise<
+    _vspo_lab_error.Result<
+      {
+        access_token: string;
+        refresh_token: string;
+        expires_in: number;
+        token_type: string;
+        scope: string;
+      },
+      _vspo_lab_error.AppError
+    >
+  >;
+  getOAuthUser(accessToken: string): Promise<
+    _vspo_lab_error.Result<
+      {
+        id: string;
+        username: string;
+        global_name: string | null;
+        avatar: string | null;
+        locale?: string;
+      },
+      _vspo_lab_error.AppError
+    >
+  >;
+  getOAuthUserGuilds(accessToken: string): Promise<
+    _vspo_lab_error.Result<
+      {
+        id: string;
+        name: string;
+        icon: string | null;
+        owner: boolean;
+        permissions: string;
+      }[],
+      _vspo_lab_error.AppError
+    >
+  >;
 }
 declare class EventService extends RpcTarget {
   #private;

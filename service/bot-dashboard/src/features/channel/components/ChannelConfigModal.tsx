@@ -33,6 +33,10 @@ type ChannelConfigModalProps = {
     reset: string;
     cancel: string;
     save: string;
+    diffTitle: string;
+    diffLanguage: string;
+    diffMemberType: string;
+    diffCustomMembers: string;
   };
   languageOptions: { value: string; label: string }[];
   memberTypeOptions: {
@@ -106,6 +110,63 @@ function ChannelConfigModalInner({
     String(customIds.size),
   );
   const isCustom = memberType === "custom";
+
+  const diffs = useMemo(() => {
+    const items: { label: string; from: string; to: string }[] = [];
+    if (language !== channel.language) {
+      const fromLabel =
+        languageOptions.find((o) => o.value === channel.language)?.label ??
+        channel.language;
+      const toLabel =
+        languageOptions.find((o) => o.value === language)?.label ?? language;
+      items.push({
+        label: translations.diffLanguage,
+        from: fromLabel,
+        to: toLabel,
+      });
+    }
+    if (memberType !== channel.memberType) {
+      const fromLabel =
+        memberTypeOptions.find((o) => o.value === channel.memberType)?.label ??
+        channel.memberType;
+      const toLabel =
+        memberTypeOptions.find((o) => o.value === memberType)?.label ??
+        memberType;
+      items.push({
+        label: translations.diffMemberType,
+        from: fromLabel,
+        to: toLabel,
+      });
+    }
+    if (isCustom) {
+      const origIds = new Set(channel.customMemberIds ?? []);
+      const added = [...customIds].filter((id) => !origIds.has(id));
+      const removed = [...origIds].filter((id) => !customIds.has(id));
+      if (added.length > 0 || removed.length > 0) {
+        const nameOf = (id: string) =>
+          creators.find((c) => c.id === id)?.name ?? id;
+        const parts: string[] = [];
+        if (added.length > 0) parts.push(`+${added.map(nameOf).join(", ")}`);
+        if (removed.length > 0)
+          parts.push(`-${removed.map(nameOf).join(", ")}`);
+        items.push({
+          label: translations.diffCustomMembers,
+          from: String(origIds.size),
+          to: `${customIds.size} (${parts.join(" / ")})`,
+        });
+      }
+    }
+    return items;
+  }, [
+    language,
+    memberType,
+    customIds,
+    channel,
+    languageOptions,
+    memberTypeOptions,
+    creators,
+    translations,
+  ]);
 
   const toggleMember = useCallback((id: string) => {
     setCustomIds((prev) => {
@@ -369,6 +430,37 @@ function ChannelConfigModalInner({
             </div>
           )}
         </div>
+
+        {/* Change preview */}
+        {diffs.length > 0 && (
+          <div className="mt-4 rounded-lg border border-outline-variant/20 bg-surface-container-low p-3">
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant">
+              {translations.diffTitle}
+            </h3>
+            <div className="space-y-1.5">
+              {diffs.map((d) => (
+                <div
+                  key={d.label}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <span className="text-on-surface-variant">{d.label}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-destructive line-through">
+                      {d.from}
+                    </span>
+                    <span
+                      className="text-on-surface-variant"
+                      aria-hidden="true"
+                    >
+                      &rarr;
+                    </span>
+                    <span className="font-medium text-success">{d.to}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Footer buttons */}
         <div className="flex justify-end gap-2 pt-4">

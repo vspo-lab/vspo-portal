@@ -1,8 +1,5 @@
-import {
-  DISCORD_CLIENT_ID,
-  DISCORD_CLIENT_SECRET,
-  DISCORD_REDIRECT_URI,
-} from "astro:env/server";
+import { DISCORD_REDIRECT_URI } from "astro:env/server";
+import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { LoginUsecase } from "~/features/auth/usecase/login";
 
@@ -31,7 +28,8 @@ export const GET: APIRoute = async (context) => {
 
   const result = await LoginUsecase.handleCallback(
     code,
-    { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI },
+    { DISCORD_REDIRECT_URI },
+    env.APP_WORKER,
     codeVerifier ?? undefined,
   );
 

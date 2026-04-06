@@ -1,6 +1,6 @@
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
-import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import { DiscordOAuthRpcRepository } from "~/features/auth/repository/discord-oauth-rpc";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import type { ApplicationService } from "~/types/api";
 import type { GuildSummaryType } from "../domain/guild";
@@ -34,7 +34,10 @@ const execute = async (
 ): Promise<Result<ListGuildsResult, AppError>> => {
   const { includeChannelSummary = true } = params;
   const [guildsResult, botGuildIdsResult] = await Promise.all([
-    DiscordApiRepository.getUserGuilds(params.accessToken),
+    DiscordOAuthRpcRepository.getUserGuilds(
+      params.appWorker,
+      params.accessToken,
+    ),
     VspoGuildApiRepository.getBotGuildIds(params.appWorker),
   ]);
 
