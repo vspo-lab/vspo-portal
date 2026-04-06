@@ -37,7 +37,6 @@ type ChannelConfigModalProps = {
     diffLanguage: string;
     diffMemberType: string;
     diffCustomMembers: string;
-    diffNoChanges: string;
   };
   languageOptions: { value: string; label: string }[];
   memberTypeOptions: {
@@ -162,7 +161,6 @@ function ChannelConfigModalInner({
     language,
     memberType,
     customIds,
-    isCustom,
     channel,
     languageOptions,
     memberTypeOptions,

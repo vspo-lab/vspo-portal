@@ -144,6 +144,8 @@ export function FeatureShowcase({
                     src={`${featureImages[activeFeature.icon]}.png`}
                     alt={activeFeature.title}
                     className="h-auto w-full object-cover"
+                    width={960}
+                    height={540}
                     loading="lazy"
                   />
                 </picture>

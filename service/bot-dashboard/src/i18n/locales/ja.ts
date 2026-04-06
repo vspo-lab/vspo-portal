@@ -133,7 +133,6 @@ export const ja = {
   "channelConfig.diff.language": "言語",
   "channelConfig.diff.memberType": "メンバー",
   "channelConfig.diff.customMembers": "カスタムメンバー",
-  "channelConfig.diff.noChanges": "変更なし",
 
   // Navigation
   "nav.sidebar": "サーバーナビゲーション",

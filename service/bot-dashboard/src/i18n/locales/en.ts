@@ -142,7 +142,6 @@ export const en: Record<keyof typeof ja, string> = {
   "channelConfig.diff.language": "Language",
   "channelConfig.diff.memberType": "Members",
   "channelConfig.diff.customMembers": "Custom Members",
-  "channelConfig.diff.noChanges": "No changes",
 
   // Navigation
   "nav.sidebar": "Server Navigation",

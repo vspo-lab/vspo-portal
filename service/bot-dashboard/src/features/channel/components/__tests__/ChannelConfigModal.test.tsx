@@ -41,7 +41,6 @@ const translations = {
   diffLanguage: "Language",
   diffMemberType: "Members",
   diffCustomMembers: "Custom Members",
-  diffNoChanges: "No changes",
 };
 
 const languageOptions = [
