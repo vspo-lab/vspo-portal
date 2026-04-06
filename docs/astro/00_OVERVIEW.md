@@ -2,19 +2,21 @@
 
 ## Current Architecture
 
-| Item | Status |
-|------|--------|
-| Framework | Astro (SSR, `output: "server"`) |
-| Deployment | Cloudflare Workers (`@astrojs/cloudflare`) |
-| CSS | Tailwind CSS v4 (`@tailwindcss/vite`) |
-| i18n | Astro built-in (`defaultLocale: "ja"`, `locales: ["ja", "en"]`) + custom dictionary (`dict.ts`) |
-| Page Transitions | `<ClientRouter />` (View Transitions) + `prefetch: "viewport"` |
-| Authentication | Discord OAuth2 (middleware + session) |
-| Server Actions | Astro Actions (`defineAction`, `accept: "form"`) |
-| Client JS | **Hybrid** — React Islands for new components, vanilla JS (`<script>` tags, AbortController pattern) for unmigrated ones |
-| State Management | None (DOM-based for vanilla JS components) |
-| Testing | vitest + @testing-library/react (150 tests passing) |
-| React Integration | `@astrojs/react` installed and configured |
+| Item | Status | Version / Notes |
+|------|--------|-----------------|
+| Framework | Astro (SSR, `output: "server"`) | All pages server-rendered by default; use `export const prerender = true` for static pages |
+| Deployment | Cloudflare Workers (`@astrojs/cloudflare`) | Adapter v13+ required for Astro 6 |
+| CSS | Tailwind CSS v4 (`@tailwindcss/vite`) | CSS-first config via `@theme` directives (no `tailwind.config.js`) |
+| i18n | Astro built-in (`defaultLocale: "ja"`, `locales: ["ja", "en"]`) + custom dictionary (`dict.ts`) | |
+| Page Transitions | `<ClientRouter />` (View Transitions) + `prefetch: "viewport"` | `<ClientRouter />` introduced in astro@5.0.0 (renamed from `<ViewTransitions />`); prefetch enabled by default when using ClientRouter |
+| Authentication | Discord OAuth2 (middleware + session) | |
+| Session Management | Astro Sessions API | astro@5.7.0+; driver configured via `sessionDrivers.cloudflareKV()` function form (Astro 6) |
+| Server Actions | Astro Actions (`defineAction`, `accept: "form"`) | `defineAction()` supports `accept: "form"` or `accept: "json"` |
+| Client JS | **Hybrid** — React Islands for new components, vanilla JS (`<script>` tags, AbortController pattern) for unmigrated ones | |
+| State Management | None (DOM-based for vanilla JS components) | |
+| Testing | vitest + @testing-library/react (150 tests passing) | |
+| React Integration | `@astrojs/react` installed and configured | Via `@astrojs/react` integration |
+| Environment Variables | `astro:env` | astro@5.0.0; type-safe environment variable access |
 
 ## Progress Status
 
@@ -84,6 +86,54 @@ src/
 5. **Align with Astro best practices** — CSP, Server Islands, Content Layer, etc.
 6. **Leverage Astro built-in features** — Sessions API, `astro:env` type-safe env vars, `<Image>` / `<Picture>` optimization, Cloudflare bindings
 
+## Astro 6 Key Changes
+
+Summary of breaking changes relevant to this project:
+
+| Change | Detail |
+|--------|--------|
+| `sessionDrivers` function form | Session drivers use function syntax (e.g. `sessionDrivers.cloudflareKV()`) instead of string-based config |
+| `ActionAPIContext.rewrite()` removed | Rewrite calls inside Actions are no longer supported |
+| Container API environment | Container API requires `node` environment in Vitest config |
+| Cloudflare adapter entrypoint | Changed to `@astrojs/cloudflare/entrypoints/server` |
+| `Astro.locals.runtime` removed | Use `cloudflare:workers` module instead for accessing Cloudflare bindings |
+| Built-in CSP | Configure via `security.csp` in `astro.config.ts` |
+| `clientAddress` in middleware | `clientAddress` is now available directly in middleware context |
+| `serverIslandMappings` config | New config option for controlling Server Island behavior |
+
+## Astro 6 Stabilized Features
+
+The following features graduated from experimental to stable in Astro 6:
+
+| Feature | Experimental Flag | Astro 6 Stable Config | Doc Reference |
+|---------|------------------|----------------------|---------------|
+| Content Security Policy | `experimental.csp` | `security.csp` | [19_CSP_BUILTIN.md](./19_CSP_BUILTIN.md) |
+| Fonts API | `experimental.fonts` | `fonts` (top-level) | [13_FONTS_OPTIMIZATION.md](./13_FONTS_OPTIMIZATION.md) |
+| Live Content Collections | `experimental.liveContentCollections` | Built-in | [14_CONTENT_COLLECTIONS.md](./14_CONTENT_COLLECTIONS.md) |
+| Script Order | `experimental.preserveScriptOrder` | Default behavior | [16_ADVANCED_FEATURES.md](./16_ADVANCED_FEATURES.md) |
+| Static import.meta.env | `experimental.staticImportMetaEnv` | Default behavior | [28_ASTRO_ENV.md](./28_ASTRO_ENV.md) |
+| Heading ID Compat | `experimental.headingIdCompat` | Default behavior | — |
+| Prerender Conflict | `experimental.failOnPrerenderConflict` | `prerenderConflictBehavior` | — |
+
+Current experimental features (Astro 6):
+
+- `experimental.rustCompiler` — Faster Rust-based compiler
+- `experimental.queuedRendering` — Queue-based rendering (more memory efficient)
+- `experimental.clientPrerender` — Client-side prerendering via Speculation Rules API
+- `experimental.svgo` — SVG optimization via SVGO
+
+## Document Cross-References
+
+Quick guide on which docs to consult for common tasks:
+
+| Task | Relevant Documents |
+|------|--------------------|
+| Adding a new page | [03_PAGE_IMPROVEMENTS](./03_PAGE_IMPROVEMENTS.md), [06_PERFORMANCE](./06_PERFORMANCE.md), [24_SEO_META](./24_SEO_META.md) |
+| Adding a React Island | [01_ISLANDS_ARCHITECTURE](./01_ISLANDS_ARCHITECTURE.md), [02_REACT_MIGRATION](./02_REACT_MIGRATION.md), [05_STATE_MANAGEMENT](./05_STATE_MANAGEMENT.md) |
+| Security hardening | [09_SECURITY](./09_SECURITY.md), [15_MIDDLEWARE_PATTERNS](./15_MIDDLEWARE_PATTERNS.md), [19_CSP_BUILTIN](./19_CSP_BUILTIN.md), [20_API_ROUTES](./20_API_ROUTES.md) |
+| Performance optimization | [06_PERFORMANCE](./06_PERFORMANCE.md), [13_FONTS_OPTIMIZATION](./13_FONTS_OPTIMIZATION.md), [25_IMAGE_OPTIMIZATION](./25_IMAGE_OPTIMIZATION.md), [33_SERVER_ISLANDS](./33_SERVER_ISLANDS.md) |
+| Testing | [10_TESTING](./10_TESTING.md), [34_CONTAINER_API](./34_CONTAINER_API.md) |
+
 ## Document Index
 
 | File | Contents |
@@ -100,13 +150,13 @@ src/
 | [10_TESTING.md](./10_TESTING.md) | Test strategy |
 | [11_IMPLEMENTATION_PLAN.md](./11_IMPLEMENTATION_PLAN.md) | Implementation order and dependencies |
 | [12_CLOUDFLARE_INTEGRATION.md](./12_CLOUDFLARE_INTEGRATION.md) | Cloudflare Workers integration improvements |
-| [13_FONTS_OPTIMIZATION.md](./13_FONTS_OPTIMIZATION.md) | Font optimization (Astro 6 fonts) |
+| [13_FONTS_OPTIMIZATION.md](./13_FONTS_OPTIMIZATION.md) | Font optimization + Astro 6 Fonts API |
 | [14_CONTENT_COLLECTIONS.md](./14_CONTENT_COLLECTIONS.md) | Content Collections migration |
 | [15_MIDDLEWARE_PATTERNS.md](./15_MIDDLEWARE_PATTERNS.md) | Middleware pattern improvements |
-| [16_ADVANCED_FEATURES.md](./16_ADVANCED_FEATURES.md) | Advanced Astro feature adoption |
+| [16_ADVANCED_FEATURES.md](./16_ADVANCED_FEATURES.md) | Advanced features + experimental flags |
 | [17_ACTIONS_PATTERNS.md](./17_ACTIONS_PATTERNS.md) | Astro Actions pattern improvements |
 | [18_SESSION_MANAGEMENT.md](./18_SESSION_MANAGEMENT.md) | Session management improvements |
-| [19_CSP_BUILTIN.md](./19_CSP_BUILTIN.md) | Astro 6 built-in CSP |
+| [19_CSP_BUILTIN.md](./19_CSP_BUILTIN.md) | Built-in CSP (Astro 6 stable) |
 | [20_API_ROUTES.md](./20_API_ROUTES.md) | API route security and migration to Actions |
 | [21_ERROR_HANDLING.md](./21_ERROR_HANDLING.md) | Error handling across all layers |
 | [22_DATA_LAYER.md](./22_DATA_LAYER.md) | Repository, UseCase, and domain model improvements |
@@ -122,3 +172,21 @@ src/
 | [32_MONITORING.md](./32_MONITORING.md) | Monitoring, logging, error reporting, Web Vitals, health check |
 | [33_SERVER_ISLANDS.md](./33_SERVER_ISLANDS.md) | Server Islands (`server:defer`), deferred rendering, caching, `ASTRO_KEY` |
 | [34_CONTAINER_API.md](./34_CONTAINER_API.md) | Container API for Astro component testing, `locals`, React renderer, test utils |
+| [35_ROUTING_PATTERNS.md](./35_ROUTING_PATTERNS.md) | Route priority, dynamic param validation, redirects, error pages, trailing slash |
+| [36_SCRIPTS_AND_STYLES.md](./36_SCRIPTS_AND_STYLES.md) | Script directives, custom elements, style scoping, `define:vars`, Tailwind v4 |
+| [37_SLOTS_AND_COMPOSITION.md](./37_SLOTS_AND_COMPOSITION.md) | Named slots, fallback content, slot transfer, React slot-to-prop conversion |
+| [38_DEV_TOOLBAR.md](./38_DEV_TOOLBAR.md) | Dev Toolbar apps, custom inspector, component library, i18n checker |
+| [39_COOKIES_AND_ENDPOINTS.md](./39_COOKIES_AND_ENDPOINTS.md) | Cookies API, security defaults, server endpoints, Action migration |
+| [40_MIGRATION_PRIORITY_MATRIX.md](./40_MIGRATION_PRIORITY_MATRIX.md) | Cross-cutting priority matrix, dependency graph, Astro 6 readiness |
+| [41_SOURCE_CODE_AUDIT.md](./41_SOURCE_CODE_AUDIT.md) | Line-level source code audit: 26 findings across security, performance, a11y, i18n, architecture |
+
+## Migration Checklist
+
+- [ ] Verify all Astro 6 breaking changes are addressed before upgrading
+- [ ] Update `@astrojs/cloudflare` to v13+ when migrating to Astro 6
+- [ ] Review `sessionDrivers` function form for session configuration
+- [ ] Audit `output: "server"` vs selective `prerender` for each page
+- [ ] Remove all stabilized experimental flags from astro.config.ts when upgrading to Astro 6
+- [ ] Migrate `experimental.csp` to `security.csp`
+- [ ] Migrate `experimental.fonts` to top-level `fonts` config
+- [ ] Evaluate remaining experimental features (Rust compiler, queued rendering, client prerender, SVGO)
