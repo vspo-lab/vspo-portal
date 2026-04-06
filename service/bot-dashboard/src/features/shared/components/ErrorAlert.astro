@@ -1,9 +1,12 @@
 ---
-interface Props {
-  message: string;
-  retryHref: string;
-  retryLabel: string;
-}
+import { z } from "zod";
+
+const propsSchema = z.object({
+  message: z.string(),
+  retryHref: z.string(),
+  retryLabel: z.string(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { message, retryHref, retryLabel } = Astro.props;
 ---

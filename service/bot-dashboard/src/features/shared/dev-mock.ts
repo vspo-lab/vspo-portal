@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { DEV_MOCK_AUTH } from "astro:env/server";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 import type { CreatorType } from "~/features/shared/domain/creator";
 import type { ApplicationService } from "~/types/api";
@@ -7,18 +7,13 @@ import type { ApplicationService } from "~/types/api";
  * APP_WORKER の RPC を使わず開発用モックにフォールバックすべきかを判定する。
  *
  * @precondition appWorker は ApplicationService を想定するが、未設定の場合も許容する。
- * @postcondition dev モードでは DEV_MOCK_AUTH="false" のときのみ false を返す。
+ * @postcondition dev モードでは DEV_MOCK_AUTH=false のときのみ false を返す。
  *   非 dev モードでは appWorker が未設定または newDiscordUsecase が関数でない場合に true を返す。
  * @idempotent true
  */
 export const isRpcUnavailable = (appWorker: ApplicationService): boolean => {
-  // In dev mode, use mocks by default. Set DEV_MOCK_AUTH=false to use real backend.
   if (import.meta.env.DEV) {
-    const flag =
-      "DEV_MOCK_AUTH" in env
-        ? (env as Record<string, unknown>).DEV_MOCK_AUTH
-        : undefined;
-    return flag !== "false";
+    return DEV_MOCK_AUTH !== false;
   }
   if (!appWorker) return true;
   return typeof appWorker.newDiscordUsecase !== "function";

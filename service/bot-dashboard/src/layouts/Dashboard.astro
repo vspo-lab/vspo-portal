@@ -5,15 +5,21 @@ import Footer from "~/features/shared/components/Footer.astro";
 import AvatarFallback from "~/features/shared/components/AvatarFallback.astro";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
 import { t } from "~/i18n/dict";
+import { z } from "zod";
 
-type Props = {
-  title: string;
-  description?: string;
+const propsSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
   /** Show the sidebar navigation (guild detail pages) */
-  showSidebar?: boolean;
+  showSidebar: z.boolean().optional(),
   /** Currently active guild for sidebar context */
-  activeGuild?: { id: string; name: string; iconUrl: string | null } | null;
-};
+  activeGuild: z.object({
+    id: z.string(),
+    name: z.string(),
+    iconUrl: z.string().nullable(),
+  }).nullable().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { title, description, showSidebar = false, activeGuild = null } = Astro.props;
 const { locale } = Astro.locals;

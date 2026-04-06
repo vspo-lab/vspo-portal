@@ -1,0 +1,61 @@
+---
+import { z } from "zod";
+import { getCollection } from "astro:content";
+import { t, type Locale } from "~/i18n/dict";
+
+const propsSchema = z.object({
+  locale: z.enum(["ja", "en"]),
+});
+type Props = z.infer<typeof propsSchema>;
+
+const { locale } = Astro.props;
+
+const entries = await getCollection("announcements");
+const sorted = entries.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+);
+
+const typeColors = {
+  info: "bg-info/10 text-info",
+  update: "bg-vspo-purple/10 text-vspo-purple",
+  maintenance: "bg-warning/10 text-warning",
+} as const;
+---
+
+{sorted.length === 0 ? (
+  <p class="py-12 text-center text-on-surface-variant">
+    {t(locale, "announcements.empty")}
+  </p>
+) : (
+  <div class="space-y-4">
+    {sorted.map((entry) => {
+      const typeKey = `announcements.type.${entry.data.type}` as const;
+      return (
+        <article class="rounded-xl bg-surface-container-low p-6">
+          <div class="mb-3 flex items-center gap-3">
+            <span
+              class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${typeColors[entry.data.type]}`}
+            >
+              {t(locale, typeKey)}
+            </span>
+            <time
+              class="text-xs text-on-surface-variant"
+              datetime={entry.data.date}
+            >
+              {new Date(entry.data.date).toLocaleDateString(
+                locale === "ja" ? "ja-JP" : "en-US",
+                { year: "numeric", month: "long", day: "numeric" },
+              )}
+            </time>
+          </div>
+          <h2 class="mb-2 font-heading text-lg font-bold text-on-surface">
+            {entry.data.title[locale] ?? entry.data.title.ja}
+          </h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">
+            {entry.data.body[locale] ?? entry.data.body.ja}
+          </p>
+        </article>
+      );
+    })}
+  </div>
+)}

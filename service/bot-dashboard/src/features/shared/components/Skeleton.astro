@@ -1,0 +1,27 @@
+---
+import { z } from "zod";
+
+const propsSchema = z.object({
+  variant: z.enum(["text", "avatar", "card", "stat"]).optional(),
+  class: z.string().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
+
+const { variant = "text", class: className = "" } = Astro.props;
+
+const variantClasses: Record<string, string> = {
+  text: "h-4 w-3/4 rounded",
+  avatar: "h-10 w-10 rounded-full",
+  card: "h-24 w-full rounded-2xl",
+  stat: "h-12 w-24 rounded-lg",
+};
+---
+
+<div
+  class:list={[
+    "animate-pulse bg-surface-container-high",
+    variantClasses[variant],
+    className,
+  ]}
+  aria-hidden="true"
+/>

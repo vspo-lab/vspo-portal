@@ -1,12 +1,10 @@
-import { env } from "cloudflare:workers";
+import { DEV_MOCK_AUTH } from "astro:env/server";
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import { z } from "zod";
 import { parseResult } from "~/features/shared/lib/parse";
 
-const isDevMock = () =>
-  import.meta.env.DEV &&
-  (env as unknown as Record<string, unknown>).DEV_MOCK_AUTH !== "false";
+const isDevMock = () => import.meta.env.DEV && DEV_MOCK_AUTH !== false;
 
 const DiscordTokenResponseSchema = z.object({
   access_token: z.string(),
@@ -43,6 +41,7 @@ const ExchangeCodeParamsSchema = z.object({
   clientId: z.string(),
   clientSecret: z.string(),
   redirectUri: z.string(),
+  codeVerifier: z.string().optional(),
 });
 
 type ExchangeCodeParams = z.infer<typeof ExchangeCodeParamsSchema>;
@@ -52,7 +51,7 @@ type ExchangeCodeParams = z.infer<typeof ExchangeCodeParamsSchema>;
  * @precondition Valid OAuth2 credentials are required
  */
 const DiscordApiRepository = {
-  /** Exchange an authorization code for an access token */
+  /** Exchange an authorization code for an access token (with optional PKCE) */
   exchangeCode: async (
     params: ExchangeCodeParams,
   ): Promise<Result<DiscordTokenResponse, AppError>> => {
@@ -63,6 +62,9 @@ const DiscordApiRepository = {
       client_id: params.clientId,
       client_secret: params.clientSecret,
     });
+    if (params.codeVerifier) {
+      body.set("code_verifier", params.codeVerifier);
+    }
 
     const res = await fetch("https://discord.com/api/v10/oauth2/token", {
       method: "POST",

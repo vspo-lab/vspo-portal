@@ -1,4 +1,6 @@
 ---
+import { z } from "zod";
+
 /**
  * ScrollReveal — CSS-only scroll-triggered animations using animation-timeline.
  *
@@ -10,16 +12,17 @@
  *   <p>This fades in on scroll</p>
  * </ScrollReveal>
  */
-type Props = {
+const propsSchema = z.object({
   /** Animation type matching [data-scroll-reveal] CSS selectors */
-  animation: "fade-in-up";
+  animation: z.enum(["fade-in-up"]),
   /** Delay in ms before animation starts */
-  delay?: number;
+  delay: z.number().optional(),
   /** HTML tag to render */
-  tag?: string;
+  tag: z.string().optional(),
   /** Additional CSS classes */
-  class?: string;
-};
+  class: z.string().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const {
   animation,

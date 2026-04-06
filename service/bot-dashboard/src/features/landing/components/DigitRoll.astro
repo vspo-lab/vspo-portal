@@ -1,4 +1,6 @@
 ---
+import { z } from "zod";
+
 /**
  * DigitRoll — Animated number counter that rolls digits into place.
  *
@@ -12,12 +14,13 @@
  * @example
  * <DigitRoll value={1234} class="text-2xl font-bold" />
  */
-type Props = {
+const propsSchema = z.object({
   /** Number to display */
-  value: number;
+  value: z.number(),
   /** Additional CSS classes applied to digit text */
-  class?: string;
-};
+  class: z.string().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { value, class: className = "" } = Astro.props;
 

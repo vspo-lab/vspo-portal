@@ -1,24 +1,22 @@
 ---
 import type { HTMLAttributes } from "astro/types";
+import { z } from "zod";
 
-type ButtonVariant =
-  | "primary"
-  | "outline"
-  | "ghost"
-  | "destructive"
-  | "discord"
-  | "link";
+const buttonVariantSchema = z.enum(["primary", "outline", "ghost", "destructive", "discord", "link"]);
+type ButtonVariant = z.infer<typeof buttonVariantSchema>;
 
-type ButtonSize = "default" | "sm" | "lg" | "icon";
+const buttonSizeSchema = z.enum(["default", "sm", "lg", "icon"]);
+type ButtonSize = z.infer<typeof buttonSizeSchema>;
 
-interface Props extends HTMLAttributes<"button"> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  as?: "button" | "a";
-  href?: string;
-  target?: string;
-  rel?: string;
-}
+const buttonPropsSchema = z.object({
+  variant: buttonVariantSchema.optional(),
+  size: buttonSizeSchema.optional(),
+  as: z.enum(["button", "a"]).optional(),
+  href: z.string().optional(),
+  target: z.string().optional(),
+  rel: z.string().optional(),
+});
+type Props = z.infer<typeof buttonPropsSchema> & HTMLAttributes<"button">;
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-vspo-purple text-white hover:bg-vspo-purple/90",

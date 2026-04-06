@@ -1,7 +1,7 @@
 ---
 import Dashboard from "~/layouts/Dashboard.astro";
 import { t } from "~/i18n/dict";
-import { announcements } from "~/features/announcement/data/announcements";
+import AnnouncementList from "~/features/announcement/components/AnnouncementList.astro";
 
 const accessToken = Astro.locals.accessToken;
 if (!accessToken) return Astro.redirect("/");
@@ -20,52 +20,6 @@ const locale = Astro.locals.locale;
         {t(locale, "announcements.title")}
       </h1>
     </div>
-
-    {announcements.length === 0 ? (
-      <p class="py-12 text-center text-on-surface-variant">
-        {t(locale, "announcements.empty")}
-      </p>
-    ) : (
-      <div class="space-y-4">
-        {announcements.map((item) => {
-          const typeColors = {
-            info: "bg-info/10 text-info",
-            update: "bg-vspo-purple/10 text-vspo-purple",
-            maintenance: "bg-warning/10 text-warning",
-          };
-          const typeKey = `announcements.type.${item.type}` as const;
-          return (
-            <article class="rounded-xl bg-surface-container-low p-6">
-              <div class="mb-3 flex items-center gap-3">
-                <span
-                  class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${typeColors[item.type]}`}
-                >
-                  {t(locale, typeKey)}
-                </span>
-                <time
-                  class="text-xs text-on-surface-variant"
-                  datetime={item.date}
-                >
-                  {new Date(item.date).toLocaleDateString(
-                    locale === "ja" ? "ja-JP" : "en-US",
-                    {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    },
-                  )}
-                </time>
-              </div>
-              <h2 class="mb-2 font-heading text-lg font-bold text-on-surface">
-                {item.title[locale as keyof typeof item.title] ?? item.title.ja}
-              </h2>
-              <p class="text-sm leading-relaxed text-on-surface-variant">
-                {item.body[locale as keyof typeof item.body] ?? item.body.ja}
-              </p>
-            </article>
-          );
-        })}
-      </div>
-    )}
+    <AnnouncementList locale={locale} />
   </div>
 </Dashboard>

@@ -316,13 +316,17 @@ function ChannelConfigModalInner({
 
               {/* Dropdown panel */}
               {dropdownOpen && (
-                <div className="rounded-lg border border-outline-variant/20 bg-surface-container-high shadow-lg">
+                <div
+                  className="rounded-lg border border-outline-variant/20 bg-surface-container-high shadow-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="border-b border-outline-variant/10 p-2">
                     <input
                       type="search"
                       placeholder={translations.search}
                       value={memberSearch}
                       onChange={(e) => setMemberSearch(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
                       className="w-full rounded-md border border-outline-variant/20 bg-surface-container-low py-1.5 pl-3 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
                     />
                   </div>

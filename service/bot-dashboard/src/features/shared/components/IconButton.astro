@@ -1,13 +1,18 @@
 ---
 import type { HTMLAttributes } from "astro/types";
+import { z } from "zod";
 
-type IconButtonVariant = "ghost" | "destructive";
-type IconButtonSize = "sm" | "default";
+const iconButtonVariantSchema = z.enum(["ghost", "destructive"]);
+type IconButtonVariant = z.infer<typeof iconButtonVariantSchema>;
 
-type Props = HTMLAttributes<"button"> & {
-  variant?: IconButtonVariant;
-  size?: IconButtonSize;
-}
+const iconButtonSizeSchema = z.enum(["sm", "default"]);
+type IconButtonSize = z.infer<typeof iconButtonSizeSchema>;
+
+const iconButtonPropsSchema = z.object({
+  variant: iconButtonVariantSchema.optional(),
+  size: iconButtonSizeSchema.optional(),
+});
+type Props = z.infer<typeof iconButtonPropsSchema> & HTMLAttributes<"button">;
 
 const variantClasses: Record<IconButtonVariant, string> = {
   ghost: "hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:ring-vspo-purple/50",

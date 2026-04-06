@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI } from "astro:env/server";
 import type { APIRoute } from "astro";
 import { LoginUsecase } from "~/features/auth/usecase/login";
 
@@ -22,11 +22,14 @@ export const GET: APIRoute = async (context) => {
     return context.redirect("/?error=no_code");
   }
 
-  const result = await LoginUsecase.handleCallback(code, {
-    DISCORD_CLIENT_ID: env.DISCORD_CLIENT_ID,
-    DISCORD_CLIENT_SECRET: env.DISCORD_CLIENT_SECRET,
-    DISCORD_REDIRECT_URI: env.DISCORD_REDIRECT_URI,
-  });
+  const codeVerifier = await context.session?.get("pkce_verifier");
+  context.session?.set("pkce_verifier", "");
+
+  const result = await LoginUsecase.handleCallback(
+    code,
+    { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI },
+    codeVerifier ?? undefined,
+  );
 
   if (result.err) {
     return context.redirect("/?error=auth_failed");
