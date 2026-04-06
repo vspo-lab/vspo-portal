@@ -147,8 +147,7 @@ function ChannelConfigModalInner({
         const nameOf = (id: string) =>
           creators.find((c) => c.id === id)?.name ?? id;
         const parts: string[] = [];
-        if (added.length > 0)
-          parts.push(`+${added.map(nameOf).join(", ")}`);
+        if (added.length > 0) parts.push(`+${added.map(nameOf).join(", ")}`);
         if (removed.length > 0)
           parts.push(`-${removed.map(nameOf).join(", ")}`);
         items.push({
@@ -451,7 +450,10 @@ function ChannelConfigModalInner({
                     <span className="text-destructive line-through">
                       {d.from}
                     </span>
-                    <span className="text-on-surface-variant" aria-hidden="true">
+                    <span
+                      className="text-on-surface-variant"
+                      aria-hidden="true"
+                    >
                       &rarr;
                     </span>
                     <span className="font-medium text-success">{d.to}</span>
