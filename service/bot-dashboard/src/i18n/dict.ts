@@ -1,5 +1,5 @@
-import { ja } from "./locales/ja";
 import { en } from "./locales/en";
+import { ja } from "./locales/ja";
 
 export type Locale = "ja" | "en";
 export type TranslationKey = keyof typeof ja;

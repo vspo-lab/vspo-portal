@@ -1,5 +1,9 @@
+import {
+  DEV_MOCK_AUTH,
+  DISCORD_CLIENT_ID,
+  DISCORD_CLIENT_SECRET,
+} from "astro:env/server";
 import { defineMiddleware, sequence } from "astro:middleware";
-import { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DEV_MOCK_AUTH } from "astro:env/server";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
 

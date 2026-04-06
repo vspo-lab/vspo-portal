@@ -46,7 +46,9 @@ type AuthorizationUrlResult = z.infer<typeof AuthorizationUrlResultSchema>;
  * @postcondition return.url contains return.state and a code_challenge derived from return.codeVerifier
  * @idempotent false - A new random state and code verifier are generated on every invocation
  */
-const buildAuthorizationUrl = async (env: AuthUrlEnv): Promise<AuthorizationUrlResult> => {
+const buildAuthorizationUrl = async (
+  env: AuthUrlEnv,
+): Promise<AuthorizationUrlResult> => {
   const state = crypto.randomUUID();
   const codeVerifier = PKCE.generateCodeVerifier();
   const codeChallenge = await PKCE.generateCodeChallenge(codeVerifier);

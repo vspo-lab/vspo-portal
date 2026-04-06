@@ -1,4 +1,8 @@
-import { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI } from "astro:env/server";
+import {
+  DISCORD_CLIENT_ID,
+  DISCORD_CLIENT_SECRET,
+  DISCORD_REDIRECT_URI,
+} from "astro:env/server";
 import type { APIRoute } from "astro";
 import { LoginUsecase } from "~/features/auth/usecase/login";
 

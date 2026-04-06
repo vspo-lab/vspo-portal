@@ -31,7 +31,10 @@ const generateCodeChallenge = async (verifier: string): Promise<string> => {
 
 const base64UrlEncode = (bytes: Uint8Array): string => {
   const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join("");
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 };
 
 export const PKCE = {

@@ -10,11 +10,28 @@ export default defineConfig({
   },
   env: {
     schema: {
-      DISCORD_CLIENT_ID: envField.string({ context: "server", access: "secret" }),
-      DISCORD_CLIENT_SECRET: envField.string({ context: "server", access: "secret" }),
-      DISCORD_REDIRECT_URI: envField.string({ context: "server", access: "secret" }),
-      DISCORD_BOT_CLIENT_ID: envField.string({ context: "server", access: "secret" }),
-      DEV_MOCK_AUTH: envField.boolean({ context: "server", access: "public", optional: true, default: false }),
+      DISCORD_CLIENT_ID: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DISCORD_CLIENT_SECRET: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DISCORD_REDIRECT_URI: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DISCORD_BOT_CLIENT_ID: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DEV_MOCK_AUTH: envField.boolean({
+        context: "server",
+        access: "public",
+        optional: true,
+        default: false,
+      }),
     },
   },
   fonts: [
