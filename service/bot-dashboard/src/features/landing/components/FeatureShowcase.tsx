@@ -135,20 +135,14 @@ export function FeatureShowcase({
                 </button>
               </div>
               <div className="w-full overflow-hidden rounded-lg bg-surface-container">
-                <picture>
-                  <source
-                    srcSet={`${featureImages[activeFeature.icon]}.webp`}
-                    type="image/webp"
-                  />
-                  <img
-                    src={`${featureImages[activeFeature.icon]}.png`}
-                    alt={activeFeature.title}
-                    className="h-auto w-full object-cover"
-                    width={960}
-                    height={540}
-                    loading="lazy"
-                  />
-                </picture>
+                <img
+                  src={`${featureImages[activeFeature.icon]}.png`}
+                  alt={activeFeature.title}
+                  className="h-auto w-full object-cover"
+                  width={960}
+                  height={540}
+                  loading="lazy"
+                />
               </div>
               <p className="text-sm leading-relaxed text-on-surface-variant">
                 {activeFeature.description}
