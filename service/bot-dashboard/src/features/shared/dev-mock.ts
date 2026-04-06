@@ -152,4 +152,37 @@ export const devMock = {
   botStats: { guildCount: 42, totalMemberCount: 1234 },
 
   userGuildAdmin: { [DEV_GUILD_ID]: true } as Record<string, boolean>,
+
+  oauthToken: {
+    access_token: "mock-access-token",
+    refresh_token: "mock-refresh-token",
+    expires_in: 604800,
+    token_type: "Bearer",
+    scope: "identify guilds",
+  },
+
+  oauthUser: {
+    id: "000000000000000000",
+    username: "dev-user",
+    global_name: "Dev User" as string | null,
+    avatar: null as string | null,
+    locale: "ja",
+  },
+
+  oauthUserGuilds: [
+    {
+      id: "111111111111111111",
+      name: "Dev Server 1",
+      icon: null as string | null,
+      owner: true,
+      permissions: "0",
+    },
+    {
+      id: "222222222222222222",
+      name: "Dev Server 2",
+      icon: null as string | null,
+      owner: false,
+      permissions: "0",
+    },
+  ],
 } as const;

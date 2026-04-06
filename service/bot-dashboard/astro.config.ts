@@ -14,10 +14,6 @@ export default defineConfig({
         context: "server",
         access: "secret",
       }),
-      DISCORD_CLIENT_SECRET: envField.string({
-        context: "server",
-        access: "secret",
-      }),
       DISCORD_REDIRECT_URI: envField.string({
         context: "server",
         access: "secret",

@@ -1,11 +1,8 @@
-import {
-  DEV_MOCK_AUTH,
-  DISCORD_CLIENT_ID,
-  DISCORD_CLIENT_SECRET,
-} from "astro:env/server";
+import { DEV_MOCK_AUTH } from "astro:env/server";
 import { defineMiddleware, sequence } from "astro:middleware";
+import { env } from "cloudflare:workers";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
-import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import { DiscordOAuthRpcRepository } from "~/features/auth/repository/discord-oauth-rpc";
 
 /** Buffer in ms — refresh 5 minutes before actual expiry. */
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;
@@ -130,11 +127,10 @@ const auth = defineMiddleware(async (context, next) => {
       return context.redirect("/?error=auth_failed");
     }
 
-    const refreshResult = await DiscordApiRepository.refreshToken({
-      refreshToken,
-      clientId: DISCORD_CLIENT_ID,
-      clientSecret: DISCORD_CLIENT_SECRET,
-    });
+    const refreshResult = await DiscordOAuthRpcRepository.refreshToken(
+      env.APP_WORKER,
+      refreshToken as string,
+    );
 
     if (refreshResult.err) {
       context.session?.destroy();
