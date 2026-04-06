@@ -14,6 +14,10 @@ export const initTheme = (): void => {
   const stored = localStorage.getItem("theme");
   if (stored === "dark" || stored === "light") {
     $theme.set(stored);
+  } else if (document.documentElement.classList.contains("dark")) {
+    // Honor the theme applied by Base.astro's is:inline script
+    // (which checks prefers-color-scheme) to prevent hydration flash
+    $theme.set("dark");
   }
 };
 
