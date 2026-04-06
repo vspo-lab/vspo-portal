@@ -204,8 +204,8 @@ const VspoChannelApiRepository = {
     }
 
     const [jpResult, enResult] = await Promise.all([
-      creatorService.list({ limit: 100, page: 1, memberType: "vspo_jp" }),
-      creatorService.list({ limit: 100, page: 1, memberType: "vspo_en" }),
+      creatorService.list({ limit: 100, page: 0, memberType: "vspo_jp" }),
+      creatorService.list({ limit: 100, page: 0, memberType: "vspo_en" }),
     ]);
 
     if (jpResult.err) return jpResult;
