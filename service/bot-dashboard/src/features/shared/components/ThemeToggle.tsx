@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useTheme } from "../hooks/useTheme";
 
-interface ThemeToggleProps {
+type ThemeToggleProps = {
   label: string;
-}
+};
 
 /**
  * React island for theme toggling.

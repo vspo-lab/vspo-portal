@@ -2,12 +2,12 @@ import { useStore } from "@nanostores/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { $showAddModal, closeAddModal } from "../stores/channel-actions";
 
-interface Channel {
+type Channel = {
   id: string;
   name: string;
-}
+};
 
-interface ChannelAddModalProps {
+type ChannelAddModalProps = {
   guildId: string;
   actionUrl?: string;
   onAdd?: (guildId: string, channelId: string, channelName: string) => void;
@@ -23,7 +23,7 @@ interface ChannelAddModalProps {
     cancel: string;
     close: string;
   };
-}
+};
 
 export function ChannelAddModal({
   guildId,

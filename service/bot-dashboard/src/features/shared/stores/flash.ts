@@ -2,10 +2,10 @@ import { atom } from "nanostores";
 
 export type FlashType = "success" | "error";
 
-export interface FlashMessage {
+export type FlashMessage = {
   type: FlashType;
   message: string;
-}
+};
 
 /** Global flash message state shared across all islands */
 export const $flash = atom<FlashMessage | null>(null);

@@ -2,11 +2,11 @@ import { useStore } from "@nanostores/react";
 import { useEffect, useRef } from "react";
 import { $theme, initTheme, type Theme, toggleTheme } from "../stores/theme";
 
-export interface ThemeHook {
+export type ThemeHook = {
   theme: Theme;
   isDark: boolean;
   toggle: () => void;
-}
+};
 
 /**
  * React hook that syncs with the global $theme Nano Store.

@@ -14,7 +14,7 @@ import { ChannelAddModal } from "./ChannelAddModal";
 import { ChannelConfigModal } from "./ChannelConfigModal";
 import { DeleteChannelDialog } from "./DeleteChannelDialog";
 
-interface GuildDashboardIslandProps {
+type GuildDashboardIslandProps = {
   guildId: string;
   initialChannels: ChannelConfigType[];
   creators: CreatorType[];
@@ -72,13 +72,14 @@ interface GuildDashboardIslandProps {
       deleteSuccess: string;
       resetSuccess: string;
       error: string;
+      dismiss: string;
     };
   };
   languageOptions: { value: string; label: string }[];
   memberTypeOptions: { value: string; label: string; description: string }[];
   langChipLabels: Record<string, string>;
   memberTypeLabels: Record<string, string>;
-}
+};
 
 export function GuildDashboardIsland({
   guildId,
@@ -116,7 +117,7 @@ export function GuildDashboardIsland({
 
   return (
     <>
-      <ClientFlashMessage />
+      <ClientFlashMessage dismissLabel={translations.flash.dismiss} />
 
       {/* Channel Table */}
       <div className="overflow-hidden rounded-2xl bg-surface-container-low">

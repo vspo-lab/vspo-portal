@@ -1,19 +1,19 @@
 import { useState } from "react";
 
-export interface FeatureItem {
+export type FeatureItem = {
   id: string;
   icon: "list" | "filter" | "realtime" | "settings";
   title: string;
   description: string;
   iconColor: string;
   iconBgColor: string;
-}
+};
 
-interface FeatureShowcaseProps {
+type FeatureShowcaseProps = {
   features: FeatureItem[];
   closeLabel: string;
   imagePlaceholder: string;
-}
+};
 
 const featureIcons: Record<FeatureItem["icon"], string> = {
   list: "M4 6h16M4 10h16M4 14h16M4 18h16",

@@ -1,17 +1,17 @@
 import { atom } from "nanostores";
 
-export interface EditableChannel {
+export type EditableChannel = {
   channelId: string;
   channelName: string;
   language: string;
   memberType: "vspo_jp" | "vspo_en" | "all" | "custom";
   customMemberIds?: string[];
-}
+};
 
-export interface DeletableChannel {
+export type DeletableChannel = {
   channelId: string;
   channelName: string;
-}
+};
 
 /** Which channel's config modal is open, or null if closed */
 export const $channelToEdit = atom<EditableChannel | null>(null);

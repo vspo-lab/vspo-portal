@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from "react";
 
-export interface DialogHook {
+export type DialogHook = {
   ref: React.RefObject<HTMLDialogElement | null>;
   isOpen: boolean;
   open: () => void;
   close: () => void;
-}
+};
 
 /**
  * Manages a native `<dialog>` element's open/close state.

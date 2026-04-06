@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { $channelToDelete, closeDeleteDialog } from "../stores/channel-actions";
 
-interface DeleteChannelDialogProps {
+type DeleteChannelDialogProps = {
   guildId: string;
   onDelete?: (guildId: string, channelId: string) => void;
   translations: {
@@ -10,7 +10,7 @@ interface DeleteChannelDialogProps {
     cancel: string;
     submit: string;
   };
-}
+};
 
 export function DeleteChannelDialog({
   guildId,

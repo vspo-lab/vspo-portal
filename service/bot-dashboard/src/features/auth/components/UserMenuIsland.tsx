@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useClickOutside } from "~/features/shared/hooks/useClickOutside";
 import { useTheme } from "~/features/shared/hooks/useTheme";
 
-interface UserMenuIslandProps {
+type UserMenuIslandProps = {
   displayName: string;
   avatarUrl: string | null;
   translations: {
@@ -13,7 +13,7 @@ interface UserMenuIslandProps {
   localeLabels: Record<string, string>;
   currentLocale: string;
   returnTo: string;
-}
+};
 
 export function UserMenuIsland({
   displayName,

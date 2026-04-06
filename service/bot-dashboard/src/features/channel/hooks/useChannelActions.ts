@@ -12,13 +12,13 @@ import {
   optimisticUpdate,
 } from "../stores/channel-data";
 
-interface ChannelActionTranslations {
+type ChannelActionTranslations = {
   addSuccess: string;
   updateSuccess: string;
   deleteSuccess: string;
   resetSuccess: string;
   error: string;
-}
+};
 
 /**
  * Channel CRUD operations using Astro Actions (JSON mode) with optimistic UI.

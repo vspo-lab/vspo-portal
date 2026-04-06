@@ -17,19 +17,19 @@ describe("ClientFlashMessage", () => {
   });
 
   it("renders nothing when flash is null", () => {
-    const { container } = render(<ClientFlashMessage />);
+    const { container } = render(<ClientFlashMessage dismissLabel="Dismiss" />);
     expect(container.querySelector("[role='status']")).toBeNull();
   });
 
   it("renders success message", () => {
     $flash.set({ type: "success", message: "Channel added!" });
-    render(<ClientFlashMessage />);
+    render(<ClientFlashMessage dismissLabel="Dismiss" />);
     expect(screen.getByRole("status")).toHaveTextContent("Channel added!");
   });
 
   it("renders error message", () => {
     $flash.set({ type: "error", message: "Something went wrong" });
-    render(<ClientFlashMessage />);
+    render(<ClientFlashMessage dismissLabel="Dismiss" />);
     expect(screen.getByRole("status")).toHaveTextContent(
       "Something went wrong",
     );
@@ -38,7 +38,7 @@ describe("ClientFlashMessage", () => {
   it("dismisses on button click", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     $flash.set({ type: "success", message: "Done" });
-    render(<ClientFlashMessage />);
+    render(<ClientFlashMessage dismissLabel="Dismiss" />);
 
     await user.click(screen.getByRole("button", { name: /dismiss/i }));
     expect($flash.get()).toBeNull();
@@ -46,7 +46,7 @@ describe("ClientFlashMessage", () => {
 
   it("auto-dismisses after 5 seconds", () => {
     showFlash({ type: "success", message: "Auto" });
-    render(<ClientFlashMessage />);
+    render(<ClientFlashMessage dismissLabel="Dismiss" />);
 
     expect(screen.getByRole("status")).toBeInTheDocument();
 

@@ -1,12 +1,12 @@
 import { useCallback, useState } from "react";
 import { useClickOutside } from "../hooks/useClickOutside";
 
-interface LanguageSelectorIslandProps {
+type LanguageSelectorIslandProps = {
   currentLocale: string;
   returnTo: string;
   label: string;
   localeLabels: Record<string, string>;
-}
+};
 
 export function LanguageSelectorIsland({
   currentLocale,
@@ -25,6 +25,8 @@ export function LanguageSelectorIsland({
         onClick={() => setIsOpen((prev) => !prev)}
         className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-[--radius-sm] text-on-surface-variant transition-colors duration-[--duration-fast] ease-[--ease-standard] hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vspo-purple/50"
         aria-label={label}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
       >
         <svg
           className="h-5 w-5"

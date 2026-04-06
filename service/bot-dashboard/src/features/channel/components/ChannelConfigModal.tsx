@@ -7,7 +7,7 @@ import {
   type EditableChannel,
 } from "../stores/channel-actions";
 
-interface ChannelConfigModalProps {
+type ChannelConfigModalProps = {
   guildId: string;
   updateActionUrl?: string;
   resetActionUrl?: string;
@@ -40,7 +40,7 @@ interface ChannelConfigModalProps {
     label: string;
     description: string;
   }[];
-}
+};
 
 export function ChannelConfigModal({
   guildId,

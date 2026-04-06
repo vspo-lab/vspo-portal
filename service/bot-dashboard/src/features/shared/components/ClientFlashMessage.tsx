@@ -1,13 +1,17 @@
 import { useStore } from "@nanostores/react";
 import { $flash, dismissFlash } from "../stores/flash";
 
+type ClientFlashMessageProps = {
+  dismissLabel: string;
+};
+
 /**
  * Client-side flash message that reads from the global $flash Nano Store.
  * Use alongside (or as a replacement for) the server-rendered FlashMessage.astro.
  *
  * The $flash store handles auto-dismiss timing; this component just renders.
  */
-export function ClientFlashMessage() {
+export function ClientFlashMessage({ dismissLabel }: ClientFlashMessageProps) {
   const flash = useStore($flash);
 
   if (!flash) return null;
@@ -57,7 +61,7 @@ export function ClientFlashMessage() {
       <button
         type="button"
         onClick={dismissFlash}
-        aria-label="Dismiss"
+        aria-label={dismissLabel}
         className="shrink-0 rounded-lg p-1 text-on-surface-variant transition-colors hover:bg-surface-container-highest"
       >
         <svg

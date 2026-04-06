@@ -84,6 +84,9 @@ const altPath = canonicalPath
         document.addEventListener("astro:after-swap", applyTheme);
       })();
     </script>
+    <script>
+      import "~/features/shared/components/close-on-outside-click";
+    </script>
     <ClientRouter />
     <title>{pageTitle}</title>
   </head>
