@@ -99,7 +99,8 @@ const auth = defineMiddleware(async (context, next) => {
   }
   context.session?.set("lastActivity", now);
 
-  const locale = sessionLocale ?? context.preferredLocale ?? "ja";
+  const preferred = context.preferredLocale;
+  const locale = sessionLocale ?? (preferred === "en" ? "en" : "ja");
   context.locals.locale = locale;
   if (!sessionLocale) {
     context.session?.set("locale", locale);
