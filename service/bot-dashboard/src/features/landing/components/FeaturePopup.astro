@@ -1,11 +1,14 @@
 ---
-interface Props {
-  id: string;
-  title: string;
-  description: string;
-  closeLabel: string;
-  imagePlaceholder: string;
-}
+import { z } from "zod";
+
+const propsSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  closeLabel: z.string(),
+  imagePlaceholder: z.string(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { id, title, description, closeLabel, imagePlaceholder } = Astro.props;
 const titleId = `${id}-title`;

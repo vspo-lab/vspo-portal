@@ -1,5 +1,6 @@
 ---
 import { env } from "cloudflare:workers";
+import { DISCORD_BOT_CLIENT_ID } from "astro:env/server";
 import ErrorAlert from "~/features/shared/components/ErrorAlert.astro";
 import GuildCard from "~/features/guild/components/GuildCard.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
@@ -22,7 +23,7 @@ const result = await ListGuildsUsecase.execute({
 const fetchError = result.err ?? null;
 const installed = result.err ? [] : result.val.installed;
 const notInstalled = result.err ? [] : result.val.notInstalled;
-const botClientId = env.DISCORD_BOT_CLIENT_ID;
+const botClientId = DISCORD_BOT_CLIENT_ID;
 
 // Cache guild summaries in session for fast access on guild detail pages
 if (!result.err) {

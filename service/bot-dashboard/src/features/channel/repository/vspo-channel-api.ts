@@ -189,7 +189,20 @@ const VspoChannelApiRepository = {
       return Ok(devMock.creators());
     }
 
-    const creatorService = appWorker.newCreatorUsecase();
+    // Wrap in error boundary: newCreatorUsecase may not exist on the service binding
+    let creatorService: ReturnType<ApplicationService["newCreatorUsecase"]>;
+    try {
+      creatorService = appWorker.newCreatorUsecase();
+    } catch {
+      return Err(
+        new AppError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Creator service is not available on APP_WORKER",
+          context: {},
+        }),
+      );
+    }
+
     const [jpResult, enResult] = await Promise.all([
       creatorService.list({ limit: 100, page: 1, memberType: "vspo_jp" }),
       creatorService.list({ limit: 100, page: 1, memberType: "vspo_en" }),

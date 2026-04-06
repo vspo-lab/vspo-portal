@@ -3,6 +3,7 @@ import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
 import { z } from "zod";
 import { DiscordUser, type DiscordUserType } from "../domain/discord-user";
+import { PKCE } from "../domain/pkce";
 import { DiscordApiRepository } from "../repository/discord-api";
 
 const AuthUrlEnvSchema = z.object({
@@ -31,31 +32,39 @@ type LoginResult = z.infer<typeof LoginResultSchema>;
 const AuthorizationUrlResultSchema = z.object({
   url: z.string(),
   state: z.string(),
+  codeVerifier: z.string(),
 });
 
 type AuthorizationUrlResult = z.infer<typeof AuthorizationUrlResultSchema>;
 
 /**
- * Generates a Discord OAuth2 authorization URL.
+ * Generates a Discord OAuth2 authorization URL with PKCE (S256).
  *
  * @param env - Discord OAuth2 client settings used to build the authorization URL
- * @returns Authorization URL parameters containing the redirect target and a CSRF protection state
+ * @returns Authorization URL parameters containing the redirect target, CSRF state, and PKCE code verifier
  * @precondition env.DISCORD_CLIENT_ID !== "" && env.DISCORD_REDIRECT_URI !== ""
- * @postcondition return.url contains return.state as the `state` query parameter for Discord OAuth2
- * @idempotent false - A new random `state` value is generated on every invocation
+ * @postcondition return.url contains return.state and a code_challenge derived from return.codeVerifier
+ * @idempotent false - A new random state and code verifier are generated on every invocation
  */
-const buildAuthorizationUrl = (env: AuthUrlEnv): AuthorizationUrlResult => {
+const buildAuthorizationUrl = async (
+  env: AuthUrlEnv,
+): Promise<AuthorizationUrlResult> => {
   const state = crypto.randomUUID();
+  const codeVerifier = PKCE.generateCodeVerifier();
+  const codeChallenge = await PKCE.generateCodeChallenge(codeVerifier);
   const params = new URLSearchParams({
     client_id: env.DISCORD_CLIENT_ID,
     redirect_uri: env.DISCORD_REDIRECT_URI,
     response_type: "code",
     scope: "identify guilds",
     state,
+    code_challenge: codeChallenge,
+    code_challenge_method: "S256",
   });
   return {
     url: `https://discord.com/api/oauth2/authorize?${params.toString()}`,
     state,
+    codeVerifier,
   };
 };
 
@@ -72,12 +81,14 @@ const buildAuthorizationUrl = (env: AuthUrlEnv): AuthorizationUrlResult => {
 const handleCallback = async (
   code: string,
   env: LoginEnv,
+  codeVerifier?: string,
 ): Promise<Result<LoginResult, AppError>> => {
   const tokenResult = await DiscordApiRepository.exchangeCode({
     code,
     clientId: env.DISCORD_CLIENT_ID,
     clientSecret: env.DISCORD_CLIENT_SECRET,
     redirectUri: env.DISCORD_REDIRECT_URI,
+    codeVerifier,
   });
   if (tokenResult.err) return tokenResult;
 

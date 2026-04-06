@@ -2,16 +2,18 @@
 import "~/app.css";
 import { ClientRouter } from "astro:transitions";
 import { t } from "~/i18n/dict";
+import { z } from "zod";
 
-interface Props {
-  title: string;
-  description?: string;
-  canonicalPath?: string;
-  noindex?: boolean;
-}
+const propsSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  canonicalPath: z.string().optional(),
+  noindex: z.boolean().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { title, description, canonicalPath, noindex } = Astro.props;
-const { locale } = Astro.locals;
+const { locale, cspNonce } = Astro.locals;
 
 const siteUrl = Astro.site?.origin ?? "https://discord.vspo-schedule.com";
 const pageTitle = `${title} | ${t(locale, "app.title")}`;
@@ -69,7 +71,7 @@ const altPath = canonicalPath
       </>
     )}
 
-    <script is:inline>
+    <script is:inline nonce={cspNonce}>
       (function () {
         function applyTheme() {
           var stored = localStorage.getItem("theme");

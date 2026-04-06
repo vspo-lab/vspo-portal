@@ -2,9 +2,38 @@ import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, fontProviders } from "astro/config";
+import { defineConfig, envField, fontProviders } from "astro/config";
 
 export default defineConfig({
+  image: {
+    domains: ["cdn.discordapp.com"],
+  },
+  env: {
+    schema: {
+      DISCORD_CLIENT_ID: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DISCORD_CLIENT_SECRET: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DISCORD_REDIRECT_URI: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DISCORD_BOT_CLIENT_ID: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      DEV_MOCK_AUTH: envField.boolean({
+        context: "server",
+        access: "public",
+        optional: true,
+        default: false,
+      }),
+    },
+  },
   fonts: [
     {
       provider: fontProviders.google(),

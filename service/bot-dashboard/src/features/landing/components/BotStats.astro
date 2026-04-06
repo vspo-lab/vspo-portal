@@ -1,0 +1,38 @@
+---
+import { env } from "cloudflare:workers";
+import { z } from "zod";
+import DigitRoll from "./DigitRoll.astro";
+import { t, type Locale } from "~/i18n/dict";
+import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
+
+const propsSchema = z.object({
+  locale: z.enum(["ja", "en"]),
+});
+type Props = z.infer<typeof propsSchema>;
+
+const { locale } = Astro.props;
+const statsResult = await VspoGuildApiRepository.getBotStats(env.APP_WORKER);
+const stats = statsResult.err ? null : statsResult.val;
+---
+
+{stats && (
+  <div class="hero-stats mb-10 flex items-center justify-center gap-6" data-visible>
+    <div class="text-center">
+      <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
+        <DigitRoll value={stats.guildCount} />
+      </div>
+      <div class="text-xs font-medium tracking-wide text-on-surface-variant">
+        {t(locale, "login.stat.servers")}
+      </div>
+    </div>
+    <div class="h-8 w-px bg-border/50" aria-hidden="true"></div>
+    <div class="text-center">
+      <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
+        <DigitRoll value={stats.totalMemberCount} />
+      </div>
+      <div class="text-xs font-medium tracking-wide text-on-surface-variant">
+        {t(locale, "login.stat.users")}
+      </div>
+    </div>
+  </div>
+)}

@@ -1,4 +1,6 @@
 ---
+import { z } from "zod";
+
 const sizeClasses = {
   xs: { img: "h-5 w-5", text: "text-xs", px: 20 },
   sm: { img: "h-8 w-8", text: "text-sm font-medium", px: 32 },
@@ -6,11 +8,12 @@ const sizeClasses = {
   lg: { img: "h-12 w-12", text: "text-lg font-bold", px: 48 },
 } as const;
 
-interface Props {
-  src: string | null;
-  name: string;
-  size: keyof typeof sizeClasses;
-}
+const propsSchema = z.object({
+  src: z.string().nullable(),
+  name: z.string(),
+  size: z.enum(["xs", "sm", "md", "lg"]),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { src, name, size } = Astro.props;
 const classes = sizeClasses[size];

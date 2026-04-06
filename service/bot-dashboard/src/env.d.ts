@@ -24,7 +24,9 @@ declare namespace App {
     refreshToken: string;
     expiresAt: number;
     oauth_state: string;
+    pkce_verifier: string;
     locale: import("~/i18n/dict").Locale;
+    lastActivity: number;
     /** Cached guild summaries to avoid re-fetching on guild detail pages */
     guildSummaries: Array<{
       id: string;
@@ -38,5 +40,6 @@ declare namespace App {
     user: SessionData["user"] | null;
     accessToken: string | null;
     locale: import("~/i18n/dict").Locale;
+    cspNonce: string;
   }
 }

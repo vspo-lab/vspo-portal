@@ -1,13 +1,16 @@
 ---
 import type { HTMLAttributes } from "astro/types";
+import { z } from "zod";
 
-type MenuItemVariant = "default" | "destructive";
+const menuItemVariantSchema = z.enum(["default", "destructive"]);
+type MenuItemVariant = z.infer<typeof menuItemVariantSchema>;
 
-type Props = HTMLAttributes<"button"> & {
-  variant?: MenuItemVariant;
-  as?: "button" | "a";
-  href?: string;
-}
+const menuItemPropsSchema = z.object({
+  variant: menuItemVariantSchema.optional(),
+  as: z.enum(["button", "a"]).optional(),
+  href: z.string().optional(),
+});
+type Props = z.infer<typeof menuItemPropsSchema> & HTMLAttributes<"button">;
 
 const variantClasses: Record<MenuItemVariant, string> = {
   default: "text-on-surface hover:bg-surface-container-highest focus-visible:ring-vspo-purple/50",

@@ -1,14 +1,20 @@
 ---
+import { z } from "zod";
+
 /**
  * Server-rendered flash message that displays Astro Action results.
  * Auto-dismisses after 5 seconds via CSS animation.
  *
  * @precondition Must be placed in a page that handles Astro Actions
  */
-interface Props {
-  result?: { data?: { success: boolean }; error?: { message: string } } | undefined;
-  successMessage?: string;
-}
+const propsSchema = z.object({
+  result: z.object({
+    data: z.object({ success: z.boolean() }).optional(),
+    error: z.object({ message: z.string() }).optional(),
+  }).optional(),
+  successMessage: z.string().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { result, successMessage } = Astro.props;
 const hasSuccess = result?.data?.success === true;

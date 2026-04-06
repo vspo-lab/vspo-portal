@@ -1,25 +1,22 @@
 ---
-import { env } from "cloudflare:workers";
+import { DISCORD_BOT_CLIENT_ID } from "astro:env/server";
 import Base from "~/layouts/Base.astro";
 import Header from "~/features/shared/components/Header.astro";
 import Footer from "~/features/shared/components/Footer.astro";
 import Button from "~/features/shared/components/Button.astro";
 import ScrollReveal from "~/features/landing/components/ScrollReveal.astro";
-import DigitRoll from "~/features/landing/components/DigitRoll.astro";
+import BotStats from "~/features/landing/components/BotStats.astro";
+import Skeleton from "~/features/shared/components/Skeleton.astro";
 import { FeatureShowcase } from "~/features/landing/components/FeatureShowcase";
 import { t } from "~/i18n/dict";
 import { buildBotInviteUrl } from "~/features/guild/domain/guild";
-import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
 if (Astro.locals.user && !Astro.url.searchParams.has("preview") && !Astro.url.searchParams.has("error")) {
   return Astro.redirect("/dashboard");
 }
 
 const locale = Astro.locals.locale;
-const botInviteUrl = buildBotInviteUrl(env.DISCORD_BOT_CLIENT_ID);
-
-const statsResult = await VspoGuildApiRepository.getBotStats(env.APP_WORKER);
-const stats = statsResult.err ? null : statsResult.val;
+const botInviteUrl = buildBotInviteUrl(DISCORD_BOT_CLIENT_ID);
 
 const errorParam = Astro.url.searchParams.get("error");
 const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || errorParam === "fetch_failed" || errorParam === "invalid_state"
@@ -52,28 +49,14 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
             class="hero-headline mb-8 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl"
           >{t(locale, "login.headline")}</h1>
 
-          {/* Stats — digit roll counter */}
-          {stats && (
-            <div class="hero-stats mb-10 flex items-center justify-center gap-6" data-visible>
-              <div class="text-center">
-                <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
-                  <DigitRoll value={stats.guildCount} />
-                </div>
-                <div class="text-xs font-medium tracking-wide text-on-surface-variant">
-                  {t(locale, "login.stat.servers")}
-                </div>
-              </div>
+          {/* Stats — server island with skeleton fallback */}
+          <BotStats server:defer locale={locale}>
+            <div slot="fallback" class="hero-stats mb-10 flex items-center justify-center gap-6">
+              <Skeleton variant="stat" />
               <div class="h-8 w-px bg-border/50" aria-hidden="true"></div>
-              <div class="text-center">
-                <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
-                  <DigitRoll value={stats.totalMemberCount} />
-                </div>
-                <div class="text-xs font-medium tracking-wide text-on-surface-variant">
-                  {t(locale, "login.stat.users")}
-                </div>
-              </div>
+              <Skeleton variant="stat" />
             </div>
-          )}
+          </BotStats>
 
           {/* Error */}
           {errorKey && (

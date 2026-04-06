@@ -1,5 +1,9 @@
+import {
+  DEV_MOCK_AUTH,
+  DISCORD_CLIENT_ID,
+  DISCORD_CLIENT_SECRET,
+} from "astro:env/server";
 import { defineMiddleware, sequence } from "astro:middleware";
-import { env } from "cloudflare:workers";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
 
@@ -17,18 +21,13 @@ const MOCK_USER = {
 } as const;
 
 /**
- * Security headers applied to every response.
+ * Non-CSP security headers applied to every response.
  *
- * - `'unsafe-inline'` in script-src/style-src: required for Astro `is:inline` scripts and Tailwind inline styles.
- * - `cdn.discordapp.com` in img-src: Discord user avatars.
- * - `discord.com` in connect-src: Discord OAuth API calls.
- * - frame-ancestors 'none': prevents clickjacking (mirrors X-Frame-Options: DENY).
+ * CSP note: `'unsafe-inline'` in script-src is required while `<ClientRouter />` is active.
+ * Once ClientRouter is removed, migrate to Astro built-in `security.csp` with hash-based
+ * directives (see docs/astro/19_CSP_BUILTIN.md).
  */
-const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
-  [
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https://cdn.discordapp.com data:; connect-src 'self' https://discord.com; frame-ancestors 'none'",
-  ],
+const STATIC_HEADERS: ReadonlyArray<readonly [string, string]> = [
   ["X-Content-Type-Options", "nosniff"],
   ["X-Frame-Options", "DENY"],
   ["Referrer-Policy", "strict-origin-when-cross-origin"],
@@ -36,22 +35,29 @@ const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
   ["Permissions-Policy", "camera=(), microphone=(), geolocation=()"],
 ] as const;
 
-/**
- * Appends security headers to a Response.
- * @param response - The Response to augment.
- * @returns The same Response with security headers set.
- */
-const applySecurityHeaders = (response: Response): Response => {
-  for (const [name, value] of SECURITY_HEADERS) {
+/** Builds the CSP header value with a per-request nonce for inline scripts. */
+const buildCspHeader = (nonce: string): string =>
+  [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
+    "img-src 'self' https://cdn.discordapp.com data:",
+    "connect-src 'self' https://discord.com",
+    "frame-ancestors 'none'",
+  ].join("; ");
+
+/** Middleware: generates CSP nonce and sets security headers on every response. */
+const securityHeaders = defineMiddleware(async (context, next) => {
+  const nonce = crypto.randomUUID().replace(/-/g, "");
+  context.locals.cspNonce = nonce;
+
+  const response = await next();
+  response.headers.set("Content-Security-Policy", buildCspHeader(nonce));
+  for (const [name, value] of STATIC_HEADERS) {
     response.headers.set(name, value);
   }
   return response;
-};
-
-/** Middleware: sets security headers on every response. */
-const securityHeaders = defineMiddleware(async (_context, next) => {
-  const response = await next();
-  return applySecurityHeaders(response);
 });
 
 /**
@@ -63,11 +69,7 @@ const securityHeaders = defineMiddleware(async (_context, next) => {
  * destructive operations, so explicit CSRF protection is not required for it.
  */
 const auth = defineMiddleware(async (context, next) => {
-  const devMockAuth =
-    "DEV_MOCK_AUTH" in env
-      ? (env as Record<string, unknown>).DEV_MOCK_AUTH
-      : undefined;
-  if (import.meta.env.DEV && devMockAuth !== "false") {
+  if (import.meta.env.DEV && DEV_MOCK_AUTH !== false) {
     const devLocale = (await context.session?.get("locale")) ?? "ja";
     context.locals.locale = devLocale;
     context.locals.user = MOCK_USER;
@@ -97,7 +99,8 @@ const auth = defineMiddleware(async (context, next) => {
   }
   context.session?.set("lastActivity", now);
 
-  const locale = sessionLocale ?? "ja";
+  const preferred = context.preferredLocale;
+  const locale = sessionLocale ?? (preferred === "en" ? "en" : "ja");
   context.locals.locale = locale;
   if (!sessionLocale) {
     context.session?.set("locale", locale);
@@ -124,8 +127,8 @@ const auth = defineMiddleware(async (context, next) => {
 
     const refreshResult = await DiscordApiRepository.refreshToken({
       refreshToken,
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+      clientId: DISCORD_CLIENT_ID,
+      clientSecret: DISCORD_CLIENT_SECRET,
     });
 
     if (refreshResult.err) {

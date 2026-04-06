@@ -1,8 +1,11 @@
 ---
-interface Props {
-  class?: string;
-  style?: string;
-}
+import { z } from "zod";
+
+const propsSchema = z.object({
+  class: z.string().optional(),
+  style: z.string().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
 const { class: className = "", style } = Astro.props;
 ---
