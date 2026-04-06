@@ -7,10 +7,12 @@
 **現状**: `initDialog()` で dialog の backdrop-click-to-close と cancel ボタンを設定。AbortController で View Transitions 対応。
 
 **問題点**:
+
 - 呼び出し側（ChannelConfigForm, ChannelAddModal, DeleteChannelDialog）が毎回 `initDialog("dialog-id")` を呼ぶ必要がある
 - `astro:page-load` での再初期化が必要
 
 **React 移行後**: カスタムフックに置換
+
 ```tsx
 // features/shared/hooks/useDialog.ts
 function useDialog(ref: RefObject<HTMLDialogElement>) {
@@ -25,10 +27,12 @@ function useDialog(ref: RefObject<HTMLDialogElement>) {
 **現状**: `<details data-auto-close>` 要素のクリック外閉じを実装。global event listener。
 
 **問題点**:
+
 - グローバルイベントリスナーで全 `<details>` を監視
 - React island 内の `<details>` との干渉リスク
 
 **React 移行後**: `useClickOutside` フックまたは headless dropdown コンポーネント
+
 ```tsx
 // features/shared/hooks/useClickOutside.ts
 function useClickOutside(ref: RefObject<HTMLElement>, handler: () => void) {
@@ -47,10 +51,12 @@ function useClickOutside(ref: RefObject<HTMLElement>, handler: () => void) {
 **現状**: `toggle()` と `syncTheme()` を export。`localStorage` + `classList` 操作。
 
 **問題点**:
+
 - ThemeToggle と UserMenu の両方から呼ばれるが、状態の同期は DOM ベース
 - SSR 時のフラッシュ防止が `is:inline` スクリプトに依存
 
 **React 移行後**: Nano Store + React hook
+
 ```tsx
 // features/shared/stores/theme.ts (Nano Store)
 import { atom } from "nanostores";
@@ -69,6 +75,7 @@ function useTheme() {
 ### 4. `pages/index.astro` — Feature Popup スクリプト (30行)
 
 **現状**:
+
 ```js
 document.querySelectorAll(".feature-card-trigger").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -79,10 +86,12 @@ document.querySelectorAll(".feature-card-trigger").forEach(btn => {
 ```
 
 **問題点**:
+
 - `AbortController` + `astro:page-load` で re-init
 - クラス名ベースのセレクタに依存
 
 **React 移行案**: `FeatureShowcase` React island
+
 ```tsx
 // features/landing/components/FeatureShowcase.tsx
 function FeatureShowcase({ features }: { features: Feature[] }) {
@@ -118,6 +127,7 @@ function FeatureShowcase({ features }: { features: Feature[] }) {
 ### 6. `ChannelConfigForm.astro` — メイン操作スクリプト (320行)
 
 **これが最大の移行対象。** 以下の機能を含む:
+
 - Edit ボタンクリック → dialog open + フォーム populate
 - Radio button highlight toggle
 - Custom members dropdown open/close
@@ -130,7 +140,7 @@ function FeatureShowcase({ features }: { features: Feature[] }) {
 
 **React 移行案**: 3つの React コンポーネントに分割
 
-```
+```yaml
 ChannelConfigModal.tsx (island, client:load)
   ├── LanguageSelect.tsx
   ├── MemberTypeRadioGroup.tsx
@@ -141,6 +151,7 @@ ChannelConfigModal.tsx (island, client:load)
 ```
 
 **状態管理**:
+
 ```tsx
 type ConfigFormState = {
   channelId: string;
@@ -158,6 +169,7 @@ type ConfigFormState = {
 **現状**: fetch API でギルドのチャンネル一覧を取得、検索フィルタ、template clone。
 
 **React 移行案**:
+
 ```tsx
 // features/channel/components/ChannelAddModal.tsx
 function ChannelAddModal({ guildId, registeredIds }: Props) {
@@ -185,6 +197,7 @@ function ChannelAddModal({ guildId, registeredIds }: Props) {
 **現状**: クリックイベントで dialog open + heading/hidden input 書き換え。
 
 **React 移行案**:
+
 ```tsx
 function DeleteChannelDialog({ guildId }: Props) {
   const { channelToDelete } = useStore($channelActions); // Nano Store
@@ -203,6 +216,7 @@ function DeleteChannelDialog({ guildId }: Props) {
 ### 9. `ThemeToggle.astro` — テーマ切替スクリプト (12行)
 
 **React 移行案**:
+
 ```tsx
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
@@ -219,6 +233,7 @@ function ThemeToggle() {
 ### 10. `FlashMessage.astro` — auto-dismiss スクリプト (5行)
 
 **React 移行案**:
+
 ```tsx
 function FlashMessage({ message, type }: Props) {
   const [visible, setVisible] = useState(true);
@@ -236,6 +251,7 @@ function FlashMessage({ message, type }: Props) {
 ### Astro Actions との統合
 
 React island から Astro Actions を呼ぶ方法:
+
 ```tsx
 import { actions } from "astro:actions";
 
@@ -247,6 +263,7 @@ const handleSubmit = async (data: FormData) => {
 ```
 
 ただし `accept: "form"` の Action は `<form>` 経由でないと CSRF 保護が効かない。選択肢:
+
 1. **hidden form を維持** — React で state 管理、submit は hidden form 経由
 2. **Action を `accept: "json"` に変更** — React から直接呼べるが、progressive enhancement を失う
 
@@ -280,6 +297,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 ### View Transitions との互換性
 
 `<ClientRouter />` 使用時の React island の注意点:
+
 - `transition:persist` を使うと island のアンマウント/再マウントを防げる
 - `transition:name` でアニメーション対象を指定
 - `astro:page-load` は React island 内では不要 (React が自前でライフサイクル管理)
@@ -287,13 +305,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 ### SSR と Hydration
 
 - `client:load` — ページロード即座にハイドレーション。フォーム系に使用
-- `client:idle` — ブラウザがアイドル時にハイドレーション。UserMenu, LanguageSelector に使用
-- `client:visible` — ビューポートに入った時にハイドレーション。LP の FeaturePopup に使用
+- `client:idle` — ブラウザがアイドル時にハイドレーション。UserMenu, LanguageSelector で使用
+- `client:visible` — ビューポート入場時にハイドレーション。LP の FeaturePopup で利用
 - `client:only="react"` — SSR なしでクライアントのみレンダリング。テーマトグル等に使用可能
 
 ## ファイル配置規則
 
-```
+```text
 features/
   channel/
     components/

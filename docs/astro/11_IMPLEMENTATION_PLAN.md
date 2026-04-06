@@ -2,7 +2,7 @@
 
 ## Phase 概要
 
-```
+```yaml
 Phase 1: 基盤セットアップ (1-2日)
   ↓
 Phase 2: 共通 hooks & stores (1-2日)
@@ -32,6 +32,7 @@ Phase 7: クリーンアップ (1-2日)
 | 1-6 | `src/test/setup.ts` | テストセットアップファイル作成 |
 
 ### 検証
+
 ```bash
 # React island が動作することを確認
 # 簡単なテスト React コンポーネントを作成して client:load で表示
@@ -55,6 +56,7 @@ pnpm build && pnpm preview
 | 2-7 | `features/channel/stores/channel-data.ts` | Nano Store: `$channelData` map + optimistic helpers |
 
 ### テスト
+
 | テストファイル | テスト対象 |
 |---------------|-----------|
 | `hooks/__tests__/useDialog.test.ts` | focus trap, backdrop click, Escape key |
@@ -82,14 +84,14 @@ pnpm build && pnpm preview
 
 1. テストファイル作成 (RED)
 2. React コンポーネント実装 (GREEN)
-3. Astro ページ/レイアウトで `client:*` ディレクティブで配置
+3. Astro ページ/レイアウトに `client:*` ディレクティブで配置
 4. 対応する vanilla JS / `<script>` を削除
 5. a11y テスト実行
 6. ビルド確認
 
 ### 3-1: ThemeToggle の詳細
 
-```
+```yaml
 ThemeToggle.astro (server: アイコン表示) → ThemeToggle.tsx (client:load)
   - useTheme() hook を使用
   - $theme Nano Store と連携
@@ -100,7 +102,7 @@ ThemeToggle.astro (server: アイコン表示) → ThemeToggle.tsx (client:load)
 
 ### 3-3: FeatureShowcase の詳細
 
-```
+```text
 index.astro の <script> (30行) + FeaturePopup.astro
   ↓
 FeatureShowcase.tsx (client:visible)
@@ -112,6 +114,7 @@ FeatureShowcase.tsx (client:visible)
 ```
 
 ### テスト
+
 | テストファイル | テスト対象 |
 |---------------|-----------|
 | `ThemeToggle.test.tsx` | toggle, aria-pressed, icon switch |
@@ -136,7 +139,7 @@ FeatureShowcase.tsx (client:visible)
 
 **最大の移行。5つのサブコンポーネントに分割:**
 
-```
+```text
 ChannelConfigModal.tsx
   ├── LanguageSelect.tsx
   ├── MemberTypeRadioGroup.tsx (WAI-ARIA radio group)
@@ -199,7 +202,7 @@ function ChannelConfigModal({ guildId, channel, members, translations }) {
 
 ### 4-2: ChannelAddModal の詳細
 
-```
+```text
 ChannelAddModal.tsx
   ├── ChannelSearchInput.tsx
   └── ChannelList.tsx (with loading/error/empty states)
@@ -212,7 +215,7 @@ ChannelAddModal.tsx
 
 ### 4-3: DeleteChannelDialog の詳細
 
-```
+```text
 DeleteChannelDialog.tsx
   - $channelToDelete Nano Store から対象取得
   - 確認テキスト表示
@@ -252,6 +255,7 @@ const translations = { /* ... */ };
 ```
 
 ### テスト
+
 | テストファイル | テスト対象 |
 |---------------|-----------|
 | `ChannelConfigModal.test.tsx` | form state, radio group, member picker, save/reset |
@@ -279,7 +283,7 @@ const translations = { /* ... */ };
 
 ### データフロー変更
 
-```
+```yaml
 Before (PRG):
   User action → Form POST → Server → Redirect → Full page reload
 
@@ -332,7 +336,7 @@ After (Optimistic UI):
 
 ## 依存関係図
 
-```
+```text
 Phase 1 (基盤)
   │
   ├──→ Phase 2 (hooks & stores)

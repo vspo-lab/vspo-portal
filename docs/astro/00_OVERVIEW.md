@@ -17,7 +17,7 @@
 
 ## ディレクトリ構造 (feature-based)
 
-```
+```text
 src/
   actions/index.ts          # Astro Actions (addChannel, updateChannel, etc.)
   features/

@@ -156,7 +156,7 @@ const sessionTimeout = defineMiddleware(async (context, next) => {
 
 並行リクエスト (ページロード + Server Island + Action) が同時にリフレッシュを実行:
 
-```
+```yaml
 Request A: expiresAt < now → refresh → new tokens → session.set(...)
 Request B: expiresAt < now → refresh → old refresh token → FAIL (token already used)
 ```
@@ -213,7 +213,7 @@ const refreshTokenIfNeeded = async (context: APIContext) => {
 
 ### 注意点
 
-- Cloudflare KV はトランザクションをサポートしないため、分散ロックは完全ではない
+- Cloudflare KV がトランザクションをサポートしないため、分散ロック機構の完全性は保証されません
 - 競合ウィンドウは狭い (同一セッションの並行リクエストかつトークン期限切れ時のみ)
 - 最悪のケースでも、リフレッシュトークンの無効化で `session.destroy()` されるため安全
 
@@ -298,7 +298,7 @@ const auth = defineMiddleware(async (context, next) => {
 
 ## セッションフロー図
 
-```
+```text
 ブラウザ → Cloudflare Worker
   ↓
 middleware (securityHeaders)

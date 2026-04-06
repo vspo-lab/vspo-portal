@@ -3,6 +3,7 @@
 ## 1. `pages/index.astro` — ランディングページ
 
 ### 現状 (266行)
+
 - 認証済みユーザーは `/dashboard` へリダイレクト
 - Hero セクション、Bot Stats (DigitRoll)、Feature Cards (dialog popup)、CTA
 - 30行の `<script>` で feature popup トリガー (AbortController パターン)
@@ -21,6 +22,7 @@
 | **コード品質** | feature popup script の AbortController パターン | React 化で不要に |
 
 ### 移行後の構造
+
 ```astro
 ---
 // server-side
@@ -43,6 +45,7 @@ const features = getFeatures(locale);
 ## 2. `pages/404.astro` — Not Found ページ
 
 ### 現状
+
 - シンプルな静的ページ、Button コンポーネント使用
 
 ### 改善点
@@ -59,6 +62,7 @@ const features = getFeatures(locale);
 ## 3. `pages/dashboard/index.astro` — サーバー一覧ページ
 
 ### 現状
+
 - `ListGuildsUsecase.execute()` でギルド一覧取得
 - セッションにギルドサマリーをキャッシュ
 - installed / not-installed セクションで GuildCard 表示
@@ -75,6 +79,7 @@ const features = getFeatures(locale);
 | **エラーハンドリング** | Discord API エラー時の UX | ErrorAlert + リトライボタン |
 
 ### 移行後の構造
+
 ```astro
 ---
 const guilds = await ListGuildsUsecase.execute(session);
@@ -110,6 +115,7 @@ const guilds = await ListGuildsUsecase.execute(session);
 ## 4. `pages/dashboard/[guildId].astro` — ギルド詳細ページ (チャンネル設定)
 
 ### 現状 (181行)
+
 - 最も複雑なページ。キャッシュされたギルドサマリー、並列データ取得、Astro Action results 処理
 - ChannelTable, ChannelConfigForm, DeleteChannelDialog, ChannelAddModal を含む
 - 8行の `<script>` で View Transitions 時の dialog close 処理
@@ -129,6 +135,7 @@ const guilds = await ListGuildsUsecase.execute(session);
 | **セキュリティ** | Action result のエラーメッセージがそのまま表示 | エラーメッセージのサニタイズ |
 
 ### 移行後の構造
+
 ```astro
 ---
 const [channels, members] = await Promise.allSettled([
@@ -154,6 +161,7 @@ const [channels, members] = await Promise.allSettled([
 ## 5. `pages/dashboard/announcements.astro` — グローバルお知らせ
 
 ### 現状
+
 - 全お知らせデータを `announcements.ts` から取得
 - ギルドコンテキストなし
 
@@ -172,6 +180,7 @@ const [channels, members] = await Promise.allSettled([
 ## 6. `pages/dashboard/[guildId]/announcements.astro` — ギルド別お知らせ
 
 ### 現状
+
 - ギルドデータをサイドバー用に取得
 - それ以外は `announcements.astro` とほぼ同一
 
@@ -188,6 +197,7 @@ const [channels, members] = await Promise.allSettled([
 ## 7. `pages/auth/discord.ts` — OAuth 開始エンドポイント
 
 ### 現状
+
 - OAuth URL 構築、state をセッション保存、302 リダイレクト
 
 ### 改善点
@@ -203,6 +213,7 @@ const [channels, members] = await Promise.allSettled([
 ## 8. `pages/api/guilds/[guildId]/channels.ts` — チャンネル一覧 API
 
 ### 現状
+
 - GET endpoint。ギルドの Discord チャンネルを返す
 - ChannelAddModal から fetch で呼ばれる
 
@@ -220,6 +231,7 @@ const [channels, members] = await Promise.allSettled([
 ## 9. `pages/api/change-locale.ts` — ロケール変更 API
 
 ### 現状
+
 - POST endpoint。セッションにロケール保存、リダイレクト
 
 ### 改善点

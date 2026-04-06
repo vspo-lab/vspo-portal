@@ -223,7 +223,7 @@ const SECURITY_HEADERS: ReadonlyArray<readonly [string, string]> = [
 ];
 ```
 
-3. **`'unsafe-inline'` の削除確認**: Astro CSP はハッシュベースなので `'unsafe-inline'` は不要。`is:inline` スクリプトも自動的にハッシュが計算される。
+1. **`'unsafe-inline'` の削除確認**: Astro CSP はハッシュベースなので `'unsafe-inline'` は不要。`is:inline` スクリプトも自動的にハッシュが計算される。
 
 ### 制約事項
 

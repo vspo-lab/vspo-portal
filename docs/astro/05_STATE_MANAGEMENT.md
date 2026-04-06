@@ -173,7 +173,7 @@ export function showFlash(
 
 ## データフロー図
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                    Astro Page (.astro)                   │
 │  ┌─────────────────────────────────────────────────┐    │
@@ -224,12 +224,14 @@ export function ChannelTable({ initialChannels }: { initialChannels: ChannelConf
 ## PRG → 楽観的 UI への移行
 
 ### Before (現在の PRG パターン)
-```
+
+```text
 User clicks "Save" → POST /action → Server processes → Redirect → Full page reload → New data displayed
 ```
 
 ### After (楽観的 UI)
-```
+
+```text
 User clicks "Save" → Optimistic update to $channelData → POST /action → 
   Success: keep optimistic state
   Failure: rollback $channelData + show $flash error
@@ -257,6 +259,7 @@ async function handleSave(config: ChannelConfig) {
 ## 注意事項
 
 ### SSR と Hydration の整合性
+
 - Nano Store の初期値は SSR 時には空 → hydration mismatch が起きうる
 - 対策: `client:only="react"` を使うか、初期値を props で渡して `useEffect` で Store に設定
 
@@ -280,14 +283,17 @@ onMount($theme, () => {
 ```
 
 **`.get()` vs `useStore()`**:
+
 - `.get()` — 現在値の1回取得。副作用やイベントハンドラ内で使用
 - `useStore($store)` — リアクティブなサブスクリプション。React コンポーネントのレンダリングに使用
 
 ### View Transitions との共存
+
 - `<ClientRouter />` でページ遷移しても Nano Store のインスタンスは維持される
 - `transition:persist` の island は再マウントされないため Store の値も保持
 - ページ遷移時に Store をリセットする必要がある場合は `astro:before-preparation` で `$store.set(initialValue)` を呼ぶ
 
 ### テスト
+
 - Store 単体テスト: `$store.set()` → `$store.get()` で状態を検証
 - コンポーネントテスト: `@testing-library/react` + Store のモック

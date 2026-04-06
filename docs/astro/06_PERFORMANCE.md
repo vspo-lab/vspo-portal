@@ -54,7 +54,7 @@ const stats = await fetchBotStats(); // blocking
 
 ## Hydration ディレクティブの最適化
 
-```
+```yaml
 client:load    → 即座にハイドレーション。CLS を避けたいインタラクティブ要素
 client:idle    → requestIdleCallback 後。優先度の低い UI
 client:visible → IntersectionObserver。fold below の要素
@@ -164,6 +164,7 @@ import botLogo from "../assets/bot-logo.png";
 ```
 
 **効果**:
+
 - WebP/AVIF 自動変換
 - 適切なサイズへのリサイズ
 - `width`/`height` 属性による CLS 防止
@@ -196,6 +197,7 @@ adapter: cloudflare({
 ### アバター画像
 
 Discord アバター URL は外部画像。Cloudflare Images Binding でランタイム変換可能だが、シンプルさのため HTML 属性で対応:
+
 - `loading="lazy"` 属性
 - `width`/`height` 属性で CLS 防止
 - `decoding="async"` 属性
@@ -229,6 +231,7 @@ Astro は各 island を自動的に個別のチャンクとしてバンドルす
 ### Shared Dependencies
 
 複数の island が同じ依存を使う場合、Astro は共通チャンクとして抽出:
+
 - `react`, `react-dom` — 全 island で共有
 - `nanostores`, `@nanostores/react` — 全 island で共有
 - `zod` — バリデーションを使う island で共有

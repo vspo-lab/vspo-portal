@@ -5,6 +5,7 @@
 現在のbot-dashboardは全ページが SSR (`output: "server"`) で、クライアントサイドのインタラクティビティはすべて vanilla JS (`<script>` タグ) で実装されている。
 
 ### 問題点
+
 1. **JS が巨大な monolith** — ChannelConfigForm.astro の `<script>` は 300行超。テスト困難、再利用不可
 2. **DOM 操作が手動** — `querySelector`, `classList.toggle`, `addEventListener` の嵐。状態とUIの乖離が起きやすい
 3. **View Transitions との相性** — `astro:page-load` で毎回 re-init が必要。AbortController のリーク可能性
@@ -14,7 +15,7 @@
 
 Astro の Islands は「静的HTML海の中にインタラクティブな島を浮かべる」パターン。
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │         Static HTML (Server)            │
 │  ┌──────────┐    ┌─────────────────┐    │
@@ -139,25 +140,30 @@ const channels = await fetchChannels(guildId);
 > セキュリティ・フォント最適化・CSP等を含む完全な7フェーズ実装計画は [`11_IMPLEMENTATION_PLAN.md`](./11_IMPLEMENTATION_PLAN.md) を参照してください。
 
 ### Phase 1: 基盤セットアップ
+
 1. `@astrojs/react` integration 追加
 2. `nanostores` + `@nanostores/react` 追加
 3. 共通 React hooks ディレクトリ作成
 
 ### Phase 2: 小さい island から開始
+
 1. `ThemeToggle` → React (`client:load`)
 2. `FlashMessage` → React (`client:idle`)
 3. `FeaturePopup` dialog → React (`client:visible`)
 
 ### Phase 3: 大きなフォーム系
+
 1. `ChannelConfigForm` → React (`client:load`)
 2. `ChannelAddModal` → React (`client:load`)
 3. `DeleteChannelDialog` → React (`client:load`)
 
 ### Phase 4: 状態管理統合
+
 1. Nano Stores でチャンネルデータ共有
 2. PRG パターンから楽観的UIへ
 
 ### Phase 5: クリーンアップ
+
 1. vanilla JS ファイル削除 (`dialog-helpers.ts`, `close-on-outside-click.ts`, `theme.ts`)
 2. `astro:page-load` イベントハンドラ削除
 3. `<script>` タグ整理

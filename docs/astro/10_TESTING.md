@@ -392,7 +392,7 @@ test.describe("Channel Configuration", () => {
 
 ## テストファイル配置
 
-```
+```text
 src/
   features/
     channel/

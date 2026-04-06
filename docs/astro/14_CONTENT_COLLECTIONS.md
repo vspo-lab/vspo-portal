@@ -33,7 +33,7 @@ const announcements: readonly AnnouncementType[] = [
 
 ### ファイル構造
 
-```
+```text
 src/
   content.config.ts              ← コレクション定義
   data/

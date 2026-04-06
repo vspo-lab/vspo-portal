@@ -28,6 +28,7 @@ dwyer
 enablejsapi
 endregion
 español
+FOUT
 foit
 fouc
 français
@@ -41,6 +42,9 @@ gstatic
 hankaku
 hiragino
 hono
+HSTS
+HTMLU
+htmx
 hotkey
 hotkeys
 idempotency
@@ -64,6 +68,7 @@ middleware
 middlewares
 monorepo
 mui
+nanostores
 necolas
 nextjs
 niconico
@@ -75,6 +80,7 @@ nums
 oembed
 ofuse
 oklch
+PKCE
 opennextjs
 orval
 oxfmt
@@ -86,6 +92,8 @@ preact
 preconditions
 rects
 reduxjs
+referer
+Referer
 rehype
 Remia
 remark
@@ -102,9 +110,11 @@ serializable
 shiki
 Shinomiya
 signin
+snowflake
 signup
 spodule
 srgb
+squoosh
 starlight
 stefanzweifel
 stuckey

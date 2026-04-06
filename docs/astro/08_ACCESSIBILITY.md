@@ -3,11 +3,13 @@
 ## 現状の評価
 
 ### 良い点
+
 - `skip-to-content` リンクが Base.astro にある
 - semantic HTML (`<main>`, `<nav>`, `<header>`, `<footer>`) を使用
 - `FlashMessage` に `role="status"` あり
 
 ### 主要な課題
+
 1. **keyboard navigation** — dialog, dropdown, menu で不十分
 2. **focus management** — dialog open/close 時の focus 制御なし
 3. **ARIA attributes** — ほとんどのインタラクティブ要素で不足
@@ -75,6 +77,7 @@ function useDialog(ref: RefObject<HTMLDialogElement>) {
 ```
 
 **dialog の ARIA 属性**:
+
 ```html
 <dialog
   aria-labelledby="dialog-title"
@@ -359,6 +362,7 @@ Tailwind CSS v4 では `sr-only` クラスがビルトイン。
 ```
 
 React island 内:
+
 ```tsx
 function StatusAnnouncer() {
   const flash = useStore($flash);

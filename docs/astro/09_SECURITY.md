@@ -3,6 +3,7 @@
 ## 現状の実装
 
 ### middleware.ts のセキュリティヘッダー
+
 ```typescript
 // securityHeaders middleware
 const headers = {
@@ -19,12 +20,14 @@ const headers = {
 ```
 
 ### 認証
+
 - Discord OAuth2 (authorization code flow)
 - セッションベース (Cloudflare KV or D1)
 - ミドルウェアで認証チェック + トークンリフレッシュ (5分バッファ)
 - dev 環境ではモックユーザー
 
 ### Astro Actions
+
 - `accept: "form"` — Astro が自動 CSRF 保護
 - `requireAuth()` ヘルパーで認証確認
 - Zod バリデーション
@@ -38,6 +41,7 @@ const headers = {
 **現状**: `script-src 'self' 'unsafe-inline'` — XSS リスクの緩和が不十���
 
 **原因**:
+
 - Base.astro のテーマ初期化 `<script is:inline>` が `unsafe-inline` を要求
 - `<ClientRouter />` (View Transitions) が Astro 6 の built-in CSP と非互換
 
@@ -68,11 +72,13 @@ Astro.locals.cspNonce = nonce;
 Astro 6 の `security.csp` は `<meta>` タグに SHA-256 ハッシュを使用する方式。**`<ClientRouter />` と非互換**（確認済み）。
 
 `security.csp` 有効時、Astro は自動的に:
+
 - inline script の SHA-256 ハッシュを `<meta>` タグに含める
 - `unsafe-inline` が指定されていてもハッシュが存在すれば自動で無視される
 - Runtime API `Astro.csp?.insertDirective()` で動的にディレクティブ追加可能
 
 将来的に:
+
 1. `<ClientRouter />` を削除
 2. ネイティブブラウザの MPA view transitions (`@view-transition`) に移行
 3. Astro built-in CSP を有効化
@@ -102,10 +108,12 @@ export default defineConfig({
 **現状**: Astro Actions の `accept: "form"` が自動 CSRF 保護を提供。
 
 **改善点**:
+
 - `change-locale` API エンドポイントが Astro Actions ではなく生の POST endpoint → CSRF 保護なし
 - `guilds/[guildId]/channels.ts` GET endpoint は CSRF 不要だが、認証チェック要確認
 
 **改善案**:
+
 ```typescript
 // change-locale を Astro Action に移行
 export const server = {
@@ -126,6 +134,7 @@ export const server = {
 ### 3. OAuth セキュリティ
 
 **現状の確認事項**:
+
 - [ ] state パラメータが `crypto.randomUUID()` で生成されている
 - [ ] state がセッションに保存され、callback で検証されている
 - [ ] access token がクライアントに露出していない
@@ -168,6 +177,7 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
 ### 4. API エンドポイントの認証
 
 **改善点**:
+
 - `guilds/[guildId]/channels.ts` — ユーザーがそのギルドのメンバーかどうかの検証
 - レート制限の実装
 
@@ -233,6 +243,7 @@ handler: async (input, context) => {
 ```
 
 **セキュリティ機能**:
+
 - `session.regenerate()` — セッション ID 再生成（セッション固定攻撃対策）
 - `session.destroy()` — セッション破棄（ログアウト時）
 - `session.set(key, value, { ttl: seconds })` — TTL 付きデータ保存
@@ -256,6 +267,7 @@ return Astro.redirect('/');
 **現状**: Action のエラーメッセージがそのままクライアントに表示される可能性
 
 **改善案**:
+
 ```typescript
 // エラーメッセージのサニタイズ
 function safeErrorMessage(error: unknown): string {
@@ -272,6 +284,7 @@ function safeErrorMessage(error: unknown): string {
 ### 7. 入力バリデーションの強化
 
 **現状の Zod スキーマ**:
+
 ```typescript
 // actions/index.ts の既存バリデーション
 input: z.object({
@@ -284,6 +297,7 @@ input: z.object({
 ```
 
 **改善案**: より厳密なバリデーション
+
 ```typescript
 input: z.object({
   guildId: z.string().regex(/^\d{17,20}$/, "Invalid guild ID"), // Discord snowflake
