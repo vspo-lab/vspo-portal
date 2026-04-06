@@ -317,8 +317,10 @@ function ChannelConfigModalInner({
               {/* Dropdown panel */}
               {dropdownOpen && (
                 <div
+                  role="listbox"
                   className="rounded-lg border border-outline-variant/20 bg-surface-container-high shadow-lg"
                   onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
                 >
                   <div className="border-b border-outline-variant/10 p-2">
                     <input
