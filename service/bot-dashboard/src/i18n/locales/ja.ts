@@ -103,6 +103,11 @@ export const ja = {
   "channelConfig.close": "閉じる",
   "channelConfig.cancel": "キャンセル",
   "channelConfig.save": "保存",
+  "channelConfig.diff.title": "変更プレビュー",
+  "channelConfig.diff.language": "言語",
+  "channelConfig.diff.memberType": "メンバー",
+  "channelConfig.diff.customMembers": "カスタムメンバー",
+  "channelConfig.diff.noChanges": "変更なし",
 
   // Navigation
   "nav.sidebar": "サーバーナビゲーション",

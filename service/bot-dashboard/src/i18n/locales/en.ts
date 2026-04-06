@@ -109,6 +109,11 @@ export const en: Record<keyof typeof ja, string> = {
   "channelConfig.close": "Close",
   "channelConfig.cancel": "Cancel",
   "channelConfig.save": "Save",
+  "channelConfig.diff.title": "Change Preview",
+  "channelConfig.diff.language": "Language",
+  "channelConfig.diff.memberType": "Members",
+  "channelConfig.diff.customMembers": "Custom Members",
+  "channelConfig.diff.noChanges": "No changes",
 
   // Navigation
   "nav.sidebar": "Server Navigation",
