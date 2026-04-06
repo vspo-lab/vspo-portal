@@ -339,6 +339,42 @@ export const findCompletedAction = <T>(
 };
 ```
 
+## Issue 7: Not Using `ComponentProps` for Wrapper Components
+
+### Problem
+
+When wrapping or extending existing Astro components, the wrapper must manually redeclare all prop types. If the inner component's props change, the wrapper's types become stale.
+
+### Proposed: Use `ComponentProps` Utility Type
+
+Astro provides `ComponentProps` from `astro/types` to extract a component's props type:
+
+```astro
+---
+import type { ComponentProps } from "astro/types";
+import Button from "./Button.astro";
+
+// Extract Button's Props — no need to redeclare
+type ButtonProps = ComponentProps<typeof Button>;
+
+interface Props extends ButtonProps {
+  icon?: string; // Add wrapper-specific props
+}
+
+const { icon, ...buttonProps } = Astro.props;
+---
+<div class="icon-button">
+  {icon && <span class="icon">{icon}</span>}
+  <Button {...buttonProps} />
+</div>
+```
+
+### Benefits
+
+- Props stay in sync automatically when the inner component changes
+- Works even when the inner component doesn't export its `Props` interface
+- Enables safe component composition without manual type maintenance
+
 ## Migration Checklist
 
 - [ ] Add `.strict()` to Zod schemas for RPC response validation
@@ -349,3 +385,4 @@ export const findCompletedAction = <T>(
 - [ ] Add typed action result helper for multi-action pages
 - [ ] Document type flow from RPC → Domain → Action → Page
 - [ ] Evaluate shared schema generation (OpenAPI/protobuf) for Go ↔ TypeScript boundary
+- [ ] Use `ComponentProps<typeof Component>` for wrapper components instead of manual prop redeclaration

@@ -260,6 +260,247 @@ No `<link rel="preload">` for above-the-fold images. The browser discovers image
 
 This should only be used for the single most important above-the-fold image to avoid over-preloading.
 
+## Issue 7: Not Using Responsive Image `layout` Prop
+
+### Overview
+
+Astro 5.10+ introduced a `layout` property on `<Image />` and `<Picture />` components that automatically generates `srcset` and `sizes` attributes for responsive images. This eliminates the need to manually specify `widths` and `sizes` arrays.
+
+### Layout Types
+
+| Layout | Behavior | Use Case |
+|--------|----------|----------|
+| `constrained` | Scales down to fit container, won't scale beyond specified dimensions. Matches Tailwind default `max-width: 100%` | General-purpose images. Choose this if unsure |
+| `full-width` | Scales to fit container width, maintaining aspect ratio | Hero images, banners |
+| `fixed` | Maintains requested dimensions, generates `srcset` for high-density displays only | Icons, logos, small fixed-size images |
+| `none` | No responsive behavior, no auto `srcset`/`sizes` | Override global default for specific images |
+
+### Example: Constrained Layout
+
+```astro
+---
+import { Image } from "astro:assets";
+import heroImage from "~/assets/images/hero.png";
+---
+
+<Image
+  src={heroImage}
+  alt="Vspo Notifications Bot dashboard preview"
+  layout="constrained"
+  width={800}
+  height={600}
+/>
+```
+
+**Generated HTML:**
+
+```html
+<img
+  src="/_astro/hero.hash3.webp"
+  srcset="
+    /_astro/hero.hash1.webp 640w,
+    /_astro/hero.hash2.webp 750w,
+    /_astro/hero.hash3.webp 800w,
+    /_astro/hero.hash4.webp 828w,
+    /_astro/hero.hash5.webp 1080w,
+    /_astro/hero.hash6.webp 1280w,
+    /_astro/hero.hash7.webp 1600w"
+  sizes="(min-width: 800px) 800px, 100vw"
+  loading="lazy"
+  decoding="async"
+  fetchpriority="auto"
+  width="800"
+  height="600"
+  data-astro-image="constrained"
+/>
+```
+
+### Global Configuration
+
+Set a default layout for all images in `astro.config.ts`:
+
+```typescript
+// astro.config.ts
+export default defineConfig({
+  image: {
+    layout: "constrained", // Default layout for all images
+    responsiveStyles: true, // Apply global responsive styles
+  },
+});
+```
+
+### Responsive Styles
+
+`image.responsiveStyles: true` injects a small global stylesheet:
+
+```css
+:where([data-astro-image]) {
+  object-fit: var(--fit);
+  object-position: var(--pos);
+}
+:where([data-astro-image='full-width']) {
+  width: 100%;
+}
+:where([data-astro-image='constrained']) {
+  max-width: 100%;
+}
+```
+
+Uses `:where()` (specificity 0) — easy to override with any CSS selector.
+
+### `fit` and `position` Props
+
+Override `object-fit` and `object-position` per image:
+
+```astro
+<Image
+  src={heroImage}
+  alt="Hero"
+  layout="full-width"
+  fit="contain"
+  position="top"
+/>
+```
+
+### Tailwind 4 Compatibility
+
+Tailwind 4 uses [cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer), which are always lower specificity than non-layered rules. Astro's responsive styles (non-layered) will override Tailwind styling.
+
+**If using Tailwind 4 for image styles**: Do NOT enable `image.responsiveStyles`. Handle responsive styling via Tailwind classes instead.
+
+**If using Astro's responsive styles**: Enable `image.responsiveStyles: true` and Tailwind classes will not conflict (Tailwind layer is lower priority).
+
+### Astro 6 Change: Style Emission
+
+In Astro 5.x, responsive image styles were injected as inline `style` attributes (`style="--fit: cover; --pos: center;"`). This was incompatible with Content Security Policy (CSP).
+
+Astro 6 generates styles via a virtual module at build time, emitting a hash class + `data-*` attributes instead:
+
+```html
+<!-- Astro 5.x -->
+<img style="--fit: cover; --pos: center;" >
+
+<!-- Astro 6 -->
+<img class="__a_HaSh350" data-astro-fit="cover" data-astro-pos="center" >
+```
+
+If any custom code relied on the old inline `--fit`/`--pos` CSS custom properties, update to use the new `data-*` attributes.
+
+## Issue 8: Not Using `<Picture />` for Multi-Format Delivery
+
+### Current State
+
+The landing page uses a manual `<picture>` element with hardcoded WebP + PNG sources. Astro's `<Picture />` component automates this with better optimization.
+
+### Proposed: Use `<Picture />` Component
+
+```astro
+---
+import { Picture } from "astro:assets";
+import heroImage from "~/assets/images/hero.png";
+---
+
+<Picture
+  src={heroImage}
+  formats={["avif", "webp"]}
+  alt="Vspo Notifications Bot dashboard preview"
+  layout="constrained"
+  width={800}
+  height={600}
+/>
+```
+
+**Generated HTML:**
+
+```html
+<picture>
+  <source srcset="/_astro/hero.hash.avif" type="image/avif" />
+  <source srcset="/_astro/hero.hash.webp" type="image/webp" />
+  <img
+    src="/_astro/hero.hash.png"
+    width="800"
+    height="600"
+    decoding="async"
+    loading="lazy"
+    alt="Vspo Notifications Bot dashboard preview"
+  />
+</picture>
+```
+
+### `<Picture />` Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `formats` | `ImageOutputFormat[]` | Formats for `<source>` tags. List modern formats first (e.g., `['avif', 'webp']`) |
+| `fallbackFormat` | `ImageOutputFormat` | Format for the fallback `<img>`. Defaults to `.png` (or `.jpg` for JPGs) |
+| `pictureAttributes` | `HTMLAttributes<'picture'>` | Attributes for the outer `<picture>` element |
+
+### Per-Image Override
+
+With a global `constrained` layout, override specific images:
+
+```astro
+<!-- Uses global constrained layout -->
+<Image src={featureImg} alt="Feature" />
+
+<!-- Full-width hero -->
+<Image src={heroImg} alt="Hero" layout="full-width" />
+
+<!-- Fixed-size icon, no responsive sizing -->
+<Image src={iconImg} alt="Icon" layout="fixed" width={24} height={24} />
+
+<!-- Disable responsive for this specific image -->
+<Image src={specialImg} alt="Special" layout="none" />
+```
+
+## Issue 9: Not Using `inferRemoteSize()` for Discord CDN Images
+
+### Problem
+
+Discord CDN images are rendered with hardcoded `width`/`height` or no dimensions at all. When the actual image dimensions don't match, this causes incorrect aspect ratios or CLS.
+
+### Proposed: Use `inferRemoteSize()`
+
+Astro 4.12+ provides `inferRemoteSize()` to automatically detect remote image dimensions by streaming the image header:
+
+```typescript
+import { inferRemoteSize } from "astro:assets";
+
+const { width, height, format } = await inferRemoteSize(
+  "https://cdn.discordapp.com/avatars/123/abc.png"
+);
+// { width: 128, height: 128, format: "png" }
+```
+
+### Use Case: Creator Thumbnails
+
+For creator thumbnails in `ChannelTable` and `ChannelConfigForm`, where images come from Discord CDN with unknown dimensions:
+
+```astro
+---
+import { inferRemoteSize } from "astro:assets";
+
+// During SSR, infer the actual dimensions
+const { width, height } = await inferRemoteSize(creator.thumbnailURL);
+---
+<img
+  src={creator.thumbnailURL}
+  alt={creator.name}
+  width={width}
+  height={height}
+  loading="lazy"
+  decoding="async"
+  class="h-6 w-6 rounded-full"
+/>
+```
+
+### Caveat
+
+`inferRemoteSize()` makes a network request to fetch image headers. For pages with many creator thumbnails (50+ creators), this adds latency during SSR. Consider:
+1. Caching the results if the same image appears on multiple pages
+2. Using known fixed dimensions (e.g., Discord avatars are always square) instead of inferring
+3. Only using this for images where you don't control the dimensions
+
 ## Migration Checklist
 
 - [ ] Add `width`/`height` to all `<img>` tags in `ChannelConfigForm.astro` and `ChannelTable.astro`
@@ -270,3 +511,9 @@ This should only be used for the single most important above-the-fold image to a
 - [ ] Add image error fallback to `GuildCard.astro` guild icons
 - [ ] Add `<link rel="preload">` for above-fold hero image
 - [ ] Evaluate `ExternalImage.astro` shared component for consistent external image handling
+- [ ] Add `image.layout: "constrained"` and `image.responsiveStyles: true` to `astro.config.ts`
+- [ ] Replace manual `widths`/`sizes` arrays with `layout` prop on `<Image>` components
+- [ ] Migrate landing page manual `<picture>` to Astro `<Picture />` with `formats: ['avif', 'webp']`
+- [ ] Use `layout="full-width"` for hero images, `layout="fixed"` for icons/logos
+- [ ] Verify Tailwind 4 compatibility: decide between `responsiveStyles` or Tailwind-managed responsive
+- [ ] Verify Astro 6 style emission (data-* attributes) doesn't break existing CSS targeting

@@ -344,6 +344,100 @@ Astro v6 deprecated several View Transitions constants:
 
 Verify the project doesn't import these deprecated constants. If it does, replace with string literals. These will be removed in Astro v7.
 
+## Issue 8: Custom Swap Function via `swapFunctions`
+
+### Overview
+
+Astro 4.15+ provides `swapFunctions` — a set of utility functions from `astro:transitions/client` that compose into the default swap behavior. You can use these to build custom swap logic when the default DOM replacement doesn't work for your use case.
+
+### Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `deselectScripts(doc)` | Marks scripts in the new document that shouldn't re-execute (already present and not flagged `data-astro-rerun`) |
+| `swapRootAttributes(doc)` | Swaps `<html>` attributes (e.g., `lang`, `data-astro-transition`). **Must be called** to preserve transition animations |
+| `swapHeadElements(doc)` | Removes old `<head>` elements not in new document, appends new ones |
+| `saveFocus()` | Returns a restore function. Call it after body swap to return focus to persisted elements |
+| `swapBodyElement(newBody, oldBody)` | Replaces body, then restores persisted elements (`transition:persist`) |
+
+### Example: Recreate Default Swap
+
+```html
+<script>
+  import { swapFunctions } from "astro:transitions/client";
+
+  function mySwap(doc) {
+    swapFunctions.deselectScripts(doc);
+    swapFunctions.swapRootAttributes(doc);
+    swapFunctions.swapHeadElements(doc);
+    const restoreFocus = swapFunctions.saveFocus();
+    swapFunctions.swapBodyElement(doc.body, document.body);
+    restoreFocus();
+  }
+
+  document.addEventListener("astro:before-swap", (event) => {
+    event.swap = () => mySwap(event.newDocument);
+  });
+</script>
+```
+
+### Use Case: DOM Diffing Instead of Full Replacement
+
+Instead of replacing the entire `<body>`, use a diff library for smoother transitions:
+
+```html
+<script is:inline>
+  document.addEventListener("astro:before-swap", (event) => {
+    event.swap = () => {
+      diff(document, event.newDocument);
+    };
+  });
+</script>
+```
+
+### Relevance to This Project
+
+If React Islands have persistent state that gets lost during body replacement (e.g., open modals, form input), a custom swap function could selectively update only changed DOM areas while preserving island state. This is an advanced optimization to consider after the React migration is complete.
+
+## Issue 9: Browser-Native MPA View Transitions vs `<ClientRouter />`
+
+### Overview
+
+Astro supports two distinct approaches to view transitions:
+
+| Approach | Mechanism | JS Required | Browser Support |
+|----------|-----------|-------------|-----------------|
+| Browser-native cross-document | CSS `@view-transition`, `view-transition-name` | **None** | Chrome 126+, Safari 18.2+ |
+| `<ClientRouter />` (SPA mode) | JS-based client-side routing | Yes (~15KB) | All (with polyfill) |
+
+### Astro's Recommendation
+
+From the Astro docs:
+> As browser APIs and web standards evolve, using Astro's `<ClientRouter />` for this additional functionality will increasingly become unnecessary. We recommend keeping up with the current state of browser APIs.
+
+### Current State
+
+The project uses `<ClientRouter />` in `Base.astro` for all pages. This adds a JS dependency and SPA-like behavior (client-side routing, `astro:page-load` events, script re-initialization).
+
+### Evaluation for This Project
+
+**Reasons to keep `<ClientRouter />`:**
+- React Islands rely on `transition:persist` to avoid remounting
+- `astro:before-swap` is used for theme persistence
+- Loading indicators use `astro:before-preparation`
+- Form submissions are intercepted by the router
+
+**Reasons to consider MPA transitions (future):**
+- Zero JS for transitions = better performance
+- No script re-initialization issues (`astro:page-load` pattern goes away)
+- No `AbortController` cleanup needed
+- Better CSP compatibility (no inline scripts needed for router)
+- After full React migration, islands handle their own lifecycle
+
+### Recommendation
+
+Keep `<ClientRouter />` during the React migration (Phase 3-5). Re-evaluate once all vanilla JS is removed and React Islands handle all client-side state. Browser-native MPA transitions may be sufficient at that point.
+
 ## Migration Checklist
 
 - [ ] Extract `onPageLoad` helper to reduce boilerplate in vanilla JS components
@@ -355,3 +449,5 @@ Verify the project doesn't import these deprecated constants. If it does, replac
 - [ ] Consider disabling transitions for form submissions
 - [ ] Audit for deprecated `TRANSITION_*` constant imports
 - [ ] Add `transition:animate` directives for semantic page transitions
+- [ ] Evaluate custom swap function via `swapFunctions` for preserving React Island state during transitions
+- [ ] Re-evaluate `<ClientRouter />` vs browser-native MPA transitions after React migration (Phase 7)

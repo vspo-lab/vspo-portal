@@ -1,8 +1,8 @@
-# Astro Actions パターン改善
+# Astro Actions Pattern Improvements
 
-## 現状
+## Current State
 
-### Actions 定義 (`src/actions/index.ts`)
+### Actions Definition (`src/actions/index.ts`)
 
 ```typescript
 export const server = {
@@ -19,21 +19,21 @@ export const server = {
       return { success: true as const };
     },
   }),
-  // updateChannel, resetChannel, deleteChannel も同様
+  // updateChannel, resetChannel, deleteChannel follow the same pattern
 };
 ```
 
-### ユーティリティ
+### Utilities
 
 ```typescript
-// 各 handler で手動呼び出し
+// Manual call in each handler
 const requireAuth = (context) => {
   if (!context.locals.user) {
     throw new ActionError({ code: "UNAUTHORIZED" });
   }
 };
 
-// Result → ActionError 変換
+// Result -> ActionError conversion
 const unwrapOrThrow = <T>(result) => {
   if (result.err) {
     throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: result.err.message });
@@ -42,21 +42,21 @@ const unwrapOrThrow = <T>(result) => {
 };
 ```
 
-### 課題
+### Issues
 
-1. **認証の手動呼び出し**: `requireAuth()` を各ハンドラで呼ぶ必要があり、漏れのリスク
-2. **エラーコード不足**: `UNAUTHORIZED` と `INTERNAL_SERVER_ERROR` のみ。`NOT_FOUND`, `BAD_REQUEST` 等の区別なし
-3. **入力バリデーション不足**: `guildId` / `channelId` が単なる `z.string()` — Discord Snowflake のフォーマット検証なし
-4. **フォームエラー表示**: `isInputError()` / `isActionError()` ユーティリティ未活用
-5. **`getActionResult()` 未活用**: フォーム送信後のエラー表示が Flash メッセージのみ
+1. **Manual auth calls**: `requireAuth()` must be called in each handler — risk of omission
+2. **Limited error codes**: Only `UNAUTHORIZED` and `INTERNAL_SERVER_ERROR`. No `NOT_FOUND`, `BAD_REQUEST` distinction
+3. **Weak input validation**: `guildId` / `channelId` are plain `z.string()` — no Discord Snowflake format verification
+4. **Missing form error display**: `isInputError()` / `isActionError()` utilities not used
+5. **Unused `getActionResult()`**: Post-form-submission error display relies solely on flash messages
 
-## 改善 1: getActionContext() による認証ゲーティング
+## Improvement 1: Auth Gating via getActionContext()
 
-### 概要
+### Overview
 
-`getActionContext()` (Astro 5.0+) を middleware 内で使用し、全 Action に対する認証を一元管理。
+Use `getActionContext()` (Astro 5.0+) in middleware to centralize authentication for all Actions.
 
-### 実装
+### Implementation
 
 ```typescript
 // src/middleware.ts
@@ -65,19 +65,19 @@ import { getActionContext } from "astro:actions";
 const actionAuth = defineMiddleware(async (context, next) => {
   const { action, setActionResult, serializeActionResult } = getActionContext(context);
 
-  // Action リクエストでない場合はスキップ
+  // Skip if not an Action request
   if (!action) {
     return next();
   }
 
-  // 全 Action に認証を要求
+  // Require auth for all Actions
   if (!context.locals.user) {
     const result = { data: undefined, error: new ActionError({ code: "UNAUTHORIZED" }) };
     setActionResult(action.name, serializeActionResult(result));
     return next();
   }
 
-  // フォーム送信の場合は middleware でハンドラを実行し、結果をセット
+  // For form submissions, execute handler in middleware and set result
   if (action.calledFrom === "form") {
     const result = await action.handler();
     setActionResult(action.name, serializeActionResult(result));
@@ -89,56 +89,56 @@ const actionAuth = defineMiddleware(async (context, next) => {
 export const onRequest = sequence(securityHeaders, locale, auth, actionAuth);
 ```
 
-### Actions 側の変更
+### Actions Side Changes
 
 ```typescript
-// Before: 各 handler で requireAuth() 手動呼び出し
+// Before: manual requireAuth() in each handler
 handler: async (input, context) => {
-  requireAuth(context);  // 忘れるとセキュリティホール
+  requireAuth(context);  // Forgetting this creates a security hole
   // ...
 }
 
-// After: middleware で保証済み — requireAuth() 削除
+// After: guaranteed by middleware — requireAuth() removed
 handler: async (input, _context) => {
-  // 認証は middleware で保証されている
+  // Auth is guaranteed by middleware
   // ...
 }
 ```
 
-### action.calledFrom の活用
+### action.calledFrom Usage
 
-| 値 | 意味 | 用途 |
-|---|------|------|
-| `"form"` | HTML `<form action={...}>` からの送信 | CSRF 保護あり、middleware でハンドラ実行可能 |
-| `"rpc"` | `actions.xxx()` クライアント呼び出し | JSON-RPC 形式 |
+| Value | Meaning | Use Case |
+|-------|---------|----------|
+| `"form"` | Submitted from HTML `<form action={...}>` | CSRF protected, handler executable in middleware |
+| `"rpc"` | Client call via `actions.xxx()` | JSON-RPC format |
 
-## 改善 2: 詳細なエラーコード
+## Improvement 2: Detailed Error Codes
 
-### ActionErrorCode 一覧
+### ActionErrorCode Reference
 
-Astro が提供する全エラーコード:
+All error codes provided by Astro:
 
-| コード | HTTP | 用途 |
-|--------|------|------|
-| `BAD_REQUEST` | 400 | 入力バリデーションエラー |
-| `UNAUTHORIZED` | 401 | 未認証 |
-| `FORBIDDEN` | 403 | 権限不足 |
-| `NOT_FOUND` | 404 | リソースが見つからない |
-| `TIMEOUT` | 408 | タイムアウト |
-| `CONFLICT` | 409 | 重複操作 |
-| `PRECONDITION_FAILED` | 412 | 前提条件不成立 |
-| `PAYLOAD_TOO_LARGE` | 413 | ペイロード超過 |
-| `TOO_MANY_REQUESTS` | 429 | レートリミット |
-| `INTERNAL_SERVER_ERROR` | 500 | サーバーエラー |
-| `SERVICE_UNAVAILABLE` | 503 | サービス停止中 |
-| `GATEWAY_TIMEOUT` | 504 | 上流タイムアウト |
+| Code | HTTP | Use Case |
+|------|------|----------|
+| `BAD_REQUEST` | 400 | Input validation error |
+| `UNAUTHORIZED` | 401 | Not authenticated |
+| `FORBIDDEN` | 403 | Insufficient permissions |
+| `NOT_FOUND` | 404 | Resource not found |
+| `TIMEOUT` | 408 | Timeout |
+| `CONFLICT` | 409 | Duplicate operation |
+| `PRECONDITION_FAILED` | 412 | Precondition not met |
+| `PAYLOAD_TOO_LARGE` | 413 | Payload exceeded |
+| `TOO_MANY_REQUESTS` | 429 | Rate limited |
+| `INTERNAL_SERVER_ERROR` | 500 | Server error |
+| `SERVICE_UNAVAILABLE` | 503 | Service down |
+| `GATEWAY_TIMEOUT` | 504 | Upstream timeout |
 
-### 改善例
+### Improvement Example
 
 ```typescript
 const unwrapOrThrow = <T>(result: Result<T>): T => {
   if (result.err) {
-    // エラーの種類に応じた適切なコードを選択
+    // Select appropriate code based on error type
     const code = mapErrorCode(result.err);
     throw new ActionError({ code, message: result.err.message });
   }
@@ -156,9 +156,9 @@ const mapErrorCode = (error: AppError): ActionErrorCode => {
 };
 ```
 
-## 改善 3: 入力バリデーション強化
+## Improvement 3: Input Validation Hardening
 
-### Discord Snowflake バリデーション
+### Discord Snowflake Validation
 
 ```typescript
 // features/shared/domain/discord.ts
@@ -175,14 +175,14 @@ addChannel: defineAction({
 }),
 ```
 
-### メリット
+### Benefits
 
-- Zod バリデーションエラーが自動的に `isInputError()` で取得可能
-- フォーム送信前にクライアント側でも `input` スキーマを共有して検証できる
+- Zod validation errors are automatically accessible via `isInputError()`
+- The `input` schema can be shared for client-side pre-submission validation
 
-## 改善 4: フォームエラー表示の改善
+## Improvement 4: Form Error Display
 
-### isInputError() の活用
+### Using isInputError()
 
 ```astro
 ---
@@ -210,7 +210,7 @@ const inputErrors = isInputError(result?.error) ? result.error.fields : {};
 </form>
 ```
 
-### isActionError() の活用 (React Island)
+### Using isActionError() in React Islands
 
 ```tsx
 // features/channel/components/ChannelAddForm.tsx
@@ -228,47 +228,47 @@ const handleSubmit = async (formData: FormData) => {
         setFieldErrors(error.fields ?? {});
         break;
       case "CONFLICT":
-        setError("このチャンネルは既に追加されています");
+        setError("This channel has already been added");
         break;
       default:
-        setError("エラーが発生しました");
+        setError("An error occurred");
     }
     return;
   }
 
-  // 成功時の処理
+  // Handle success
 };
 ```
 
-## 改善 5: orThrow() パターン
+## Improvement 5: orThrow() Pattern
 
-### プロトタイピング時の簡略化
+### Simplified Prototyping
 
 ```typescript
-// 開発時 — エラーハンドリングを後回しにする場合
+// During development — deferring error handling
 const data = await actions.addChannel.orThrow({ guildId, channelId });
-// data は直接結果を返す (エラー時は例外をスロー)
+// data returns the result directly (throws on error)
 ```
 
-### 本番では data/error パターンを推奨
+### Production: data/error Pattern Recommended
 
 ```typescript
-// 本番 — 適切なエラーハンドリング
+// Production — proper error handling
 const { data, error } = await actions.addChannel({ guildId, channelId });
 if (error) {
-  // エラー処理
+  // Handle error
   return;
 }
-// data を使用
+// Use data
 ```
 
-## 改善 6: View Transitions でのフォーム入力保持
+## Improvement 6: Form Input Preservation with View Transitions
 
-### エラー時の入力値消失問題
+### Problem: Input Loss on Error
 
-フォーム送信エラー時、MPA リロードで入力値が失われる。
+Form input values are lost on MPA reload when submission fails.
 
-### 解決: transition:persist
+### Solution: transition:persist
 
 ```astro
 <form method="POST" action={actions.updateChannel}>
@@ -278,22 +278,170 @@ if (error) {
     transition:persist
   />
   <select name="language" transition:persist>
-    <option value="ja">日本語</option>
+    <option value="ja">Japanese</option>
     <option value="en">English</option>
   </select>
-  <button type="submit">保存</button>
+  <button type="submit">Save</button>
 </form>
 ```
 
-**前提**: View Transitions (`<ClientRouter />`) が有効であること。
+**Prerequisite**: View Transitions (`<ClientRouter />`) must be enabled.
 
-## 移行チェックリスト
+## Improvement 7: POST / Redirect / GET (PRG) Pattern with Session Persistence
 
-- [ ] `getActionContext()` による認証ミドルウェアを追加
-- [ ] `requireAuth()` の手動呼び出しを各 Action ハンドラから削除
-- [ ] `unwrapOrThrow()` に詳細なエラーコードマッピングを追加
-- [ ] Discord Snowflake バリデーションを Zod スキーマに追加
-- [ ] `Astro.getActionResult()` + `isInputError()` でフォームエラー表示を改善
-- [ ] React Island での `isActionError()` によるエラーハンドリングを実装
-- [ ] `transition:persist` でフォーム入力保持を有効化
-- [ ] Action ハンドラのレスポンスにビジネスロジック固有のエラーコードを追加
+### Problem
+
+When a form action completes (success or error), the browser stays on a POST response. Refreshing the page triggers a "confirm form resubmission?" dialog. Additionally, action results (`Astro.getActionResult()`) reset to `undefined` if the user navigates away and returns.
+
+### Solution: PRG with `getActionContext()` Middleware
+
+Use `getActionContext()` in middleware to intercept form submissions, execute the handler, persist the result to a session, and redirect:
+
+```typescript
+// src/middleware.ts
+import { defineMiddleware } from "astro:middleware";
+import { getActionContext } from "astro:actions";
+
+const actionPRG = defineMiddleware(async (context, next) => {
+  const { action, setActionResult, serializeActionResult } =
+    getActionContext(context);
+
+  // Retrieve persisted result from session after redirect
+  const sessionResult = await context.session?.get("actionResult");
+  if (sessionResult) {
+    setActionResult(sessionResult.actionName, sessionResult.actionResult);
+    await context.session?.set("actionResult", undefined);
+    return next();
+  }
+
+  // Intercept form submissions
+  if (action?.calledFrom === "form") {
+    const result = await action.handler();
+
+    // Persist action result to session
+    await context.session?.set("actionResult", {
+      actionName: action.name,
+      actionResult: serializeActionResult(result),
+    });
+
+    // On error: redirect back to the form page
+    if (result.error) {
+      const referer = context.request.headers.get("Referer");
+      if (referer) return context.redirect(referer);
+    }
+
+    // On success: redirect to the current page (clears POST state)
+    return context.redirect(context.originPathname);
+  }
+
+  return next();
+});
+
+export const onRequest = sequence(securityHeaders, locale, auth, actionPRG);
+```
+
+### Benefits
+
+| Aspect | Before (Default) | After (PRG) |
+|--------|-------------------|-------------|
+| Page refresh | "Confirm resubmission?" dialog | Clean GET request |
+| Action result persistence | Lost on navigation | Survives redirect |
+| Browser back button | Re-submits form | Shows cached GET page |
+
+### Cloudflare Session Driver
+
+The `@astrojs/cloudflare` adapter auto-configures a session driver. No extra setup needed:
+
+```typescript
+// astro.config.ts — session driver is auto-configured by Cloudflare adapter
+// Optionally configure session options:
+export default defineConfig({
+  session: {
+    // Uses Cloudflare KV by default
+    cookie: {
+      name: "bot-dashboard-session",
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+    },
+  },
+});
+```
+
+## Improvement 8: `getActionPath()` for Custom Fetch Calls
+
+### Problem
+
+Some scenarios require custom headers (e.g., `Authorization`) or specific fetch options (e.g., `keepalive` for analytics) when calling actions.
+
+### Solution
+
+Use `getActionPath()` to get the URL path for an action and call it with `fetch()`:
+
+```typescript
+import { actions, getActionPath } from "astro:actions";
+
+// Custom fetch with auth header
+await fetch(getActionPath(actions.updateChannel), {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({ guildId, channelId, config }),
+});
+
+// Fire-and-forget with sendBeacon (e.g., analytics)
+navigator.sendBeacon(
+  getActionPath(actions.trackEvent),
+  new Blob([JSON.stringify({ event: "page_view" })], {
+    type: "application/json",
+  }),
+);
+```
+
+## Improvement 9: Client-Side Redirects with `navigate()`
+
+### Problem
+
+After a successful client-side action call (from a React Island), the app needs to redirect to another page. Using `window.location.href` causes a full page reload, breaking View Transitions.
+
+### Solution
+
+Use `navigate()` from `astro:transitions/client` for smooth client-side navigation:
+
+```tsx
+// features/auth/components/LogoutButton.tsx
+import { actions } from "astro:actions";
+import { navigate } from "astro:transitions/client";
+
+export function LogoutButton() {
+  return (
+    <button
+      onClick={async () => {
+        const { error } = await actions.logout();
+        if (!error) navigate("/");
+      }}
+    >
+      Logout
+    </button>
+  );
+}
+```
+
+**Prerequisite**: `<ClientRouter />` must be enabled in the layout.
+
+## Migration Checklist
+
+- [ ] Add `getActionContext()` auth middleware
+- [ ] Remove manual `requireAuth()` calls from each Action handler
+- [ ] Add detailed error code mapping to `unwrapOrThrow()`
+- [ ] Add Discord Snowflake validation to Zod schemas
+- [ ] Improve form error display with `Astro.getActionResult()` + `isInputError()`
+- [ ] Implement error handling with `isActionError()` in React Islands
+- [ ] Enable form input preservation with `transition:persist`
+- [ ] Add business-logic-specific error codes to Action handler responses
+- [ ] Implement POST/Redirect/GET pattern with session persistence
+- [ ] Configure Cloudflare session driver for action result persistence
+- [ ] Use `getActionPath()` for custom fetch calls where needed
+- [ ] Use `navigate()` from `astro:transitions/client` for client-side redirects after actions

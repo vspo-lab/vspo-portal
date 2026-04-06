@@ -128,6 +128,58 @@ From Astro docs:
 
 The Cloudflare adapter implements `envGetSecret` to bridge Cloudflare's runtime env with `astro:env`.
 
+### `getSecret()` for Programmatic Access
+
+For cases where the env var key is dynamic or not defined in the schema, use `getSecret()`:
+
+```typescript
+import { getSecret } from "astro:env/server";
+
+// Retrieve a secret not in the schema (e.g., from database config)
+const dynamicKey = getSecret("SOME_DYNAMIC_KEY"); // string | undefined
+
+// Preferred over process.env because getSecret() is adapter-aware:
+// - Cloudflare Workers: reads from Workers env
+// - Node: reads from process.env
+// - Deno: reads from Deno.env
+```
+
+**Note**: Use `getSecret()` instead of `process.env` for adapter portability. The Cloudflare adapter provides its own `getSecret()` implementation that reads from the Workers runtime.
+
+### `validateSecrets` Option
+
+By default, secrets are validated whenever anything is imported from `astro:env/server`. To validate secrets only at server startup:
+
+```typescript
+// astro.config.ts
+export default defineConfig({
+  env: {
+    validateSecrets: true, // Validate on server start, not on import
+    schema: { /* ... */ },
+  },
+});
+```
+
+### Data Types
+
+`envField` supports four types:
+
+| Type | Example | Notes |
+|------|---------|-------|
+| `envField.string()` | API keys, URLs | Most common |
+| `envField.number()` | Port numbers | Parsed from string |
+| `envField.boolean()` | Feature flags | `"true"` / `"false"` → native boolean |
+| `envField.enum()` | Log levels | Restricted to specific values |
+
+```typescript
+envField.enum({
+  context: "server",
+  access: "public",
+  values: ["debug", "info", "warn", "error"],
+  default: "info",
+});
+```
+
 ## Migration Plan
 
 ### Phase 1: Add Schema (Non-Breaking)
