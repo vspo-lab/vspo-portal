@@ -1,7 +1,7 @@
 ---
 import { z } from "zod";
 import { getCollection } from "astro:content";
-import { t, type Locale } from "~/i18n/dict";
+import { t } from "~/i18n/dict";
 
 const propsSchema = z.object({
   locale: z.enum(["ja", "en"]),

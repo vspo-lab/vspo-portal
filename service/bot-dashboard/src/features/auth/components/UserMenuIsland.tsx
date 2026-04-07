@@ -93,7 +93,7 @@ export function UserMenuIsland({
                     type="submit"
                     name="locale"
                     value={lang}
-                    className={`rounded px-2 py-1 text-[10px] font-bold transition-colors cursor-pointer ${
+                    className={`rounded px-2 py-1 text-xs font-bold transition-colors cursor-pointer ${
                       currentLocale === lang
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:text-foreground"

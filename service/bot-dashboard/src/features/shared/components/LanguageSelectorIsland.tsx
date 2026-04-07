@@ -42,7 +42,7 @@ export function LanguageSelectorIsland({
             d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
           />
         </svg>
-        <span className="absolute -bottom-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-vspo-purple px-0.5 text-[8px] font-bold leading-none text-white">
+        <span className="absolute -bottom-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-vspo-purple px-0.5 text-[10px] font-bold leading-none text-white">
           {currentLocale.toUpperCase()}
         </span>
       </button>

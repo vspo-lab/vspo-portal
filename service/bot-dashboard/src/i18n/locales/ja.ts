@@ -91,6 +91,7 @@ export const ja = {
   "channel.delete": "削除",
   "channel.add": "チャンネルを追加",
   "channel.add.search": "チャンネル名で検索",
+  "channel.add.error": "チャンネルの取得に失敗しました",
   "channel.add.registered": "登録済み",
   "channel.add.empty": "チャンネルが見つかりません",
   "channel.add.submit": "追加する",

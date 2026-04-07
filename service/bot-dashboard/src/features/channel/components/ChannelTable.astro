@@ -1,5 +1,4 @@
 ---
-import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import { ChannelConfig } from "~/features/channel/domain/channel-config";
 import type { CreatorType } from "~/features/shared/domain/creator";
 import { Creator } from "~/features/shared/domain/creator";
@@ -45,7 +44,7 @@ const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
   <div class="overflow-x-auto">
     <table class="w-full text-left" aria-label={t(locale, "channel.table")}>
       <thead>
-        <tr class="bg-surface-container-high text-[10px] font-bold uppercase tracking-[0.12em] text-on-surface-variant">
+        <tr class="bg-surface-container-high text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant">
           <th scope="col" class="px-6 py-4 sm:px-8">{t(locale, "channel.name")}</th>
           <th scope="col" class="hidden px-6 py-4 sm:table-cell sm:px-8">{t(locale, "channel.language")}</th>
           <th scope="col" class="hidden px-6 py-4 md:table-cell sm:px-8">{t(locale, "channel.members")}</th>
@@ -71,16 +70,16 @@ const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
                   </div>
                   <div>
                     <p class="text-sm font-semibold text-on-surface">{ch.channelName}</p>
-                    <p class="text-[10px] text-on-surface-variant/60">{ch.channelId}</p>
+                    <p class="text-xs text-on-surface-variant/60">{ch.channelId}</p>
                   </div>
                 </div>
               </td>
               <td class="hidden px-6 py-4 sm:table-cell sm:px-8">
-                <span class="rounded bg-surface-container-highest px-2.5 py-1 text-[10px] font-bold text-on-surface">
+                <span class="rounded bg-surface-container-highest px-2.5 py-1 text-xs font-bold text-on-surface">
                   {langChipLabel(ch.language)}
                 </span>
               </td>
-              <td class="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">
+              <td class="hidden px-6 py-4 text-sm font-medium text-on-surface-variant md:table-cell sm:px-8">
                 {ch.memberType === "custom" ? (() => {
                   const resolved = resolveCustomCreators(ch.customMembers);
                   if (resolved.length === 0) return t(locale, memberTypeKey(ch.memberType));
@@ -123,12 +122,12 @@ const resolveCustomCreators = (customMembers?: string[]): CreatorType[] => {
                       <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
                       <span class="relative inline-flex h-2 w-2 rounded-full bg-success shadow-sm shadow-success/50"></span>
                     </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-success">{t(locale, "channel.status.active")}</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-success">{t(locale, "channel.status.active")}</span>
                   </div>
                 ) : (
                   <div class="flex items-center gap-2">
                     <span class="inline-flex h-2 w-2 rounded-full bg-on-surface-variant/40"></span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">{t(locale, "channel.status.paused")}</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant/60">{t(locale, "channel.status.paused")}</span>
                   </div>
                 )}
               </td>
