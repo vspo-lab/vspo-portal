@@ -100,6 +100,7 @@ export const en: Record<keyof typeof ja, string> = {
   "channel.delete": "Delete",
   "channel.add": "Add Channel",
   "channel.add.search": "Search by channel name",
+  "channel.add.error": "Failed to fetch channels",
   "channel.add.registered": "Registered",
   "channel.add.empty": "No channels found",
   "channel.add.submit": "Add",
