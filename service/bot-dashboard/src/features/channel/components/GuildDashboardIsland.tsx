@@ -158,7 +158,7 @@ export function GuildDashboardIsland({
             aria-label={translations.table.title}
           >
             <thead>
-              <tr className="bg-surface-container-high text-[10px] font-bold uppercase tracking-[0.12em] text-on-surface-variant">
+              <tr className="bg-surface-container-high text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant">
                 <th scope="col" className="px-6 py-4 sm:px-8">
                   {translations.table.channelName}
                 </th>
@@ -215,18 +215,18 @@ export function GuildDashboardIsland({
                         <p className="text-sm font-semibold text-on-surface">
                           {ch.channelName}
                         </p>
-                        <p className="text-[10px] text-on-surface-variant/60">
+                        <p className="text-xs text-on-surface-variant/60">
                           {ch.channelId}
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="hidden px-6 py-4 sm:table-cell sm:px-8">
-                    <span className="rounded bg-surface-container-highest px-2.5 py-1 text-[10px] font-bold text-on-surface">
+                    <span className="rounded bg-surface-container-highest px-2.5 py-1 text-xs font-bold text-on-surface">
                       {langChipLabels[ch.language] ?? ch.language}
                     </span>
                   </td>
-                  <td className="hidden px-6 py-4 text-xs font-medium text-on-surface-variant md:table-cell sm:px-8">
+                  <td className="hidden px-6 py-4 text-sm font-medium text-on-surface-variant md:table-cell sm:px-8">
                     {ch.memberType === "custom"
                       ? (() => {
                           const resolved = (ch.customMembers ?? [])
@@ -281,14 +281,14 @@ export function GuildDashboardIsland({
                           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
                           <span className="relative inline-flex h-2 w-2 rounded-full bg-success shadow-sm shadow-success/50" />
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-success">
+                        <span className="text-xs font-bold uppercase tracking-wider text-success">
                           {translations.table.active}
                         </span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <span className="inline-flex h-2 w-2 rounded-full bg-on-surface-variant/40" />
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">
+                        <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant/60">
                           {translations.table.paused}
                         </span>
                       </div>
