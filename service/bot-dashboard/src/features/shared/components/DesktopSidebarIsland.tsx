@@ -39,8 +39,7 @@ function Avatar({
   size: "xs" | "md";
 }) {
   const cls = size === "xs" ? "h-5 w-5" : "h-10 w-10";
-  const textCls =
-    size === "xs" ? "text-xs" : "text-sm font-bold";
+  const textCls = size === "xs" ? "text-xs" : "text-sm font-bold";
   const px = size === "xs" ? 20 : 40;
 
   if (src) {
@@ -205,7 +204,11 @@ export function DesktopSidebarIsland({
           }`}
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
-            <Avatar src={activeGuild.iconUrl} name={activeGuild.name} size="md" />
+            <Avatar
+              src={activeGuild.iconUrl}
+              name={activeGuild.name}
+              size="md"
+            />
           </div>
           {expanded && (
             <div className="min-w-0">
