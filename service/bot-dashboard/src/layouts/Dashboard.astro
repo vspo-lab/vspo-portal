@@ -29,6 +29,8 @@ const sidebarChannelsHref = activeGuild ? `/dashboard/${activeGuild.id}` : "/das
 const sidebarAnnouncementsHref = activeGuild
   ? `/dashboard/${activeGuild.id}/announcements`
   : "/dashboard/announcements";
+/** Label for the first nav item — "Servers" when no guild selected, "Channel Settings" otherwise */
+const sidebarFirstLabel = activeGuild ? t(locale, "nav.channels") : t(locale, "dashboard.servers");
 const currentPath = Astro.url.pathname;
 const isChannelsActive = currentPath === sidebarChannelsHref || currentPath.startsWith(sidebarChannelsHref + "?");
 const isAnnouncementsActive = currentPath === sidebarAnnouncementsHref;
@@ -81,10 +83,14 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
               href={sidebarChannelsHref}
               class={isChannelsActive ? navActiveClass : navInactiveClass}
               aria-current={isChannelsActive ? "page" : undefined}
-              title={t(locale, "nav.channels")}
+              title={sidebarFirstLabel}
             >
-              <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
-              <span class="sidebar-label">{t(locale, "nav.channels")}</span>
+              {activeGuild ? (
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+              ) : (
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+              )}
+              <span class="sidebar-label">{sidebarFirstLabel}</span>
             </a>
             <a
               href={sidebarAnnouncementsHref}
@@ -120,8 +126,12 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
                       : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
                     aria-current={isChannelsActive ? "page" : undefined}
                   >
-                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
-                    <span>{t(locale, "nav.channels")}</span>
+                    {activeGuild ? (
+                      <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+                    ) : (
+                      <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                    )}
+                    <span>{sidebarFirstLabel}</span>
                   </a>
                   <a
                     href={sidebarAnnouncementsHref}
@@ -133,14 +143,18 @@ const navInactiveClass = `${navBaseClass} text-on-surface-variant hover:bg-surfa
                     <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                     <span>{t(locale, "nav.notifications")}</span>
                   </a>
-                  <hr class="my-2 border-outline-variant/30" />
-                  <a
-                    href="/dashboard"
-                    class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
-                  >
-                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                    {t(locale, "dashboard.allServers")}
-                  </a>
+                  {activeGuild && (
+                    <>
+                      <hr class="my-2 border-outline-variant/30" />
+                      <a
+                        href="/dashboard"
+                        class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                      >
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        {t(locale, "dashboard.allServers")}
+                      </a>
+                    </>
+                  )}
                 </div>
               </nav>
             </details>
