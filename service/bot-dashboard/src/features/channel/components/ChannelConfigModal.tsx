@@ -316,7 +316,7 @@ function ChannelConfigModalInner({
 
               {/* Chips */}
               {customIds.size > 0 && (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
                   {creators
                     .filter((c) => customIds.has(c.id))
                     .map((c) => (
@@ -430,20 +430,24 @@ function ChannelConfigModalInner({
               {diffs.map((d) => (
                 <div
                   key={d.label}
-                  className="flex items-center justify-between text-sm"
+                  className="flex flex-col gap-0.5 text-sm sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <span className="text-on-surface-variant">{d.label}</span>
-                  <span className="flex items-center gap-2">
-                    <span className="text-destructive line-through">
+                  <span className="shrink-0 text-on-surface-variant">
+                    {d.label}
+                  </span>
+                  <span className="flex items-center gap-2 truncate">
+                    <span className="shrink-0 text-destructive line-through">
                       {d.from}
                     </span>
                     <span
-                      className="text-on-surface-variant"
+                      className="shrink-0 text-on-surface-variant"
                       aria-hidden="true"
                     >
                       &rarr;
                     </span>
-                    <span className="font-medium text-success">{d.to}</span>
+                    <span className="truncate font-medium text-success">
+                      {d.to}
+                    </span>
                   </span>
                 </div>
               ))}

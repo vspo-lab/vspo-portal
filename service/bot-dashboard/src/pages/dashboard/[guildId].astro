@@ -61,20 +61,10 @@ const guildName = currentGuild?.name ?? guildId;
     {/* Deferred: stats + channel table (heavy API calls) */}
     <GuildChannelContent server:defer guildId={guildId} locale={locale}>
       <div slot="fallback" class="space-y-10">
-        {/* Skeleton Stats Grid */}
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
-          <div class="rounded-2xl bg-surface-container-low p-4 sm:p-6">
-            <Skeleton variant="text" class="mb-2 w-20" />
-            <Skeleton variant="stat" />
-          </div>
-          <div class="rounded-2xl bg-surface-container-low p-4 sm:p-6">
-            <Skeleton variant="text" class="mb-2 w-16" />
-            <Skeleton variant="text" class="w-24" />
-          </div>
-          <div class="col-span-2 rounded-2xl bg-surface-container-low p-4 sm:p-6">
-            <Skeleton variant="text" class="mb-2 w-20" />
-            <Skeleton variant="text" class="w-32" />
-          </div>
+        {/* Skeleton Stats */}
+        <div class="inline-block rounded-2xl bg-surface-container-low p-4 sm:p-6">
+          <Skeleton variant="text" class="mb-2 w-20" />
+          <Skeleton variant="stat" />
         </div>
 
         {/* Skeleton Table */}

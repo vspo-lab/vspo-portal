@@ -145,6 +145,7 @@ export const ja = {
   "nav.comingSoon": "準備中",
   "nav.breadcrumb": "パンくずリスト",
   "nav.sidebarCollapse": "サイドバーを折りたたむ",
+  "nav.contact": "お問い合わせ",
   "announcements.title": "お知らせ",
   "announcements.empty": "お知らせはありません",
   "announcements.type.info": "お知らせ",
