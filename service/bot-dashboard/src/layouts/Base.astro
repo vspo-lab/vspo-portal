@@ -84,6 +84,18 @@ const altPath = canonicalPath
         }
         applyTheme();
         document.addEventListener("astro:after-swap", applyTheme);
+
+        var bar = document.getElementById("nav-loading-bar");
+        document.addEventListener("astro:before-preparation", function () {
+          if (bar) { bar.classList.remove("done"); bar.classList.add("active"); }
+        });
+        document.addEventListener("astro:after-preparation", function () {
+          if (bar) { bar.classList.remove("active"); bar.classList.add("done"); }
+        });
+        document.addEventListener("astro:after-swap", function () {
+          bar = document.getElementById("nav-loading-bar");
+          if (bar) { bar.classList.remove("active", "done"); }
+        });
       })();
     </script>
     <script>
@@ -91,8 +103,39 @@ const altPath = canonicalPath
     </script>
     <ClientRouter />
     <title>{pageTitle}</title>
+    <style>
+      #nav-loading-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0;
+        background: var(--color-vspo-purple);
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+      }
+      #nav-loading-bar.active {
+        opacity: 1;
+        animation: nav-progress 8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      #nav-loading-bar.done {
+        width: 100% !important;
+        opacity: 0;
+        transition: opacity 0.3s 0.1s;
+      }
+      @keyframes nav-progress {
+        0% { width: 0; }
+        20% { width: 40%; }
+        50% { width: 70%; }
+        80% { width: 85%; }
+        100% { width: 95%; }
+      }
+    </style>
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
+    <div id="nav-loading-bar"></div>
     <a
       href="#main-content"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[--radius-sm] focus:bg-vspo-purple focus:px-4 focus:py-2 focus:text-white focus:shadow-action"

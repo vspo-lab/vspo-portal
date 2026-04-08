@@ -1,0 +1,165 @@
+---
+/**
+ * Server Island component for guild channel data.
+ * Deferred via server:defer so the page shell renders immediately with a skeleton fallback.
+ *
+ * @precondition User is authenticated (checked by parent page)
+ * @precondition guildId is a valid Discord guild ID
+ */
+import { env } from "cloudflare:workers";
+import { GuildDashboardIsland } from "./GuildDashboardIsland";
+import ErrorAlert from "~/features/shared/components/ErrorAlert.astro";
+import { VspoChannelApiRepository } from "../repository/vspo-channel-api";
+import { MemberType } from "../domain/member-type";
+import { t, memberTypeKey, memberTypeDescKey, languageDisplayKey } from "~/i18n/dict";
+import { z } from "zod";
+
+const propsSchema = z.object({
+  guildId: z.string(),
+  locale: z.enum(["ja", "en"]),
+});
+type Props = z.infer<typeof propsSchema>;
+
+const { guildId, locale } = Astro.props;
+
+const [channelsResult, creatorsResult] = await Promise.all([
+  VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),
+  VspoChannelApiRepository.listCreators(env.APP_WORKER),
+]);
+
+const channels = channelsResult.err ? [] : channelsResult.val.channels;
+const creators = creatorsResult.err ? { jp: [], en: [] } : creatorsResult.val;
+const fetchError = channelsResult.err ?? creatorsResult.err ?? null;
+const allCreators = [...creators.jp, ...creators.en];
+
+const memberTypeOptions = MemberType.schema.options.map((value) => ({
+  value,
+  label: t(locale, memberTypeKey(value)),
+  description: t(locale, memberTypeDescKey(value)),
+}));
+
+const languageOptions = ["ja", "en", "fr", "de", "es", "cn", "tw", "ko", "default"].map((lang) => ({
+  value: lang,
+  label: t(locale, languageDisplayKey(lang)),
+}));
+
+const configTranslations = {
+  title: t(locale, "channelConfig.title", { channelName: "{channelName}" }),
+  close: t(locale, "channelConfig.close"),
+  language: t(locale, "channelConfig.language"),
+  memberType: t(locale, "channelConfig.memberType"),
+  customMembers: t(locale, "channelConfig.customMembers"),
+  selected: t(locale, "channelConfig.members.selected", { count: "{count}" }),
+  search: t(locale, "channelConfig.members.search"),
+  jpGroup: t(locale, "channelConfig.members.jpGroup"),
+  enGroup: t(locale, "channelConfig.members.enGroup"),
+  selectAll: t(locale, "channelConfig.members.selectAll"),
+  deselectAll: t(locale, "channelConfig.members.deselectAll"),
+  reset: t(locale, "channelConfig.reset"),
+  cancel: t(locale, "channelConfig.cancel"),
+  save: t(locale, "channelConfig.save"),
+  diffTitle: t(locale, "channelConfig.diff.title"),
+  diffLanguage: t(locale, "channelConfig.diff.language"),
+  diffMemberType: t(locale, "channelConfig.diff.memberType"),
+  diffCustomMembers: t(locale, "channelConfig.diff.customMembers"),
+};
+
+const deleteTranslations = {
+  heading: t(locale, "channel.deleteConfirm", { channelName: "{channelName}" }),
+  description: t(locale, "channel.deleteConfirm.desc"),
+  cancel: t(locale, "channel.deleteConfirm.cancel"),
+  submit: t(locale, "channel.deleteConfirm.submit"),
+};
+
+const addTranslations = {
+  title: t(locale, "channel.add"),
+  search: t(locale, "channel.add.search"),
+  loading: "Loading...",
+  error: t(locale, "channel.add.error"),
+  empty: t(locale, "channel.add.empty"),
+  submit: t(locale, "channel.add.submit"),
+  registered: t(locale, "channel.add.registered"),
+  cancel: t(locale, "channel.add.cancel"),
+  close: t(locale, "channelConfig.close"),
+};
+
+const tableTranslations = {
+  title: t(locale, "channel.table"),
+  addChannel: t(locale, "channel.add"),
+  channelName: t(locale, "channel.name"),
+  language: t(locale, "channel.language"),
+  members: t(locale, "channel.members"),
+  status: t(locale, "channel.status"),
+  actions: t(locale, "channel.actions"),
+  edit: t(locale, "channel.edit"),
+  delete: t(locale, "channel.delete"),
+  empty: t(locale, "channel.empty"),
+  active: t(locale, "channel.status.active"),
+  paused: t(locale, "channel.status.paused"),
+};
+
+const flashTranslations = {
+  addSuccess: t(locale, "toast.addSuccess"),
+  updateSuccess: t(locale, "toast.updateSuccess"),
+  deleteSuccess: t(locale, "toast.deleteSuccess"),
+  resetSuccess: t(locale, "toast.resetSuccess"),
+  error: t(locale, "toast.error"),
+  dismiss: t(locale, "toast.dismiss"),
+};
+
+const langChipLabels = Object.fromEntries(
+  ["ja", "en", "fr", "de", "es", "cn", "tw", "ko", "default"].map((l) => [l, t(locale, languageDisplayKey(l))])
+);
+
+const memberTypeLabelsMap = Object.fromEntries(
+  MemberType.schema.options.map((v) => [v, t(locale, memberTypeKey(v))])
+);
+---
+
+{/* Stats Bento Grid */}
+<div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+  <div class="rounded-2xl bg-surface-container-low p-4 sm:p-6">
+    <p class="mb-2 text-sm font-medium text-on-surface-variant">{t(locale, "dashboard.stat.channels")}</p>
+    <span class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
+  </div>
+  <div class="rounded-2xl bg-surface-container-low p-4 sm:p-6">
+    <p class="mb-2 text-sm font-medium text-on-surface-variant">{t(locale, "channel.language")}</p>
+    <div class="flex gap-2">
+      {[...new Set(channels.map(c => c.language))].map(lang => (
+        <span class="rounded bg-surface-container-highest px-2.5 py-1 text-xs font-bold text-vspo-purple">{t(locale, languageDisplayKey(lang))}</span>
+      ))}
+      {channels.length === 0 && <span class="text-sm text-on-surface-variant">—</span>}
+    </div>
+  </div>
+  <div class="col-span-2 rounded-2xl bg-surface-container-low p-4 sm:p-6">
+    <p class="mb-2 text-sm font-medium text-on-surface-variant">{t(locale, "channel.members")}</p>
+    <div class="flex flex-wrap gap-2">
+      {[...new Set(channels.map(c => c.memberType))].map(mt => (
+        <span class="text-sm font-medium text-on-surface">{t(locale, memberTypeKey(mt))}</span>
+      ))}
+      {channels.length === 0 && <span class="text-sm text-on-surface-variant">—</span>}
+    </div>
+  </div>
+</div>
+
+{fetchError && (
+  <ErrorAlert message={t(locale, "dashboard.error", { message: fetchError.message })} retryHref={`/dashboard/${guildId}`} retryLabel={t(locale, "toast.retry")} />
+)}
+
+<GuildDashboardIsland
+  client:load
+  guildId={guildId}
+  initialChannels={channels}
+  creators={allCreators}
+  translations={{
+    table: tableTranslations,
+    config: configTranslations,
+    deleteDialog: deleteTranslations,
+    addModal: addTranslations,
+    flash: flashTranslations,
+  }}
+  languageOptions={languageOptions}
+  memberTypeOptions={memberTypeOptions}
+  langChipLabels={langChipLabels}
+  memberTypeLabels={memberTypeLabelsMap}
+/>
