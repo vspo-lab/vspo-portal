@@ -3,7 +3,7 @@ import { z } from "zod";
 
 // URL validation schema
 const urlSchema = z.object({
-  url: z.string().url("無効なURLです"),
+  url: z.string().url("Invalid URL"),
   platform: z.enum(["youtube", "twitch", "twitcasting", "niconico", "unknown"]),
   videoId: z.string(),
   isValid: z.boolean(),

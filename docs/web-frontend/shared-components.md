@@ -8,11 +8,12 @@ Located in `features/shared/components/Layout/`.
 
 ### ContentLayout
 
-Main page wrapper used by most pages via `getLayout`.
+Main page wrapper. Each `page.tsx` (Server Component) wraps its content in `ContentLayout` directly. `ContentLayout` itself is a `"use client"` component.
 
-```
+Metadata (title, description, OG tags) is handled by `generateMetadata` exported from each `page.tsx`, not by ContentLayout.
+
+```text
 ContentLayout
-├── CustomHead (title, description, OG tags, canonical URL)
 ├── Header (fixed AppBar + menu toggle + logo + social links)
 ├── AlertSnackbar
 ├── StyledContainer (children)
@@ -23,12 +24,9 @@ ContentLayout
 | Prop | Type | Description |
 |------|------|-------------|
 | `children` | `ReactNode` | Page content |
-| `title` | `string` | Page title for Head |
-| `headTitle` | `string?` | Override browser tab title |
-| `description` | `string?` | Meta description |
-| `path` | `string?` | Current path for OG tags |
-| `canonicalPath` | `string?` | Canonical URL |
-| `maxPageWidth` | `Breakpoint?` | MUI container max width |
+| `title` | `string` | Page title (used by Header) |
+| `path` | `string?` | Current path |
+| `maxPageWidth` | `Breakpoint \| false?` | MUI container max width |
 | `padTop` | `boolean?` | Add top padding |
 | `lastUpdateTimestamp` | `number?` | Last data update (shown in footer) |
 | `footerMessage` | `string?` | Custom footer message |
@@ -38,6 +36,7 @@ Special case: removes padding when `path === "/multiview"`.
 ### Header
 
 Fixed AppBar with:
+
 - Menu toggle button (opens sidebar drawer)
 - Logo linking to `/schedule/all`
 - Social icons (GitHub, Twitter/X)
@@ -52,6 +51,7 @@ Fixed AppBar with:
 ### CustomBottomNavigation
 
 Mobile-only fixed bottom bar with 3 routes:
+
 - Schedule (`/schedule/all`)
 - Clips (`/clips`)
 - Multiview (`/multiview`)
@@ -73,6 +73,7 @@ Displays a video thumbnail as a clickable card.
 | `highlight` | `{ label, color, bold }?` | Status chip (e.g., "LIVE", "Upcoming") |
 
 Behavior:
+
 - 16:9 aspect ratio thumbnail via Next.js Image
 - Platform icon overlay (top-left)
 - Highlight chip (top-right) with colored border
@@ -83,6 +84,7 @@ Behavior:
 Full-screen dialog for video playback. No props -- uses `VideoModalContext`.
 
 Features:
+
 - Embedded video player (platform-specific iframe)
 - Tabbed info panel: Overview + Chat
 - Overview: title, status, start time, channel info, description, watch/share links
@@ -133,4 +135,4 @@ Select dropdown for locale switching. No props -- uses locale context.
 
 ### AgreementDocument
 
-Wrapper for legal documents (privacy policy, terms). Uses `getStaticProps` for translations.
+Wrapper for legal documents (privacy policy, terms). Pages use `generateStaticParams` for SSG.

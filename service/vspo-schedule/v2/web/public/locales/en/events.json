@@ -1,7 +1,7 @@
 {
-  "title": "$t(common:vspo) Events",
-  "description": "View recent and upcoming events related to $t(common:vspo).",
+  "title": "VSPO! Events",
+  "description": "View recent and upcoming events related to VSPO!.",
   "prevMonth": "Prev Month",
   "nextMonth": "Next Month",
-  "currMonth": "{{val, datetime(year: numeric; month: long; timeZone: UTC)}}"
+  "currMonth": "{val, datetime(year: numeric; month: long; timeZone: UTC)}"
 }

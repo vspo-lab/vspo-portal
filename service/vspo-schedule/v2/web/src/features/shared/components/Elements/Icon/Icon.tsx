@@ -1,3 +1,5 @@
+"use client";
+
 import { faDiscord, faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
@@ -62,7 +64,7 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
         />
       );
     default:
-      return <></>;
+      return null;
   }
 };
 
@@ -93,6 +95,6 @@ export const DrawerIcon: React.FC<DrawerIconProps> = ({ id }) => {
     case "multiview":
       return <GridViewIcon />;
     default:
-      return <></>;
+      return null;
   }
 };

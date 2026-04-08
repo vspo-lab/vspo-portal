@@ -1,3 +1,5 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
 import React, { useCallback } from "react";
 import { usePlaybackContext } from "../../context/PlaybackContext";

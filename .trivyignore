@@ -1,3 +1,13 @@
 # Trivy ignore rules
 # Add CVE IDs or paths to suppress false positives
-# Example: CVE-2023-12345
+
+# undici DoS via WebSocket (dev dependency, not exposed in production)
+CVE-2026-1526
+CVE-2026-1528
+CVE-2026-2229
+
+# fast-xml-parser entity expansion (transitive dep, not directly used)
+CVE-2026-33036
+
+# serialize-javascript RCE via RegExp.flags (build-time only, not runtime)
+GHSA-5c6j-r48x-rmvq

@@ -1,37 +1,150 @@
 ---
 import "~/app.css";
+import { ClientRouter } from "astro:transitions";
 import { t } from "~/i18n/dict";
+import { z } from "zod";
 
-interface Props {
-  title: string;
-}
+const propsSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  canonicalPath: z.string().optional(),
+  noindex: z.boolean().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
-const { title } = Astro.props;
+const { title, description, canonicalPath, noindex } = Astro.props;
 const { locale } = Astro.locals;
+
+const siteUrl = Astro.site?.origin ?? "https://discord.vspo-schedule.com";
+const pageTitle = `${title} | ${t(locale, "app.title")}`;
+const canonicalUrl = canonicalPath ? `${siteUrl}${canonicalPath}` : undefined;
+const altLocale = locale === "ja" ? "en" : "ja";
+const altPath = canonicalPath
+  ? `${siteUrl}/${altLocale}${canonicalPath}`
+  : undefined;
 ---
 
 <!doctype html>
-<html lang={locale} class="dark">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap"
-      onload="this.rel='stylesheet'"
-    />
-    <noscript>
-      <link
-        href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-      />
-    </noscript>
-    <title>{title} | {t(locale, "app.title")}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    {/* Favicon & Icons */}
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#7266cf" />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    {canonicalUrl && (
+      <link rel="alternate" hreflang={locale} href={canonicalUrl} />
+    )}
+    {altPath && <link rel="alternate" hreflang={altLocale} href={altPath} />}
+    {canonicalUrl && (
+      <link rel="alternate" hreflang="x-default" href={`${siteUrl}${canonicalPath}`} />
+    )}
+
+    {/* OGP */}
+    {description && (
+      <>
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        <meta property="og:site_name" content={t(locale, "app.title")} />
+        <meta property="og:locale" content={locale === "ja" ? "ja_JP" : "en_US"} />
+        <meta property="og:image" content={`${siteUrl}/ogp.png`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+      </>
+    )}
+
+    {/* Twitter Card */}
+    {description && (
+      <>
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={`${siteUrl}/ogp.png`} />
+      </>
+    )}
+
+    <script is:inline>
+      (function () {
+        function applyTheme() {
+          var stored = localStorage.getItem("theme");
+          var prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+          if (stored === "light" || (!stored && prefersLight)) {
+            document.documentElement.classList.remove("dark");
+          } else {
+            document.documentElement.classList.add("dark");
+          }
+        }
+        applyTheme();
+        document.addEventListener("astro:after-swap", applyTheme);
+
+        if (!window.__navBarInit) {
+          window.__navBarInit = true;
+          var bar = document.getElementById("nav-loading-bar");
+          document.addEventListener("astro:before-preparation", function () {
+            if (bar) { bar.classList.remove("done"); bar.classList.add("active"); }
+          });
+          document.addEventListener("astro:after-preparation", function () {
+            if (bar) { bar.classList.remove("active"); bar.classList.add("done"); }
+          });
+          document.addEventListener("astro:after-swap", function () {
+            bar = document.getElementById("nav-loading-bar");
+            if (bar) { bar.classList.remove("active", "done"); }
+          });
+        }
+      })();
+    </script>
+    <script>
+      import "~/features/shared/components/close-on-outside-click";
+    </script>
+    <ClientRouter />
+    <title>{pageTitle}</title>
+    <style>
+      #nav-loading-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0;
+        background: var(--color-vspo-purple);
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+      }
+      #nav-loading-bar.active {
+        opacity: 1;
+        animation: nav-progress 8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      #nav-loading-bar.done {
+        width: 100% !important;
+        opacity: 0;
+        transition: opacity 0.3s 0.1s;
+      }
+      @keyframes nav-progress {
+        0% { width: 0; }
+        20% { width: 40%; }
+        50% { width: 70%; }
+        80% { width: 85%; }
+        100% { width: 95%; }
+      }
+    </style>
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
+    <div id="nav-loading-bar"></div>
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[--radius-sm] focus:bg-vspo-purple focus:px-4 focus:py-2 focus:text-white focus:shadow-action"
+    >
+      {t(locale, "nav.skipToContent")}
+    </a>
     <slot />
   </body>
 </html>

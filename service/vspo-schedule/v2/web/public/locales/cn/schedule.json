@@ -2,17 +2,21 @@
   "search": {
     "title": "搜索选项",
     "selectDate": "选择日期",
-    "memberType": "成员类型",
-    "memberType.all": "所有成员",
-    "memberType.jp": "VSPO JP",
-    "memberType.en": "VSPO EN",
-    "memberType.ch": "VSPO CH",
-    "platform": "平台",
-    "platform.all": "所有平台",
-    "platform.youtube": "YouTube",
-    "platform.twitch": "Twitch",
-    "platform.twitcasting": "TwitCasting",
-    "platform.niconico": "Niconico",
+    "memberTypeLabel": "成员类型",
+    "memberType": {
+      "all": "所有成员",
+      "jp": "VSPO JP",
+      "en": "VSPO EN",
+      "ch": "VSPO CH"
+    },
+    "platformLabel": "平台",
+    "platform": {
+      "all": "所有平台",
+      "youtube": "YouTube",
+      "twitch": "Twitch",
+      "twitcasting": "TwitCasting",
+      "niconico": "Niconico"
+    },
     "clear": "清除",
     "cancel": "取消",
     "search": "搜索",
@@ -34,7 +38,7 @@
   },
   "tabs": {
     "all": "全部",
-    "allWithDate": "全部 ({{date}})"
+    "allWithDate": "全部 ({date})"
   },
   "noLivestreams": "暂无直播计划，请查看前一天的安排。"
 }

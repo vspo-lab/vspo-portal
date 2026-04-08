@@ -1,0 +1,39 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { z } from "zod";
+
+const iconButtonVariantSchema = z.enum(["ghost", "destructive"]);
+type IconButtonVariant = z.infer<typeof iconButtonVariantSchema>;
+
+const iconButtonSizeSchema = z.enum(["sm", "default"]);
+type IconButtonSize = z.infer<typeof iconButtonSizeSchema>;
+
+const iconButtonPropsSchema = z.object({
+  variant: iconButtonVariantSchema.optional(),
+  size: iconButtonSizeSchema.optional(),
+});
+type Props = z.infer<typeof iconButtonPropsSchema> & HTMLAttributes<"button">;
+
+const variantClasses: Record<IconButtonVariant, string> = {
+  ghost: "hover:bg-surface-container-highest hover:text-vspo-purple focus-visible:ring-vspo-purple/50",
+  destructive: "hover:bg-destructive/10 hover:text-destructive focus-visible:ring-destructive/50",
+};
+
+const sizeClasses: Record<IconButtonSize, string> = {
+  default: "h-10 w-10",
+  sm: "h-8 w-8",
+};
+
+const {
+  variant = "ghost",
+  size = "default",
+  class: className = "",
+  ...attrs
+} = Astro.props;
+
+const classes = `inline-flex items-center justify-center rounded-lg text-on-surface-variant transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+---
+
+<button class={classes} type="button" {...attrs}>
+  <slot />
+</button>

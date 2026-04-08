@@ -1,6 +1,8 @@
+"use client";
+
 import { Box, List, ListItem, Paper, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import type { Event } from "@/features/shared/domain";
 
@@ -43,9 +45,9 @@ type PresenterProps = {
 export const EventsContentPresenter: React.FC<PresenterProps> = ({
   events,
 }) => {
-  const { t } = useTranslation("streams");
+  const t = useTranslations("streams");
   if (events.length === 0) {
-    return <></>;
+    return null;
   }
 
   return (

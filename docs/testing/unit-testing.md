@@ -8,8 +8,11 @@
 ## Scope
 
 - Pure logic in `packages/*`
-- Domain logic in `services/api/domain/**`
-- Utilities in `services/web/shared/lib/**`
+- Domain schemas and types in `service/vspo-schedule/v2/web/src/features/shared/domain/**`
+- Utilities in `service/vspo-schedule/v2/web/src/features/shared/utils/**`
+- Domain models in `service/bot-dashboard/src/features/*/domain/**`
+- Usecases in `service/bot-dashboard/src/features/*/usecase/**`
+- Shared utilities in `service/bot-dashboard/src/features/shared/lib/**`
 
 ## Implementation Rules
 
@@ -44,11 +47,32 @@ describe("normalizeText", () => {
 ## Execution Commands
 
 - All: `pnpm test:unit`
-- API only: `pnpm --filter api test:run`
-- Web only: `pnpm --filter web vitest run`
+- Web: `pnpm --filter vspo-schedule-v2-web vitest run`
+- Packages: `pnpm --filter @vspo-lab/* test`
+
+### Bot Dashboard Component Testing
+
+The bot-dashboard uses Astro's experimental Container API for server-side component testing (the `experimental_` prefix indicates this API may change in future Astro versions):
+
+```typescript
+import { experimental_AstroContainer as AstroContainer } from "astro/container";
+
+const container = await AstroContainer.create();
+const html = await container.renderToString(MyComponent, {
+  props: { ... },
+  locals: { locale: "ja" },
+});
+```
+
+Key patterns:
+
+- **`renderToString`** renders components to HTML strings for assertion
+- **`locals`** injects `Astro.locals` (locale, user, etc.) for testing
+- **`parseHtml`** (via `testing-library/dom`) parses HTML for DOM queries
+- **Table-driven tests** (`it.each`) for i18n and variant testing
 
 ## References (Primary Sources)
 
-- Vitest `test.each`: https://vitest.dev/api/#test-each
-- Vitest Mocking (over-mocking warnings): https://vitest.dev/guide/mocking.html
+- Vitest `test.each`: <https://vitest.dev/api/#test-each>
+- Vitest Mocking (over-mocking warnings): <https://vitest.dev/guide/mocking.html>
 - t_wada guidelines: `docs/web-frontend/twada-tdd.md`

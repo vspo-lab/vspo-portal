@@ -1,360 +1,40 @@
-# Accessibility Design Guidelines
+# Accessibility Implementation Guide
 
-This document defines the accessibility design guidelines for this application.
+This document provides implementation guidance for building accessible components. It targets **WCAG 2.2 Level AA** compliance.
+
+For the design-level checklist of what to verify, see [Accessibility Design Checklist](../design/accessibility.md).
+
+For the full specification, see [W3C WCAG 2.2](https://www.w3.org/TR/WCAG22/).
 
 ## Table of Contents
 
-1. [Compliance Standards](#compliance-standards)
-2. [React Aria](#react-aria)
-3. [Current State Analysis](#current-state-analysis)
-4. [Implementation Guidelines](#implementation-guidelines)
-5. [Component-Specific Requirements](#component-specific-requirements)
-6. [Testing Methods](#testing-methods)
-7. [Checklist](#checklist)
+1. [Accessibility Foundation](#accessibility-foundation)
+2. [Current State Analysis](#current-state-analysis)
+3. [Implementation Guidelines](#implementation-guidelines)
+4. [Component-Specific Requirements](#component-specific-requirements)
+5. [Testing Methods](#testing-methods)
 
 ---
 
-## Compliance Standards
+## Accessibility Foundation
 
-### WCAG 2.2 Level AA
+This project relies on **MUI (Material UI) components** for its accessibility foundation. MUI components provide built-in ARIA attributes, keyboard interaction, and focus management out of the box.
 
-This project targets compliance with **WCAG 2.2 Level AA**.
+### MUI Built-in Accessibility
 
-#### Four Core Principles (POUR)
+MUI components used in this project include accessibility features by default:
 
-| Principle | Description |
-|-----------|-------------|
-| **Perceivable** | Present information and UI components in ways that can be perceived |
-| **Operable** | Make UI components and navigation operable |
-| **Understandable** | Make information and UI operation understandable |
-| **Robust** | Make content interpretable by various user agents, including assistive technologies |
+- **`Button`**: Keyboard-focusable, `Enter`/`Space` activation, focus-visible styles
+- **`Tabs`**: Arrow key navigation, `role="tablist"` / `role="tab"`, `aria-selected`
+- **`Dialog` / `Modal`**: Focus trapping, `Escape` to close, `role="dialog"`, `aria-modal`
+- **`TextField`**: Label association via `InputLabel`, `aria-describedby` for helper/error text
+- **`Select`**: Keyboard navigation, `role="combobox"`, `aria-expanded`
+- **`IconButton`**: Supports `aria-label` for icon-only buttons
+- **`Tooltip`**: `aria-describedby` linking, keyboard-accessible
 
-#### WCAG 2.2 New Criteria (Level AA)
+### Styling with `sx` Prop
 
-| Criterion | Description | Impact on This Project |
-|-----------|-------------|----------------------|
-| 2.4.11 Focus Not Obscured | Focused elements must not be hidden by sticky elements | Header/navigation design |
-| 2.5.7 Dragging Movements | Provide alternative operations for drag | Future D&D feature implementation |
-| 2.5.8 Target Size | Touch targets must be at least 24x24px | All interactive elements |
-| 3.2.6 Consistent Help | Consistent placement of help features | Help/support features |
-| 3.3.7 Redundant Entry | Prevent re-entry of the same information | Form design |
-| 3.3.8 Accessible Authentication | Authentication with low cognitive load | Login/authentication flow |
-
-### Legal Background
-
-- **European Accessibility Act (EAA)**: Effective June 28, 2025; mandatory for services provided in the EU
-- **ADA Title II**: WCAG 2.1 AA required for US government-related sites
-- **Act on the Elimination of Discrimination against Persons with Disabilities (Japan)**: Obligation to provide reasonable accommodations
-
----
-
-## React Aria
-
-This project uses **React Aria** for accessibility support.
-
-### What is React Aria
-
-[React Aria](https://react-spectrum.adobe.com/react-aria/) is an accessible UI component library developed by Adobe. It provides over 50 components and hooks with built-in:
-
-- **Accessibility**: WCAG-compliant ARIA attributes, focus management, keyboard interaction
-- **Internationalization**: RTL, date/number formatting, translation support
-- **Adaptive interactions**: Mouse, touch, keyboard, screen reader support
-- **Style freedom**: Compatible with any styling solution such as TailwindCSS
-
-### Installation
-
-```bash
-pnpm add react-aria-components
-```
-
-### Components to Use
-
-| Component | Usage | Replaces |
-|-----------|-------|----------|
-| `Button` | Buttons | Custom Button |
-| `TextField` | Text input | Custom Input |
-| `Select` | Select box | Custom Select |
-| `Modal` / `Dialog` | Modals | InterruptReasonModal, SurveyModal |
-| `Form` | Forms | HTML forms |
-| `RadioGroup` | Radio button groups | Custom implementation |
-| `Checkbox` | Checkboxes | Custom implementation |
-| `ProgressBar` | Progress display | Custom implementation |
-
-### Implementation Examples
-
-#### Button
-
-```tsx
-import { Button } from "react-aria-components";
-
-export function PrimaryButton({ children, ...props }: ButtonProps) {
-  return (
-    <Button
-      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center
-                 rounded-full bg-primary px-6 py-3 font-semibold text-white
-                 transition duration-fast ease-standard
-                 hover:bg-primary/90
-                 focus-visible:outline-none focus-visible:ring-2
-                 focus-visible:ring-ring focus-visible:ring-offset-2
-                 disabled:opacity-60 disabled:cursor-not-allowed"
-      {...props}
-    >
-      {children}
-    </Button>
-  );
-}
-```
-
-#### TextField (Input)
-
-```tsx
-import { TextField, Label, Input, FieldError, Text } from "react-aria-components";
-
-type TextFieldProps = {
-  label: string;
-  description?: string;
-  errorMessage?: string;
-  isRequired?: boolean;
-};
-
-export function FormTextField({ label, description, errorMessage, isRequired, ...props }: TextFieldProps) {
-  return (
-    <TextField isRequired={isRequired} {...props}>
-      <Label className="font-medium text-sm">
-        {label}
-        {isRequired && <span className="text-error ml-1">*</span>}
-      </Label>
-      <Input
-        className="mt-1 w-full rounded-2xl border bg-card px-4 py-3 text-sm
-                   transition duration-fast ease-standard
-                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-                   invalid:border-error"
-      />
-      {description && (
-        <Text slot="description" className="mt-1 text-muted text-sm">
-          {description}
-        </Text>
-      )}
-      <FieldError className="mt-1 text-error text-sm" />
-    </TextField>
-  );
-}
-```
-
-#### Select
-
-```tsx
-import {
-  Select,
-  Label,
-  Button,
-  SelectValue,
-  Popover,
-  ListBox,
-  ListBoxItem,
-} from "react-aria-components";
-import { ChevronDown } from "lucide-react";
-
-type SelectOption = { id: string; name: string };
-
-type FormSelectProps = {
-  label: string;
-  items: SelectOption[];
-  placeholder?: string;
-};
-
-export function FormSelect({ label, items, placeholder, ...props }: FormSelectProps) {
-  return (
-    <Select {...props}>
-      <Label className="font-medium text-sm">{label}</Label>
-      <Button className="mt-1 flex w-full items-center justify-between rounded-2xl
-                         border bg-card px-4 py-3 text-sm
-                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <SelectValue className="truncate">
-          {({ selectedText }) => selectedText || placeholder}
-        </SelectValue>
-        <ChevronDown className="h-4 w-4 text-muted" />
-      </Button>
-      <Popover className="w-[--trigger-width] rounded-xl border bg-card shadow-lg">
-        <ListBox items={items} className="max-h-60 overflow-auto p-1">
-          {(item) => (
-            <ListBoxItem
-              className="cursor-pointer rounded-lg px-3 py-2 text-sm
-                         hover:bg-muted/10
-                         focus:bg-muted/10 focus:outline-none
-                         selected:bg-primary/10 selected:text-primary"
-            >
-              {item.name}
-            </ListBoxItem>
-          )}
-        </ListBox>
-      </Popover>
-    </Select>
-  );
-}
-```
-
-#### Modal / Dialog
-
-```tsx
-import {
-  DialogTrigger,
-  Modal,
-  Dialog,
-  Heading,
-  Button,
-} from "react-aria-components";
-
-type ConfirmDialogProps = {
-  title: string;
-  children: React.ReactNode;
-  triggerLabel: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  onConfirm: () => void;
-};
-
-export function ConfirmDialog({
-  title,
-  children,
-  triggerLabel,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
-  onConfirm,
-}: ConfirmDialogProps) {
-  return (
-    <DialogTrigger>
-      <Button className="...">{triggerLabel}</Button>
-      <Modal
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        isDismissable
-      >
-        <Dialog className="mx-4 w-full max-w-lg rounded-2xl bg-card p-6 shadow-xl
-                          focus:outline-none">
-          <Heading slot="title" className="font-bold text-lg">
-            {title}
-          </Heading>
-          <div className="mt-4">{children}</div>
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              slot="close"
-              className="rounded-full px-4 py-2 text-muted hover:bg-muted/10"
-            >
-              {cancelLabel}
-            </Button>
-            <Button
-              onPress={onConfirm}
-              className="rounded-full bg-primary px-4 py-2 text-white"
-            >
-              {confirmLabel}
-            </Button>
-          </div>
-        </Dialog>
-      </Modal>
-    </DialogTrigger>
-  );
-}
-```
-
-#### RadioGroup
-
-```tsx
-import { RadioGroup, Radio, Label } from "react-aria-components";
-
-type RadioOption = { value: string; label: string };
-
-type FormRadioGroupProps = {
-  label: string;
-  options: RadioOption[];
-  isRequired?: boolean;
-};
-
-export function FormRadioGroup({ label, options, isRequired, ...props }: FormRadioGroupProps) {
-  return (
-    <RadioGroup isRequired={isRequired} {...props}>
-      <Label className="font-medium text-sm">{label}</Label>
-      <div className="mt-2 space-y-2">
-        {options.map((option) => (
-          <Radio
-            key={option.value}
-            value={option.value}
-            className="group flex cursor-pointer items-center gap-3"
-          >
-            <div className="flex h-5 w-5 items-center justify-center rounded-full border-2
-                           group-selected:border-primary group-selected:bg-primary
-                           group-focus-visible:ring-2 group-focus-visible:ring-ring">
-              <div className="h-2 w-2 rounded-full bg-white opacity-0
-                             group-selected:opacity-100" />
-            </div>
-            <span className="text-sm">{option.label}</span>
-          </Radio>
-        ))}
-      </div>
-    </RadioGroup>
-  );
-}
-```
-
-### Focus Management
-
-React Aria manages focus rings with the `useFocusRing` hook.
-
-```tsx
-import { useFocusRing, mergeProps } from "react-aria";
-
-function CustomButton({ children, ...props }) {
-  const ref = useRef(null);
-  const { focusProps, isFocusVisible } = useFocusRing();
-  const { buttonProps } = useButton(props, ref);
-
-  return (
-    <button
-      {...mergeProps(buttonProps, focusProps)}
-      ref={ref}
-      className={cn(
-        "rounded-full px-4 py-2",
-        isFocusVisible && "ring-2 ring-ring ring-offset-2"
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-```
-
-### Styling (TailwindCSS)
-
-React Aria components expose state via data attributes. They can be styled directly with Tailwind.
-
-```tsx
-<Button className="
-  bg-primary text-white
-  hover:bg-primary/90
-  pressed:scale-95
-  focus-visible:ring-2
-  disabled:opacity-50
-">
-  Submit
-</Button>
-```
-
-**Available state modifiers:**
-- `hover:` - On hover
-- `focus:` - On focus
-- `focus-visible:` - On keyboard focus
-- `pressed:` - On press
-- `selected:` - On selection
-- `disabled:` - When disabled
-- `invalid:` - On validation error
-
-### Migration Guide
-
-Steps for replacing existing components with React Aria:
-
-1. **Button**: Replace `<button>` with `<Button>`, change `onClick` to `onPress`
-2. **Input**: Replace `<input>` with `<TextField>` + `<Input>` for integrated label/error
-3. **Select**: Replace `<select>` with `<Select>` + `<ListBox>` for improved keyboard interaction
-4. **Modal**: Replace custom implementation with `<Modal>` + `<Dialog>` for automatic focus trapping
+MUI's `sx` prop and Emotion `styled()` are used for all component styling, including accessibility-related styles (focus rings, contrast adjustments). See [Styling Guide](./styling.md) for details.
 
 ---
 
@@ -447,66 +127,15 @@ Group related form elements.
 
 ### 3. Modal/Dialog
 
-Modals must meet the following requirements.
+MUI's `<Dialog>` / `<Modal>` components handle focus trapping, ESC dismissal, and focus restoration automatically.
 
-```tsx
-import { useCallback, useEffect, useRef } from "react";
+When building a custom modal without MUI, ensure:
 
-type ModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-};
-
-export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<HTMLElement | null>(null);
-
-  // Focus trap
-  useEffect(() => {
-    if (isOpen) {
-      previousActiveElement.current = document.activeElement as HTMLElement;
-      modalRef.current?.focus();
-    } else {
-      previousActiveElement.current?.focus();
-    }
-  }, [isOpen]);
-
-  // Close with ESC key
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
-      onKeyDown={handleKeyDown}
-    >
-      <div
-        ref={modalRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-        tabIndex={-1}
-        className="mx-4 w-full max-w-lg rounded-lg bg-white p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modal-title">{title}</h2>
-        {children}
-      </div>
-    </div>
-  );
-}
-```
+- `role="dialog"` and `aria-modal="true"` are set
+- Title is associated via `aria-labelledby`
+- Focus is trapped inside the dialog
+- `Escape` key closes the dialog
+- Focus returns to the trigger element on close
 
 ### 4. Focus Management
 
@@ -515,10 +144,8 @@ export function AccessibleModal({ isOpen, onClose, title, children }: ModalProps
 ```css
 /* globals.css */
 :focus-visible {
-  outline: none;
-  ring: 2px;
-  ring-color: var(--color-ring);
-  ring-offset: 2px;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* Prevent focus from being hidden behind sticky elements */
@@ -534,14 +161,32 @@ html {
 #### Skip Links
 
 ```tsx
-// app/layout.tsx
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// app/[locale]/layout.tsx (App Router)
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
   return (
-    <html lang="ja">
+    <html lang={locale}>
       <body>
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-4"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            zIndex: 50,
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.left = "0";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.left = "-9999px";
+          }}
         >
           Skip to main content
         </a>
@@ -589,13 +234,13 @@ Use visual cues other than color alongside state changes.
 
 ```tsx
 // Good: Color + icon + text
-<div className="flex items-center gap-2 text-error">
+<Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "error.main" }}>
   <AlertCircleIcon aria-hidden="true" />
-  <span>Error: Please check your input</span>
-</div>
+  <Typography variant="body2" color="error">Error: Please check your input</Typography>
+</Box>
 
 // Bad: Color only
-<div className="text-red-500">Please check your input</div>
+<Typography color="error">Please check your input</Typography>
 ```
 
 ### 6. Target Size
@@ -703,6 +348,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 ```
 
 **Requirements:**
+
 - `min-h-[44px]` for target size
 - `focus-visible` for focus ring
 - Visual change and `aria-disabled` when `disabled`
@@ -809,7 +455,7 @@ export function Select({ id, label, options, error, ...props }: SelectProps) {
 | Tool | Purpose | Detection Range |
 |------|---------|----------------|
 | axe-core | Automated checks in CI/CD | Approx. 40% |
-| eslint-plugin-jsx-a11y | Static analysis | Basic issues |
+| Biome lint rules | Static analysis (replaces eslint-plugin-jsx-a11y) | Basic issues |
 | Lighthouse | Comprehensive evaluation including performance | Score-based |
 
 #### axe-core Integration Example
@@ -850,6 +496,7 @@ describe("Accessibility", () => {
 | Android | TalkBack |
 
 **Check items:**
+
 - Is the heading structure read correctly?
 - Are form labels associated?
 - Is alternative text for images appropriate?
@@ -862,63 +509,11 @@ describe("Accessibility", () => {
 
 ---
 
-## Checklist
-
-### Development Checklist
-
-#### HTML Structure
-- [ ] Appropriate heading levels (h1 → h2 → h3)
-- [ ] Landmark elements (header, nav, main, footer)
-- [ ] Lists use ul/ol
-- [ ] Tables have caption and th
-
-#### Forms
-- [ ] All inputs have associated labels
-- [ ] Required fields have `aria-required="true"`
-- [ ] Errors have `aria-invalid` and `aria-describedby`
-- [ ] Error messages have `role="alert"`
-- [ ] Appropriate `autocomplete` attributes
-
-#### Interactive Elements
-- [ ] Buttons use `<button>` elements
-- [ ] Links use `<a>` elements
-- [ ] Custom controls have appropriate `role`
-- [ ] Target size 44x44px or larger
-- [ ] `focus-visible` styles
-
-#### Modal/Dialog
-- [ ] `role="dialog"` and `aria-modal="true"`
-- [ ] Title associated with `aria-labelledby`
-- [ ] Focus trap implemented
-- [ ] Closes with ESC key
-- [ ] Focus returns to original element after closing
-
-#### Images/Media
-- [ ] Meaningful images have alternative text
-- [ ] Decorative images have `alt=""` and `aria-hidden`
-- [ ] Videos have subtitles/captions
-
-#### Color
-- [ ] Text contrast ratio 4.5:1 or higher
-- [ ] UI element contrast ratio 3:1 or higher
-- [ ] Information is not conveyed by color alone
-
-### Pre-Release Checklist
-
-- [ ] Run automated tests with axe-core
-- [ ] All features operable with keyboard only
-- [ ] Verify page reading with VoiceOver/NVDA
-- [ ] No layout breakage at 200% zoom
-- [ ] Verify animation behavior with reduced-motion setting
-
----
-
-## Reference Resources
+## References
 
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
 - [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
-- [React Aria](https://react-spectrum.adobe.com/react-aria/) - Adobe's accessible UI library
-- [React Aria Components](https://react-spectrum.adobe.com/react-aria/components.html) - Component list
-- [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
+- [MUI Accessibility](https://mui.com/material-ui/getting-started/accessibility/)
 - [axe-core](https://github.com/dequelabs/axe-core)
-- [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)
+- [Biome Accessibility Rules](https://biomejs.dev/linter/rules/#accessibility)
+- [Design Checklist](../design/accessibility.md)

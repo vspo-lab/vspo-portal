@@ -1,0 +1,18 @@
+---
+import { z } from "zod";
+
+const propsSchema = z.object({
+  class: z.string().optional(),
+  style: z.string().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
+
+const { class: className = "", style } = Astro.props;
+---
+
+<div
+  class={`rounded-2xl bg-surface-container text-on-surface shadow-card ${className}`}
+  style={style}
+>
+  <slot />
+</div>

@@ -2,6 +2,8 @@
 
 ## Overview
 
+> **Note:** The Terraform workflows (`terraform-plan-*.yml`, `terraform-apply-*.yml`) and `infrastructure/terraform/` directory are not yet implemented. This document describes the intended tfaction-based workflow design.
+
 **tfaction** is a framework developed by [suzuki-shunsuke](https://github.com/suzuki-shunsuke/tfaction) for building advanced Terraform workflows with GitHub Actions.
 
 ### Key Features
@@ -12,7 +14,7 @@
 - **PR comment notifications**: tfcmt automatically comments plan results on PRs
 - **Drift detection**: Periodically detect drift and manage it as GitHub Issues
 
-```
+```text
 +-------------------------------------------------------------+
 |                    tfaction Workflow                           |
 +-------------------------------------------------------------+

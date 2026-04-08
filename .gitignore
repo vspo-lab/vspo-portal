@@ -1,7 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# plan docs
-docs/plan/discord-bot-dashboard
+# generated docs (not tracked)
+docs/plan/
+
+# Astro auto-generated types
+**/.astro/
 
 # dependencies
 **/node_modules
@@ -17,6 +20,7 @@ docs/plan/discord-bot-dashboard
 
 # production
 **/build
+**/storybook-static
 
 # misc
 **/.DS_Store
@@ -81,9 +85,7 @@ dist
 # claude hooks state
 .claude/.post_edit_check_pending
 
-# plan documents (generated, not tracked)
-docs/superpowers/plans/
-docs/plan/
+docs/superpowers/
 .claude/settings.local.json
 
 # Cloudflare generated types

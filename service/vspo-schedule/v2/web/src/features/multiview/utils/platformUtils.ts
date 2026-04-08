@@ -51,7 +51,7 @@ export const generateEmbedUrl = (
     }
 
     case "twitcasting": {
-      // 公式ドキュメント: https://twitcasting.tv/twitcastinglive/communityshow/6557098
+      // Official docs: https://twitcasting.tv/twitcastinglive/communityshow/6557098
       const params = new URLSearchParams();
       params.set("auto_play", autoplay ? "true" : "false");
       params.set("default_mute", muted ? "true" : "false");

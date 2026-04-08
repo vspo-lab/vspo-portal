@@ -7,7 +7,7 @@ type MemberType = z.infer<typeof MemberTypeSchema>;
 const MemberType = {
   schema: MemberTypeSchema,
 
-  /** カスタムメンバー選択が必要か */
+  /** Whether custom member selection is required */
   requiresCustomSelection: (mt: MemberType): boolean => mt === "custom",
 } as const;
 

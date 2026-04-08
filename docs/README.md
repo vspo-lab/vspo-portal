@@ -26,9 +26,9 @@ Technical documentation for the vspo-portal monorepo.
 | Document | Description |
 |----------|-------------|
 | [Architecture](./web-frontend/architecture.md) | Feature modules, Container/Presenter pattern, dependency direction |
-| [Routing](./web-frontend/routing.md) | Pages Router, route map, layout system |
+| [Routing](./web-frontend/routing.md) | App Router, route map, layout system |
 | [Middleware](./web-frontend/middleware.md) | Locale routing, timezone, session tracking |
-| [Data Fetching](./web-frontend/data-fetching.md) | serverSideProps, dual API support, Result pattern |
+| [Data Fetching](./web-frontend/data-fetching.md) | Async Server Components, dual API support, Result pattern |
 | [State Management](./web-frontend/state-management.md) | Context providers, cookies, LocalStorage |
 | [i18n](./web-frontend/i18n.md) | Internationalization setup and locale resolution |
 | [Styling](./web-frontend/styling.md) | MUI v7 + Emotion theming and component patterns |
@@ -38,14 +38,14 @@ Technical documentation for the vspo-portal monorepo.
 | [TypeScript](./web-frontend/typescript.md) | Zod Schema First, type inference, strict mode conventions |
 | [Error Handling](./web-frontend/error-handling.md) | Result type pattern, domain error codes |
 | [React Hooks](./web-frontend/react-hooks.md) | Hook guidelines and patterns |
-| [Accessibility](./web-frontend/accessibility.md) | Accessibility guidelines |
+| [Accessibility](./web-frontend/accessibility.md) | Implementation guide for accessibility with React Aria |
 
 ### Web Frontend — Testing
 
 | Document | Description |
 |----------|-------------|
-| [Unit Testing](./web-frontend/unit-testing.md) | Vitest setup, table-driven tests |
-| [API Testing](./web-frontend/api-testing.md) | API contract and integration testing |
+| [Unit Testing](./web-frontend/unit-testing.md) | Project-specific test patterns (Vitest, mocks, Result type) |
+| [API Testing](./web-frontend/api-testing.md) | API data fetching tests with VSPOApi client mock and MockHandler |
 | [TDD Strategy](./web-frontend/twada-tdd.md) | t_wada-style Red-Green-Refactor |
 
 ### Backend
@@ -97,7 +97,7 @@ Technical documentation for the vspo-portal monorepo.
 | [Typography](./design/typography.md) | Font system and scale |
 | [Icons](./design/icons.md) | Icon guidelines |
 | [Design Patterns](./design/design-patterns.md) | Reusable UI patterns |
-| [Accessibility](./design/accessibility.md) | Design accessibility guidelines |
+| [Accessibility](./design/accessibility.md) | Design checklist for WCAG 2.2 Level AA |
 | [Content Guidelines](./design/content-guidelines.md) | Content and copy guidelines |
 | [Writing](./design/writing.md) | Writing style guide |
 | [Design Review](./design/design-review.md) | Design review process |
@@ -110,10 +110,3 @@ Technical documentation for the vspo-portal monorepo.
 |----------|-------------|
 | [Linting](./security/lint.md) | Linting and security scanning |
 | [Textlint](./security/textlint.md) | Text linting rules |
-
-### Feature Plans
-
-| Document | Description |
-|----------|-------------|
-| [Plans Overview](./plan/README.md) | Spec-driven development plans |
-| [Starry Purring Bird](./plan/starry-purring-bird.md) | Feature plan |

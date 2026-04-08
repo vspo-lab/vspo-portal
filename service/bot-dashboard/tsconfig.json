@@ -1,9 +1,10 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "baseUrl": ".",
+    "jsx": "react-jsx",
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["./src/*"]
     }
-  }
+  },
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.ts", "vitest.config.ts", "vitest.setup.ts", ".storybook"]
 }

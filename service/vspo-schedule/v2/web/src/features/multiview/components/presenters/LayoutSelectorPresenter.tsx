@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AutoAwesome,
   DashboardOutlined,
@@ -20,8 +22,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import type { TFunction } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React from "react";
 import { LayoutType } from "../../hooks/useMultiviewLayout";
 import { scaledBorderRadius } from "../../utils/theme";
@@ -284,25 +285,25 @@ const getLayoutPreview = (layoutType: LayoutType) => {
   }
 };
 
-const getLayoutName = (layoutType: LayoutType, t: TFunction) => {
+const getLayoutName = (layoutType: LayoutType, t: (key: string) => string) => {
   switch (layoutType) {
     case "1x1":
-      return t("layout.single", "Single");
+      return t("layout.single");
     case "2x1":
-      return t("layout.side-by-side", "Side by Side");
+      return t("layout.side-by-side");
     case "1x2":
-      return t("layout.stacked", "Stacked");
+      return t("layout.stacked");
     case "2x2":
-      return t("layout.quad", "Quad");
+      return t("layout.quad");
     case "3x3":
-      return t("layout.nine", "Nine");
+      return t("layout.nine");
     case "4x3":
-      return t("layout.twelve", "Twelve");
+      return t("layout.twelve");
     case "picture-in-picture":
-      return t("layout.pip", "PiP");
+      return t("layout.pip");
     case "auto":
     default:
-      return t("layout.auto", "Auto");
+      return t("layout.auto");
   }
 };
 
@@ -344,7 +345,7 @@ export const LayoutSelectorPresenter: React.FC<
   streamCount,
   onLayoutChange,
 }) => {
-  const { t } = useTranslation("multiview");
+  const t = useTranslations("multiview");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -390,12 +391,10 @@ export const LayoutSelectorPresenter: React.FC<
           variant="h6"
           sx={{ fontSize: isMobile ? "1rem" : "1.25rem" }}
         >
-          {t("layout.title", "レイアウト")}
+          {t("layout.title")}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {t("layout.streams-count", "{{count}}個の配信", {
-            count: streamCount,
-          })}
+          {t("layout.streams-count", { count: streamCount })}
         </Typography>
       </Box>
 
@@ -415,7 +414,7 @@ export const LayoutSelectorPresenter: React.FC<
                     </Typography>
                     {!isMobile && shortcut && (
                       <Typography variant="caption" color="text.secondary">
-                        {t("layout.shortcut", "ショートカット")}: Alt+
+                        {t("layout.shortcut")}: Alt+
                         {shortcut}
                       </Typography>
                     )}
@@ -472,7 +471,7 @@ export const LayoutSelectorPresenter: React.FC<
           color="text.secondary"
           sx={{ mt: 2, display: "block", textAlign: "center" }}
         >
-          {t("layout.keyboard-hint", "Alt + 数字キーでレイアウトを素早く変更")}
+          {t("layout.keyboard-hint")}
         </Typography>
       )}
     </SelectorContainer>

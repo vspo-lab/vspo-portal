@@ -67,7 +67,7 @@ This diagram shows the following separation of responsibilities:
 
 ## References
 
-- drawio-mcp official: https://github.com/jgraph/drawio-mcp
-- drawio-mcp tool server: https://github.com/jgraph/drawio-mcp/tree/main/mcp-tool-server
-- Claude Code MCP: https://docs.anthropic.com/en/docs/claude-code/mcp
-- Claude Code settings/permissions: https://docs.anthropic.com/en/docs/claude-code/settings
+- drawio-mcp official: <https://github.com/jgraph/drawio-mcp>
+- drawio-mcp tool server: <https://github.com/jgraph/drawio-mcp/tree/main/mcp-tool-server>
+- Claude Code MCP: <https://docs.anthropic.com/en/docs/claude-code/mcp>
+- Claude Code settings/permissions: <https://docs.anthropic.com/en/docs/claude-code/settings>

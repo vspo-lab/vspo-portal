@@ -1,5 +1,7 @@
 # VRT (Visual Regression Testing) Implementation Guidelines
 
+> **Status:** Not yet implemented. Storybook stories exist but Playwright VRT integration is pending. This document describes the target architecture.
+
 ## Purpose
 
 - Detect visual regressions in UI through diff comparison
@@ -7,7 +9,7 @@
 
 ## Scope
 
-- `services/web/vrt/storybook.spec.ts`
+- `service/vspo-schedule/v2/web/vrt/storybook.spec.ts`
 - Storybook stories (design system, key UI elements)
 
 ## Implementation Rules
@@ -35,5 +37,5 @@
 
 ## References (Primary Sources)
 
-- Playwright Visual Comparisons: https://playwright.dev/docs/test-snapshots
-- Storybook Visual Testing: https://storybook.js.org/docs/writing-tests/visual-testing
+- Playwright Visual Comparisons: <https://playwright.dev/docs/test-snapshots>
+- Storybook Visual Testing: <https://storybook.js.org/docs/writing-tests/visual-testing>

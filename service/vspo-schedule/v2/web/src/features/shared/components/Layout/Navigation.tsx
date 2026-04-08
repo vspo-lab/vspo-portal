@@ -1,14 +1,16 @@
+"use client";
+
 import { BottomNavigation, BottomNavigationAction } from "@mui/material";
 import { Box } from "@mui/system";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useEffect, useState } from "react";
 import {
   getNavigationRouteInfo,
   type NavigationRouteId,
 } from "@/constants/navigation";
-import { DrawerIcon, Link } from "../Elements";
+import { Link as NextIntlLink, usePathname } from "@/i18n/navigation";
+import { DrawerIcon } from "../Elements";
 
 const bottomNavigationRoutes = [
   "list",
@@ -36,13 +38,13 @@ const BottomNavigationOffset = () => (
 
 export const CustomBottomNavigation: React.FC = () => {
   const [value, setValue] = useState("");
-  const router = useRouter();
-  const { t } = useTranslation("common");
+  const pathname = usePathname();
+  const t = useTranslations("common");
 
   useEffect(() => {
-    const activeNavOption = getActiveNavOption(router.asPath);
+    const activeNavOption = getActiveNavOption(pathname);
     setValue(activeNavOption ?? "");
-  }, [router.asPath]);
+  }, [pathname]);
 
   return (
     <>
@@ -50,17 +52,23 @@ export const CustomBottomNavigation: React.FC = () => {
       <Box sx={{ width: "100%", position: "fixed", bottom: 0, zIndex: 1000 }}>
         <BottomNavigation
           value={value}
-          showLabels
-          sx={{ height: bottomNavigationHeight }}
+          sx={{
+            height: bottomNavigationHeight,
+            "& .MuiBottomNavigationAction-label": {
+              opacity: "1 !important",
+              fontSize: "0.75rem !important",
+            },
+          }}
         >
           {bottomNavigationRoutes.map((id) => (
             <BottomNavigationAction
-              component={Link}
+              component={NextIntlLink}
               href={getNavigationRouteInfo(id).link}
               key={id}
               label={t(`bottomNav.pages.${id}`)}
               value={id}
               icon={<DrawerIcon id={id} />}
+              sx={{ textDecoration: "none", color: "inherit" }}
             />
           ))}
         </BottomNavigation>

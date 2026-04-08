@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import type { Clip } from "@/features/shared/domain";
 import { ClipSectionPresenter } from "../presenters/ClipSectionPresenter";

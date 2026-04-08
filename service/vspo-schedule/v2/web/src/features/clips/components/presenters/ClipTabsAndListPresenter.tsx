@@ -1,6 +1,8 @@
+"use client";
+
 import { Box, Grid, Pagination, Tab, Tabs } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import type {
   Clip,
@@ -44,8 +46,8 @@ export const ClipTabsAndListPresenter: React.FC<
   onPageChange,
   isMobile = false,
 }) => {
-  const { t } = useTranslation("clips");
-  const { t: tCommon } = useTranslation("common");
+  const t = useTranslations("clips");
+  const tCommon = useTranslations("common");
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     onTabChange(newValue);
@@ -113,7 +115,7 @@ export const ClipTabsAndListPresenter: React.FC<
             }}
             getItemAriaLabel={(type, page) => {
               if (type === "page") {
-                return tCommon("pagination.goToPage", { page });
+                return tCommon("pagination.goToPage", { page: page ?? 1 });
               }
               return type === "first"
                 ? tCommon("pagination.firstPage")

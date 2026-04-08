@@ -8,7 +8,7 @@ State lives in the **narrowest scope** possible. No global state library is used
 
 | Type | Mechanism | Example |
 |------|-----------|---------|
-| **Server data** | `getServerSideProps` -> page props | Livestreams, clips, events |
+| **Server data** | Async Server Component (page.tsx) -> props | Livestreams, clips, events |
 | **Page-level UI** | `useState` in containers | Tab selection, dialog open/close, loading |
 | **Computed data** | `useMemo` in hooks | Grouped livestreams by date |
 | **User preferences** | Cookies via context | Timezone, locale, session ID |
@@ -18,7 +18,7 @@ State lives in the **narrowest scope** possible. No global state library is used
 
 ## Context Providers
 
-Defined in `_app.tsx` provider stack (outermost to innermost):
+Defined in `app/[locale]/layout.tsx` provider stack (via `AppProviders`, outermost to innermost):
 
 ### ThemeModeProvider
 
@@ -81,6 +81,6 @@ Most complex state management in the app. See [Multiview](./multiview.md) for fu
 - **Persistence**: LocalStorage for state, URL params for sharing
 - **PlaybackContext**: Cross-video controls (playAll, pauseAll, muteAll)
 
-```
+```text
 Priority: URL State > LocalStorage > Defaults
 ```

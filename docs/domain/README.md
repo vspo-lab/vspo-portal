@@ -27,6 +27,5 @@ This directory is the **Single Source of Truth** for domain knowledge of the vsp
 
 ## Related
 
-- `docs/plan/` -- Feature-level specification documents (Spec-Driven Development)
 - `docs/web-frontend/` -- Frontend technical documentation
 - `docs/backend/` -- Backend technical documentation

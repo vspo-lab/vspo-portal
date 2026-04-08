@@ -2,6 +2,8 @@
 
 ## Overview
 
+> **Note:** The `infrastructure/terraform/` directory and associated workflows are not yet implemented. This document describes the intended conventions and design for when Terraform IaC is introduced.
+
 This project uses **Terraform** to manage Google Cloud Platform (GCP) infrastructure.
 Infrastructure as Code (IaC) enables tracking infrastructure changes in Git and deploying safely through a review process.
 
@@ -11,7 +13,7 @@ For tfaction-based operational standards and design decisions, see:
 
 ## Directory Structure
 
-```
+```text
 infrastructure/terraform/
 +-- tfaction.yaml              # tfaction root configuration
 +-- .tflint.hcl                # TFLint configuration
@@ -93,7 +95,7 @@ resource "google_storage_bucket" "state_bucket" { ... }  # Bad: bucket is redund
 
 ### Module Structure
 
-```
+```text
 modules/
 +-- terraform_backend/
     +-- main.tf           # Main resources (or function-specific files)

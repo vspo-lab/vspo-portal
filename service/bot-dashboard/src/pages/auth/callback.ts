@@ -1,3 +1,4 @@
+import { DISCORD_REDIRECT_URI } from "astro:env/server";
 import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
 import { LoginUsecase } from "~/features/auth/usecase/login";
@@ -22,17 +23,21 @@ export const GET: APIRoute = async (context) => {
     return context.redirect("/?error=no_code");
   }
 
-  const result = await LoginUsecase.handleCallback(code, {
-    DISCORD_CLIENT_ID: env.DISCORD_CLIENT_ID,
-    DISCORD_CLIENT_SECRET: env.DISCORD_CLIENT_SECRET,
-    DISCORD_REDIRECT_URI: env.DISCORD_REDIRECT_URI,
-  });
+  const codeVerifier = await context.session?.get("pkce_verifier");
+  context.session?.set("pkce_verifier", "");
+
+  const result = await LoginUsecase.handleCallback(
+    code,
+    { DISCORD_REDIRECT_URI },
+    env.APP_WORKER,
+    codeVerifier ?? undefined,
+  );
 
   if (result.err) {
     return context.redirect("/?error=auth_failed");
   }
 
-  const { user, accessToken, refreshToken, expiresAt } = result.val;
+  const { user, accessToken, refreshToken, expiresAt, locale } = result.val;
   context.session?.set("user", {
     id: user.id,
     username: user.username,
@@ -42,6 +47,10 @@ export const GET: APIRoute = async (context) => {
   context.session?.set("accessToken", accessToken);
   context.session?.set("refreshToken", refreshToken);
   context.session?.set("expiresAt", expiresAt);
+  const existingLocale = await context.session?.get("locale");
+  if (!existingLocale) {
+    context.session?.set("locale", locale?.startsWith("en") ? "en" : "ja");
+  }
 
   return context.redirect("/dashboard");
 };

@@ -1,13 +1,17 @@
 import type { Result } from "@vspo-lab/error";
 import { type AppError, Ok } from "@vspo-lab/error";
-import { DiscordApiRepository } from "~/features/auth/repository/discord-api";
+import { DiscordOAuthRpcRepository } from "~/features/auth/repository/discord-oauth-rpc";
+import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
+import type { ApplicationService } from "~/types/api";
 import type { GuildSummaryType } from "../domain/guild";
 import { GuildSummary } from "../domain/guild";
 import { VspoGuildApiRepository } from "../repository/vspo-guild-api";
 
 type ListGuildsParams = {
   accessToken: string;
-  appWorker: Fetcher;
+  userId: string;
+  appWorker: ApplicationService;
+  includeChannelSummary?: boolean;
 };
 
 type ListGuildsResult = {
@@ -17,15 +21,23 @@ type ListGuildsResult = {
 };
 
 /**
- * ユーザーが管理可能なサーバー一覧を取得する
- * @precondition 有効な accessToken と appWorker が必要
- * @postcondition installed / notInstalled / sidebarGuilds に分類して返す
+ * Retrieves the guilds the current user can manage and categorizes them for the dashboard.
+ *
+ * @param params - Discord access token, user ID, app worker binding, and optional includeChannelSummary (default true; when false, skips per-guild channel config fetches)
+ * @returns Installed guilds, not-installed guilds, and sidebar guild metadata, or an AppError
+ * @precondition params.accessToken !== "" && params.userId !== "" && params.appWorker is configured
+ * @postcondition On Ok, installed guilds have botInstalled === true and isAdmin === true
+ * @idempotent true - repeated calls with unchanged upstream data yield the same categorization
  */
 const execute = async (
   params: ListGuildsParams,
 ): Promise<Result<ListGuildsResult, AppError>> => {
+  const { includeChannelSummary = true } = params;
   const [guildsResult, botGuildIdsResult] = await Promise.all([
-    DiscordApiRepository.getUserGuilds(params.accessToken),
+    DiscordOAuthRpcRepository.getUserGuilds(
+      params.appWorker,
+      params.accessToken,
+    ),
     VspoGuildApiRepository.getBotGuildIds(params.appWorker),
   ]);
 
@@ -35,13 +47,55 @@ const execute = async (
   const guilds = guildsResult.val.map((g) =>
     GuildSummary.fromDiscordGuild(g, botGuildIdsResult.val),
   );
-  const manageable = GuildSummary.filterManageable(guilds);
+
+  // For installed guilds, check admin permissions via bot token
+  const installedGuildIds = guilds
+    .filter((g) => g.botInstalled)
+    .map((g) => g.id);
+
+  const adminCheckResult =
+    installedGuildIds.length > 0
+      ? await VspoGuildApiRepository.checkUserGuildAdmin(
+          params.appWorker,
+          params.userId,
+          installedGuildIds,
+        )
+      : Ok({} as Record<string, boolean>);
+
+  const adminMap = adminCheckResult.err ? {} : adminCheckResult.val;
+
+  // Apply server-side admin check results to installed guilds
+  const resolvedGuilds = guilds.map((g) =>
+    g.botInstalled
+      ? GuildSummary.withAdminOverride(g, adminMap[g.id] ?? false)
+      : g,
+  );
+
+  const manageable = GuildSummary.filterManageable(resolvedGuilds);
   const { installed, notInstalled } = GuildSummary.partition(manageable);
 
+  // Fetch channel configs for all installed guilds in parallel if requested.
+  // Per-guild failures are swallowed so a single bad guild does not block the page.
+  const installedWithSummaries = includeChannelSummary
+    ? await Promise.all(
+        installed.map(async (guild) => {
+          const channelResult = await VspoChannelApiRepository.getGuildConfig(
+            params.appWorker,
+            guild.id,
+          );
+          if (channelResult.err) return guild;
+          return GuildSummary.withChannelSummary(
+            guild,
+            channelResult.val.channels,
+          );
+        }),
+      )
+    : installed;
+
   return Ok({
-    installed,
+    installed: installedWithSummaries,
     notInstalled,
-    sidebarGuilds: installed.map((g) => ({
+    sidebarGuilds: installedWithSummaries.map((g) => ({
       id: g.id,
       name: g.name,
       iconUrl: GuildSummary.iconUrl(g),

@@ -1,30 +1,19 @@
-import { useEffect, useState } from "react";
-import { ContentLayout } from "@/features/shared/components/Layout";
+"use client";
+
 import type { Channel, Clip } from "@/features/shared/domain";
-import type { NextPageWithLayout } from "@/pages/_app";
 import { Presenter } from "./presenter";
 
-export type ClipsHomeProps = {
+type ClipsHomeProps = {
   popularYoutubeClips: Clip[];
   popularShortsClips: Clip[];
   popularTwitchClips: Clip[];
   vspoMembers: Channel[];
   lastUpdateTimestamp: number;
   currentPeriod: string;
-  meta: {
-    title: string;
-    description: string;
-  };
 };
 
 // Container component (page logic)
-export const ClipsHome: NextPageWithLayout<ClipsHomeProps> = (props) => {
-  const [isProcessing, setIsProcessing] = useState<boolean>(true);
-
-  useEffect(() => {
-    setIsProcessing(false);
-  }, []);
-
+export const ClipsHome: React.FC<ClipsHomeProps> = (props) => {
   // Use the presenter component
   return (
     <Presenter
@@ -32,22 +21,7 @@ export const ClipsHome: NextPageWithLayout<ClipsHomeProps> = (props) => {
       popularShortsClips={props.popularShortsClips}
       popularTwitchClips={props.popularTwitchClips}
       // vspoMembers={props.vspoMembers}
-      isProcessing={isProcessing}
       currentPeriod={props.currentPeriod}
     />
-  );
-};
-
-// Layout configuration
-ClipsHome.getLayout = (page, pageProps) => {
-  return (
-    <ContentLayout
-      title={pageProps.meta.title}
-      description={pageProps.meta.description}
-      lastUpdateTimestamp={pageProps.lastUpdateTimestamp}
-      path="/clips"
-    >
-      {page}
-    </ContentLayout>
   );
 };

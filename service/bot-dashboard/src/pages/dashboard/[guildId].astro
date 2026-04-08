@@ -1,10 +1,9 @@
 ---
-import { actions } from "astro:actions";
 import { env } from "cloudflare:workers";
-import ChannelConfigForm from "~/components/channel/ChannelConfigForm.astro";
-import ChannelTable from "~/components/channel/ChannelTable.astro";
 import Dashboard from "~/layouts/Dashboard.astro";
-import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
+import Skeleton from "~/features/shared/components/Skeleton.astro";
+import GuildChannelContent from "~/features/channel/components/GuildChannelContent.astro";
+import { GuildSummary } from "~/features/guild/domain/guild";
 import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
 import { t } from "~/i18n/dict";
 
@@ -15,80 +14,82 @@ if (!guildId) {
 }
 
 const accessToken = Astro.locals.accessToken;
-if (!accessToken) {
+const user = Astro.locals.user;
+if (!accessToken || !user) {
   return Astro.redirect("/");
 }
 
-const [guildsResult, channelsResult] = await Promise.all([
-  ListGuildsUsecase.execute({
-    accessToken,
-    appWorker: env.APP_WORKER,
-  }),
-  VspoChannelApiRepository.getGuildConfig(env.APP_WORKER, guildId),
-]);
+// Use cached guild summaries from session (set by /dashboard) to avoid the heavy
+// ListGuildsUsecase call on every guild detail navigation.
+// Falls back to the full fetch only on direct navigation (e.g. bookmark).
+const cachedGuilds = await Astro.session?.get("guildSummaries");
+const cachedGuild = cachedGuilds?.find((g) => g.id === guildId);
 
-const sidebarGuilds = guildsResult.err ? [] : guildsResult.val.sidebarGuilds;
-const allGuilds = guildsResult.err ? [] : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
-const currentGuild = allGuilds.find((g) => g.id === guildId);
+const currentGuild = cachedGuild
+  ? { id: cachedGuild.id, name: cachedGuild.name, icon: cachedGuild.icon, isAdmin: cachedGuild.isAdmin, botInstalled: cachedGuild.botInstalled }
+  : await (async () => {
+      const guildsResult = await ListGuildsUsecase.execute({ accessToken, userId: user.id, appWorker: env.APP_WORKER, includeChannelSummary: false });
+      const all = guildsResult.err ? [] : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
+      return all.find((g) => g.id === guildId) ?? null;
+    })();
 const guildName = currentGuild?.name ?? guildId;
-const channels = channelsResult.err ? [] : channelsResult.val.channels;
-const fetchError = guildsResult.err ?? channelsResult.err ?? null;
-const enabledCount = channels.filter((c) => c.enabled).length;
-
-// Handle action results
-const updateResult = Astro.getActionResult(actions.updateChannel);
-const toggleResult = Astro.getActionResult(actions.toggleChannel);
-const actionError = updateResult?.error ?? toggleResult?.error;
-
-// Editing state via query param
-const editChannelId = Astro.url.searchParams.get("edit");
-const editingChannel = editChannelId
-  ? channels.find((c) => c.channelId === editChannelId)
-  : null;
 ---
 
-<Dashboard title={guildName} guilds={sidebarGuilds}>
-  <div class="space-y-6">
-    <div>
-      <nav class="mb-2 text-sm text-muted-foreground">
-        <a href="/dashboard" class="hover:text-foreground">{t(locale, "dashboard.allServers")}</a>
-        <span class="mx-1">/</span>
-        <span>{guildName}</span>
-      </nav>
-      <h1 class="font-heading text-2xl font-bold tracking-tight">{guildName}</h1>
-      <p class="text-muted-foreground">
-        {t(locale, "dashboard.channelsEnabled", { enabled: String(enabledCount), total: String(channels.length) })}
-      </p>
+<Dashboard title={guildName} description={t(locale, "meta.guildDetail.description", { guildName })} showSidebar activeGuild={currentGuild ? { id: currentGuild.id, name: currentGuild.name, iconUrl: GuildSummary.iconUrl(currentGuild) } : null}>
+  <div class="mx-auto max-w-7xl space-y-10">
+    {/* Breadcrumb */}
+    <nav aria-label={t(locale, "nav.breadcrumb")} class="text-sm">
+      <ol class="flex items-center gap-1.5 text-on-surface-variant">
+        <li>
+          <a href="/dashboard" class="transition-colors hover:text-on-surface">{t(locale, "dashboard.allServers")}</a>
+        </li>
+        <li role="presentation">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+        </li>
+        <li>
+          <span class="font-medium text-on-surface">{guildName}</span>
+        </li>
+      </ol>
+    </nav>
+
+    {/* Page header */}
+    <div class="space-y-2">
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "nav.channels")}</p>
+      <h1 class="truncate font-heading text-2xl font-extrabold text-on-surface sm:text-4xl">{guildName}</h1>
     </div>
 
-    {
-      fetchError && (
-        <div role="alert" class="flex items-gap gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-          <span>{t(locale, "dashboard.error", { message: fetchError.message })}</span>
+    {/* Deferred: stats + channel table (heavy API calls) */}
+    <GuildChannelContent server:defer guildId={guildId} locale={locale}>
+      <div slot="fallback" class="space-y-10">
+        {/* Skeleton Stats */}
+        <div class="inline-block rounded-2xl bg-surface-container-low p-4 sm:p-6">
+          <Skeleton variant="text" class="mb-2 w-20" />
+          <Skeleton variant="stat" />
         </div>
-      )
-    }
 
-    {
-      actionError && (
-        <div role="alert" class="flex items-center gap-3 rounded-[--radius-sm] border border-destructive bg-destructive/20 p-4 text-sm text-destructive-foreground">
-          <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-          <span>{t(locale, "dashboard.error", { message: actionError.message })}</span>
+        {/* Skeleton Table */}
+        <div class="overflow-hidden rounded-2xl bg-surface-container-low">
+          <div class="flex items-center justify-between px-6 py-5 sm:px-8">
+            <Skeleton variant="text" class="w-32" />
+            <Skeleton variant="text" class="h-9 w-36 rounded-lg" />
+          </div>
+          <div class="space-y-0">
+            {Array.from({ length: 3 }).map(() => (
+              <div class="flex items-center gap-4 border-t border-border/30 px-6 py-4 sm:px-8">
+                <Skeleton variant="avatar" class="h-8 w-8 rounded-lg" />
+                <div class="flex-1 space-y-1.5">
+                  <Skeleton variant="text" class="w-40" />
+                  <Skeleton variant="text" class="w-24 opacity-50" />
+                </div>
+                <div class="flex gap-1">
+                  <Skeleton variant="avatar" class="h-9 w-9 rounded-lg" />
+                  <Skeleton variant="avatar" class="h-9 w-9 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      )
-    }
-
-    <ChannelTable channels={channels} guildId={guildId} />
-
-    {
-      editingChannel && (
-        <ChannelConfigForm
-          channel={editingChannel}
-          creators={[]}
-          guildId={guildId}
-        />
-      )
-    }
+      </div>
+    </GuildChannelContent>
   </div>
 </Dashboard>

@@ -7,12 +7,40 @@
   "description": "여러 방송을 동시에 시청할 수 있습니다. 최대 9개까지 선택 가능합니다.",
   "player": {
     "dragHandle": {
-      "ariaLabel": "{{channelTitle}} 스트림을 드래그하여 이동",
+      "ariaLabel": "{channelTitle} 스트림을 드래그하여 이동",
       "tooltip": "스트림 이동"
     },
+    "close": {
+      "ariaLabel": "스트림 닫기"
+    },
+    "loading": "로딩 중...",
     "error": {
       "title": "로딩 오류",
       "description": "스트림 로딩에 실패했습니다"
+    },
+    "warnings": {
+      "unsupportedPlatform": "지원되지 않는 플랫폼입니다",
+      "autoplayNotSupported": "자동 재생이 지원되지 않습니다"
+    }
+  },
+  "chat": {
+    "header": {
+      "title": "채팅"
+    },
+    "dragHandle": {
+      "tooltip": "채팅을 드래그하여 이동"
+    },
+    "close": {
+      "ariaLabel": "채팅 닫기"
+    },
+    "loading": "채팅 로딩 중...",
+    "error": {
+      "title": "채팅 오류",
+      "description": "채팅 로딩에 실패했습니다"
+    },
+    "noChat": {
+      "title": "채팅 없음",
+      "description": "이 플랫폼에서는 채팅 임베딩을 지원하지 않습니다"
     }
   },
   "viewer": {
@@ -23,11 +51,37 @@
     }
   },
   "layout": {
-    "title": "레이아웃 설정"
+    "title": "레이아웃 설정",
+    "streams-count": "{count}개 스트림",
+    "keyboard-hint": "키보드 단축키: 숫자 키로 레이아웃 전환",
+    "shortcut": "단축키: {key}",
+    "auto": "자동",
+    "single": "싱글",
+    "side-by-side": "가로 배치",
+    "stacked": "세로 배치",
+    "quad": "4분할",
+    "nine": "9분할",
+    "twelve": "12분할",
+    "pip": "화면 속 화면"
   },
   "selector": {
     "title": "스트림 선택",
+    "search": {
+      "placeholder": "스트림 검색...",
+      "ariaLabel": "스트림 검색"
+    },
+    "chat": {
+      "open": "채팅 열기",
+      "close": "채팅 닫기"
+    },
+    "tabs": {
+      "all": "전체",
+      "live": "라이브",
+      "upcoming": "예정"
+    },
+    "noResults": "일치하는 스트림이 없습니다",
     "status": {
+      "live": "LIVE",
       "upcoming": "예정"
     }
   },
@@ -46,15 +100,16 @@
     "placeholder": "스트림 URL을 입력하세요",
     "add": "추가",
     "adding": "추가 중...",
-    "maxStreamsReached": "최대 {{count}}개까지 선택할 수 있습니다",
-    "streamCount": "{{current}}/{{max}} 스트림 선택됨",
+    "addedStreams": "추가된 스트림",
+    "maxStreamsReached": "최대 {count}개까지 선택할 수 있습니다",
+    "streamCount": "{current}/{max} 스트림 선택됨",
     "supportedPlatforms": {
       "title": "지원 플랫폼:",
       "list": "YouTube, Twitch"
     },
     "error": {
       "emptyUrl": "URL을 입력해주세요",
-      "maxStreams": "최대 {{max}}개까지 선택할 수 있습니다",
+      "maxStreams": "최대 {max}개까지 선택할 수 있습니다",
       "unsupportedUrl": "지원하지 않는 URL입니다",
       "alreadyAdded": "이미 추가된 스트림입니다",
       "parseFailed": "URL 분석에 실패했습니다"
@@ -63,17 +118,25 @@
   "controls": {
     "globalVolume": "전체 볼륨",
     "individualVolume": "개별 볼륨",
-    "streamVolume": "{{title}} 볼륨",
+    "streamVolume": "{title} 볼륨",
     "syncMode": "동기화 모드",
+    "play": "재생",
+    "pause": "일시정지",
+    "playAll": "모두 재생",
+    "pauseAll": "모두 일시정지",
+    "mute": "음소거",
+    "unmute": "음소거 해제",
+    "syncToLive": "라이브 동기화",
+    "listenOnlyThis": "이 스트림만 소리 켜기",
     "twitchNote": "※ Twitch 스트림은 수동으로 제어해야 합니다",
     "twitchManual": "Twitch는 수동으로 제어해야 합니다",
     "global": {
-      "playPause": "모두 {{status}}",
-      "mute": "모두 {{status}}"
+      "playPause": "모두 {status}",
+      "mute": "모두 {status}"
     },
     "stream": {
-      "playPause": "{{status}}",
-      "mute": "{{status}}",
+      "playPause": "{status}",
+      "mute": "{status}",
       "setPrimary": "주 스트림으로 설정",
       "fullscreen": "전체화면",
       "pip": "화면 속 화면"
@@ -93,12 +156,12 @@
       "exit": "PiP 종료"
     },
     "sync": {
-      "toggle": "동기화 모드 {{status}}",
+      "toggle": "동기화 모드 {status}",
       "enable": "동기화 모드",
       "syncAll": "모두 동기화"
     },
     "audioMix": {
-      "toggle": "믹스 모드 {{status}}",
+      "toggle": "믹스 모드 {status}",
       "enable": "오디오 믹스",
       "primary": "주 오디오"
     },
@@ -125,5 +188,30 @@
   "controlPanel": {
     "show": "레이아웃 설정 표시",
     "hide": "레이아웃 설정 숨기기"
+  },
+  "share": {
+    "button": "레이아웃 공유",
+    "copied": "공유 URL이 복사되었습니다",
+    "copyFailed": "URL 복사에 실패했습니다"
+  },
+  "immersive": {
+    "enter": "몰입 모드",
+    "exit": "몰입 모드 종료"
+  },
+  "expand": "펼치기",
+  "collapse": "접기",
+  "customLayout": {
+    "save": "레이아웃 저장",
+    "savedLayouts": "저장된 레이아웃",
+    "noStreamsHint": "스트림을 선택한 후 레이아웃을 저장할 수 있습니다",
+    "dialogTitle": "레이아웃 저장",
+    "nameLabel": "레이아웃 이름",
+    "maxHint": "최대 10개까지 저장할 수 있습니다",
+    "saved": "레이아웃이 저장되었습니다",
+    "deleted": "레이아웃이 삭제되었습니다"
+  },
+  "status": {
+    "streamCount": "{count}개의 스트림 선택됨",
+    "noStreams": "스트림이 선택되지 않았습니다"
   }
 }

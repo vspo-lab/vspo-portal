@@ -1,0 +1,70 @@
+---
+import { z } from "zod";
+
+/**
+ * DigitRoll — Animated number counter that rolls digits into place.
+ *
+ * @precondition .digit-roll CSS rules and digit-roll keyframe must be in app.css.
+ * @postcondition Each digit displays a 0-9 strip that scrolls to the target digit.
+ *
+ * Decomposes a number into individual digits, inserts locale-appropriate separators,
+ * and animates each digit with a staggered delay. Animation triggers via [data-visible]
+ * from ScrollReveal parent.
+ *
+ * @example
+ * <DigitRoll value={1234} class="text-2xl font-bold" />
+ */
+const propsSchema = z.object({
+  /** Number to display */
+  value: z.number(),
+  /** Additional CSS classes applied to digit text */
+  class: z.string().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
+
+const { value, class: className = "" } = Astro.props;
+
+const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
+/** Format number with comma separators and split into tokens */
+function toTokens(n: number): Array<{ type: "digit"; value: number; index: number } | { type: "sep"; char: string }> {
+  const formatted = n.toLocaleString("en-US");
+  const tokens: Array<{ type: "digit"; value: number; index: number } | { type: "sep"; char: string }> = [];
+  let digitIndex = 0;
+  for (const char of formatted) {
+    if (char >= "0" && char <= "9") {
+      tokens.push({ type: "digit", value: Number.parseInt(char, 10), index: digitIndex });
+      digitIndex++;
+    } else {
+      tokens.push({ type: "sep", char });
+    }
+  }
+  return tokens;
+}
+
+const tokens = toTokens(value);
+---
+
+<span class:list={["digit-roll", className]}>
+  {/* Screen reader accessible text */}
+  <span class="sr-only">{value.toLocaleString("en-US")}</span>
+  {/* Visual animated digits (hidden from AT) */}
+  <span aria-hidden="true" class="contents">
+    {tokens.map((token) =>
+      token.type === "digit" ? (
+        <span class="digit-slot">
+          <span
+            class="digit-strip"
+            style={`--digit: ${token.value}; --digit-delay: ${token.index * 80}ms`}
+          >
+            {DIGITS.map((d) => (
+              <span>{d}</span>
+            ))}
+          </span>
+        </span>
+      ) : (
+        <span class="digit-sep">{token.char}</span>
+      )
+    )}
+  </span>
+</span>

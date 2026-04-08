@@ -15,23 +15,43 @@ This directory is the Single Source of Truth for implementation guidelines per t
 | Type | Purpose | Primary Tools | Guidelines |
 | --- | --- | --- | --- |
 | Unit | Verify local behavior of functions/domains | Vitest | Fast, pure, minimal side effects |
-| Integration | Verify collaboration across multiple modules | Vitest + real DB | Pass through Repository/UseCase/DB |
-| API | Ensure endpoint contracts and input/output guarantees | Hono testClient + OpenAPI | Hit routes with real implementations |
+| Integration | Verify collaboration across multiple modules | Vitest | Pass through feature modules with real API client |
+| API | Ensure API client contracts and data fetching | Vitest + MockHandler | Validate VSPOApi client and mock data |
 | UI | Verify components from the user's perspective | Vitest + Testing Library | Role-based selection, real DOM focus |
 | VRT | Detect visual regressions | Storybook + Playwright | Stabilize snapshots |
 | E2E | Guarantee entire user flows | Playwright | Verify paths in production-equivalent environments |
 
 ## Coverage Policy
 
-| Target Package | Minimum Coverage | CI Enforced |
+| Target | Minimum Coverage | CI Enforced |
 | --- | --- | --- |
-| `services/api/domain/**` | 60% | Yes |
 | `packages/**` | 60% | Yes |
-| `services/web/shared/lib/**` | 50% | No (recommended) |
+| `service/vspo-schedule/v2/web/` (schedule Container/Presenter) | 100% | No (Codecov informational) |
+| `service/bot-dashboard/` (components/domain/usecase) | 100% | No (Codecov informational) |
 
-- PRs that fall below the threshold will fail in CI
-- Thresholds are raised incrementally (initial settings are conservative)
+- Coverage is uploaded to Codecov per service with separate flags (`web`, `bot-dashboard`)
 - Do not write meaningless tests just for coverage. Achieve coverage naturally through tests that verify behavior
+
+## Current Test Infrastructure
+
+| Service | Framework | UI Testing | Storybook | Config |
+| --- | --- | --- | --- | --- |
+| vspo-schedule/v2/web | Vitest + jsdom | @testing-library/react | Yes (@storybook/nextjs) | `vitest.config.ts` |
+| bot-dashboard | Vitest + Astro Container API | @testing-library/dom | Yes (@storybook/html-vite) | `vitest.config.ts` |
+
+### Test Commands
+
+```bash
+# Schedule (Next.js)
+pnpm --filter vspo-schedule-v2-web test          # Watch mode
+pnpm --filter vspo-schedule-v2-web test:run      # Single run
+pnpm --filter vspo-schedule-v2-web test:coverage # With coverage
+
+# Bot Dashboard (Astro)
+pnpm --filter bot-dashboard test          # Watch mode
+pnpm --filter bot-dashboard test:run      # Single run
+pnpm --filter bot-dashboard test:coverage # With coverage
+```
 
 ## Document Index
 

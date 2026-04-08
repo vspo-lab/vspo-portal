@@ -1,0 +1,40 @@
+---
+import { t } from "~/i18n/dict";
+
+const { locale } = Astro.locals;
+---
+
+<footer class="border-t border-border/50 px-6 py-8">
+  <div class="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
+    <div class="flex items-center gap-2">
+      <span class="font-heading text-lg font-bold tracking-tight text-vspo-purple">{t(locale, "app.name")}</span>
+      <span class="text-xs text-on-surface-variant">{t(locale, "footer.poweredBy")}</span>
+    </div>
+    <nav class="flex items-center gap-4 text-xs text-on-surface-variant" aria-label="Footer">
+      <a
+        href="https://www.vspo-schedule.com/schedule/all"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="underline hover:text-on-surface"
+      >
+        {t(locale, "footer.schedule")}
+      </a>
+      <a
+        href="https://www.vspo-schedule.com/terms"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="underline hover:text-on-surface"
+      >
+        {t(locale, "footer.terms")}
+      </a>
+      <a
+        href="https://www.vspo-schedule.com/privacy-policy"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="underline hover:text-on-surface"
+      >
+        {t(locale, "footer.privacy")}
+      </a>
+    </nav>
+  </div>
+</footer>

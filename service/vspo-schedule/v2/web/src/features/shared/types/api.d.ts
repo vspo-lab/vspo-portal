@@ -2425,6 +2425,7 @@ declare class DiscordService extends RpcTarget {
             | "vspo_all"
             | "general"
             | undefined;
+          selectedMemberIds?: string[] | undefined;
           isInitialAdd?: boolean | undefined;
         }[];
       },
@@ -2455,6 +2456,7 @@ declare class DiscordService extends RpcTarget {
             | "vspo_all"
             | "general"
             | undefined;
+          selectedMemberIds?: string[] | undefined;
           isInitialAdd?: boolean | undefined;
         }[];
       },
@@ -2502,6 +2504,77 @@ declare class DiscordService extends RpcTarget {
     >
   >;
   deleteMessageInChannelEnqueue(channelId: string): Promise<void>;
+  listBotGuildIds(): Promise<
+    _vspo_lab_error.Result<string[], _vspo_lab_error.AppError>
+  >;
+  getBotStats(): Promise<
+    _vspo_lab_error.Result<
+      { guildCount: number; totalMemberCount: number },
+      _vspo_lab_error.AppError
+    >
+  >;
+  listGuildChannels(guildId: string): Promise<
+    _vspo_lab_error.Result<
+      { id: string; name: string; type: number; position: number }[],
+      _vspo_lab_error.AppError
+    >
+  >;
+  checkUserGuildAdmin(
+    userId: string,
+    guildIds: string[],
+  ): Promise<_vspo_lab_error.Result<Record<string, boolean>, _vspo_lab_error.AppError>>;
+  exchangeOAuthCode(params: {
+    code: string;
+    redirectUri: string;
+    codeVerifier?: string;
+  }): Promise<
+    _vspo_lab_error.Result<
+      {
+        access_token: string;
+        refresh_token: string;
+        expires_in: number;
+        token_type: string;
+        scope: string;
+      },
+      _vspo_lab_error.AppError
+    >
+  >;
+  refreshOAuthToken(refreshToken: string): Promise<
+    _vspo_lab_error.Result<
+      {
+        access_token: string;
+        refresh_token: string;
+        expires_in: number;
+        token_type: string;
+        scope: string;
+      },
+      _vspo_lab_error.AppError
+    >
+  >;
+  getOAuthUser(accessToken: string): Promise<
+    _vspo_lab_error.Result<
+      {
+        id: string;
+        username: string;
+        global_name: string | null;
+        avatar: string | null;
+        locale?: string;
+      },
+      _vspo_lab_error.AppError
+    >
+  >;
+  getOAuthUserGuilds(accessToken: string): Promise<
+    _vspo_lab_error.Result<
+      {
+        id: string;
+        name: string;
+        icon: string | null;
+        owner: boolean;
+        permissions: string;
+      }[],
+      _vspo_lab_error.AppError
+    >
+  >;
 }
 declare class EventService extends RpcTarget {
   #private;

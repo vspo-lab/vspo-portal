@@ -1,3 +1,5 @@
+"use client";
+
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
   Avatar,

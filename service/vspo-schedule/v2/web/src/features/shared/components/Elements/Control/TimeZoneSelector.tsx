@@ -1,14 +1,19 @@
+"use client";
+
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import React, { useMemo } from "react";
 import { useTimeZoneContext } from "@/hooks";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { formatDate } from "@/lib/utils";
 
 export const TimeZoneSelector = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { timeZone, setTimeZone } = useTimeZoneContext();
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
 
   const labels = useMemo(() => {
     return Intl.supportedValuesOf("timeZone").reduce<
@@ -47,7 +52,9 @@ export const TimeZoneSelector = () => {
         if (
           formattedTimeZoneOffsets[value] !== formattedTimeZoneOffsets[timeZone]
         ) {
-          router.replace(router.asPath, undefined, { scroll: false });
+          const search = searchParams.toString();
+          const href = search ? `${pathname}?${search}` : pathname;
+          router.replace(href, { scroll: false });
         }
       }}
       options={timeZones}
@@ -95,7 +102,6 @@ const normalizeTimeZone = (s: string) => s.toLowerCase();
 const getTimeZoneLabel = (timeZone: string) => (
   <>
     {timeZone.split("/").map((part, i) => (
-      // biome-ignore lint/suspicious/noArrayIndexKey: Order is stable for timezone parts
       <React.Fragment key={i}>
         {i !== 0 && (
           <>

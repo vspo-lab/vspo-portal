@@ -13,11 +13,11 @@
   },
   "home": {
     "meta": {
-      "title": "$t(common:vspo) Clip Collection",
-      "description": "View clips and highlights from $t(common:vspo) members."
+      "title": "VSPO! Clip Collection",
+      "description": "View clips and highlights from VSPO! members."
     },
     "hero": {
-      "title": "$t(common:vspo) Clip Collection",
+      "title": "VSPO! Clip Collection",
       "subtitle": "Check out YouTube clips, Shorts, and Twitch clips all in one place!",
       "exploreClips": "Explore Clips"
     },
@@ -42,19 +42,19 @@
     "viewMore": "View More"
   },
   "youtubeClips": {
-    "title": "$t(common:vspo) Clips",
-    "description": "View YouTube clips (kirinuki) of $t(common:vspo) members."
+    "title": "VSPO! Clips",
+    "description": "View YouTube clips (kirinuki) of VSPO! members."
   },
   "youtubeShorts": {
-    "title": "$t(common:vspo) Shorts",
-    "description": "View YouTube Shorts videos of $t(common:vspo) members."
+    "title": "VSPO! Shorts",
+    "description": "View YouTube Shorts videos of VSPO! members."
   },
   "twitchClips": {
-    "title":"$t(common:vspo) Twitch Clips",
-    "description": "View Twitch clips of $t(common:vspo) members."
+    "title":"VSPO! Twitch Clips",
+    "description": "View Twitch clips of VSPO! members."
   },
-  "viewCount": "{{views, number}} views",
-  "viewCountLabel": "{{views, number}}+ views",
+  "viewCount": "{views, number} views",
+  "viewCountLabel": "{views, number}+ views",
   "searchDialog": {
     "title": "Clip search",
     "alertMessage": "Only clips less than 1 month old are searchable.",
@@ -72,7 +72,7 @@
       "Apex",
       "Valorant"
     ],
-    "cancel": "$t(common:cancel)",
-    "search": "$t(common:search)"
+    "cancel": "Cancel",
+    "search": "Search"
   }
 }

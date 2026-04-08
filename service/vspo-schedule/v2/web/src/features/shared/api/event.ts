@@ -1,3 +1,4 @@
+import "server-only";
 import { type ListEvents200EventsItem, VSPOApi } from "@vspo-lab/api";
 import type { BaseError, Result } from "@vspo-lab/error";
 import { AppError, wrap } from "@vspo-lab/error";

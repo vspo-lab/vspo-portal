@@ -1,8 +1,6 @@
 export const DEFAULT_LOCALE = "ja";
 export const DEFAULT_TIME_ZONE = "Asia/Tokyo";
 
-export const LOCALE_COOKIE = "NEXT_LOCALE";
-
 export const TIME_ZONE_COOKIE = "time-zone";
 export const SESSION_ID_COOKIE = "x-session-id";
 

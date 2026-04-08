@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Chip,
@@ -10,18 +12,18 @@ import {
   TableRow,
   Toolbar,
 } from "@mui/material";
-import Link from "next/link";
-import type { TFunction } from "next-i18next";
+import type { useTranslations } from "next-intl";
 import type * as React from "react";
 import { Breadcrumb } from "@/features/shared/components/Elements";
-import type { SiteNewsMarkdownItem } from "@/lib/markdown";
+import { Link } from "@/i18n/navigation";
+import type { SiteNewsMarkdownItem } from "@/lib/markdown.types";
 import { formatDate, getSiteNewsTagColor } from "@/lib/utils";
 import type { SiteNewsTag } from "@/types/site-news";
 
 type SiteNewsPagePresenterProps = {
   siteNewsItems: SiteNewsMarkdownItem[];
   locale: string;
-  t: TFunction;
+  t: ReturnType<typeof useTranslations>;
 };
 
 export const SiteNewsPagePresenter: React.FC<SiteNewsPagePresenterProps> = ({
@@ -80,7 +82,7 @@ export const SiteNewsPagePresenter: React.FC<SiteNewsPagePresenterProps> = ({
             {siteNewsItems.map((siteNewsItem) => (
               <TableRow key={siteNewsItem.id}>
                 <TableCell sx={{ fontSize: "16px", padding: "24px" }}>
-                  <Link href={`/site-news/${siteNewsItem.id}`} passHref>
+                  <Link href={`/site-news/${siteNewsItem.id}`}>
                     <Box sx={{ textDecoration: "none", color: "inherit" }}>
                       {siteNewsItem.title}
                     </Box>

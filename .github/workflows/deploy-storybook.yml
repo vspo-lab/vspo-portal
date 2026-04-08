@@ -1,0 +1,93 @@
+name: Deploy Storybook
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'service/vspo-schedule/v2/web/.storybook/**'
+      - 'service/vspo-schedule/v2/web/src/**/*.stories.ts'
+      - 'service/vspo-schedule/v2/web/src/**/*.stories.tsx'
+      - 'service/vspo-schedule/v2/web/src/**/components/**'
+      - 'service/vspo-schedule/v2/web/wrangler.storybook.jsonc'
+      - 'service/bot-dashboard/.storybook/**'
+      - 'service/bot-dashboard/src/**/*.stories.ts'
+      - 'service/bot-dashboard/src/**/components/**'
+      - 'service/bot-dashboard/src/app.css'
+      - 'service/bot-dashboard/wrangler.storybook.jsonc'
+      - 'packages/**'
+      - '.github/workflows/deploy-storybook.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-bot-dashboard-storybook:
+    name: Build & Deploy Bot Dashboard Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: storybook-development
+    outputs:
+      url: ${{ steps.get-url.outputs.url }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+
+      - name: Build packages
+        run: pnpm turbo build --filter='./packages/*'
+
+      - name: Build Storybook
+        working-directory: service/bot-dashboard
+        run: pnpm storybook:build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          wranglerVersion: '4.76.0'
+          workingDirectory: service/bot-dashboard
+          command: deploy --config wrangler.storybook.jsonc
+          quiet: true
+
+      - name: Get deployed URL
+        id: get-url
+        run: echo "url=https://storybook-bot.vspo-schedule.com" >> "$GITHUB_OUTPUT"
+
+  deploy-vspo-schedule-storybook:
+    name: Build & Deploy vspo-schedule Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: deploy-bot-dashboard-storybook
+    environment: storybook-development
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+
+      - name: Build packages
+        run: pnpm turbo build --filter='./packages/*'
+
+      - name: Build Storybook
+        working-directory: service/vspo-schedule/v2/web
+        run: pnpm storybook:build
+        env:
+          STORYBOOK_BOT_DASHBOARD_URL: ${{ needs.deploy-bot-dashboard-storybook.outputs.url }}
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: pnpm
+          wranglerVersion: '4.76.0'
+          workingDirectory: service/vspo-schedule/v2/web
+          command: deploy --config wrangler.storybook.jsonc
+          quiet: true
+        env:
+          OPEN_NEXT_DEPLOY: 'true'

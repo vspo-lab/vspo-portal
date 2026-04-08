@@ -7,3 +7,9 @@ pre-commit:
       run: pnpm biome:check
     knip:
       run: pnpm knip
+    textlint:
+      glob: "*.md"
+      run: pnpm textlint
+    markdownlint:
+      glob: "*.md"
+      run: pnpm markdownlint

@@ -1,55 +1,21 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bot-dashboard",
+  "name": "dev-bot-dashboard",
+  "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
   },
-
-  /**
-   * Environments
-   * Non-inheritable keys (vars, kv_namespaces, services) must be defined per env.
-   * https://developers.cloudflare.com/workers/wrangler/environments
-   */
-  "env": {
-    "dev": {
-      // kv_namespaces: [{ "binding": "SESSION", "id": "<create via: wrangler kv namespace create SESSION>" }]
-      "name": "dev-bot-dashboard",
-      "routes": [
-        { "pattern": "dev-discord.vspo-schedule.com", "custom_domain": true }
-      ],
-      "services": [
-        {
-          "binding": "APP_WORKER",
-          "service": "dev-vspo-portal-app",
-          "entrypoint": "ApplicationService"
-        }
-      ],
-      /** Secrets (DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI) should be set via `wrangler secret put --env dev|prd` */
-      "vars": {
-        "DISCORD_CLIENT_ID": "",
-        "DISCORD_BOT_CLIENT_ID": ""
-      }
-    },
-    "prd": {
-      // kv_namespaces: [{ "binding": "SESSION", "id": "<create via: wrangler kv namespace create SESSION>" }]
-      "name": "prd-bot-dashboard",
-      "routes": [
-        { "pattern": "discord.vspo-schedule.com", "custom_domain": true }
-      ],
-      "services": [
-        {
-          "binding": "APP_WORKER",
-          "service": "prd-vspo-portal-app",
-          "entrypoint": "ApplicationService"
-        }
-      ],
-      /** Secrets (DISCORD_CLIENT_SECRET, DISCORD_REDIRECT_URI) should be set via `wrangler secret put --env dev|prd` */
-      "vars": {
-        "DISCORD_CLIENT_ID": "",
-        "DISCORD_BOT_CLIENT_ID": ""
-      }
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "dev-discord.vspo-schedule.com", "custom_domain": true }
+  ],
+  "services": [
+    {
+      "binding": "APP_WORKER",
+      "service": "dev-vspo-portal-app",
+      "entrypoint": "ApplicationService"
     }
-  }
+  ]
 }

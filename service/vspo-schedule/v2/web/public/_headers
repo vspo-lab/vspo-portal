@@ -1,0 +1,7 @@
+# Immutable cache for hashed static assets (JS, CSS, media)
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Short cache for locale JSON files (revalidate on deploy)
+/locales/*
+  Cache-Control: public, max-age=3600, s-maxage=86400

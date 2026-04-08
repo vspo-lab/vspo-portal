@@ -10,18 +10,18 @@
   "description": "",
   "keywords": [],
   "scripts": {
-    "build": "tsup",
-    "generate-openapi": "orval --input ../../service/server/docs/openapi.json --output ./src/gen/openapi.ts"
+    "build": "tsup && tsc --emitDeclarationOnly",
+    "generate-openapi": "orval"
   },
   "author": "sugar-cat7",
   "license": "MIT",
   "devDependencies": {
-    "orval": "^7.21.0",
+    "@types/node": "catalog:",
+    "orval": "^8.0.0",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },
   "dependencies": {
-    "@vspo-lab/error": "workspace:^",
-    "axios": "^1.13.6"
+    "@vspo-lab/error": "workspace:^"
   }
 }

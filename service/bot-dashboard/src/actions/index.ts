@@ -2,7 +2,13 @@ import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro:schema";
 import { env } from "cloudflare:workers";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
-import { ToggleChannelUsecase } from "~/features/channel/usecase/toggle-channel";
+import { AddChannelUsecase } from "~/features/channel/usecase/add-channel";
+import { DeleteChannelUsecase } from "~/features/channel/usecase/delete-channel";
+
+/** Discord Snowflake ID: 17-20 digit numeric string */
+const snowflake = z
+  .string()
+  .regex(/^\d{17,20}$/, "Invalid Discord Snowflake ID");
 
 /** Throws UNAUTHORIZED if user is not authenticated */
 const requireAuth = (context: { locals: { user: unknown } }) => {
@@ -11,12 +17,46 @@ const requireAuth = (context: { locals: { user: unknown } }) => {
   }
 };
 
+/** Unwrap a Result or throw an ActionError */
+const unwrapOrThrow = <T>(result: {
+  err?: { message: string } | null;
+  val?: T;
+}): T => {
+  if (result.err) {
+    throw new ActionError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: result.err.message,
+    });
+  }
+  return result.val as T;
+};
+
 export const server = {
-  updateChannel: defineAction({
-    accept: "form",
+  addChannel: defineAction({
+    accept: "json",
     input: z.object({
-      guildId: z.string(),
-      channelId: z.string(),
+      guildId: snowflake,
+      channelId: snowflake,
+    }),
+    handler: async (input, context) => {
+      requireAuth(context);
+
+      const result = await AddChannelUsecase.execute({
+        appWorker: env.APP_WORKER,
+        guildId: input.guildId,
+        channelId: input.channelId,
+      });
+
+      unwrapOrThrow(result);
+      return { success: true as const };
+    },
+  }),
+
+  updateChannel: defineAction({
+    accept: "json",
+    input: z.object({
+      guildId: snowflake,
+      channelId: snowflake,
       language: z.string(),
       memberType: z.enum(["vspo_jp", "vspo_en", "all", "custom"]),
       customMemberIds: z.array(z.string()).optional(),
@@ -35,38 +75,49 @@ export const server = {
         },
       );
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
+      unwrapOrThrow(result);
+      return { success: true as const };
     },
   }),
 
-  toggleChannel: defineAction({
-    accept: "form",
+  resetChannel: defineAction({
+    accept: "json",
     input: z.object({
-      guildId: z.string(),
-      channelId: z.string(),
-      enable: z.coerce.boolean(),
+      guildId: snowflake,
+      channelId: snowflake,
     }),
     handler: async (input, context) => {
       requireAuth(context);
 
-      const result = await ToggleChannelUsecase.execute({
+      const result = await VspoChannelApiRepository.updateChannel(
+        env.APP_WORKER,
+        input.guildId,
+        input.channelId,
+        { language: "default", memberType: "all", customMembers: [] },
+      );
+
+      unwrapOrThrow(result);
+      return { success: true as const };
+    },
+  }),
+
+  deleteChannel: defineAction({
+    accept: "json",
+    input: z.object({
+      guildId: snowflake,
+      channelId: snowflake,
+    }),
+    handler: async (input, context) => {
+      requireAuth(context);
+
+      const result = await DeleteChannelUsecase.execute({
         appWorker: env.APP_WORKER,
         guildId: input.guildId,
         channelId: input.channelId,
-        enable: input.enable,
       });
 
-      if (result.err) {
-        throw new ActionError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: result.err.message,
-        });
-      }
+      unwrapOrThrow(result);
+      return { success: true as const };
     },
   }),
 };

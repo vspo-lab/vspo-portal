@@ -1,0 +1,399 @@
+import { act, render, screen } from "@testing-library/react";
+import type React from "react";
+import { DateSearchDialogContainer } from "./DateSearchDialogContainer";
+
+// ---------------------------------------------------------------------------
+// Mocks
+// ---------------------------------------------------------------------------
+const mockPush = vi.fn();
+let mockSearchParams = new URLSearchParams();
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+  usePathname: () => "/schedule/all",
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => mockSearchParams,
+}));
+
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
+const mockSaveFavorite = vi.fn();
+const mockDeleteFavorite = vi.fn();
+let mockFavorite: {
+  memberType: string;
+  platform: string;
+  createdAt: string;
+} | null = null;
+let mockHasFavorite = false;
+
+vi.mock("../../../hooks/useFavoriteSearchConditions", () => ({
+  useFavoriteSearchCondition: () => ({
+    favorite: mockFavorite,
+    saveFavorite: mockSaveFavorite,
+    deleteFavorite: mockDeleteFavorite,
+    hasFavorite: mockHasFavorite,
+  }),
+}));
+
+// Capture props passed to the presentational DateSearchDialog
+let capturedDialogProps: Record<string, unknown> = {};
+
+vi.mock("./DateSearchDialog", () => ({
+  DateSearchDialog: (props: Record<string, unknown>) => {
+    capturedDialogProps = props;
+    if (!props.open) return null;
+    return (
+      <div data-testid="date-search-dialog">
+        <span data-testid="search-enabled">
+          {String(props.isSearchEnabled)}
+        </span>
+        <span data-testid="date-input-value">
+          {props.dateInputValue as string}
+        </span>
+        <button
+          type="button"
+          data-testid="submit-btn"
+          onClick={props.onSubmit as () => void}
+          disabled={!(props.isSearchEnabled as boolean)}
+        />
+        <button
+          type="button"
+          data-testid="clear-btn"
+          onClick={props.onClear as () => void}
+        />
+        <button
+          type="button"
+          data-testid="close-btn"
+          onClick={props.onClose as () => void}
+        />
+        <button
+          type="button"
+          data-testid="save-favorite-btn"
+          onClick={props.onSaveFavorite as () => void}
+        />
+        <button
+          type="button"
+          data-testid="delete-favorite-btn"
+          onClick={props.onDeleteFavorite as () => void}
+        />
+        <button
+          type="button"
+          data-testid="load-favorite-btn"
+          onClick={props.onLoadFavorite as () => void}
+        />
+      </div>
+    );
+  },
+}));
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+const mockOnClose = vi.fn();
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+describe("DateSearchDialogContainer", () => {
+  beforeEach(() => {
+    mockSearchParams = new URLSearchParams();
+    capturedDialogProps = {};
+    mockOnClose.mockClear();
+    mockPush.mockClear();
+    mockFavorite = null;
+    mockHasFavorite = false;
+  });
+
+  it("renders dialog when open=true", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    expect(screen.getByTestId("date-search-dialog")).toBeInTheDocument();
+  });
+
+  it("does not render dialog when open=false", () => {
+    render(<DateSearchDialogContainer open={false} onClose={mockOnClose} />);
+
+    expect(screen.queryByTestId("date-search-dialog")).not.toBeInTheDocument();
+  });
+
+  it("search button is disabled initially (no filters applied)", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    expect(screen.getByTestId("search-enabled")).toHaveTextContent("false");
+    expect(screen.getByTestId("submit-btn")).toBeDisabled();
+  });
+
+  it("calls onClose and navigates on clear", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("clear-btn").click();
+    });
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith("/schedule/all");
+  });
+
+  it("passes onClose through to dialog", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("close-btn").click();
+    });
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("initializes form data from query parameters", () => {
+    mockSearchParams = new URLSearchParams(
+      "date=2024-06-15&memberType=vspo_jp&platform=youtube",
+    );
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    // The date should be formatted and the form data populated
+    expect(capturedDialogProps.dateInputValue).toBe("2024-06-15");
+    const formData = capturedDialogProps.formData as {
+      memberType: string;
+      platform: string;
+    };
+    expect(formData.memberType).toBe("vspo_jp");
+    expect(formData.platform).toBe("youtube");
+  });
+
+  it("enables search when date query param is present", () => {
+    mockSearchParams = new URLSearchParams("date=2024-06-15");
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    expect(screen.getByTestId("search-enabled")).toHaveTextContent("true");
+  });
+
+  it("invokes saveFavorite on save button click", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("save-favorite-btn").click();
+    });
+
+    expect(mockSaveFavorite).toHaveBeenCalledWith({
+      memberType: "vspo_all",
+      platform: "",
+    });
+  });
+
+  it("invokes deleteFavorite on delete button click", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("delete-favorite-btn").click();
+    });
+
+    expect(mockDeleteFavorite).toHaveBeenCalledTimes(1);
+  });
+
+  it("handles date input change via onDateInputChange", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    const handler = capturedDialogProps.onDateInputChange as (
+      e: React.ChangeEvent<HTMLInputElement>,
+    ) => void;
+
+    act(() => {
+      handler({
+        target: { value: "2024-03-20" },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    // After changing, the date input value should reflect the new value
+    expect(capturedDialogProps.dateInputValue).toBe("2024-03-20");
+    expect(capturedDialogProps.isSearchEnabled).toBe(true);
+  });
+
+  it("clears selectedDate when date input is emptied", () => {
+    mockSearchParams = new URLSearchParams("date=2024-06-15");
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    const handler = capturedDialogProps.onDateInputChange as (
+      e: React.ChangeEvent<HTMLInputElement>,
+    ) => void;
+
+    act(() => {
+      handler({
+        target: { value: "" },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    expect(capturedDialogProps.dateInputValue).toBe("");
+    // With no date, no memberType change, no platform => search disabled
+    expect(capturedDialogProps.isSearchEnabled).toBe(false);
+  });
+
+  it("submit navigates with query params and calls onClose", () => {
+    mockSearchParams = new URLSearchParams("date=2024-06-15");
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("submit-btn").click();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining("/schedule/all?date=2024-06-15"),
+    );
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("submit includes memberType in query when not vspo_all", () => {
+    mockSearchParams = new URLSearchParams(
+      "date=2024-06-15&memberType=vspo_jp",
+    );
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("submit-btn").click();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining("memberType=vspo_jp"),
+    );
+  });
+
+  it("submit includes platform in query when set", () => {
+    mockSearchParams = new URLSearchParams("date=2024-06-15&platform=youtube");
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("submit-btn").click();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining("platform=youtube"),
+    );
+  });
+
+  it("handleLoadFavorite navigates and closes when favorite exists", () => {
+    mockFavorite = {
+      memberType: "vspo_jp",
+      platform: "youtube",
+      createdAt: "2024-01-15",
+    };
+    mockHasFavorite = true;
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("load-favorite-btn").click();
+    });
+
+    expect(mockPush).toHaveBeenCalledWith("/schedule/all");
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("handleLoadFavorite does nothing when no favorite exists", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    act(() => {
+      screen.getByTestId("load-favorite-btn").click();
+    });
+
+    // No navigation because favorite is null
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it("handles memberType change via onMemberTypeChange", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    const handler = capturedDialogProps.onMemberTypeChange as (event: {
+      target: { value: string };
+    }) => void;
+
+    act(() => {
+      handler({ target: { value: "vspo_jp" } });
+    });
+
+    const formData = capturedDialogProps.formData as {
+      memberType: string;
+    };
+    expect(formData.memberType).toBe("vspo_jp");
+  });
+
+  it("handles platform change via onPlatformChange", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    const handler = capturedDialogProps.onPlatformChange as (event: {
+      target: { value: string };
+    }) => void;
+
+    act(() => {
+      handler({ target: { value: "youtube" } });
+    });
+
+    const formData = capturedDialogProps.formData as {
+      platform: string;
+    };
+    expect(formData.platform).toBe("youtube");
+  });
+
+  it("ignores invalid date query param (NaN branch)", () => {
+    mockSearchParams = new URLSearchParams("date=invalid-date-string");
+
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    // Invalid date should not populate dateInputValue or enable search
+    expect(capturedDialogProps.dateInputValue).toBe("");
+    expect(capturedDialogProps.isSearchEnabled).toBe(false);
+  });
+
+  it("sets selectedDate to null when invalid date string is entered", () => {
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    const handler = capturedDialogProps.onDateInputChange as (
+      e: React.ChangeEvent<HTMLInputElement>,
+    ) => void;
+
+    act(() => {
+      handler({
+        target: { value: "not-a-date" },
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    expect(capturedDialogProps.dateInputValue).toBe("not-a-date");
+    // Invalid date should not enable search
+    expect(capturedDialogProps.isSearchEnabled).toBe(false);
+  });
+
+  it("submit without selectedDate omits date from query", () => {
+    // No date query param, but set memberType via handler
+    render(<DateSearchDialogContainer open={true} onClose={mockOnClose} />);
+
+    const memberTypeHandler =
+      capturedDialogProps.onMemberTypeChange as (event: {
+        target: { value: string };
+      }) => void;
+
+    act(() => {
+      memberTypeHandler({ target: { value: "vspo_jp" } });
+    });
+
+    // Now submit -- selectedDate is null, but memberType is set
+    act(() => {
+      screen.getByTestId("submit-btn").click();
+    });
+
+    const calledUrl = mockPush.mock.calls[0][0] as string;
+    expect(calledUrl).toContain("memberType=vspo_jp");
+    expect(calledUrl).not.toContain("date=");
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+});

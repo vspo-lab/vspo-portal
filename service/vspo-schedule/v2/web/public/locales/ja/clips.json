@@ -42,19 +42,19 @@
     "viewMore": "もっと見る"
   },
   "youtubeClips": {
-    "title": "$t(common:vspo)切り抜き一覧",
-    "description": "$t(common:vspo)メンバーの切り抜き動画をまとめています。"
+    "title": "ぶいすぽっ！切り抜き一覧",
+    "description": "ぶいすぽっ！メンバーの切り抜き動画をまとめています。"
   },
   "youtubeShorts": {
-    "title": "$t(common:vspo)ショート動画一覧",
-    "description": "$t(common:vspo)メンバーのショート動画をまとめています。"
+    "title": "ぶいすぽっ！ショート動画一覧",
+    "description": "ぶいすぽっ！メンバーのショート動画をまとめています。"
   },
   "twitchClips": {
-    "title": "$t(common:vspo)クリップ一覧",
-    "description": "$t(common:vspo)メンバーのTwitchクリップをまとめています。"
+    "title": "ぶいすぽっ！クリップ一覧",
+    "description": "ぶいすぽっ！メンバーのTwitchクリップをまとめています。"
   },
-  "viewCount": "{{views, number}}回",
-  "viewCountLabel": "{{views, number}}以上",
+  "viewCount": "{views, number}回",
+  "viewCountLabel": "{views, number}以上",
   "searchDialog": {
     "title": "詳細検索",
     "alertMessage": "現在1ヶ月以上前の切り抜きは検索できません。",
@@ -75,7 +75,7 @@
       "Valorant",
       "雑談"
     ],
-    "cancel": "$t(common:cancel)",
-    "search": "$t(common:search)"
+    "cancel": "キャンセル",
+    "search": "検索"
   }
 }

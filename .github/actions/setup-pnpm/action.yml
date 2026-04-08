@@ -1,18 +1,29 @@
 name: 'Setup PNPM'
-description: 'Setup Node.js and PNPM'
+description: 'Setup Node.js and PNPM with optional build step'
+inputs:
+  build:
+    description: 'Run pnpm build after install'
+    required: false
+    default: 'true'
 runs:
   using: 'composite'
   steps:
-    - name: Set up pnpm
-      uses: pnpm/action-setup@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v6
       with:
-        version: 10.28.0
+        node-version: '24'
+
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v5
+      with:
+        version: 10.33.0
         run_install: false
 
     - name: Download deps
       shell: bash
-      run: pnpm install 
+      run: pnpm install
 
-    - name: package build
+    - name: Package build
+      if: inputs.build == 'true'
       shell: bash
       run: pnpm build

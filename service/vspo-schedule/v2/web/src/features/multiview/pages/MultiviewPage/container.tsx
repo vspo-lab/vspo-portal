@@ -1,6 +1,6 @@
-import { ContentLayout } from "@/features/shared/components/Layout";
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
-import { NextPageWithLayout } from "@/pages/_app";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 
 import { MultiviewErrorBoundary } from "../../components/containers";
@@ -19,17 +19,13 @@ import {
 } from "../../utils/stateManager";
 import { Presenter } from "./presenter";
 
-export type MultiviewPageProps = {
+export type MultiviewPageContainerProps = {
   livestreams: Livestream[];
   lastUpdateTimestamp: number;
-  meta: {
-    title: string;
-    description: string;
-  };
 };
 
 // Container component (page logic)
-export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
+export const MultiviewPageContainer: React.FC<MultiviewPageContainerProps> = (
   props,
 ) => {
   const [selectedStreams, setSelectedStreams] = useState<Livestream[]>([]);
@@ -221,21 +217,5 @@ export const MultiviewPage: NextPageWithLayout<MultiviewPageProps> = (
         />
       </PlaybackProvider>
     </MultiviewErrorBoundary>
-  );
-};
-
-// Layout configuration
-MultiviewPage.getLayout = (page, pageProps) => {
-  return (
-    <ContentLayout
-      title={pageProps.meta.title}
-      description={pageProps.meta.description}
-      lastUpdateTimestamp={pageProps.lastUpdateTimestamp}
-      path="/multiview"
-      padTop={false}
-      maxPageWidth={false}
-    >
-      {page}
-    </ContentLayout>
   );
 };

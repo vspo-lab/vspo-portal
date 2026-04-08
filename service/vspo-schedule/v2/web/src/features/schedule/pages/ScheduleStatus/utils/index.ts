@@ -1,4 +1,4 @@
-import { utcToZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 import type { Livestream } from "@/features/shared/domain/livestream";
 
 // Time blocks for grouping livestreams
@@ -31,7 +31,7 @@ export const groupLivestreamsByTimeBlock = (
       }
 
       // Convert UTC time to user's timezone
-      const startTimeInUserTZ = utcToZonedTime(
+      const startTimeInUserTZ = toZonedTime(
         livestream.scheduledStartTime,
         timeZone,
       );

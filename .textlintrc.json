@@ -11,8 +11,12 @@
       "no-exclamation-question-mark": false,
       "no-mix-dearu-desumasu": false,
       "ja-no-successive-word": false,
-      "no-doubled-joshi": false,
-      "ja-no-redundant-expression": false
-    }
+      "no-doubled-joshi": true,
+      "ja-no-redundant-expression": true,
+      "no-double-negative-ja": true,
+      "no-dropping-the-ra": true,
+      "no-hankaku-kana": true
+    },
+    "common-misspellings": true
   }
 }

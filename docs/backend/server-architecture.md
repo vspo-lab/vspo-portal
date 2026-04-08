@@ -2,24 +2,24 @@
 
 ## Overview
 
-vspo-portal is a **Next.js 15 App Router frontend** deployed on **Cloudflare Workers** via the OpenNext adapter. There is no backend server in this repository. The application consumes an external REST API through the `@vspo-lab/api` package, which provides an OpenAPI-generated client.
+vspo-portal is a **Next.js 16 App Router frontend** deployed on **Cloudflare Workers** via the OpenNext adapter. There is no backend server in this repository. The application consumes an external REST API through Cloudflare Workers Service Binding (`APP_WORKER`) or the `@vspo-lab/api` client as fallback.
 
-The architecture follows a "frontend-only" model: Server Components fetch data from the external API at request time, and the rendered HTML is delivered to the client. All business logic and data persistence reside in the external API service.
+The architecture follows a "frontend-only" model: async Server Components fetch data from the external API at request time, and the rendered HTML is streamed to the client via Suspense. All business logic and data persistence reside in the external API service.
 
 ---
 
 ## System Architecture
 
-```
+```text
 ┌───────────────────────────────────────────────────────────┐
 │                    Cloudflare Workers                       │
 │                                                             │
 │  ┌───────────────────────────────────────────────────────┐ │
-│  │              Next.js 15 App Router                     │ │
+│  │              Next.js 16 App Router                      │ │
 │  │                                                       │ │
-│  │  Server Components ─── @vspo-lab/api ──── External   │ │
-│  │  Client Components     (Axios + Retry)     REST API  │ │
-│  │  Route Handlers                                       │ │
+│  │  Async Server Components ── APP_WORKER ── External    │ │
+│  │  Suspense Streaming         (Service Binding)  API   │ │
+│  │  ISR / force-dynamic        @vspo-lab/api (fallback) │ │
 │  └───────────────────────────────────────────────────────┘ │
 └───────────────────────────────────────────────────────────┘
 ```
@@ -27,86 +27,22 @@ The architecture follows a "frontend-only" model: Server Components fetch data f
 Key points:
 
 - **No backend logic** lives in this repository. No database, no ORM, no DI container.
-- **Server Components** call the external API directly via `VSPOApi`.
+- **Async Server Components** fetch data via Cloudflare Workers Service Binding (`APP_WORKER`) or `VSPOApi` REST client as fallback.
 - **Cloudflare Access** headers authenticate requests to the external API.
 - **OpenNext adapter** bridges Next.js to the Cloudflare Workers runtime.
 
 ---
 
-## Package Structure
+## Internal Packages
 
-### `packages/api/` -- OpenAPI-Generated Client (Orval)
+Four shared packages under `packages/`. See [Shared Packages](../packages/README.md) for full API reference.
 
-The API client is auto-generated from an OpenAPI specification using Orval. It provides the `VSPOApi` class, which exposes entity-specific getters for each API domain.
-
-```typescript
-import { VSPOApi } from "@vspo-lab/api";
-
-const api = new VSPOApi({
-  apiKey: "...",
-  cfAccessClientId: "...",
-  cfAccessClientSecret: "...",
-  sessionId: "...",
-  baseUrl: "https://api.example.com",
-  retry: { attempts: 3, backoffMs: 1000 },
-});
-
-// Entity-specific getters
-const streamsResult = await api.streams.list({ status: "live" });
-const creatorsResult = await api.creators.getById("creator-id");
-const clipsResult = await api.clips.list({ limit: 20 });
-const eventsResult = await api.events.list({});
-const freechatsResult = await api.freechats.list({});
-```
-
-Entity getters:
-
-| Getter | Domain |
-|--------|--------|
-| `.streams` | Live streams, scheduled streams, archives |
-| `.creators` | VTuber / creator profiles |
-| `.clips` | Clip videos |
-| `.events` | Events and announcements |
-| `.freechats` | Free chat streams |
-
-### `packages/errors/` -- Result Type and AppError
-
-Provides the `Result<T, AppError>` discriminated union for explicit error handling. Application code must never use `try-catch`.
-
-```typescript
-import { Ok, Err, AppError, wrap } from "@vspo-lab/error";
-
-// AppError structure
-type AppError = {
-  code: string;
-  message: string;
-  status: number;
-  retry: boolean;
-  cause?: unknown;
-};
-
-// Result is a discriminated union
-type Result<T, E> = { ok: true; val: T } | { ok: false; err: E };
-```
-
-### `packages/dayjs/` -- UTC-First Date Utilities
-
-Wraps dayjs with UTC-first conventions. All date operations default to UTC, and localized formatting is available per language code.
-
-```typescript
-import { convertToUTC, formatToLocalizedDate } from "@vspo-lab/dayjs";
-```
-
-### `packages/logging/` -- Structured Logging
-
-Provides structured logging with `AsyncLocalStorage` for automatic `requestId` propagation across the request lifecycle.
-
-```typescript
-import { logger } from "@vspo-lab/logging";
-
-logger.info("Fetching streams", { count: 10 });
-// Output includes requestId from AsyncLocalStorage context
-```
+| Package | Purpose |
+|---------|---------|
+| `@vspo-lab/api` | OpenAPI-generated client (`VSPOApi`) with retry and mock support |
+| `@vspo-lab/error` | `Result<T, AppError>` type -- no try-catch |
+| `@vspo-lab/dayjs` | UTC-first date utilities |
+| `@vspo-lab/logging` | Structured logging with `AsyncLocalStorage` context |
 
 ---
 
@@ -114,37 +50,40 @@ logger.info("Fetching streams", { count: 10 });
 
 The primary data flow for a page render:
 
-```
+```text
 1. User requests a page
 2. Cloudflare Workers invokes Next.js App Router
-3. Server Component calls VSPOApi method
-4. VSPOApi sends HTTP request to external API
-   - Includes CF-Access headers for authentication
-   - Includes x-session-id header for session tracking
-   - Axios handles the HTTP transport
-5. External API returns JSON response
-6. VSPOApi wraps response in Result<T, AppError>
-7. Server Component checks result.ok
-   - If true: renders data
-   - If false: renders error state
-8. HTML is returned to the client
+3. Async Server Component calls shared API function
+4. API function checks for Cloudflare environment:
+   a. If available: calls APP_WORKER service binding (worker-to-worker RPC)
+   b. If not: calls external API via VSPOApi REST client
+5. External API returns response
+6. Result is wrapped in Result<T, AppError>
+7. Server Component checks result.err
+   - If err: returns fallback UI
+   - Otherwise: passes data to Client Component as props
+8. HTML is streamed to the client via Suspense
 ```
 
-Example in a Server Component:
+Example in an async Server Component:
 
 ```typescript
-// app/schedule/page.tsx (Server Component)
-import { createApi } from "@/lib/api";
+// app/[locale]/(content)/schedule/[status]/page.tsx
+export const dynamic = "force-dynamic";
 
-export default async function SchedulePage() {
-  const api = createApi();
-  const result = await api.streams.list({ status: "scheduled" });
+async function ScheduleContent({ locale, status }: Props) {
+  const schedule = await fetchSchedule({ locale, status });
+  return <ScheduleStatusContainer livestreams={schedule.livestreams || []} />;
+}
 
-  if (!result.ok) {
-    return <ErrorDisplay error={result.err} />;
-  }
-
-  return <ScheduleList streams={result.val} />;
+export default async function SchedulePage({ params }: { params: Promise<...> }) {
+  return (
+    <ContentLayout title={title} path={`/schedule/${status}`}>
+      <Suspense fallback={<ScheduleSkeleton />}>
+        <ScheduleContent locale={locale} status={status} />
+      </Suspense>
+    </ContentLayout>
+  );
 }
 ```
 
@@ -163,13 +102,13 @@ The `VSPOApi` class accepts the following configuration:
 | `cfAccessClientSecret` | `string` | Cloudflare Access Service Token client secret |
 | `sessionId` | `string` | Session ID for request tracking |
 | `baseUrl` | `string` | Base URL of the external API |
-| `retry` | `{ attempts: number; backoffMs: number }` | Retry configuration |
+| `retry` | `{ attempts?: number; backoff?: (retryCount: number) => number }` | Retry configuration |
 
 ### Request Headers
 
 Every API request includes the following headers:
 
-```
+```text
 CF-Access-Client-Id: <cfAccessClientId>
 CF-Access-Client-Secret: <cfAccessClientSecret>
 x-api-key: <apiKey>
@@ -199,117 +138,17 @@ All entity methods return `Promise<Result<T, AppError>>`:
 ```typescript
 const result = await api.streams.list(params);
 
-if (result.ok) {
-  const streams = result.val; // T -- the typed response data
-} else {
+if (result.err) {
   const error = result.err;  // AppError -- structured error
   console.error(error.message, { code: error.code, status: error.status });
+} else {
+  const streams = result.val; // T -- the typed response data
 }
 ```
 
----
-
-## Error Handling
-
-### Result<T, AppError> Pattern
-
-All fallible operations return `Result<T, AppError>` instead of throwing exceptions.
-
-```typescript
-// Checking results
-const result = await api.creators.getById(id);
-
-if (!result.ok) {
-  // Handle error -- result.err is AppError
-  logger.error("Failed to fetch creator", {
-    code: result.err.code,
-    message: result.err.message,
-    status: result.err.status,
-  });
-  return;
-}
-
-// Safe to access result.val
-const creator = result.val;
-```
-
-### AppError Properties
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `code` | `string` | Machine-readable error code (e.g., `"NOT_FOUND"`, `"INTERNAL_SERVER_ERROR"`) |
-| `message` | `string` | Human-readable error description |
-| `status` | `number` | HTTP status code |
-| `retry` | `boolean` | Whether the operation is safe to retry |
-| `cause` | `unknown` | Original error, if any |
-
-### The `wrap` Utility
-
-The `wrap` function converts a Promise into a `Result`, catching any thrown exceptions:
-
-```typescript
-import { wrap, AppError } from "@vspo-lab/error";
-
-const result = await wrap(
-  axios.get("/some-endpoint"),
-  (err) => new AppError({
-    message: "Request failed",
-    code: "INTERNAL_SERVER_ERROR",
-    status: 500,
-    retry: true,
-    cause: err,
-  }),
-);
-```
-
----
-
-## Mock System
-
-For local development, the API client supports a mock mode through `MockHandler`.
-
-When `isLocalEnv()` returns `true`, API methods return mock data instead of making actual HTTP calls. This allows frontend development without a running external API.
-
-```typescript
-// Internally, the VSPOApi checks the environment
-if (isLocalEnv()) {
-  // Returns predefined mock data wrapped in Ok(...)
-  return Ok(mockStreamsData);
-}
-
-// Otherwise, makes the real HTTP request
-const response = await axios.get(...);
-```
-
-Mock data is colocated with the API client package and mirrors the shape of real API responses.
-
----
-
-## Web Application
-
-The web application is located at:
-
-```
-service/vspo-schedule/v2/web/
-```
-
-### Feature-Based Directory Structure
-
-```
-src/
-├── features/
-│   ├── schedule/      # Stream schedule views (daily, weekly)
-│   ├── clips/         # Clip video browsing and filtering
-│   ├── freechat/      # Free chat stream listings
-│   ├── site-news/     # Site announcements and updates
-│   ├── shared/        # Cross-feature components and utilities
-│   └── multiview/     # Multi-stream viewing layout
-├── app/               # Next.js App Router pages and layouts
-├── lib/               # Application-level utilities
-└── components/        # Global UI components
-```
-
-Each feature directory contains its own components, hooks, and utilities scoped to that feature. Shared logic that crosses feature boundaries lives in `features/shared/`.
+For error handling patterns and the `wrap` utility, see [Shared Packages](../packages/README.md#vspo-laberror).
+For mock data setup, see [Shared Packages -- Mock System](../packages/README.md#mock-system).
+For frontend directory structure and feature modules, see [Frontend Architecture](../web-frontend/architecture.md).
 
 ---
 
@@ -318,10 +157,45 @@ Each feature directory contains its own components, hooks, and utilities scoped 
 | Aspect | Approach |
 |--------|----------|
 | Runtime | Cloudflare Workers via OpenNext |
-| Framework | Next.js 15 App Router |
+| Framework | Next.js 16 App Router |
 | API Communication | `@vspo-lab/api` (Orval-generated, Axios-based) |
 | Error Handling | `Result<T, AppError>` -- no try-catch |
 | Authentication | Cloudflare Access headers + API key |
 | Retry | Exponential backoff (default 3 attempts) |
 | Local Development | MockHandler returns mock data when `isLocalEnv()` is true |
 | Code Organization | Feature-based structure under `src/features/` |
+
+---
+
+## Bot Dashboard Backend (Astro SSR)
+
+The bot-dashboard (`service/bot-dashboard/`) uses Astro 6 SSR as its backend, not the Hono-based server described above. It follows the same Clean Architecture principles but with Astro-specific patterns.
+
+### Feature Module Structure
+
+Each feature follows the domain/repository/usecase pattern:
+
+```text
+features/<name>/
+├── domain/       # Zod schemas + companion objects
+├── repository/   # API access via vspo-server RPC (guild: implemented, channel: mocked)
+└── usecase/      # Business logic orchestration
+```
+
+### Astro Actions
+
+Server-side form handlers defined in `src/actions/index.ts`. Each action:
+
+1. Calls `requireAuth(context)` for authentication
+2. Delegates to a usecase
+3. Maps `Result.err` to `ActionError`
+
+### Session & Middleware
+
+- **Session backend:** Cloudflare Workers KV via Astro.session API
+- **Middleware** (`src/middleware.ts`): Sets locale from session, injects user/accessToken into `Astro.locals`, protects `/dashboard/*` routes
+- **Auth flow:** Discord OAuth2 (authorize → callback → session creation)
+
+### Service Binding
+
+The bot-dashboard connects to `vspo-server` via Cloudflare Workers Service Binding (`APP_WORKER`), typed as `ApplicationService` from the shared `api.d.ts` (symlinked from vspo-schedule). Guild membership detection (`getBotGuildIds`) is implemented via `DiscordService.listBotGuildIds()` RPC. Channel configuration APIs remain mocked pending Phase 5 integration.

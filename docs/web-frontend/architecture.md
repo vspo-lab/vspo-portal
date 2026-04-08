@@ -2,26 +2,27 @@
 
 ## Overview
 
-Next.js 15 application using the **Pages Router**, deployed to Cloudflare Workers via OpenNextJS. UI is built with **MUI v7 + Emotion**. Code is organized into feature modules following the **Container/Presenter** pattern.
+Next.js 16 application using the **App Router**, deployed to Cloudflare Workers via OpenNextJS. UI is built with **MUI v7 + Emotion**. Code is organized into feature modules following the **Container/Presenter** pattern. Components are Server Components by default; client interactivity is opted-in via `"use client"`.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 15 (Pages Router) |
+| Framework | Next.js 16 (App Router) |
 | UI Library | MUI v7 (Material UI) + Emotion CSS-in-JS |
 | Language | TypeScript 5.9 (strict mode, Zod Schema First) |
-| i18n | next-i18next (ja, en, cn, tw, ko) |
+| i18n | next-intl (ja, en, cn, tw, ko) |
 | Error Handling | Result type (`@vspo-lab/error`) |
 | Date | date-fns + date-fns-tz (display), `@vspo-lab/dayjs` (UTC ops) |
 | Runtime | Cloudflare Workers |
+| Grid Layout | react-grid-layout v2 |
 
 ## Related Documents
 
 | Document | Description |
 |----------|-------------|
-| [Routing](./routing.md) | Pages Router, route map, layout system, middleware |
-| [Data Fetching](./data-fetching.md) | serverSideProps, dual API support, Result pattern |
+| [Routing](./routing.md) | App Router, route map, layout system, middleware |
+| [Data Fetching](./data-fetching.md) | Async Server Components, dual API support, Result pattern |
 | [State Management](./state-management.md) | Context providers, cookies, LocalStorage |
 | [i18n](./i18n.md) | Internationalization setup and locale resolution |
 | [Styling](./styling.md) | MUI + Emotion theming and component styling |
@@ -29,22 +30,29 @@ Next.js 15 application using the **Pages Router**, deployed to Cloudflare Worker
 | [Multiview](./multiview.md) | Multi-stream viewer, grid layouts, playback controls |
 | [Middleware](./middleware.md) | Locale routing, timezone, session tracking |
 | [PWA](./pwa.md) | Progressive Web App configuration and caching |
+| [Performance](./performance/app-router-improvements.md) | App Router performance and UI/UX improvement plan |
 
 ## Directory Structure
 
-```
+```text
 service/vspo-schedule/v2/web/src/
-├── pages/                         # Next.js Pages Router (route entry points)
-│   ├── _app.tsx                   # Provider stack + per-page layout
-│   ├── _document.tsx              # HTML document (MUI SSR, analytics, PWA)
-│   ├── schedule/[status].tsx      # /schedule/all, /schedule/live, etc.
-│   ├── clips/                     # /clips, /clips/youtube, /clips/twitch
-│   ├── freechat.tsx               # /freechat
-│   ├── multiview.tsx              # /multiview
-│   ├── about.tsx                  # /about
-│   ├── site-news/                 # /site-news, /site-news/[id]
-│   ├── privacy-policy.tsx         # /privacy-policy
-│   └── terms.tsx                  # /terms
+├── app/                           # Next.js App Router
+│   ├── layout.tsx                 # Root layout (global metadata)
+│   ├── [locale]/
+│   │   ├── layout.tsx             # Locale layout (html, body, providers)
+│   │   ├── (content)/             # Route group: pages with ContentLayout
+│   │   │   ├── schedule/[status]/page.tsx
+│   │   │   ├── freechat/page.tsx
+│   │   │   ├── about/page.tsx
+│   │   │   ├── site-news/page.tsx
+│   │   │   ├── site-news/[id]/page.tsx
+│   │   │   ├── privacy-policy/page.tsx
+│   │   │   └── terms/page.tsx
+│   │   └── (standalone)/          # Route group: clips and multiview
+│   │       ├── clips/page.tsx
+│   │       ├── clips/youtube/page.tsx
+│   │       ├── clips/twitch/page.tsx
+│   │       └── multiview/page.tsx
 │
 ├── features/                      # Feature modules (business logic + UI)
 │   ├── schedule/                  # Livestream schedule
@@ -73,7 +81,7 @@ service/vspo-schedule/v2/web/src/
 
 Each feature follows a consistent layout:
 
-```
+```text
 features/<feature>/
 ├── api/                           # Feature-specific data orchestration
 │   └── <feature>Service.ts        # Composes shared API calls
@@ -82,9 +90,8 @@ features/<feature>/
 │   └── presenters/                # Pure UI rendering
 ├── pages/
 │   └── <PageName>/
-│       ├── container.tsx           # Page-level container
-│       ├── presenter.tsx           # Page-level presenter
-│       └── serverSideProps.ts      # getServerSideProps logic
+│       ├── container.tsx           # Page-level container ("use client")
+│       └── presenter.tsx           # Page-level presenter ("use client")
 ├── hooks/                         # Feature-specific hooks
 ├── types/                         # Feature-specific types
 └── utils/                         # Feature-specific utilities
@@ -102,7 +109,7 @@ Not every feature has all directories -- only include what is needed.
 | **multiview** | fetchLivestreams (2x) | Grid layout, LocalStorage persistence, URL sharing, PlaybackContext |
 | **site-news** | Markdown files | Static content, no API |
 | **about** | Markdown files | Static content, no API |
-| **legal-documents** | Translations | getStaticProps |
+| **legal-documents** | Translations | SSG via generateStaticParams |
 
 See [Routing](./routing.md) for the full route map.
 
@@ -113,7 +120,7 @@ Every UI feature separates business logic from rendering.
 ### Container
 
 - Manages state (`useState`, `useEffect`, custom hooks)
-- Orchestrates data (received from `serverSideProps` via page props)
+- Orchestrates data (received as props from the Server Component page.tsx)
 - Defines event handlers
 - Passes computed props to presenter
 - Minimal JSX
@@ -175,22 +182,22 @@ When a container would be a trivial pass-through (no logic), skip it and use the
 
 ## Dependency Direction
 
-```
+```text
 @vspo-lab/* packages (error, api, dayjs, logging)
          |
     features/shared/ (domain, api, components)
          |
     features/<feature>/ (schedule, clips, etc.)
          |
-       pages/ (route entry points)
+       app/ (route entry points — Server Components)
 ```
 
 ### Rules
 
 - **Shared -> Features**: Shared domain/api/components available to all features
-- **Features -> Pages**: Features imported by page files
+- **Features -> App**: Features imported by app/ page files
 - **Prohibited**: Feature must not import from another feature
-- **Prohibited**: Shared code must not import from features or pages
+- **Prohibited**: Shared code must not import from features or app
 - Within a feature: Container -> Presenter (one-way)
 
 ## Domain Models
@@ -201,3 +208,58 @@ The domain entity "Stream" is called `Livestream` in frontend code. The entity "
 
 **Platform enum**: `youtube`, `twitch`, `twitcasting`, `niconico`, `unknown`.
 **Status enum**: `live`, `upcoming`, `ended`, `unknown`.
+
+---
+
+## Bot Dashboard (Astro v6)
+
+The bot-dashboard (`service/bot-dashboard/`) is a separate Astro 6 SSR application for managing the Spodule Discord Bot. It does NOT use React, MUI, or the Container/Presenter pattern described above.
+
+### Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Astro 6 (server-side rendering) |
+| Runtime | Cloudflare Workers |
+| Styling | Tailwind CSS 4 with custom theme |
+| Type Safety | TypeScript + Zod Schema First |
+| Error Handling | `@vspo-lab/error` Result type |
+| Session | Astro.session + Cloudflare KV |
+| Auth | Discord OAuth2 |
+| i18n | Custom `dict.ts` (not next-i18next) |
+
+### Architecture
+
+The bot-dashboard follows Clean Architecture with feature-based modules:
+
+```text
+src/
+├── pages/              # Astro file-based routing (SSR)
+├── layouts/            # Page layout wrappers (Base, Dashboard)
+├── components/         # Astro components (.astro, no React)
+│   ├── ui/             # Shared UI (Button, Card, ThemeToggle, etc.)
+│   ├── auth/           # Auth components (UserMenu)
+│   ├── guild/          # Guild components (GuildCard)
+│   └── channel/        # Channel components (ChannelTable, etc.)
+├── features/           # Clean Architecture layers
+│   ├── auth/           # Discord OAuth2 (domain/repository/usecase)
+│   ├── guild/          # Server management (domain/repository/usecase)
+│   ├── channel/        # Channel config (domain/repository/usecase)
+│   └── shared/         # Shared domain (Creator)
+├── actions/            # Astro Actions (form handlers for channel ops)
+├── i18n/               # Custom i18n (dict.ts)
+├── middleware.ts       # Session + auth middleware
+└── pages/api/          # Plain API routes (e.g., change-locale)
+```
+
+### Key Differences from vspo-schedule
+
+| Aspect | vspo-schedule | bot-dashboard |
+|---|---|---|
+| Framework | Next.js 16 | Astro 6 |
+| UI Library | React + MUI | Astro components (no JS framework) |
+| Routing | App Router | Astro file-based routing |
+| State | React hooks | Server-side only (no client state) |
+| Forms | React state + fetch | HTML forms + Astro Actions |
+| i18n | next-i18next | Custom dict.ts |
+| Interactivity | Client-side React | Inline `<script>` (minimal JS) |

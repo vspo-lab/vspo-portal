@@ -1,21 +1,21 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-interface Fields {
+type Fields = {
   [key: string]: unknown;
-}
+};
 
-interface CustomLogger {
+type CustomLogger = {
   debug(message: string, fields?: Fields): void;
   info(message: string, fields?: Fields): void;
   warn(message: string, fields?: Fields): void;
   error(message: string, fields?: Fields): void;
-}
+};
 
-interface LogContext {
+type LogContext = {
   requestId: string;
   additionalFields?: Fields;
   service?: string;
-}
+};
 
 const loggerStorage = new AsyncLocalStorage<LogContext>();
 
@@ -33,9 +33,11 @@ type LogLevelString = "debug" | "info" | "warn" | "error";
 // Add function to convert string to LogLevel
 function parseLogLevel(level: string | number): LogLevel {
   if (typeof level === "number") {
+    // type-safe: numeric log levels are passed through as-is; callers provide valid LogLevel values
     return level as LogLevel;
   }
 
+  // type-safe: toLowerCase() returns string but switch below handles all valid cases with a default fallback
   const lowerLevel = level.toLowerCase() as LogLevelString;
   switch (lowerLevel) {
     case "debug":
@@ -108,24 +110,12 @@ class AppLogger implements CustomLogger {
     return loggerStorage.getStore()?.additionalFields;
   }
 
-  static debug(message: string, fields?: Fields): void {
-    AppLogger.getInstance().debug(message, fields);
-  }
-
-  static info(message: string, fields?: Fields): void {
-    AppLogger.getInstance().info(message, fields);
-  }
-
-  static warn(message: string, fields?: Fields): void {
-    AppLogger.getInstance().warn(message, fields);
-  }
-
-  static error(message: string, fields?: Fields): void {
-    AppLogger.getInstance().error(message, fields);
-  }
-
   private shouldLog(level: LogLevel): boolean {
     return level >= this.minLevel;
+  }
+
+  static debug(message: string, fields?: Fields): void {
+    AppLogger.getInstance().debug(message, fields);
   }
 
   debug(message: string, fields?: Fields): void {
@@ -140,6 +130,10 @@ class AppLogger implements CustomLogger {
     });
   }
 
+  static info(message: string, fields?: Fields): void {
+    AppLogger.getInstance().info(message, fields);
+  }
+
   info(message: string, fields?: Fields): void {
     if (!this.shouldLog(LogLevel.INFO)) return;
 
@@ -152,6 +146,10 @@ class AppLogger implements CustomLogger {
     });
   }
 
+  static warn(message: string, fields?: Fields): void {
+    AppLogger.getInstance().warn(message, fields);
+  }
+
   warn(message: string, fields?: Fields): void {
     if (!this.shouldLog(LogLevel.WARN)) return;
 
@@ -162,6 +160,10 @@ class AppLogger implements CustomLogger {
       ...(context.additionalFields || {}),
       ...fields,
     });
+  }
+
+  static error(message: string, fields?: Fields): void {
+    AppLogger.getInstance().error(message, fields);
   }
 
   error(message: string, fields?: Fields): void {

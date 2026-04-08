@@ -7,8 +7,8 @@
 
 ## Scope
 
-- `services/web/shared/components/**`
-- Container/Presentational boundaries in `services/web/features/**`
+- `service/vspo-schedule/v2/web/src/features/shared/components/**`
+- Container/Presentational boundaries in `service/vspo-schedule/v2/web/src/features/**`
 
 ## Implementation Rules
 
@@ -38,6 +38,6 @@
 
 ## References (Primary Sources)
 
-- Testing Library Guiding Principles: https://testing-library.com/docs/guiding-principles
-- Testing Library Query Priority: https://testing-library.com/docs/queries/about/#priority
-- Next.js Testing (Vitest + Testing Library): https://nextjs.org/docs/app/guides/testing/vitest
+- Testing Library Guiding Principles: <https://testing-library.com/docs/guiding-principles>
+- Testing Library Query Priority: <https://testing-library.com/docs/queries/about/#priority>
+- Next.js Testing (Vitest + Testing Library): <https://nextjs.org/docs/app/guides/testing/vitest>

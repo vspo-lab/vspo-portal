@@ -1,6 +1,7 @@
 {
   "workspaces": {
     "packages/api": {
+      "entry": ["orval.config.ts"],
       "project": "**/*.ts"
     },
     "packages/dayjs": {
@@ -14,10 +15,9 @@
     },
     "service/vspo-schedule/v2/web": {
       "entry": [
-        "src/pages/**/*.{ts,tsx}",
         "next.config.{js,mjs,ts}",
         "open-next.config.ts",
-        "src/lib/i18n.ts"
+        "src/app/sw.ts"
       ],
       "project": "**/*.{ts,tsx}",
       "ignore": [
@@ -28,6 +28,9 @@
   },
   "ignoreDependencies": [
     "@textlint/textlint-plugin-markdown",
+    "textlint-rule-common-misspellings",
     "textlint-rule-preset-ja-technical-writing"
-  ]
+  ],
+  "ignoreBinaries": ["wrangler", "report"],
+  "ignoreWorkspaces": ["service/bot-dashboard"]
 }

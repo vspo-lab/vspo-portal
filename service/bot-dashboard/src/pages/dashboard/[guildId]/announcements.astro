@@ -1,0 +1,50 @@
+---
+import { env } from "cloudflare:workers";
+import Dashboard from "~/layouts/Dashboard.astro";
+import { t } from "~/i18n/dict";
+import AnnouncementList from "~/features/announcement/components/AnnouncementList.astro";
+import { GuildSummary } from "~/features/guild/domain/guild";
+import { ListGuildsUsecase } from "~/features/guild/usecase/list-guilds";
+
+const { guildId } = Astro.params;
+if (!guildId) return Astro.redirect("/dashboard");
+
+const accessToken = Astro.locals.accessToken;
+const user = Astro.locals.user;
+if (!accessToken || !user) return Astro.redirect("/");
+
+const locale = Astro.locals.locale;
+
+const guildsResult = await ListGuildsUsecase.execute({
+  accessToken,
+  userId: user.id,
+  appWorker: env.APP_WORKER,
+  includeChannelSummary: false,
+});
+
+const allGuilds = guildsResult.err
+  ? []
+  : [...guildsResult.val.installed, ...guildsResult.val.notInstalled];
+const currentGuild = allGuilds.find((g) => g.id === guildId);
+---
+
+<Dashboard
+  title={t(locale, "announcements.title")}
+  showSidebar
+  activeGuild={currentGuild
+    ? {
+        id: currentGuild.id,
+        name: currentGuild.name,
+        iconUrl: GuildSummary.iconUrl(currentGuild),
+      }
+    : null}
+>
+  <div class="space-y-6">
+    <div>
+      <h1 class="font-heading text-2xl font-extrabold tracking-tight sm:text-3xl">
+        {t(locale, "announcements.title")}
+      </h1>
+    </div>
+    <AnnouncementList locale={locale} />
+  </div>
+</Dashboard>

@@ -1,0 +1,52 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { z } from "zod";
+
+const buttonVariantSchema = z.enum(["primary", "outline", "ghost", "destructive", "discord", "link"]);
+type ButtonVariant = z.infer<typeof buttonVariantSchema>;
+
+const buttonSizeSchema = z.enum(["default", "sm", "lg", "icon"]);
+type ButtonSize = z.infer<typeof buttonSizeSchema>;
+
+const buttonPropsSchema = z.object({
+  variant: buttonVariantSchema.optional(),
+  size: buttonSizeSchema.optional(),
+  as: z.enum(["button", "a"]).optional(),
+  href: z.string().optional(),
+  target: z.string().optional(),
+  rel: z.string().optional(),
+});
+type Props = z.infer<typeof buttonPropsSchema> & HTMLAttributes<"button">;
+
+const variantClasses: Record<ButtonVariant, string> = {
+  primary: "bg-vspo-purple text-white hover:bg-vspo-purple/90",
+  outline:
+    "border border-border bg-transparent hover:bg-accent hover:text-accent-foreground",
+  ghost: "hover:bg-accent hover:text-accent-foreground",
+  destructive:
+    "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+  discord: "bg-discord text-white hover:bg-discord/90",
+  link: "text-vspo-purple hover:bg-vspo-purple/10",
+};
+
+const sizeClasses: Record<ButtonSize, string> = {
+  default: "h-10 px-4 py-2",
+  sm: "h-9 px-3 text-sm",
+  lg: "h-11 px-8 text-lg",
+  icon: "h-10 w-10",
+};
+
+const {
+  variant = "primary",
+  size = "default",
+  class: className = "",
+  as: Tag = "button",
+  ...attrs
+} = Astro.props;
+
+const classes = `inline-flex items-center justify-center rounded-[--radius-sm] font-medium transition-colors duration-[--duration-fast] ease-[--ease-standard] cursor-pointer focus-visible:outline-none focus-visible:shadow-focus disabled:pointer-events-none disabled:opacity-50 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+---
+
+<Tag class={classes} {...attrs}>
+  <slot />
+</Tag>

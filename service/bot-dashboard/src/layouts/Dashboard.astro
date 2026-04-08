@@ -1,102 +1,143 @@
 ---
 import Base from "./Base.astro";
-import UserMenu from "~/components/auth/UserMenu.astro";
-import AvatarFallback from "~/components/ui/AvatarFallback.astro";
+import Header from "~/features/shared/components/Header.astro";
+import AvatarFallback from "~/features/shared/components/AvatarFallback.astro";
+import { DesktopSidebarIsland } from "~/features/shared/components/DesktopSidebarIsland";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
+import { CONTACT_FORM_URL } from "astro:env/server";
 import { t } from "~/i18n/dict";
+import { z } from "zod";
 
-interface Props {
-  title: string;
-  guilds: { id: string; name: string; iconUrl: string | null }[];
-}
+const propsSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  /** Show the sidebar navigation (guild detail pages) */
+  showSidebar: z.boolean().optional(),
+  /** Currently active guild for sidebar context */
+  activeGuild: z.object({
+    id: z.string(),
+    name: z.string(),
+    iconUrl: z.string().nullable(),
+  }).nullable().optional(),
+});
+type Props = z.infer<typeof propsSchema>;
 
-const { title, guilds } = Astro.props;
+const { title, description, showSidebar = false, activeGuild = null } = Astro.props;
 const { locale } = Astro.locals;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect("/");
-const currentPath = Astro.url.pathname;
 const avatarUrl = DiscordUser.avatarUrl(user);
-
-const isActive = (path: string) => currentPath === path || currentPath === `${path}/`;
-const navLinkClass = (path: string) =>
-  isActive(path)
-    ? "bg-vspo-purple/20 text-white font-medium"
-    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground";
+const sidebarChannelsHref = activeGuild ? `/dashboard/${activeGuild.id}` : "/dashboard";
+const sidebarAnnouncementsHref = activeGuild
+  ? `/dashboard/${activeGuild.id}/announcements`
+  : "/dashboard/announcements";
+/** Label for the first nav item — "Servers" when no guild selected, "Channel Settings" otherwise */
+const sidebarFirstLabel = activeGuild ? t(locale, "nav.channels") : t(locale, "dashboard.servers");
+const currentPath = Astro.url.pathname;
+const isChannelsActive = currentPath === sidebarChannelsHref || currentPath.startsWith(sidebarChannelsHref + "?");
+const isAnnouncementsActive = currentPath === sidebarAnnouncementsHref;
 ---
 
-<Base title={title}>
-  <div class="flex min-h-screen flex-col">
-    <header
-      class="sticky top-0 z-30 flex h-14 items-center justify-between bg-vspo-purple px-4 text-white sm:px-6"
-    >
-      <div class="flex items-center gap-3">
-        {/* Mobile menu via <details> — no JS needed */}
-        <details class="group relative lg:hidden">
-          <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[--radius-sm] hover:bg-white/20" aria-label={t(locale, "nav.menu")}>
-            <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </summary>
-          <nav
-            class="absolute left-0 top-full mt-1 w-64 rounded-[--radius] border border-border bg-card p-3 shadow-action"
-            aria-label={t(locale, "nav.sidebar")}
-          >
-            <div class="space-y-1">
-              <a
-                href="/dashboard"
-                class={`block rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
-              >
-                {t(locale, "dashboard.allServers")}
-              </a>
-              {guilds.map((guild) => (
-                <a
-                  href={`/dashboard/${guild.id}`}
-                  class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass(`/dashboard/${guild.id}`)}`}
-                >
-                  <AvatarFallback src={guild.iconUrl} name={guild.name} size="xs" />
-                  <span class="truncate">{guild.name}</span>
-                </a>
-              ))}
-            </div>
-          </nav>
-        </details>
-        <a href="/dashboard" class="font-heading text-lg font-bold">{t(locale, "app.name")}</a>
+<Base title={title} description={description} noindex>
+  <div class="flex min-h-screen flex-col bg-surface">
+    {showSidebar ? (
+      <div class="flex min-h-screen">
+        <DesktopSidebarIsland
+          client:load
+          activeGuild={activeGuild}
+          translations={{
+            allServers: t(locale, "dashboard.allServers"),
+            sidebarCollapse: t(locale, "nav.sidebarCollapse"),
+            sidebarLabel: t(locale, "nav.sidebar"),
+            firstLabel: sidebarFirstLabel,
+            notifications: t(locale, "nav.notifications"),
+            contact: t(locale, "nav.contact"),
+          }}
+          channelsHref={sidebarChannelsHref}
+          announcementsHref={sidebarAnnouncementsHref}
+          contactFormUrl={CONTACT_FORM_URL}
+          isChannelsActive={isChannelsActive}
+          isAnnouncementsActive={isAnnouncementsActive}
+        />
+
+        <div class="flex flex-1 flex-col">
+          <Header user={{ displayName: user.displayName, avatarUrl }}>
+            <details slot="left" class="group relative lg:hidden" id="mobile-sidebar" data-auto-close>
+              <summary class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" aria-label={t(locale, "nav.menu")}>
+                <svg class="h-5 w-5 group-open:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <svg class="hidden h-5 w-5 group-open:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </summary>
+              <nav class="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl bg-surface-container-high/95 p-3 shadow-hover glass" aria-label={t(locale, "nav.sidebar")}>
+                {activeGuild && (
+                  <div class="mb-3 flex items-center gap-3 px-2">
+                    <AvatarFallback src={activeGuild.iconUrl} name={activeGuild.name} size="xs" />
+                    <span class="truncate text-sm font-bold text-on-surface">{activeGuild.name}</span>
+                  </div>
+                )}
+                <div class="space-y-1">
+                  <a
+                    href={sidebarChannelsHref}
+                    class={isChannelsActive
+                      ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
+                      : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
+                    aria-current={isChannelsActive ? "page" : undefined}
+                  >
+                    {activeGuild ? (
+                      <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+                    ) : (
+                      <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                    )}
+                    <span>{sidebarFirstLabel}</span>
+                  </a>
+                  <a
+                    href={sidebarAnnouncementsHref}
+                    class={isAnnouncementsActive
+                      ? "flex items-center gap-2 rounded-lg bg-vspo-purple/10 px-3 py-2 text-sm font-medium text-vspo-purple"
+                      : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"}
+                    aria-current={isAnnouncementsActive ? "page" : undefined}
+                  >
+                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    <span>{t(locale, "nav.notifications")}</span>
+                  </a>
+                  {CONTACT_FORM_URL && (
+                    <a
+                      href={CONTACT_FORM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                    >
+                      <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span>{t(locale, "nav.contact")}</span>
+                    </a>
+                  )}
+                  {activeGuild && (
+                    <>
+                      <hr class="my-2 border-outline-variant/30" />
+                      <a
+                        href="/dashboard"
+                        class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                      >
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        {t(locale, "dashboard.allServers")}
+                      </a>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </details>
+          </Header>
+
+          <main id="main-content" class="flex-1 overflow-x-hidden bg-surface p-6 sm:p-10">
+            <slot />
+          </main>
+        </div>
       </div>
-      <UserMenu
-        displayName={user.displayName}
-        avatarUrl={avatarUrl}
-      />
-    </header>
-    <div class="flex flex-1">
-      <aside class="hidden w-64 shrink-0 border-r border-border p-4 lg:block">
-        <nav class="space-y-1" aria-label={t(locale, "nav.sidebar")}>
-          <a
-            href="/dashboard"
-            class={`block rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass("/dashboard")}`}
-            {...(isActive("/dashboard") ? { "aria-current": "page" as const } : {})}
-          >
-            {t(locale, "dashboard.allServers")}
-          </a>
-          {
-            guilds.map((guild) => (
-              <a
-                href={`/dashboard/${guild.id}`}
-                class={`flex items-center gap-2 rounded-[--radius-sm] px-3 py-2 text-sm ${navLinkClass(`/dashboard/${guild.id}`)}`}
-                {...(isActive(`/dashboard/${guild.id}`) ? { "aria-current": "page" as const } : {})}
-              >
-                <AvatarFallback
-                  src={guild.iconUrl}
-                  name={guild.name}
-                  size="xs"
-                />
-                <span class="truncate">{guild.name}</span>
-              </a>
-            ))
-          }
-        </nav>
-      </aside>
-      <main class="flex-1 p-4 sm:p-6">
+    ) : (
+      <Header user={{ displayName: user.displayName, avatarUrl }} />
+      <main id="main-content" class="flex-1 bg-surface p-4 sm:p-6">
         <slot />
       </main>
-    </div>
+    )}
   </div>
 </Base>
+

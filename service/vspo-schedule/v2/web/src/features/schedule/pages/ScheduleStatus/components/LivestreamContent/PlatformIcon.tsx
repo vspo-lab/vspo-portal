@@ -1,3 +1,5 @@
+"use client";
+
 import { faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { styled } from "@mui/material/styles";
@@ -48,6 +50,6 @@ export const PlatformIcon: React.FC<PlatformIconProps> = ({ platform }) => {
         />
       );
     default:
-      return <></>;
+      return null;
   }
 };

@@ -1,5 +1,7 @@
+"use client";
+
 import { Livestream } from "@/features/shared/domain";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import React, { useState, useCallback } from "react";
 import { generateEmbedUrl } from "../../utils/platformUtils";
 import { UrlInputPresenter } from "../presenters";
@@ -46,7 +48,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
   maxStreams,
   onStreamAdd,
 }) => {
-  const { t } = useTranslation("multiview");
+  const t = useTranslations("multiview");
   const [url, setUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -159,17 +161,13 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
   const handleSubmit = useCallback(async () => {
     if (!url.trim()) {
-      setError(t("urlInput.error.emptyUrl", "URLを入力してください"));
+      setError(t("urlInput.error.emptyUrl"));
       return;
     }
 
     if (selectedStreams.length >= maxStreams) {
       setError(
-        t(
-          "urlInput.error.maxStreams",
-          "最大{{max}}つまでの配信を選択できます",
-          { max: maxStreams },
-        ),
+        t("urlInput.error.maxStreams", { max: maxStreams }),
       );
       return;
     }
@@ -182,7 +180,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
       if (!stream) {
         setError(
-          t("urlInput.error.unsupportedUrl", "サポートされていないURLです"),
+          t("urlInput.error.unsupportedUrl"),
         );
         setIsLoading(false);
         return;
@@ -195,7 +193,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
       if (isAlreadyAdded) {
         setError(
-          t("urlInput.error.alreadyAdded", "この配信は既に追加されています"),
+          t("urlInput.error.alreadyAdded"),
         );
         setIsLoading(false);
         return;
@@ -205,7 +203,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
       setUrl("");
       setError(null);
     } catch (error) {
-      setError(t("urlInput.error.parseFailed", "URLの解析に失敗しました"));
+      setError(t("urlInput.error.parseFailed"));
       console.error("Error adding stream from URL:", error);
     } finally {
       setIsLoading(false);

@@ -1,13 +1,16 @@
+"use client";
+
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { format } from "date-fns";
-import { utcToZonedTime } from "date-fns-tz";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { toZonedTime } from "date-fns-tz";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import type { Livestream } from "@/features/shared/domain/livestream";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { formatDate } from "@/lib/utils";
 import { groupLivestreamsByTimeBlock } from "../../utils";
 import { LivestreamCard } from "./LivestreamCard";
@@ -77,33 +80,29 @@ export const LivestreamContentPresenter: React.FC<LivestreamContentProps> = ({
   timeZone,
 }) => {
   const router = useRouter();
-  const { t } = useTranslation("schedule");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const t = useTranslations("schedule");
   const livestreamsByTimeBlock = groupLivestreamsByTimeBlock(
     livestreamsByDate,
     timeZone,
   );
   const hasLivestreams = Object.keys(livestreamsByTimeBlock).length > 0;
   const selectedDate =
-    typeof router.query.date === "string"
-      ? router.query.date
-      : format(utcToZonedTime(new Date(), timeZone), "yyyy-MM-dd");
+    searchParams.get("date") ??
+    format(toZonedTime(new Date(), timeZone), "yyyy-MM-dd");
 
   const navigateToDate = (date: string, daysToAdd: number) => {
     const currentDate = new Date(date);
-    const zonedDate = utcToZonedTime(currentDate, timeZone);
+    const zonedDate = toZonedTime(currentDate, timeZone);
     const newDate = new Date(zonedDate);
     newDate.setDate(newDate.getDate() + daysToAdd);
 
     const formattedDate = format(newDate, "yyyy-MM-dd");
 
-    router.push(
-      {
-        pathname: router.pathname,
-        query: { ...router.query, date: formattedDate },
-      },
-      undefined,
-      { shallow: false },
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("date", formattedDate);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   if (!hasLivestreams) {

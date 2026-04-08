@@ -1,0 +1,101 @@
+---
+import AvatarFallback from "~/features/shared/components/AvatarFallback.astro";
+import Button from "~/features/shared/components/Button.astro";
+import { GuildSummary } from "~/features/guild/domain/guild";
+import { t } from "~/i18n/dict";
+import { z } from "zod";
+
+const propsSchema = z.object({
+  guild: GuildSummary.schema,
+  botClientId: z.string(),
+});
+type Props = z.infer<typeof propsSchema>;
+
+const { guild, botClientId } = Astro.props;
+const { locale } = Astro.locals;
+const iconUrl = GuildSummary.iconUrl(guild);
+---
+
+<div class:list={[
+  "flex flex-col rounded-2xl p-6 transition-all duration-200",
+  guild.botInstalled
+    ? "bg-surface-container hover:bg-surface-container-high"
+    : "bg-surface-container-low opacity-80 dark:opacity-70",
+]}>
+  <div class="mb-4 flex items-center gap-3">
+    <AvatarFallback src={iconUrl} name={guild.name} size="md" />
+    <div class="min-w-0 flex-1">
+      <h3 class="truncate text-base font-semibold leading-none text-on-surface">
+        {guild.name}
+      </h3>
+      {guild.botInstalled ? (
+        <div class="mt-1.5 flex items-center gap-1.5">
+          <div class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-success shadow-sm shadow-success/50"></span>
+          </div>
+          <span class="text-xs font-bold uppercase tracking-wider text-success">
+            {t(locale, "guild.active")}
+          </span>
+        </div>
+      ) : (
+        <span class="mt-1 inline-block text-xs text-on-surface-variant">
+          {t(locale, "dashboard.notInstalled")}
+        </span>
+      )}
+    </div>
+  </div>
+
+  {guild.botInstalled && (
+    <div class="mb-4 min-h-[2.5rem]">
+      {guild.channelSummary ? (
+        <>
+          <p class="text-xs text-on-surface-variant">
+            {t(locale, "dashboard.channelsCount", {
+              total: String(guild.channelSummary.totalCount),
+            })}
+          </p>
+          {guild.channelSummary.previewNames.length > 0 && (
+            <div class="mt-1.5 flex flex-wrap gap-1">
+              {guild.channelSummary.previewNames.slice(0, 3).map((name) => (
+                <span class="rounded bg-surface-container-highest px-2 py-0.5 text-xs text-on-surface-variant">
+                  #{name}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <p class="text-xs text-on-surface-variant">&mdash;</p>
+      )}
+    </div>
+  )}
+
+  <div class="mt-auto">
+    {
+      guild.botInstalled ? (
+        <Button
+          as="a"
+          href={`/dashboard/${guild.id}`}
+          variant="primary"
+          size="sm"
+          class="w-full rounded-xl"
+        >
+          {t(locale, "guild.manageSettings")}
+        </Button>
+      ) : (
+        <Button
+          as="a"
+          href={GuildSummary.inviteUrl(guild, botClientId)}
+          variant="outline"
+          size="sm"
+          class="w-full rounded-xl"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t(locale, "guild.addBot")}
+        </Button>
+      )
+    }
+  </div>
+</div>

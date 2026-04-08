@@ -1,3 +1,5 @@
+"use client";
+
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import {
@@ -11,12 +13,12 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Loading } from "@/features/shared/components/Elements";
 import type { Clip } from "@/features/shared/domain";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { ClipCarousel, ClipSection } from "../../components/containers";
 
 // Add responsive styled title component
@@ -116,7 +118,6 @@ type ClipsHomePresenterProps = {
   popularShortsClips: Clip[];
   popularTwitchClips: Clip[];
   // vspoMembers: Channel[];
-  isProcessing: boolean;
   currentPeriod: string;
 };
 
@@ -125,11 +126,13 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
   popularShortsClips,
   popularTwitchClips,
   // vspoMembers,
-  isProcessing,
   currentPeriod,
 }) => {
-  const { t } = useTranslation(["clips", "common"]);
+  const t = useTranslations("clips");
+  const tCommon = useTranslations("common");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -142,29 +145,27 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
   const getDateFilterOptions = (): DateFilterOption[] => {
     return [
       {
-        label: isMobile
-          ? t("common:all", "全て")
-          : t("searchDialog.timeframes.all", "すべて"),
+        label: isMobile ? tCommon("all") : t("searchDialog.timeframes.all"),
         value: "all",
         showIcon: false,
       },
       {
-        label: isMobile ? "24h" : t("searchDialog.timeframes.1day", "24時間"),
+        label: isMobile ? "24h" : t("searchDialog.timeframes.1day"),
         value: "day",
         showIcon: true,
       },
       {
-        label: isMobile ? "1週" : t("searchDialog.timeframes.1week", "1週間"),
+        label: isMobile ? "1週" : t("searchDialog.timeframes.1week"),
         value: "week",
         showIcon: true,
       },
       {
-        label: isMobile ? "1月" : t("searchDialog.timeframes.1month", "1ヶ月"),
+        label: isMobile ? "1月" : t("searchDialog.timeframes.1month"),
         value: "month",
         showIcon: true,
       },
       {
-        label: isMobile ? "1年" : t("searchDialog.timeframes.year", "1年"),
+        label: isMobile ? "1年" : t("searchDialog.timeframes.year"),
         value: "year",
         showIcon: true,
       },
@@ -184,27 +185,19 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
     setActivePeriod(periodValue);
 
     // Navigate to the same page with a different period query parameter
-    router.push(
-      {
-        pathname: router.pathname,
-        query: { ...router.query, period: periodValue },
-      },
-      undefined,
-      { scroll: false },
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("period", periodValue);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
-  const carouselClips = useMemo(
-    () =>
-      [...popularYoutubeClips, ...popularTwitchClips].sort(
-        () => Math.random() - 0.5,
-      ),
-    [popularYoutubeClips, popularTwitchClips],
-  );
-
-  if (isProcessing) {
-    return <Loading />;
-  }
+  const carouselClips = useMemo(() => {
+    const arr = [...popularYoutubeClips, ...popularTwitchClips];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [popularYoutubeClips, popularTwitchClips]);
 
   const navigateToClips = (platform?: string, type?: string) => {
     const query: Record<string, string> = {};
@@ -215,22 +208,16 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
       query.period = activePeriod;
     }
 
+    const queryString = new URLSearchParams(query).toString();
+    const suffix = queryString ? `?${queryString}` : "";
+
     if (platform === "twitch") {
-      router.push({
-        pathname: "/clips/twitch",
-        query,
-      });
+      router.push(`/clips/twitch${suffix}`);
     } else if (platform === "youtube") {
       if (type === "shorts") {
-        router.push({
-          pathname: "/clips/youtube/shorts",
-          query,
-        });
+        router.push(`/clips/youtube/shorts${suffix}`);
       } else {
-        router.push({
-          pathname: "/clips/youtube",
-          query,
-        });
+        router.push(`/clips/youtube${suffix}`);
       }
     }
   };
@@ -248,7 +235,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
             fontWeight={600}
             fontSize={isMobile ? "1.1rem" : "1.25rem"}
           >
-            {t("searchDialog.timeframe", "期間でフィルタ")}
+            {t("searchDialog.timeframe")}
           </Typography>
         </FilterTitle>
 
@@ -282,7 +269,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
       {/* YouTube Clips Section */}
       <Box sx={{ mb: 4 }}>
         <ResponsiveSectionTitle variant="h5">
-          {t("home.sections.popularYoutubeClips", "人気の切り抜き")}
+          {t("home.sections.popularYoutubeClips")}
         </ResponsiveSectionTitle>
         <ClipSection
           title=""
@@ -296,7 +283,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
       {/* YouTube Shorts Section */}
       <Box sx={{ mb: 4 }}>
         <ResponsiveSectionTitle variant="h5">
-          {t("home.sections.popularShortsClips", "人気のショート動画")}
+          {t("home.sections.popularShortsClips")}
         </ResponsiveSectionTitle>
         <ClipSection
           title=""
@@ -310,7 +297,7 @@ export const Presenter: React.FC<ClipsHomePresenterProps> = ({
       {/* Twitch Clips Section */}
       <Box sx={{ mb: 4 }}>
         <ResponsiveSectionTitle variant="h5">
-          {t("home.sections.popularTwitchClips", "人気のTwitchクリップ")}
+          {t("home.sections.popularTwitchClips")}
         </ResponsiveSectionTitle>
         <ClipSection
           title=""

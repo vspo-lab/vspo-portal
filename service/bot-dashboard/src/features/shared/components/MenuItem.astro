@@ -1,0 +1,32 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { z } from "zod";
+
+const menuItemVariantSchema = z.enum(["default", "destructive"]);
+type MenuItemVariant = z.infer<typeof menuItemVariantSchema>;
+
+const menuItemPropsSchema = z.object({
+  variant: menuItemVariantSchema.optional(),
+  as: z.enum(["button", "a"]).optional(),
+  href: z.string().optional(),
+});
+type Props = z.infer<typeof menuItemPropsSchema> & HTMLAttributes<"button">;
+
+const variantClasses: Record<MenuItemVariant, string> = {
+  default: "text-on-surface hover:bg-surface-container-highest focus-visible:ring-vspo-purple/50",
+  destructive: "text-destructive hover:bg-destructive/10 focus-visible:ring-destructive/50",
+};
+
+const {
+  variant = "default",
+  class: className = "",
+  as: Tag = "button",
+  ...attrs
+} = Astro.props;
+
+const classes = `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${variantClasses[variant]} ${className}`;
+---
+
+<Tag class={classes} {...(Tag === "button" ? { type: "button" } : {})} {...attrs}>
+  <slot />
+</Tag>

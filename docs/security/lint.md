@@ -41,6 +41,19 @@ The script runs four scans:
 
 Each tool runs via local installation (aqua) if available, falling back to Docker containers. Exit code is 1 if any scan fails.
 
+## PR Check Linting Jobs
+
+The `pr-check.yaml` workflow runs the following lint/quality jobs on PRs:
+
+| Job | Trigger | Command |
+|-----|---------|---------|
+| `biome-check` | Code changes | `pnpm biome:check` |
+| `typescript-check` | Code changes | `pnpm tsc` |
+| `knip-check` | Code changes | `pnpm knip` |
+| `textlint-check` | Docs changes | `pnpm textlint` |
+| `markdownlint-check` | Docs changes | `pnpm markdownlint` |
+| `cspell-check` | Code or docs changes | `pnpm cspell` |
+
 ## Additional Checks for Documentation Changes
 
 When updating `docs/`, also verify the following:
@@ -50,6 +63,8 @@ When updating `docs/`, also verify the following:
 3. No terminology inconsistencies (use the same term for the same concept)
 4. Reference links exist and relative paths are correct
 5. `pnpm textlint` passes
+6. `pnpm markdownlint` passes
+7. `pnpm cspell` passes (no spelling errors)
 
 See [docs/security/textlint.md](./textlint.md) for textlint operational guidelines and setup examples.
 

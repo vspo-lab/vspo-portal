@@ -20,6 +20,12 @@
 | UC-008 | Change locale | Fan | MVP | -- |
 | UC-009 | Change timezone display | Fan | MVP | -- |
 | UC-010 | Create event | Admin | Phase 2 | Event |
+| UC-011 | Bot Dashboard: Login via Discord | Server Admin | MVP | DiscordUser |
+| UC-012 | Bot Dashboard: List manageable guilds | Server Admin | MVP | GuildSummary |
+| UC-013 | Bot Dashboard: Toggle channel notification | Server Admin | MVP | ChannelConfig |
+| UC-014 | Bot Dashboard: Update channel settings | Server Admin | MVP | ChannelConfig |
+| UC-015 | Bot Dashboard: Delete channel config | Server Admin | MVP | ChannelConfig |
+| UC-016 | Bot Dashboard: Change locale | Server Admin | MVP | -- |
 
 ---
 
@@ -264,6 +270,113 @@
 
 - **Input**: title (string), startedDate (string), visibility (enum), tags (string[]), storageFileId (string, optional)
 - **Output**: Created Event entity
+
+---
+
+### UC-011: Bot Dashboard: Login via Discord
+
+- **Summary**: Authenticate via Discord OAuth2 to access the bot management dashboard.
+- **Actor**: Server Admin (MANAGE_GUILD permission)
+- **Trigger**: User clicks "Login with Discord" on the bot dashboard.
+- **Preconditions**: User has a Discord account and manages at least one server.
+- **Postconditions**: Session is created with user info, access token, and locale preference.
+
+#### Basic Flow
+
+1. User clicks login.
+2. Redirect to Discord OAuth2.
+3. User authorizes.
+4. Callback exchanges code for tokens.
+5. Session created.
+6. Redirect to dashboard.
+
+#### Input / Output
+
+- **Input**: Discord authorization code
+- **Output**: Authenticated session (user, accessToken, locale)
+
+---
+
+### UC-012: Bot Dashboard: List Manageable Guilds
+
+- **Summary**: View servers where the user has admin permissions, partitioned by bot installation status.
+- **Actor**: Server Admin
+- **Trigger**: User navigates to the dashboard.
+- **Preconditions**: User is authenticated.
+- **Postconditions**: Servers are displayed with bot status and channel summaries.
+
+#### Basic Flow
+
+1. Fetch user guilds from Discord API.
+2. Filter by MANAGE_GUILD permission.
+3. Check bot installation status.
+4. Fetch channel configs for installed guilds.
+5. Display partitioned list.
+
+#### Input / Output
+
+- **Input**: accessToken, appWorker (service binding)
+- **Output**: { installed: GuildSummary[], notInstalled: GuildSummary[] }
+
+---
+
+### UC-013: Bot Dashboard: Toggle Channel Notification
+
+- **Summary**: Enable or disable bot notifications for a specific channel.
+- **Actor**: Server Admin
+- **Trigger**: User toggles the channel switch on the guild detail page.
+- **Preconditions**: User is authenticated; bot is installed in the guild.
+- **Postconditions**: Channel's enabled status is updated.
+
+#### Input / Output
+
+- **Input**: guildId, channelId, enable (boolean)
+- **Output**: void (Result type)
+
+---
+
+### UC-014: Bot Dashboard: Update Channel Settings
+
+- **Summary**: Modify language, member type, and custom member selection for a channel.
+- **Actor**: Server Admin
+- **Trigger**: User edits channel settings via the configuration form.
+- **Preconditions**: User is authenticated; channel exists in guild config.
+- **Postconditions**: Channel configuration is updated.
+
+#### Input / Output
+
+- **Input**: guildId, channelId, language, memberType, customMemberIds?
+- **Output**: void (Result type)
+
+---
+
+### UC-015: Bot Dashboard: Delete Channel Config
+
+- **Summary**: Remove a channel's bot configuration entirely.
+- **Actor**: Server Admin
+- **Trigger**: User clicks delete on a channel and confirms.
+- **Preconditions**: User is authenticated; channel config exists.
+- **Postconditions**: Channel configuration is permanently removed.
+
+#### Input / Output
+
+- **Input**: guildId, channelId
+- **Output**: void (Result type)
+
+---
+
+### UC-016: Bot Dashboard: Change Locale
+
+- **Summary**: Switch the dashboard UI language between Japanese and English.
+- **Actor**: Server Admin (or unauthenticated user on login page)
+- **Trigger**: User selects a locale from the language selector.
+- **Preconditions**: None (works without authentication).
+- **Postconditions**: Session locale is updated; page re-renders in selected language.
+
+#### Input / Output
+
+- **Input**: locale (ja | en)
+- **Output**: Redirect to current page with updated locale
 
 ---
 

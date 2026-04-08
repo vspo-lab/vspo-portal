@@ -1,0 +1,33 @@
+name: Bundle Size Baseline
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'service/vspo-schedule/v2/web/**'
+      - 'packages/**'
+  workflow_dispatch:
+
+jobs:
+  baseline:
+    name: Save bundle size baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Build web app
+        run: pnpm --filter vspo-schedule-v2-web exec next build
+        env:
+          NEXT_PUBLIC_SITE_URL: "https://www.vspo-portal.com"
+
+      - name: Analyze bundle
+        run: cd service/vspo-schedule/v2/web && npx -p nextjs-bundle-analysis report
+      - name: Upload bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: bundle
+          path: service/vspo-schedule/v2/web/.next/analyze/__bundle_analysis.json

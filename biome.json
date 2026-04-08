@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
   "extends": ["./biome.base.json"],
   "files": {
     "includes": [
@@ -30,7 +30,8 @@
       "!**/tsconfig.json",
       "!**/meta/**/*",
       "!**/coverage/**/*",
-      "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*"
+      "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*",
+      "!**/.astro/**/*"
     ]
   },
   "overrides": []

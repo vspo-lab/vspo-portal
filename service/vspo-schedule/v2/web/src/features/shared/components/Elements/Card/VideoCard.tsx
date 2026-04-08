@@ -1,7 +1,9 @@
+"use client";
+
 import { Box, Card, CardActionArea } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Image from "next/image";
-import { useTranslation } from "next-i18next";
+import { useTranslations } from "next-intl";
 import { PlatformIcon } from "@/features/schedule/pages/ScheduleStatus/components/LivestreamContent/PlatformIcon";
 import type { Video } from "@/features/shared/domain/video";
 import { useVideoModalContext } from "@/hooks";
@@ -81,7 +83,7 @@ export const VideoCard: React.FC<Props> = ({
   priority = false,
 }) => {
   const { pushVideo } = useVideoModalContext();
-  const { t } = useTranslation("common");
+  const t = useTranslations("common");
   const platform = video.platform;
   return (
     <Box sx={{ position: "relative" }}>

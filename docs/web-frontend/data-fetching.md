@@ -1,39 +1,102 @@
 # Data Fetching
 
-## Server-Side Props Pattern
+## Async Server Components
 
-Each feature page exports a `getServerSideProps` function (or `getStaticProps` for static pages) that:
+Data is fetched directly in the page body of async Server Components. There is no `getServerSideProps` or `getStaticProps`.
 
-1. Resolves locale and timezone from request cookies
-2. Fetches data using shared API functions (Result-based)
-3. Loads translations via `serverSideTranslations`
-4. Returns typed props with metadata
+### Dynamic Pages (Runtime Data)
 
-```tsx
-// features/schedule/pages/ScheduleStatus/serverSideProps.ts
-export const getLivestreamsServerSideProps: GetServerSideProps = async (context) => {
-  const locale = context.locale ?? DEFAULT_LOCALE;
-  const timeZone = getCookieValue(context.req, TIME_ZONE_COOKIE) ?? DEFAULT_TIME_ZONE;
-  const status = context.params?.status as string;
+Pages that need runtime data export `dynamic = "force-dynamic"` and fetch in the component body:
 
-  const [scheduleResult, translationsResult] = await Promise.allSettled([
-    fetchSchedule({ status, locale, timeZone, ... }),
-    serverSideTranslations(locale, ["common", "streams"]),
-  ]);
+```typescript
+// app/[locale]/(content)/schedule/[status]/page.tsx
+export const dynamic = "force-dynamic";
 
-  return {
-    props: {
-      livestreams: scheduleResult.status === "fulfilled" ? scheduleResult.value : [],
-      meta: { title: "...", description: "..." },
-      ...translations,
-    },
-  };
-};
+export default async function SchedulePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string; status: string }>;
+  searchParams: Promise<{ limit?: string; date?: string }>;
+}) {
+  const { locale, status } = await params;
+  const query = await searchParams;
+  const cookieStore = await cookies();
+  const timeZone = cookieStore.get(TIME_ZONE_COOKIE)?.value ?? DEFAULT_TIME_ZONE;
+
+  const schedule = await fetchSchedule({
+    startedDate, limit, locale, status, order, timeZone,
+  });
+
+  const t = await getTranslations({ locale, namespace: "streams" });
+
+  return (
+    <ContentLayout title={t("titles.streamSchedule")} path={`/schedule/${status}`}>
+      <ScheduleStatusContainer livestreams={schedule.livestreams || []} ... />
+    </ContentLayout>
+  );
+}
 ```
 
-### Static Pages
+Key patterns:
 
-Pages with no API data use `getStaticProps` instead (`legal-documents`, `about`, `site-news`).
+- `params` and `searchParams` are `Promise` values (awaited in body)
+- `cookies()` from `next/headers` replaces `req.cookies`
+- Translation loading via `getTranslations` (no `serverSideTranslations`)
+
+### Static Pages (SSG)
+
+Pages without API data use `generateStaticParams` for static generation:
+
+```typescript
+// app/[locale]/(content)/about/page.tsx
+export async function generateStaticParams() {
+  return [
+    { locale: "en" }, { locale: "ja" }, { locale: "cn" },
+    { locale: "tw" }, { locale: "ko" },
+  ];
+}
+
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const slugs = await getAllMarkdownSlugs("about");
+  const sections = await Promise.all(
+    slugs.map((slug) => getMarkdownContent(locale, "about", slug)),
+  );
+
+  return (
+    <ContentLayout title="About" path="/about" maxPageWidth="md" padTop>
+      <AboutPageContainer sections={sections} locale={locale} />
+    </ContentLayout>
+  );
+}
+```
+
+SSG pages: `about`, `privacy-policy`, `terms`, `site-news`.
+
+## Per-Page SEO with generateMetadata
+
+Each page exports `generateMetadata` for dynamic title/description:
+
+```typescript
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; status: string }>;
+}): Promise<Metadata> {
+  const { locale, status } = await params;
+  const t = await getTranslations({ locale, namespace: "streams" });
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  return {
+    title: `${tCommon("spodule")} | ${t("titles.streamSchedule")}`,
+    description: t("description"),
+  };
+}
+```
 
 ## Dual API Support
 
@@ -42,7 +105,7 @@ Every shared API function supports two backends:
 1. **Cloudflare Worker binding** (`APP_WORKER`) -- preferred when available
 2. **VSPOApi REST client** -- fallback for non-Cloudflare environments
 
-```tsx
+```typescript
 // features/shared/api/livestream.ts
 export const fetchLivestreams = async (params): Promise<LivestreamFetchResult> => {
   const cfEnv = getCloudflareEnvironmentContext();
@@ -63,16 +126,7 @@ export const fetchLivestreams = async (params): Promise<LivestreamFetchResult> =
 
 ### Cloudflare Environment Detection
 
-`lib/cloudflare/context.ts` wraps `@opennextjs/cloudflare` to detect the runtime environment:
-
-```typescript
-// Returns { context, isValid, cfEnv } where:
-// - context: Result<CloudflareContext> from @opennextjs/cloudflare
-// - isValid: true if env.ASSETS binding exists (running on Workers)
-// - cfEnv: typed environment with APP_WORKER service binding
-```
-
-When `isValid` is true, `cfEnv.APP_WORKER` is available for direct worker-to-worker calls. When false (local dev / Node.js), the fallback REST API path is used.
+`lib/cloudflare/context.ts` wraps `@opennextjs/cloudflare` to detect the runtime environment. When `isValid` is true, `cfEnv.APP_WORKER` is available for direct worker-to-worker calls. When false (local dev / Node.js), the fallback REST API path is used.
 
 ## Markdown Loading
 
@@ -84,6 +138,7 @@ Static content pages (site-news, about) load markdown files via `lib/markdown.ts
 | Local dev (Node.js) | Filesystem | `public/content/{locale}/{category}/{slug}.md` |
 
 Features:
+
 - **Content manifest**: `content-manifest.json` indexes available files per locale/category
 - **Locale fallback**: Falls back to `ja` if translation is missing
 - **Frontmatter parsing**: Extracts YAML-like metadata (title, date, tags)
@@ -105,17 +160,47 @@ Located in `features/shared/api/`. All return `Result<T, AppError>`.
 
 API responses are validated against Zod schemas before returning:
 
-```
+```text
 API Response -> Zod schema.parse() -> Domain type -> Result<T, AppError>
 ```
 
-This ensures type safety at the boundary between external data and application code.
+## Suspense Streaming
+
+Dynamic pages extract data fetching into a dedicated async Server Component and wrap it in `<Suspense>` so the page shell renders immediately while API data streams in.
+
+```typescript
+// app/[locale]/(content)/schedule/[status]/page.tsx
+export default async function SchedulePage({ params }: { params: Promise<{ locale: string; status: string }> }) {
+  const { locale, status } = await params;
+  const t = await getTranslations({ locale, namespace: "streams" });
+
+  return (
+    <ContentLayout title={t("titles.streamSchedule")} path={`/schedule/${status}`}>
+      <Suspense fallback={<LivestreamCardsSkeleton />}>
+        <ScheduleContent locale={locale} status={status} />
+      </Suspense>
+    </ContentLayout>
+  );
+}
+
+// ScheduleContent — async Server Component that fetches data
+async function ScheduleContent({ locale, status }: { locale: string; status: string }) {
+  const schedule = await fetchSchedule({ locale, status, /* ... */ });
+  return <ScheduleStatusContainer livestreams={schedule.livestreams || []} />;
+}
+```
+
+Key points:
+
+- `ContentLayout` shell and navigation render on first byte; the data-dependent subtree streams in when the fetch completes.
+- Applied to: schedule, clips home, freechat, multiview.
+- Skeleton components live in `src/features/shared/components/Elements/Loading/` (e.g., `LivestreamCardsSkeleton`, `ClipCardsSkeleton`).
 
 ## Feature-Level Service Orchestration
 
 Each feature has a `*Service.ts` that composes multiple shared API calls using `Promise.allSettled`. This handles partial failures gracefully -- if one API call fails, the page still renders with available data:
 
-```tsx
+```typescript
 // features/clips/api/clipService.ts
 const [youtubeResult, twitchResult, shortsResult, membersResult] =
   await Promise.allSettled([

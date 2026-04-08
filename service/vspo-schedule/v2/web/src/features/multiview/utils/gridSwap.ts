@@ -1,41 +1,81 @@
-import GridLayout from "react-grid-layout";
+import type { LayoutItem } from "react-grid-layout";
+import { Rectangle, removeOverlaps as colaRemoveOverlaps } from "webcola";
+
+/** Number of grid columns for the desktop multiview layout. */
+export const GRID_COLS = 120;
 
 /**
- * 整数グリッド座標上で全アイテムの重なりを解消する。
+ * Resolve all overlaps among items on an integer grid using VPSC (webcola).
  *
- * アルゴリズム:
- * 1. 最も重なり面積が大きいペアを1つ見つける
- * 2. 重なりが小さい軸方向に最小距離だけ押し出す
- * 3. **全ペアの探索を最初からやり直す**（押し出しで新たな重なりが生まれるため）
- * 4. 重なりがなくなるまで繰り返す（最大 n*(n-1)/2 * 10 回）
+ * 1. `removeOverlaps` — 2D VPSC solver (X-pass then Y-pass) with minimum displacement
+ * 2. Boundary clamp + integer rounding
+ * 3. `ensureNoOverlaps` — guarantee zero overlaps via X-push / swap / Y-push fallback
  *
- * 1回の押し出しで必ず1ペアの重なりが解消されるため、有限回で収束する。
- *
- * @param layout - 現在のレイアウト（整数グリッド座標）
- * @returns 重なりのないレイアウト
+ * @precondition layout items have positive w and h
+ * @postcondition No pairwise overlaps; x in [0, GRID_COLS-w], y >= 0
+ * @param layout - Current layout (integer grid coordinates)
+ * @returns Layout with no overlaps, positions adjusted minimally from originals
  */
 export const resolveOverlaps = (
-  layout: GridLayout.Layout[],
-): GridLayout.Layout[] => {
-  if (layout.length <= 1) return layout;
+  layout: LayoutItem[],
+): LayoutItem[] => {
+  if (layout.length <= 1) {
+    return layout.map((item) => ({
+      ...item,
+      x: Math.max(0, Math.min(GRID_COLS - item.w, item.x)),
+      y: Math.max(0, item.y),
+    }));
+  }
 
   const items = layout.map((item) => ({ ...item }));
-  const maxIterations = items.length * items.length * 10;
 
-  for (let iter = 0; iter < maxIterations; iter++) {
-    // Find the overlapping pair with the largest overlap area
+  // Phase 1: webcola 2D VPSC — resolves most overlaps with minimum displacement
+  const rects = items.map(
+    (item) =>
+      new Rectangle(item.x, item.x + item.w, item.y, item.y + item.h),
+  );
+  colaRemoveOverlaps(rects);
+
+  // Phase 2: Boundary clamp + integer rounding
+  for (let i = 0; i < items.length; i++) {
+    const r = rects[i];
+    items[i] = {
+      ...items[i],
+      x: Math.max(0, Math.min(GRID_COLS - items[i].w, Math.round(r.x))),
+      y: Math.max(0, Math.round(r.y)),
+    };
+  }
+
+  // Phase 3: Guarantee zero overlaps (boundary clamp may re-introduce overlaps)
+  ensureNoOverlaps(items);
+
+  return items;
+};
+
+/**
+ * Guarantee zero overlaps after VPSC.
+ *
+ * Handles both integer rounding artifacts AND cases where VPSC couldn't fully
+ * resolve overlaps (e.g. items too large for the grid width). Tries strategies
+ * in order: X-push → position swap → Y-push. Y-push always succeeds since the
+ * grid scrolls vertically, guaranteeing termination.
+ *
+ * Mutates items' x/y in place.
+ * @postcondition No pairwise overlaps remain
+ */
+const ensureNoOverlaps = (items: LayoutItem[]): void => {
+  // Y-push makes monotonic progress, so n^2*2 iterations is sufficient
+  // even for cascading overlaps where fixing one pair creates new overlaps
+  const maxIter = items.length * items.length * 2;
+
+  for (let iter = 0; iter < maxIter; iter++) {
     let worstI = -1;
     let worstJ = -1;
     let worstArea = 0;
 
     for (let i = 0; i < items.length; i++) {
       for (let j = i + 1; j < items.length; j++) {
-        const a = items[i];
-        const b = items[j];
-        const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
-        const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-        if (ox <= 0 || oy <= 0) continue;
-        const area = ox * oy;
+        const area = getOverlapArea(items[i], items[j]);
         if (area > worstArea) {
           worstArea = area;
           worstI = i;
@@ -44,57 +84,75 @@ export const resolveOverlaps = (
       }
     }
 
-    // No overlaps found — done
-    if (worstI < 0) break;
+    if (worstI < 0) return;
 
     const a = items[worstI];
     const b = items[worstJ];
     const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
     const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
 
-    // Push apart on the axis with smaller overlap (minimum movement)
+    // 1. Try X-push (shorter axis preferred)
     if (overlapX <= overlapY) {
-      const aCx = a.x + a.w / 2;
-      const bCx = b.x + b.w / 2;
-      if (aCx <= bCx) {
-        items[worstJ] = { ...b, x: a.x + a.w };
-      } else {
-        items[worstI] = { ...a, x: b.x + b.w };
+      const aIsLeft = a.x + a.w / 2 <= b.x + b.w / 2;
+      const [li, ri] = aIsLeft ? [worstI, worstJ] : [worstJ, worstI];
+      const left = items[li];
+      const right = items[ri];
+      const pushRight = left.x + left.w;
+      if (pushRight + right.w <= GRID_COLS) {
+        items[ri] = { ...right, x: pushRight };
+        continue;
       }
-    } else {
-      const aCy = a.y + a.h / 2;
-      const bCy = b.y + b.h / 2;
-      if (aCy <= bCy) {
-        items[worstJ] = { ...b, y: a.y + a.h };
-      } else {
-        items[worstI] = { ...a, y: b.y + b.h };
+      const pushLeft = right.x - left.w;
+      if (pushLeft >= 0) {
+        items[li] = { ...left, x: pushLeft };
+        continue;
       }
     }
-  }
 
-  return items.map((item) => ({
-    ...item,
-    x: Math.max(0, item.x),
-    y: Math.max(0, item.y),
-  }));
+    // 2. Try position swap (useful when one item fits where the other was)
+    const swapAx = b.x;
+    const swapBx = a.x;
+    const swapAy = b.y;
+    const swapBy = a.y;
+    const fitsA = swapAx >= 0 && swapAx + a.w <= GRID_COLS && swapAy >= 0;
+    const fitsB = swapBx >= 0 && swapBx + b.w <= GRID_COLS && swapBy >= 0;
+    if (fitsA && fitsB) {
+      const swapOx =
+        Math.min(swapAx + a.w, swapBx + b.w) - Math.max(swapAx, swapBx);
+      const swapOy =
+        Math.min(swapAy + a.h, swapBy + b.h) - Math.max(swapAy, swapBy);
+      if (swapOx <= 0 || swapOy <= 0) {
+        items[worstI] = { ...a, x: swapAx, y: swapAy };
+        items[worstJ] = { ...b, x: swapBx, y: swapBy };
+        continue;
+      }
+    }
+
+    // 3. Y-push (always resolves — grid has unlimited vertical space)
+    if (a.y + a.h / 2 <= b.y + b.h / 2) {
+      items[worstJ] = { ...b, y: a.y + a.h };
+    } else {
+      items[worstI] = { ...a, y: b.y + b.h };
+    }
+  }
 };
 
 /**
- * ドラッグ中のスワップを計算する。
+ * Compute swap during drag.
  *
- * ドラッグ中のアイテムと最も重なるアイテムを検出し、位置を交換する。
- * 二次衝突はresolveOverlapsで解消。
+ * Detects the item with the largest overlap with the dragged item and swaps their positions.
+ * Secondary collisions are resolved via resolveOverlaps.
  */
 export const computeSwapDuringDrag = (
-  currentLayout: GridLayout.Layout[],
+  currentLayout: LayoutItem[],
   draggedId: string,
   dragOrigin: { x: number; y: number },
   lastSwappedId: string | null,
-): { layout: GridLayout.Layout[]; swappedId: string | null } => {
+): { layout: LayoutItem[]; swappedId: string | null } => {
   const draggedItem = currentLayout.find((item) => item.i === draggedId);
   if (!draggedItem) return { layout: currentLayout, swappedId: null };
 
-  let bestTarget: GridLayout.Layout | null = null;
+  let bestTarget: LayoutItem | null = null;
   let bestOverlap = 0;
 
   for (const item of currentLayout) {
@@ -140,11 +198,11 @@ export const computeSwapDuringDrag = (
 };
 
 /**
- * 2つのレイアウトアイテムの重なり面積を計算する。
+ * Calculate the overlap area of two layout items.
  */
 export const getOverlapArea = (
-  a: GridLayout.Layout,
-  b: GridLayout.Layout,
+  a: LayoutItem,
+  b: LayoutItem,
 ): number => {
   const xOverlap = Math.max(
     0,

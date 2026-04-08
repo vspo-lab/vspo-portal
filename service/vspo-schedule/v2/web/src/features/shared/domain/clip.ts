@@ -20,11 +20,6 @@ export const paginationSchema = z.object({
 });
 
 /**
- * Zod schema for sort options
- */
-const sortOptionSchema = z.enum(["new", "popular", "recommended"]);
-
-/**
  * Zod schema for clip filter conditions
  */
 const clipFilterSchema = z.object({
@@ -36,5 +31,4 @@ const clipFilterSchema = z.object({
 // Infer types from schemas
 export type Clip = z.infer<typeof clipSchema>;
 export type Pagination = z.infer<typeof paginationSchema>;
-type SortOption = z.infer<typeof sortOptionSchema>;
 export type ClipFilter = z.infer<typeof clipFilterSchema>;
