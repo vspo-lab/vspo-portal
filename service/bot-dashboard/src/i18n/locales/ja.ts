@@ -70,7 +70,7 @@ export const ja = {
   "dashboard.noServers": "管理者権限を持つサーバーがありません。",
   "dashboard.allServers": "すべてのサーバー",
   "dashboard.channelsCount": "{total} チャンネル設定済み",
-  "dashboard.stat.channels": "チャンネル数",
+  "dashboard.stat.channels": "導入チャンネル数",
   "dashboard.error": "エラー: {message}",
 
   // Guild

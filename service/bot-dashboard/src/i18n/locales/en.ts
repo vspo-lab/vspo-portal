@@ -79,7 +79,7 @@ export const en: Record<keyof typeof ja, string> = {
   "dashboard.noServers": "No servers with admin permissions found.",
   "dashboard.allServers": "All Servers",
   "dashboard.channelsCount": "{total} channels configured",
-  "dashboard.stat.channels": "Channels",
+  "dashboard.stat.channels": "Active Channels",
   "dashboard.error": "Error: {message}",
 
   // Guild
