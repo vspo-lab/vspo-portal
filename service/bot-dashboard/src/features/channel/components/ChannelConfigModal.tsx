@@ -365,7 +365,6 @@ function ChannelConfigModalInner({
               <fieldset
                 className="rounded-lg border border-outline-variant/20 bg-surface-container-high"
                 onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
               >
                 <legend className="sr-only">
                   {translations.customMembers}
