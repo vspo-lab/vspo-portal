@@ -85,17 +85,20 @@ const altPath = canonicalPath
         applyTheme();
         document.addEventListener("astro:after-swap", applyTheme);
 
-        var bar = document.getElementById("nav-loading-bar");
-        document.addEventListener("astro:before-preparation", function () {
-          if (bar) { bar.classList.remove("done"); bar.classList.add("active"); }
-        });
-        document.addEventListener("astro:after-preparation", function () {
-          if (bar) { bar.classList.remove("active"); bar.classList.add("done"); }
-        });
-        document.addEventListener("astro:after-swap", function () {
-          bar = document.getElementById("nav-loading-bar");
-          if (bar) { bar.classList.remove("active", "done"); }
-        });
+        if (!window.__navBarInit) {
+          window.__navBarInit = true;
+          var bar = document.getElementById("nav-loading-bar");
+          document.addEventListener("astro:before-preparation", function () {
+            if (bar) { bar.classList.remove("done"); bar.classList.add("active"); }
+          });
+          document.addEventListener("astro:after-preparation", function () {
+            if (bar) { bar.classList.remove("active"); bar.classList.add("done"); }
+          });
+          document.addEventListener("astro:after-swap", function () {
+            bar = document.getElementById("nav-loading-bar");
+            if (bar) { bar.classList.remove("active", "done"); }
+          });
+        }
       })();
     </script>
     <script>

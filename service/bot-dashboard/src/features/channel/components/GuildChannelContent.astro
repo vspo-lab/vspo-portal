@@ -1,11 +1,4 @@
 ---
-/**
- * Server Island component for guild channel data.
- * Deferred via server:defer so the page shell renders immediately with a skeleton fallback.
- *
- * @precondition User is authenticated (checked by parent page)
- * @precondition guildId is a valid Discord guild ID
- */
 import { env } from "cloudflare:workers";
 import { GuildDashboardIsland } from "./GuildDashboardIsland";
 import ErrorAlert from "~/features/shared/components/ErrorAlert.astro";
