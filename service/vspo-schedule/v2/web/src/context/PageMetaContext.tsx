@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-export type PageMeta = {
+type PageMeta = {
   title: string;
   lastUpdateTimestamp?: number;
   footerMessage?: string;
