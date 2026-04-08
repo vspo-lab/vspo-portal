@@ -49,15 +49,6 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
             class="hero-headline mb-8 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl"
           >{t(locale, "login.headline")}</h1>
 
-          {/* Stats — server island with skeleton fallback */}
-          <BotStats server:defer locale={locale}>
-            <div slot="fallback" class="hero-stats mb-10 flex items-center justify-center gap-6">
-              <Skeleton variant="stat" />
-              <div class="h-8 w-px bg-border/50" aria-hidden="true"></div>
-              <Skeleton variant="stat" />
-            </div>
-          </BotStats>
-
           {/* Error */}
           {errorKey && (
             <div class="mb-8 flex w-full max-w-lg items-start gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface" role="alert">
@@ -78,7 +69,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
           )}
 
           {/* CTA Buttons */}
-          <div class="hero-cta flex w-full max-w-sm flex-col items-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
+          <div class="hero-cta mb-10 flex w-full max-w-sm flex-col items-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
             <Button
               as="a"
               href={botInviteUrl}
@@ -105,14 +96,22 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               {t(locale, "login.button")}
             </Button>
           </div>
+
+          {/* Stats — server island with skeleton fallback */}
+          <BotStats server:defer locale={locale}>
+            <div slot="fallback" class="flex items-center justify-center gap-3">
+              <Skeleton variant="stat" class="!h-16 !w-28" />
+              <Skeleton variant="stat" class="!h-16 !w-28" />
+            </div>
+          </BotStats>
         </div>
       </section>
 
-      {/* Discord notification preview */}
+      {/* Discord notification preview — horizontal */}
       <section class="px-6 pb-8 sm:pb-16">
         <div class="mx-auto max-w-5xl">
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <ScrollReveal animation="fade-in-up" class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
+          <div class="flex gap-4 overflow-x-auto pb-2 sm:justify-center sm:gap-6">
+            <ScrollReveal animation="fade-in-up" class="w-64 shrink-0 overflow-hidden rounded-xl shadow-card sm:w-80">
               <picture>
                 <source srcset="/discord-preview-1.webp" type="image/webp" />
                 <img
@@ -125,7 +124,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
                 />
               </picture>
             </ScrollReveal>
-            <ScrollReveal animation="fade-in-up" delay={200} class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
+            <ScrollReveal animation="fade-in-up" delay={200} class="w-64 shrink-0 overflow-hidden rounded-xl shadow-card sm:w-80">
               <picture>
                 <source srcset="/discord-preview-2.webp" type="image/webp" />
                 <img
