@@ -22,6 +22,12 @@ export default defineConfig({
         context: "server",
         access: "secret",
       }),
+      CONTACT_FORM_URL: envField.string({
+        context: "server",
+        access: "public",
+        optional: true,
+        default: "",
+      }),
       DEV_MOCK_AUTH: envField.boolean({
         context: "server",
         access: "public",

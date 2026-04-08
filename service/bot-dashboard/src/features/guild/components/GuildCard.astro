@@ -20,7 +20,7 @@ const iconUrl = GuildSummary.iconUrl(guild);
   "flex flex-col rounded-2xl p-6 transition-all duration-200",
   guild.botInstalled
     ? "bg-surface-container hover:bg-surface-container-high"
-    : "bg-surface-container-low opacity-70",
+    : "bg-surface-container-low opacity-80 dark:opacity-70",
 ]}>
   <div class="mb-4 flex items-center gap-3">
     <AvatarFallback src={iconUrl} name={guild.name} size="md" />

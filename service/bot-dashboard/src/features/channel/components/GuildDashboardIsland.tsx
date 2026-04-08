@@ -124,7 +124,7 @@ export function GuildDashboardIsland({
       <ClientFlashMessage dismissLabel={translations.flash.dismiss} />
 
       {/* Channel Table */}
-      <div className="overflow-hidden rounded-2xl bg-surface-container-low">
+      <div className="overflow-hidden rounded-2xl bg-surface-container-low mt-10">
         <div className="flex items-center justify-between bg-surface-container-low px-6 py-5 sm:px-8">
           <h3 className="font-heading text-lg font-bold text-on-surface">
             {translations.table.title}

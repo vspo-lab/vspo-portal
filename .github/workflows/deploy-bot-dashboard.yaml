@@ -50,6 +50,7 @@ jobs:
               DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
               DISCORD_REDIRECT_URI: process.env.DISCORD_REDIRECT_URI,
               DISCORD_BOT_CLIENT_ID: process.env.DISCORD_BOT_CLIENT_ID,
+              CONTACT_FORM_URL: process.env.CONTACT_FORM_URL,
             };
             process.stdout.write(JSON.stringify(secrets));
           " | pnpm exec wrangler secret bulk
@@ -59,3 +60,4 @@ jobs:
           DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
           DISCORD_REDIRECT_URI: ${{ secrets.DISCORD_REDIRECT_URI }}
           DISCORD_BOT_CLIENT_ID: ${{ secrets.DISCORD_BOT_CLIENT_ID }}
+          CONTACT_FORM_URL: ${{ secrets.CONTACT_FORM_URL }}

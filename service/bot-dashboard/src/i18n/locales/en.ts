@@ -154,6 +154,7 @@ export const en: Record<keyof typeof ja, string> = {
   "nav.comingSoon": "Coming Soon",
   "nav.breadcrumb": "Breadcrumb",
   "nav.sidebarCollapse": "Toggle sidebar",
+  "nav.contact": "Contact Us",
   "announcements.title": "Announcements",
   "announcements.empty": "No announcements",
   "announcements.type.info": "Info",

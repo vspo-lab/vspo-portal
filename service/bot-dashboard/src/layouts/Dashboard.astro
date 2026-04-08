@@ -4,6 +4,7 @@ import Header from "~/features/shared/components/Header.astro";
 import AvatarFallback from "~/features/shared/components/AvatarFallback.astro";
 import { DesktopSidebarIsland } from "~/features/shared/components/DesktopSidebarIsland";
 import { DiscordUser } from "~/features/auth/domain/discord-user";
+import { CONTACT_FORM_URL } from "astro:env/server";
 import { t } from "~/i18n/dict";
 import { z } from "zod";
 
@@ -50,9 +51,11 @@ const isAnnouncementsActive = currentPath === sidebarAnnouncementsHref;
             sidebarLabel: t(locale, "nav.sidebar"),
             firstLabel: sidebarFirstLabel,
             notifications: t(locale, "nav.notifications"),
+            contact: t(locale, "nav.contact"),
           }}
           channelsHref={sidebarChannelsHref}
           announcementsHref={sidebarAnnouncementsHref}
+          contactFormUrl={CONTACT_FORM_URL}
           isChannelsActive={isChannelsActive}
           isAnnouncementsActive={isAnnouncementsActive}
         />
@@ -96,6 +99,17 @@ const isAnnouncementsActive = currentPath === sidebarAnnouncementsHref;
                     <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                     <span>{t(locale, "nav.notifications")}</span>
                   </a>
+                  {CONTACT_FORM_URL && (
+                    <a
+                      href={CONTACT_FORM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface"
+                    >
+                      <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span>{t(locale, "nav.contact")}</span>
+                    </a>
+                  )}
                   {activeGuild && (
                     <>
                       <hr class="my-2 border-outline-variant/30" />
@@ -113,7 +127,7 @@ const isAnnouncementsActive = currentPath === sidebarAnnouncementsHref;
             </details>
           </Header>
 
-          <main id="main-content" class="flex-1 bg-surface p-6 sm:p-10">
+          <main id="main-content" class="flex-1 overflow-x-hidden bg-surface p-6 sm:p-10">
             <slot />
           </main>
         </div>
