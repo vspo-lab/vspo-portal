@@ -24,7 +24,7 @@ export const ja = {
   "login.feature.filter.desc":
     "チャンネルごとに JP / EN メンバーやカスタム選択で絞り込み",
   "login.pageSettings": "ページ設定",
-  "login.features": "機能紹介",
+  "login.features": "管理画面",
   "login.features.desc": "コマンド不要。ブラウザだけで設定できます。",
   "login.cta.headline": "使ってみる",
   "login.cta.description": "スラッシュコマンド不要、登録だけで使えます。",

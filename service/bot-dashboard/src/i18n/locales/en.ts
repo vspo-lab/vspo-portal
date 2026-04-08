@@ -27,7 +27,7 @@ export const en: Record<keyof typeof ja, string> = {
   "login.feature.filter.desc":
     "Filter by JP, EN, or select individual members per channel",
   "login.pageSettings": "Page settings",
-  "login.features": "Features",
+  "login.features": "Dashboard",
   "login.features.desc":
     "No commands required. Set everything up in your browser.",
   "login.cta.headline": "Try it out",

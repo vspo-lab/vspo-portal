@@ -46,7 +46,7 @@ const CSP_HEADER = [
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
-  "img-src 'self' https://cdn.discordapp.com data:",
+  "img-src 'self' https://cdn.discordapp.com https://yt3.ggpht.com https://lh3.googleusercontent.com data:",
   "connect-src 'self' https://discord.com",
   "frame-ancestors 'none'",
 ].join("; ");

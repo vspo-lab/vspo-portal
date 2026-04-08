@@ -150,23 +150,21 @@ const memberTypeLabelsMap = Object.fromEntries(
     </nav>
 
     {/* Page header */}
-    <div class="flex items-end justify-between">
-      <div class="space-y-2">
-        <p class="text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "nav.channels")}</p>
-        <h1 class="font-heading text-3xl font-extrabold text-on-surface sm:text-4xl">{guildName}</h1>
-        <p class="max-w-md text-on-surface-variant">
-          {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
-        </p>
-      </div>
+    <div class="space-y-2">
+      <p class="text-xs font-bold uppercase tracking-[0.2em] text-vspo-purple">{t(locale, "nav.channels")}</p>
+      <h1 class="truncate font-heading text-2xl font-extrabold text-on-surface sm:text-4xl">{guildName}</h1>
+      <p class="max-w-md text-on-surface-variant">
+        {t(locale, "dashboard.channelsCount", { total: String(channels.length) })}
+      </p>
     </div>
 
     {/* Stats Bento Grid */}
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
-      <div class="rounded-2xl bg-surface-container-low p-6">
+      <div class="rounded-2xl bg-surface-container-low p-4 sm:p-6">
         <p class="mb-2 text-sm font-medium text-on-surface-variant">{t(locale, "dashboard.stat.channels")}</p>
         <span class="font-heading text-3xl font-bold text-on-surface">{channels.length}</span>
       </div>
-      <div class="rounded-2xl bg-surface-container-low p-6">
+      <div class="rounded-2xl bg-surface-container-low p-4 sm:p-6">
         <p class="mb-2 text-sm font-medium text-on-surface-variant">{t(locale, "channel.language")}</p>
         <div class="flex gap-2">
           {[...new Set(channels.map(c => c.language))].map(lang => (
