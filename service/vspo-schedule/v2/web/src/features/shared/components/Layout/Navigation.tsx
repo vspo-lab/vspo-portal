@@ -9,8 +9,8 @@ import {
   getNavigationRouteInfo,
   type NavigationRouteId,
 } from "@/constants/navigation";
-import { usePathname } from "@/i18n/navigation";
-import { DrawerIcon, Link } from "../Elements";
+import { Link as NextIntlLink, usePathname } from "@/i18n/navigation";
+import { DrawerIcon } from "../Elements";
 
 const bottomNavigationRoutes = [
   "list",
@@ -62,12 +62,13 @@ export const CustomBottomNavigation: React.FC = () => {
         >
           {bottomNavigationRoutes.map((id) => (
             <BottomNavigationAction
-              component={Link}
+              component={NextIntlLink}
               href={getNavigationRouteInfo(id).link}
               key={id}
               label={t(`bottomNav.pages.${id}`)}
               value={id}
               icon={<DrawerIcon id={id} />}
+              sx={{ textDecoration: "none", color: "inherit" }}
             />
           ))}
         </BottomNavigation>

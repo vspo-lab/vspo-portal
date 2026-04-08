@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AppProviders } from "@/components/AppProviders";
 import { GoogleAnalytics } from "@/features/shared/components/Elements/Google/GoogleAnalytics";
+import { LayoutShell } from "@/features/shared/components/Layout/LayoutShell";
 import { routing } from "@/i18n/routing";
 
 export default async function LocaleLayout({
@@ -38,7 +39,9 @@ export default async function LocaleLayout({
       <body>
         <InitColorSchemeScript attribute="class" />
         <NextIntlClientProvider messages={messages}>
-          <AppProviders>{children}</AppProviders>
+          <AppProviders>
+            <LayoutShell>{children}</LayoutShell>
+          </AppProviders>
         </NextIntlClientProvider>
         <GoogleAnalytics />
         {process.env.ENV === "production" &&
