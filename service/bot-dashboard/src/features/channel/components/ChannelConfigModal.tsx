@@ -90,7 +90,6 @@ function ChannelConfigModalInner({
     () => new Set(channel.customMemberIds ?? []),
   );
   const [memberSearch, setMemberSearch] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const jpCreators = useMemo(
     () => creators.filter((c) => c.memberType === "vspo_jp"),
@@ -216,7 +215,7 @@ function ChannelConfigModalInner({
         if (e.key === "Escape") closeEditModal();
       }}
     >
-      <div className="animate-modal-in glass mx-2 w-full max-w-lg rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6">
+      <div className="animate-modal-in glass mx-2 flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl bg-surface-container-high/90 p-4 text-on-surface shadow-hover sm:mx-4 sm:p-6">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-heading text-lg font-bold text-on-surface">
@@ -245,7 +244,7 @@ function ChannelConfigModalInner({
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
           {/* Language */}
           <div className="space-y-2">
             <label htmlFor="language" className="text-sm font-medium">
@@ -363,60 +362,50 @@ function ChannelConfigModalInner({
                 </div>
               )}
 
-              {/* Dropdown trigger */}
-              <button
-                type="button"
-                onClick={() => setDropdownOpen((p) => !p)}
-                className="flex w-full cursor-pointer items-center rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2 text-left text-sm transition-colors hover:border-vspo-purple/40"
-                aria-expanded={dropdownOpen}
+              <fieldset
+                className="rounded-lg border border-outline-variant/20 bg-surface-container-high"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  if (e.key !== "Escape") e.stopPropagation();
+                }}
               >
-                <span className="text-on-surface-variant/60">
-                  {translations.search}
-                </span>
-              </button>
-
-              {/* Dropdown panel */}
-              {dropdownOpen && (
-                <div
-                  role="listbox"
-                  className="rounded-lg border border-outline-variant/20 bg-surface-container-high shadow-lg"
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                >
-                  <div className="border-b border-outline-variant/10 p-2">
-                    <input
-                      type="search"
-                      placeholder={translations.search}
-                      value={memberSearch}
-                      onChange={(e) => setMemberSearch(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full rounded-md border border-outline-variant/20 bg-surface-container-low py-1.5 pl-3 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
-                    />
-                  </div>
-                  <div className="max-h-48 space-y-3 overflow-y-auto p-3 sm:max-h-56">
-                    <MemberGroup
-                      label={translations.jpGroup}
-                      creators={filteredJp}
-                      allCreators={jpCreators}
-                      selectedIds={customIds}
-                      onToggle={toggleMember}
-                      onToggleGroup={() => toggleGroup(jpCreators)}
-                      selectAllLabel={translations.selectAll}
-                      deselectAllLabel={translations.deselectAll}
-                    />
-                    <MemberGroup
-                      label={translations.enGroup}
-                      creators={filteredEn}
-                      allCreators={enCreators}
-                      selectedIds={customIds}
-                      onToggle={toggleMember}
-                      onToggleGroup={() => toggleGroup(enCreators)}
-                      selectAllLabel={translations.selectAll}
-                      deselectAllLabel={translations.deselectAll}
-                    />
-                  </div>
+                <legend className="sr-only">
+                  {translations.customMembers}
+                </legend>
+                <div className="border-b border-outline-variant/10 p-2">
+                  <input
+                    type="search"
+                    placeholder={translations.search}
+                    aria-label={translations.search}
+                    value={memberSearch}
+                    onChange={(e) => setMemberSearch(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full rounded-md border border-outline-variant/20 bg-surface-container-low py-1.5 pl-3 pr-3 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:border-vspo-purple focus:outline-none focus:ring-1 focus:ring-vspo-purple"
+                  />
                 </div>
-              )}
+                <div className="max-h-48 space-y-3 overflow-y-auto p-3 sm:max-h-56">
+                  <MemberGroup
+                    label={translations.jpGroup}
+                    creators={filteredJp}
+                    allCreators={jpCreators}
+                    selectedIds={customIds}
+                    onToggle={toggleMember}
+                    onToggleGroup={() => toggleGroup(jpCreators)}
+                    selectAllLabel={translations.selectAll}
+                    deselectAllLabel={translations.deselectAll}
+                  />
+                  <MemberGroup
+                    label={translations.enGroup}
+                    creators={filteredEn}
+                    allCreators={enCreators}
+                    selectedIds={customIds}
+                    onToggle={toggleMember}
+                    onToggleGroup={() => toggleGroup(enCreators)}
+                    selectAllLabel={translations.selectAll}
+                    deselectAllLabel={translations.deselectAll}
+                  />
+                </div>
+              </fieldset>
 
               {/* Hidden inputs for selected members */}
               {Array.from(customIds).map((id) => (

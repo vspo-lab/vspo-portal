@@ -123,9 +123,7 @@ describe("ChannelConfigModal", () => {
     render(<ChannelConfigModal {...defaultProps} />);
 
     await user.click(screen.getByLabelText("Custom"));
-    expect(screen.getByText("Custom Members")).toBeInTheDocument();
-    // Open dropdown to see members
-    await user.click(screen.getByText("Search members..."));
+    // Members should be visible immediately without clicking search
     expect(screen.getByText("Hinano")).toBeInTheDocument();
   });
 
@@ -182,8 +180,7 @@ describe("ChannelConfigModal", () => {
     expect(within(preview).getByText("VSPO EN")).toBeInTheDocument();
   });
 
-  it("checks custom members when pre-selected", async () => {
-    const user = userEvent.setup();
+  it("checks custom members when pre-selected", () => {
     $channelToEdit.set({
       channelId: "ch1",
       channelName: "general",
@@ -193,12 +190,7 @@ describe("ChannelConfigModal", () => {
     });
     render(<ChannelConfigModal {...defaultProps} />);
 
-    // Chips should be visible for selected members
-    expect(screen.getByText("Hinano")).toBeInTheDocument();
-    expect(screen.getByText("Remia")).toBeInTheDocument();
-
-    // Open dropdown to verify checkbox state
-    await user.click(screen.getByText("Search members..."));
+    // Members should be visible immediately (no dropdown click needed)
     const c1 = screen.getByLabelText("Hinano") as HTMLInputElement;
     const c3 = screen.getByLabelText("Remia") as HTMLInputElement;
     expect(c1.checked).toBe(true);

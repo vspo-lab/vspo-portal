@@ -106,7 +106,7 @@ export function FeatureShowcase({
             if (e.key === "Escape") setActiveFeatureId(null);
           }}
         >
-          <div className="mx-4 max-w-lg rounded-2xl border border-border bg-surface p-0 text-on-surface shadow-xl">
+          <div className="mx-4 w-full max-w-lg rounded-2xl border border-border bg-surface p-0 text-on-surface shadow-xl">
             <div className="flex flex-col gap-4 p-6">
               <div className="flex items-start justify-between">
                 <h3 className="font-heading text-xl font-bold">
