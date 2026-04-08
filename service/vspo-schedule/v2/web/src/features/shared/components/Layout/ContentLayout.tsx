@@ -4,36 +4,12 @@ import {
   type Breakpoint,
   Container,
   type ContainerTypeMap,
-  GlobalStyles,
 } from "@mui/material";
 import type { OverridableComponent } from "@mui/material/OverridableComponent";
 import { styled } from "@mui/material/styles";
 import type React from "react";
-import { useEffect, useState } from "react";
-import { AlertSnackbar } from "../Elements";
-import { Footer } from "./Footer";
-import { Header } from "./Header";
-import { CustomBottomNavigation } from "./Navigation";
-
-/**
- * Global CSS to hide layout chrome (header, footer, bottom nav) when immersive mode is active.
- * Toggled via `document.documentElement.dataset.immersive = "true"` from page components.
- */
-const immersiveStyles = (
-  <GlobalStyles
-    styles={{
-      'html[data-immersive="true"] [data-layout-header]': {
-        display: "none !important",
-      },
-      'html[data-immersive="true"] [data-layout-footer]': {
-        display: "none !important",
-      },
-      'html[data-immersive="true"] [data-layout-bottom-nav]': {
-        display: "none !important",
-      },
-    }}
-  />
-);
+import { useEffect } from "react";
+import { usePageMeta } from "@/context/PageMetaContext";
 
 type ContentLayoutProps = {
   children: React.ReactNode;
@@ -74,45 +50,20 @@ export const ContentLayout = ({
   maxPageWidth,
   padTop,
 }: ContentLayoutProps) => {
-  const [alertOpen, setAlertOpen] = useState(false);
-
-  const handleAlertClose = () => {
-    setAlertOpen(false);
-    localStorage.setItem("alertSeen-discordBot", "true");
-  };
+  const { setPageMeta } = usePageMeta();
 
   useEffect(() => {
-    const hasSeenAlert = localStorage.getItem("alertSeen-discordBot");
-
-    if (!hasSeenAlert) {
-      setAlertOpen(true);
-    }
-  }, []);
+    setPageMeta({ title, lastUpdateTimestamp, footerMessage });
+  }, [title, lastUpdateTimestamp, footerMessage, setPageMeta]);
 
   return (
-    <>
-      {immersiveStyles}
-      <div data-layout-header>
-        <Header title={title} />
-      </div>
-      <AlertSnackbar open={alertOpen} onClose={handleAlertClose} />
-      <StyledContainer
-        component="main"
-        maxWidth={maxPageWidth}
-        padTop={padTop}
-        className={path === "/multiview" ? "multiview-container" : ""}
-      >
-        {children}
-      </StyledContainer>
-      <div data-layout-footer>
-        <Footer
-          lastUpdateTimestamp={lastUpdateTimestamp}
-          description={footerMessage}
-        />
-      </div>
-      <div data-layout-bottom-nav>
-        <CustomBottomNavigation />
-      </div>
-    </>
+    <StyledContainer
+      component="main"
+      maxWidth={maxPageWidth}
+      padTop={padTop}
+      className={path === "/multiview" ? "multiview-container" : ""}
+    >
+      {children}
+    </StyledContainer>
   );
 };
