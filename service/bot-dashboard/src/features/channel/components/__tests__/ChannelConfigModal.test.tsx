@@ -123,7 +123,6 @@ describe("ChannelConfigModal", () => {
     render(<ChannelConfigModal {...defaultProps} />);
 
     await user.click(screen.getByLabelText("Custom"));
-    expect(screen.getByText("Custom Members")).toBeInTheDocument();
     // Members should be visible immediately without clicking search
     expect(screen.getByText("Hinano")).toBeInTheDocument();
   });

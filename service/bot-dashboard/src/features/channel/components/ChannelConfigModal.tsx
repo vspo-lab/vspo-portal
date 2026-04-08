@@ -362,13 +362,14 @@ function ChannelConfigModalInner({
                 </div>
               )}
 
-              <div
-                role="group"
-                aria-label={translations.customMembers}
+              <fieldset
                 className="rounded-lg border border-outline-variant/20 bg-surface-container-high"
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => e.stopPropagation()}
               >
+                <legend className="sr-only">
+                  {translations.customMembers}
+                </legend>
                 <div className="border-b border-outline-variant/10 p-2">
                   <input
                     type="search"
@@ -402,7 +403,7 @@ function ChannelConfigModalInner({
                     deselectAllLabel={translations.deselectAll}
                   />
                 </div>
-              </div>
+              </fieldset>
 
               {/* Hidden inputs for selected members */}
               {Array.from(customIds).map((id) => (
