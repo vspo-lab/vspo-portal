@@ -3,7 +3,7 @@ import { env } from "cloudflare:workers";
 import { z } from "zod";
 import DigitRoll from "./DigitRoll.astro";
 import { t } from "~/i18n/dict";
-import { getCachedBotStats } from "~/features/landing/server/bot-stats-cache";
+import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
 const propsSchema = z.object({
   locale: z.enum(["ja", "en"]),
@@ -11,7 +11,9 @@ const propsSchema = z.object({
 type Props = z.infer<typeof propsSchema>;
 
 const { locale } = Astro.props;
-const statsResult = await getCachedBotStats(env.APP_WORKER);
+// getBotStats is cached server-side (30min TTL in vspo-server's DiscordService),
+// so calling it inline is cheap after the first request per region.
+const statsResult = await VspoGuildApiRepository.getBotStats(env.APP_WORKER);
 const stats = statsResult.err ? null : statsResult.val;
 ---
 
