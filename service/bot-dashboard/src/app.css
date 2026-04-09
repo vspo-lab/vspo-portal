@@ -301,6 +301,54 @@ dialog[open] {
 }
 
 /*
+ * === Landing Hero — Decorative Background Glows ===
+ * Subtle radial gradients that add depth without being distracting.
+ * Applied only on the landing page (.hero-bg inside .hero-section).
+ */
+.hero-bg::before,
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  width: 60%;
+  height: 80%;
+  filter: blur(40px);
+  opacity: 0.6;
+}
+.hero-bg::before {
+  top: -20%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(114, 102, 207, 0.22), transparent 60%);
+}
+.hero-bg::after {
+  bottom: -20%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(71, 82, 196, 0.18), transparent 60%);
+}
+
+/*
+ * === Landing Hero — Preview Card Glow ===
+ * Purple-tinted ring glow on Discord preview images.
+ */
+.preview-card {
+  background: var(--sem-surface-container);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(114, 102, 207, 0.15),
+    0 20px 40px -12px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(114, 102, 207, 0.15);
+}
+
+/*
+ * === Landing Hero — Stat Card ===
+ * Purple-tinted bordered card for bot statistics.
+ */
+.stat-card {
+  border: 1px solid rgba(114, 102, 207, 0.2);
+  background: linear-gradient(180deg, rgba(114, 102, 207, 0.06), rgba(114, 102, 207, 0.02));
+  backdrop-filter: blur(8px);
+}
+
+/*
  * === Hero Sequence (page-load animations) ===
  */
 .hero-badge {

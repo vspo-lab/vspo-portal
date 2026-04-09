@@ -7,8 +7,9 @@ export const en: Record<keyof typeof ja, string> = {
 
   // Login page
   "login.title": "Login",
-  "login.headline": "VSPO stream schedules,\nto Discord",
-  "login.description": "",
+  "login.headline": "VSPO stream\nschedules, to\nDiscord",
+  "login.description":
+    "Automatically delivers VSPO member stream schedules to Discord. Set up notifications with just your browser.",
   "login.button": "Log in to Dashboard with Discord",
   "login.addBot": "Add to Server",
   "login.previewCaption": "Preview",
