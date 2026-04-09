@@ -34,22 +34,46 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
 
     <main id="main-content" class="relative">
       {/* Hero Section — desktop: 2-column (left: text, right: previews) */}
-      <section class="px-6 pb-16 pt-16 sm:pb-24 sm:pt-24">
-        <div class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
+      <section class="hero-section relative overflow-hidden px-6 pb-16 pt-16 sm:pb-24 sm:pt-24">
+        {/* Decorative background glows */}
+        <div class="hero-bg pointer-events-none absolute inset-0 -z-0" aria-hidden="true"></div>
+
+        <div class="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
           {/* Left: Text content */}
           <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
             {/* Badge */}
-            <div class="hero-badge mb-8">
-              <span class="inline-flex items-center gap-2 rounded-full bg-surface-container-highest px-3 py-1">
-                <span class="h-2 w-2 rounded-full bg-success"></span>
-                <span class="text-xs font-medium tracking-wide text-vspo-purple">{t(locale, "app.name")}</span>
+            <div class="hero-badge mb-6">
+              <span class="inline-flex items-center gap-2 rounded-full border border-vspo-purple/30 bg-vspo-purple/10 px-3.5 py-1.5 backdrop-blur">
+                <span class="relative h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_8px_var(--color-success,_#4ade80)]"></span>
+                <span class="text-xs font-semibold tracking-wide text-vspo-purple-light">{t(locale, "app.name")}</span>
               </span>
             </div>
 
-            {/* Headline */}
+            {/* Headline — split on "Discord" to accent the keyword */}
             <h1
-              class="hero-headline mb-8 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl"
-            >{t(locale, "login.headline")}</h1>
+              class="hero-headline mb-5 whitespace-pre-line font-heading text-[40px] font-extrabold leading-[1.15] tracking-tight text-on-surface sm:text-5xl lg:text-[46px] xl:text-[52px]"
+            >
+              {(() => {
+                const headline = t(locale, "login.headline");
+                const keyword = "Discord";
+                const idx = headline.indexOf(keyword);
+                if (idx === -1) return headline;
+                return (
+                  <>
+                    {headline.slice(0, idx)}
+                    <span class="bg-gradient-to-br from-vspo-purple via-vspo-purple-light to-discord bg-clip-text text-transparent">
+                      {keyword}
+                    </span>
+                    {headline.slice(idx + keyword.length)}
+                  </>
+                );
+              })()}
+            </h1>
+
+            {/* Description */}
+            <p class="hero-description mb-8 max-w-lg text-[15px] leading-relaxed text-on-surface-variant">
+              {t(locale, "login.description")}
+            </p>
 
             {/* Error */}
             {errorKey && (
@@ -109,9 +133,9 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
           </div>
 
           {/* Right: Discord preview images */}
-          <div class="relative lg:max-h-[560px] lg:overflow-hidden">
+          <div class="relative lg:max-h-[600px] lg:overflow-hidden">
             <div class="flex gap-4 overflow-x-auto pb-2 lg:justify-end lg:overflow-visible">
-              <ScrollReveal animation="fade-in-up" class="w-56 shrink-0 overflow-hidden rounded-xl shadow-card sm:w-64 lg:w-[200px]">
+              <ScrollReveal animation="fade-in-up" class="preview-card w-56 shrink-0 overflow-hidden rounded-2xl sm:w-64 lg:w-[200px]">
                 <picture>
                   <source srcset="/discord-preview-1.webp" type="image/webp" />
                   <img
@@ -124,7 +148,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
                   />
                 </picture>
               </ScrollReveal>
-              <ScrollReveal animation="fade-in-up" delay={200} class="w-56 shrink-0 overflow-hidden rounded-xl shadow-card sm:w-64 lg:w-[200px]">
+              <ScrollReveal animation="fade-in-up" delay={200} class="preview-card w-56 shrink-0 overflow-hidden rounded-2xl sm:w-64 lg:w-[200px]">
                 <picture>
                   <source srcset="/discord-preview-2.webp" type="image/webp" />
                   <img
@@ -139,7 +163,7 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               </ScrollReveal>
             </div>
             {/* Fade-out gradient at bottom (desktop only) */}
-            <div class="pointer-events-none absolute inset-x-0 bottom-0 hidden h-20 bg-gradient-to-b from-transparent to-surface lg:block" aria-hidden="true"></div>
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 hidden h-24 bg-gradient-to-b from-transparent to-surface lg:block" aria-hidden="true"></div>
           </div>
         </div>
       </section>

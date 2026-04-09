@@ -5,8 +5,9 @@ export const ja = {
 
   // Login page
   "login.title": "ログイン",
-  "login.headline": "ぶいすぽっ!の配信予定を\nDiscordへ",
-  "login.description": "",
+  "login.headline": "ぶいすぽっ!の\n配信予定を\nDiscordへ",
+  "login.description":
+    "ぶいすぽっ!メンバーの配信予定をDiscordに自動で届けます。ブラウザ操作だけで通知設定が完了します。",
   "login.button": "Discordで管理画面へログイン",
   "login.addBot": "サーバーに追加する",
   "login.previewCaption": "通知イメージ",
