@@ -73,10 +73,9 @@ const toServerMemberType = (
  */
 /**
  * Adjust a channel's bot configuration and enqueue the result for D1 persistence.
- * Mirrors the three-step pattern used by Discord slash command handlers.
+ * Mirrors the two-step pattern used by Discord slash command handlers.
  * @precondition appWorker is a valid service binding with DiscordService RPC
- * @postcondition On Ok, channel config is updated in KV cache, enqueued for D1 persistence,
- *   and existing bot messages in the channel are enqueued for deletion
+ * @postcondition On Ok, channel config is updated in KV cache and enqueued for D1 persistence
  */
 const adjustAndEnqueue = async (
   appWorker: ApplicationService,
@@ -86,7 +85,6 @@ const adjustAndEnqueue = async (
   const result = await discord.adjustBotChannel(params);
   if (result.err) return result;
   await discord.batchUpsertEnqueue([result.val]);
-  await discord.deleteMessageInChannelEnqueue(params.targetChannelId);
   return Ok(undefined);
 };
 
