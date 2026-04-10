@@ -6,7 +6,6 @@ import Footer from "~/features/shared/components/Footer.astro";
 import Button from "~/features/shared/components/Button.astro";
 import ScrollReveal from "~/features/landing/components/ScrollReveal.astro";
 import BotStats from "~/features/landing/components/BotStats.astro";
-import Skeleton from "~/features/shared/components/Skeleton.astro";
 import { FeatureShowcase } from "~/features/landing/components/FeatureShowcase";
 import { t } from "~/i18n/dict";
 import { buildBotInviteUrl } from "~/features/guild/domain/guild";
@@ -123,13 +122,8 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               </Button>
             </div>
 
-            {/* Stats — server island with skeleton fallback */}
-            <BotStats server:defer locale={locale}>
-              <div slot="fallback" class="flex items-center justify-center gap-3 lg:justify-start">
-                <Skeleton variant="stat" class="!h-16 !w-28" />
-                <Skeleton variant="stat" class="!h-16 !w-28" />
-              </div>
-            </BotStats>
+            {/* Stats — inline-rendered with 30min cache; fixed frame prevents layout shift */}
+            <BotStats locale={locale} />
           </div>
 
           {/* Right: Discord preview images */}

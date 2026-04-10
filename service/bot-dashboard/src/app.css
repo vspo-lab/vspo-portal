@@ -270,6 +270,12 @@ dialog[open] {
   animation-range: entry 0% entry 40%;
 }
 
+/* Hero stats count-up — runs once on page load (above-the-fold, no scroll trigger needed).
+ * Delay matches .hero-stats fade-in (600ms) plus a small offset so roll starts after fade-in. */
+.hero-stats .digit-strip {
+  animation: digit-roll 1.2s cubic-bezier(0.22, 1, 0.36, 1) calc(800ms + var(--digit-delay, 0s)) both;
+}
+
 /* Separator (comma, period) */
 .digit-sep {
   width: calc(var(--dh) * 0.3);
