@@ -9,6 +9,9 @@
   },
   "workers_dev": false,
   "routes": [{ "pattern": "discord.vspo-schedule.com", "custom_domain": true }],
+  "kv_namespaces": [
+    { "binding": "SESSION", "id": "4c4d9b07156542cea12392b94123e5e2" }
+  ],
   "services": [
     {
       "binding": "APP_WORKER",
