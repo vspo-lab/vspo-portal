@@ -6,7 +6,6 @@ import Footer from "~/features/shared/components/Footer.astro";
 import Button from "~/features/shared/components/Button.astro";
 import ScrollReveal from "~/features/landing/components/ScrollReveal.astro";
 import BotStats from "~/features/landing/components/BotStats.astro";
-import Skeleton from "~/features/shared/components/Skeleton.astro";
 import { FeatureShowcase } from "~/features/landing/components/FeatureShowcase";
 import { t } from "~/i18n/dict";
 import { buildBotInviteUrl } from "~/features/guild/domain/guild";
@@ -33,111 +32,132 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
     <Header />
 
     <main id="main-content" class="relative">
-      {/* Hero Section */}
-      <section class="px-6 pb-16 pt-16 sm:pb-24 sm:pt-24">
-        <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-          {/* Badge */}
-          <div class="hero-badge mb-8">
-            <span class="inline-flex items-center gap-2 rounded-full bg-surface-container-highest px-3 py-1">
-              <span class="h-2 w-2 rounded-full bg-success"></span>
-              <span class="text-xs font-medium tracking-wide text-vspo-purple">{t(locale, "app.name")}</span>
-            </span>
-          </div>
+      {/* Hero Section — desktop: 2-column (left: text, right: previews) */}
+      <section class="hero-section relative overflow-hidden px-6 pb-16 pt-16 sm:pb-24 sm:pt-24">
+        {/* Decorative background glows */}
+        <div class="hero-bg pointer-events-none absolute inset-0 -z-0" aria-hidden="true"></div>
 
-          {/* Headline */}
-          <h1
-            class="hero-headline mb-8 whitespace-pre-line font-heading text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl md:text-6xl"
-          >{t(locale, "login.headline")}</h1>
-
-          {/* Stats — server island with skeleton fallback */}
-          <BotStats server:defer locale={locale}>
-            <div slot="fallback" class="hero-stats mb-10 flex items-center justify-center gap-6">
-              <Skeleton variant="stat" />
-              <div class="h-8 w-px bg-border/50" aria-hidden="true"></div>
-              <Skeleton variant="stat" />
+        <div class="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+          {/* Left: Text content */}
+          <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
+            {/* Badge */}
+            <div class="hero-badge mb-6">
+              <span class="inline-flex items-center gap-2 rounded-full border border-vspo-purple/30 bg-vspo-purple/10 px-3.5 py-1.5 backdrop-blur">
+                <span class="relative h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_8px_var(--color-success,_#4ade80)]"></span>
+                <span class="text-xs font-semibold tracking-wide text-vspo-purple-light">{t(locale, "app.name")}</span>
+              </span>
             </div>
-          </BotStats>
 
-          {/* Error */}
-          {errorKey && (
-            <div class="mb-8 flex w-full max-w-lg items-start gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface" role="alert">
-              <svg class="mt-0.5 h-4 w-4 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <div class="flex-1">
-                <p>{t(locale, errorKey)}</p>
-                <a href="/auth/discord" data-astro-prefetch="false" class="mt-1 inline-block font-medium text-vspo-purple underline hover:no-underline">
-                  {t(locale, "login.button")}
-                </a>
+            {/* Headline — split on "Discord" to accent the keyword */}
+            <h1
+              class="hero-headline mb-5 whitespace-pre-line font-heading text-[40px] font-extrabold leading-[1.15] tracking-tight text-on-surface sm:text-5xl lg:text-[46px] xl:text-[52px]"
+            >
+              {(() => {
+                const headline = t(locale, "login.headline");
+                const keyword = "Discord";
+                const idx = headline.indexOf(keyword);
+                if (idx === -1) return headline;
+                return (
+                  <>
+                    {headline.slice(0, idx)}
+                    <span class="bg-gradient-to-br from-vspo-purple via-vspo-purple-light to-discord bg-clip-text text-transparent">
+                      {keyword}
+                    </span>
+                    {headline.slice(idx + keyword.length)}
+                  </>
+                );
+              })()}
+            </h1>
+
+            {/* Description */}
+            <p class="hero-description mb-8 max-w-lg text-[15px] leading-relaxed text-on-surface-variant">
+              {t(locale, "login.description")}
+            </p>
+
+            {/* Error */}
+            {errorKey && (
+              <div class="mb-8 flex w-full max-w-lg items-start gap-3 rounded-xl bg-destructive/10 p-4 text-sm text-on-surface" role="alert">
+                <svg class="mt-0.5 h-4 w-4 shrink-0 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <div class="flex-1">
+                  <p>{t(locale, errorKey)}</p>
+                  <a href="/auth/discord" data-astro-prefetch="false" class="mt-1 inline-block font-medium text-vspo-purple underline hover:no-underline">
+                    {t(locale, "login.button")}
+                  </a>
+                </div>
+                <button type="button" class="shrink-0 cursor-pointer p-1 text-on-surface-variant hover:text-on-surface" aria-label={t(locale, "toast.dismiss")}
+                  onclick="this.closest('[role=alert]')?.remove()">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
               </div>
-              <button type="button" class="shrink-0 cursor-pointer p-1 text-on-surface-variant hover:text-on-surface" aria-label={t(locale, "toast.dismiss")}
-                onclick="this.closest('[role=alert]')?.remove()">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+            )}
+
+            {/* CTA Buttons */}
+            <div class="hero-cta mb-10 flex w-full max-w-sm flex-col items-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
+              <Button
+                as="a"
+                href={botInviteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="discord"
+                size="lg"
+                class="w-full gap-2 sm:w-auto"
+              >
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+                </svg>
+                {t(locale, "login.addBot")}
+              </Button>
+              <Button
+                as="a"
+                href="/auth/discord"
+                rel="noopener"
+                variant="outline"
+                size="lg"
+                class="w-full whitespace-nowrap sm:w-auto"
+                data-astro-prefetch="false"
+              >
+                {t(locale, "login.button")}
+              </Button>
             </div>
-          )}
 
-          {/* CTA Buttons */}
-          <div class="hero-cta flex w-full max-w-sm flex-col items-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
-            <Button
-              as="a"
-              href={botInviteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="discord"
-              size="lg"
-              class="w-full gap-2 sm:w-auto"
-            >
-              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-              </svg>
-              {t(locale, "login.addBot")}
-            </Button>
-            <Button
-              as="a"
-              href="/auth/discord"
-              rel="noopener"
-              variant="outline"
-              size="lg"
-              class="w-full whitespace-nowrap sm:w-auto"
-              data-astro-prefetch="false"
-            >
-              {t(locale, "login.button")}
-            </Button>
+            {/* Stats — inline-rendered with 30min cache; fixed frame prevents layout shift */}
+            <BotStats locale={locale} />
           </div>
-        </div>
-      </section>
 
-      {/* Discord notification preview */}
-      <section class="px-6 pb-8 sm:pb-16">
-        <div class="mx-auto max-w-5xl">
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <ScrollReveal animation="fade-in-up" class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
-              <picture>
-                <source srcset="/discord-preview-1.webp" type="image/webp" />
-                <img
-                  src="/discord-preview-1.png"
-                  alt={t(locale, "login.previewAlt1")}
-                  class="h-full w-full object-cover object-top"
-                  loading="lazy"
-                  width="580"
-                  height="1024"
-                />
-              </picture>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-in-up" delay={200} class="aspect-[3/5] overflow-hidden rounded-xl shadow-card">
-              <picture>
-                <source srcset="/discord-preview-2.webp" type="image/webp" />
-                <img
-                  src="/discord-preview-2.png"
-                  alt={t(locale, "login.previewAlt2")}
-                  class="h-full w-full object-cover object-top"
-                  loading="lazy"
-                  width="580"
-                  height="1024"
-                />
-              </picture>
-            </ScrollReveal>
+          {/* Right: Discord preview images */}
+          <div class="relative lg:max-h-[600px] lg:overflow-hidden">
+            <div class="flex gap-4 overflow-x-auto pb-2 lg:justify-end lg:overflow-visible">
+              <ScrollReveal animation="fade-in-up" class="preview-card w-56 shrink-0 overflow-hidden rounded-2xl sm:w-64 lg:w-[200px]">
+                <picture>
+                  <source srcset="/discord-preview-1.webp" type="image/webp" />
+                  <img
+                    src="/discord-preview-1.png"
+                    alt={t(locale, "login.previewAlt1")}
+                    class="h-full w-full object-cover object-top"
+                    loading="eager"
+                    width="580"
+                    height="1024"
+                  />
+                </picture>
+              </ScrollReveal>
+              <ScrollReveal animation="fade-in-up" delay={200} class="preview-card w-56 shrink-0 overflow-hidden rounded-2xl sm:w-64 lg:w-[200px]">
+                <picture>
+                  <source srcset="/discord-preview-2.webp" type="image/webp" />
+                  <img
+                    src="/discord-preview-2.png"
+                    alt={t(locale, "login.previewAlt2")}
+                    class="h-full w-full object-cover object-top"
+                    loading="eager"
+                    width="580"
+                    height="1024"
+                  />
+                </picture>
+              </ScrollReveal>
+            </div>
+            {/* Fade-out gradient at bottom (desktop only) */}
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 hidden h-24 bg-gradient-to-b from-transparent to-surface lg:block" aria-hidden="true"></div>
           </div>
         </div>
       </section>

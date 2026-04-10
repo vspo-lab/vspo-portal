@@ -11,28 +11,38 @@ const propsSchema = z.object({
 type Props = z.infer<typeof propsSchema>;
 
 const { locale } = Astro.props;
+// getBotStats is cached server-side (30min TTL in vspo-server's DiscordService),
+// so calling it inline is cheap after the first request per region.
 const statsResult = await VspoGuildApiRepository.getBotStats(env.APP_WORKER);
 const stats = statsResult.err ? null : statsResult.val;
 ---
 
-{stats && (
-  <div class="hero-stats mb-10 flex items-center justify-center gap-6" data-visible>
-    <div class="text-center">
-      <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
+{/* Fixed-height wrapper so skeleton/placeholder/success states share the same box */}
+<div class="hero-stats flex items-center justify-center gap-3 sm:gap-4 lg:justify-start">
+  <div class="stat-card flex h-[84px] w-28 flex-col items-center justify-center rounded-2xl px-5 text-center sm:h-[96px] sm:w-32 sm:px-6">
+    <div class="text-2xl font-extrabold leading-none text-on-surface sm:text-3xl">
+      {stats ? (
         <DigitRoll value={stats.guildCount} />
-      </div>
-      <div class="text-xs font-medium tracking-wide text-on-surface-variant">
-        {t(locale, "login.stat.servers")}
-      </div>
+      ) : (
+        <span class="text-on-surface-variant/60" aria-hidden="true">—</span>
+      )}
+      {!stats && <span class="sr-only">{t(locale, "login.stat.servers")}</span>}
     </div>
-    <div class="h-8 w-px bg-border/50" aria-hidden="true"></div>
-    <div class="text-center">
-      <div class="text-2xl font-extrabold text-on-surface sm:text-3xl">
-        <DigitRoll value={stats.totalMemberCount} />
-      </div>
-      <div class="text-xs font-medium tracking-wide text-on-surface-variant">
-        {t(locale, "login.stat.users")}
-      </div>
+    <div class="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
+      {t(locale, "login.stat.servers")}
     </div>
   </div>
-)}
+  <div class="stat-card flex h-[84px] w-28 flex-col items-center justify-center rounded-2xl px-5 text-center sm:h-[96px] sm:w-32 sm:px-6">
+    <div class="text-2xl font-extrabold leading-none text-on-surface sm:text-3xl">
+      {stats ? (
+        <DigitRoll value={stats.totalMemberCount} />
+      ) : (
+        <span class="text-on-surface-variant/60" aria-hidden="true">—</span>
+      )}
+      {!stats && <span class="sr-only">{t(locale, "login.stat.users")}</span>}
+    </div>
+    <div class="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
+      {t(locale, "login.stat.users")}
+    </div>
+  </div>
+</div>
