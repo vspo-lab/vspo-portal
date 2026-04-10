@@ -122,8 +122,19 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
               </Button>
             </div>
 
-            {/* Stats — inline-rendered with 30min cache; fixed frame prevents layout shift */}
-            <BotStats locale={locale} />
+            {/* Stats — server:defer so the rest of the page renders immediately */}
+            <BotStats server:defer locale={locale}>
+              <div slot="fallback" class="hero-stats inline-grid grid-cols-2 gap-3 sm:gap-4">
+                <div class="stat-card flex h-20 min-w-[9rem] flex-col items-center justify-center rounded-2xl px-3 py-3 text-center sm:h-24 sm:min-w-[10.5rem] sm:px-4">
+                  <div class="h-8 w-16 animate-pulse rounded bg-on-surface/10 sm:h-9"></div>
+                  <div class="mt-1.5 text-xs font-medium text-on-surface-variant">{t(locale, "login.stat.servers")}</div>
+                </div>
+                <div class="stat-card flex h-20 min-w-[9rem] flex-col items-center justify-center rounded-2xl px-3 py-3 text-center sm:h-24 sm:min-w-[10.5rem] sm:px-4">
+                  <div class="h-8 w-20 animate-pulse rounded bg-on-surface/10 sm:h-9"></div>
+                  <div class="mt-1.5 text-xs font-medium text-on-surface-variant">{t(locale, "login.stat.users")}</div>
+                </div>
+              </div>
+            </BotStats>
           </div>
 
           {/* Right: Discord preview images */}
