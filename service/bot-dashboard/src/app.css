@@ -270,6 +270,15 @@ dialog[open] {
   animation-range: entry 0% entry 40%;
 }
 
+/* Hero stats — compact digit sizing to fit 5-digit + comma numbers within stat-card min-w.
+ * Overrides global .digit-roll --dh (specificity 0,2,0 > 0,1,0). */
+.hero-stats .digit-roll {
+  --dh: 32px;
+}
+@media (min-width: 640px) {
+  .hero-stats .digit-roll { --dh: 40px; }
+}
+
 /* Hero stats count-up — runs once on page load (above-the-fold, no scroll trigger needed).
  * Delay matches .hero-stats fade-in (600ms) plus a small offset so roll starts after fade-in. */
 .hero-stats .digit-strip {
@@ -349,9 +358,16 @@ dialog[open] {
  * Purple-tinted bordered card for bot statistics.
  */
 .stat-card {
-  border: 1px solid rgba(114, 102, 207, 0.2);
-  background: linear-gradient(180deg, rgba(114, 102, 207, 0.06), rgba(114, 102, 207, 0.02));
+  border: 1px solid rgba(114, 102, 207, 0.35);
+  background: linear-gradient(180deg, rgba(114, 102, 207, 0.10), rgba(114, 102, 207, 0.04));
+  box-shadow: 0 1px 3px rgba(114, 102, 207, 0.08);
   backdrop-filter: blur(8px);
+}
+
+.dark .stat-card {
+  border-color: rgba(114, 102, 207, 0.22);
+  background: linear-gradient(180deg, rgba(114, 102, 207, 0.08), rgba(114, 102, 207, 0.02));
+  box-shadow: none;
 }
 
 /*
@@ -431,7 +447,7 @@ dialog[open] {
 
   /* On-surface text */
   --sem-on-surface:         rgba(0, 0, 0, 0.87);
-  --sem-on-surface-variant:  rgba(0, 0, 0, 0.6);
+  --sem-on-surface-variant:  rgba(0, 0, 0, 0.72);
 
   /* Accent tokens */
   --sem-primary-container:   #5865f2;
