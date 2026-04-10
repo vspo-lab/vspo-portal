@@ -20,22 +20,19 @@ const result = await ListGuildsUsecase.execute({
   appWorker: env.APP_WORKER,
 });
 
-// Token expired/revoked on Discord side but middleware didn't detect it — force re-login
-if (result.err?.code === "UNAUTHORIZED") {
-  console.error("[dashboard] getUserGuilds UNAUTHORIZED — forcing re-login");
-  Astro.session?.destroy();
-  return Astro.redirect("/?error=auth_failed");
-}
-
-if (result.err) {
-  console.error("[dashboard] ListGuildsUsecase failed:", result.err.code, result.err.message);
-}
-
 const fetchError = result.err ?? null;
 const installed = result.err ? [] : result.val.installed;
 const notInstalled = result.err ? [] : result.val.notInstalled;
 const botClientId = DISCORD_BOT_CLIENT_ID;
 
+// Cache guild summaries in session for fast access on guild detail pages
+if (!result.err) {
+  const allGuilds = [...result.val.installed, ...result.val.notInstalled];
+  Astro.session?.set(
+    "guildSummaries",
+    allGuilds.map((g) => ({ id: g.id, name: g.name, icon: g.icon, isAdmin: g.isAdmin, botInstalled: g.botInstalled })),
+  );
+}
 ---
 
 <Dashboard title={t(locale, "dashboard.servers")} description={t(locale, "meta.dashboard.description")} showSidebar>

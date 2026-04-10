@@ -26,6 +26,14 @@ declare namespace App {
     pkce_verifier: string;
     locale: import("~/i18n/dict").Locale;
     lastActivity: number;
+    /** Cached guild summaries to avoid re-fetching on guild detail pages */
+    guildSummaries: Array<{
+      id: string;
+      name: string;
+      icon: string | null;
+      isAdmin: boolean;
+      botInstalled: boolean;
+    }>;
   }
   interface Locals {
     user: SessionData["user"] | null;
