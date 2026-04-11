@@ -5,7 +5,7 @@ import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-cha
 /**
  * GET /api/guilds/:guildId/channels
  * Returns all text channels in the Discord guild for the add-channel modal.
- * @precondition User must be authenticated (middleware enforces this for /api paths under /dashboard context)
+ * @precondition User must be authenticated and admin of the specified guild (enforced by middleware)
  * @postcondition Returns JSON array of { id, name } pairs
  * @idempotent true
  */
@@ -25,7 +25,10 @@ export const GET: APIRoute = async ({ params, locals }) => {
   );
 
   if (result.err) {
-    return Response.json({ error: result.err.message }, { status: 500 });
+    return Response.json(
+      { error: "Failed to fetch channels" },
+      { status: 500 },
+    );
   }
 
   return Response.json(result.val);
