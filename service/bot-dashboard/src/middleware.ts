@@ -100,15 +100,21 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Read session values in parallel to reduce KV round-trips
-  const [sessionLocale, user, expiresAt, accessToken, lastActivity, guildSummaries] =
-    await Promise.all([
-      context.session?.get("locale"),
-      context.session?.get("user"),
-      context.session?.get("expiresAt"),
-      context.session?.get("accessToken"),
-      context.session?.get("lastActivity"),
-      context.session?.get("guildSummaries"),
-    ]);
+  const [
+    sessionLocale,
+    user,
+    expiresAt,
+    accessToken,
+    lastActivity,
+    guildSummaries,
+  ] = await Promise.all([
+    context.session?.get("locale"),
+    context.session?.get("user"),
+    context.session?.get("expiresAt"),
+    context.session?.get("accessToken"),
+    context.session?.get("lastActivity"),
+    context.session?.get("guildSummaries"),
+  ]);
 
   // Idle timeout — destroy session if inactive for 2 hours
   const now = getCurrentUTCDate().getTime();
