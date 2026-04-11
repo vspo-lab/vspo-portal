@@ -12,9 +12,9 @@ const snowflake = z
   .regex(/^\d{17,20}$/, "Invalid Discord Snowflake ID");
 
 /** Throws UNAUTHORIZED if user is not authenticated. Returns the verified user. */
-const requireAuth = (
-  context: { locals: { user: unknown } },
-): { id: string } => {
+const requireAuth = (context: {
+  locals: { user: unknown };
+}): { id: string } => {
   if (!context.locals.user) {
     throw new ActionError({ code: "UNAUTHORIZED" });
   }
