@@ -22,10 +22,11 @@ const requireAuth = (context: {
 };
 
 /**
- * Verifies the user is an admin of the specified guild via bot token.
+ * Verifies the user is an admin of the specified guild via real-time RPC.
+ * Uses checkUserGuildAdmin (bot token) to get current Discord role status.
  * Throws FORBIDDEN if the user does not have admin permissions.
  * @precondition userId and guildId must be valid Discord snowflakes
- * @postcondition On success, the user is confirmed as a guild admin
+ * @postcondition On success, the user is confirmed as a guild admin in real-time
  */
 const requireGuildAdmin = async (
   userId: string,
@@ -84,7 +85,7 @@ export const server = {
       channelId: snowflake,
       language: z.string(),
       memberType: z.enum(["vspo_jp", "vspo_en", "all", "custom"]),
-      customMemberIds: z.array(snowflake).optional(),
+      customMemberIds: z.array(z.string()).optional(),
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
