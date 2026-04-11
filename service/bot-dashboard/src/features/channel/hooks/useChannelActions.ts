@@ -64,7 +64,16 @@ export function createChannelActions(translations: ChannelActionTranslations) {
     const { error } = await actions.updateChannel({
       guildId,
       channelId,
-      language: patch.language,
+      language: patch.language as
+        | "ja"
+        | "en"
+        | "fr"
+        | "de"
+        | "es"
+        | "cn"
+        | "tw"
+        | "ko"
+        | "default",
       memberType: patch.memberType as "vspo_jp" | "vspo_en" | "all" | "custom",
       customMemberIds: patch.customMemberIds,
     });
