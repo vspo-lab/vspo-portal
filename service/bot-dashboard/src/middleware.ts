@@ -3,6 +3,7 @@ import { defineMiddleware, sequence } from "astro:middleware";
 import { env } from "cloudflare:workers";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DiscordOAuthRpcRepository } from "~/features/auth/repository/discord-oauth-rpc";
+import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
 /** Buffer in ms — refresh 5 minutes before actual expiry. */
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;
@@ -50,6 +51,27 @@ const CSP_HEADER = [
   "connect-src 'self' https://discord.com",
   "frame-ancestors 'none'",
 ].join("; ");
+
+/** Discord Snowflake pattern: 17-20 digit string */
+const SNOWFLAKE_RE = /^\d{17,20}$/;
+
+/**
+ * Extract guildId from guild-scoped URL paths.
+ * Matches `/dashboard/:guildId` and `/api/guilds/:guildId/*`.
+ * @postcondition Returns a valid snowflake string or null
+ */
+const extractGuildId = (pathname: string): string | null => {
+  const segments = pathname.split("/");
+  // /dashboard/:guildId → segments = ["", "dashboard", guildId, ...]
+  if (segments[1] === "dashboard" && segments[2]) {
+    return SNOWFLAKE_RE.test(segments[2]) ? segments[2] : null;
+  }
+  // /api/guilds/:guildId/* → segments = ["", "api", "guilds", guildId, ...]
+  if (segments[1] === "api" && segments[2] === "guilds" && segments[3]) {
+    return SNOWFLAKE_RE.test(segments[3]) ? segments[3] : null;
+  }
+  return null;
+};
 
 /** Middleware: sets security headers on every response. */
 const securityHeaders = defineMiddleware(async (_context, next) => {
@@ -144,6 +166,23 @@ const auth = defineMiddleware(async (context, next) => {
     context.locals.accessToken = tokens.access_token;
   } else {
     context.locals.accessToken = accessToken ?? null;
+  }
+
+  // Guild-level authorization for guild-scoped routes
+  const guildId = extractGuildId(context.url.pathname);
+  if (guildId) {
+    const userId = (user as { id: string }).id;
+    const adminResult = await VspoGuildApiRepository.checkUserGuildAdmin(
+      env.APP_WORKER,
+      userId,
+      [guildId],
+    );
+    if (adminResult.err || !adminResult.val[guildId]) {
+      if (context.url.pathname.startsWith("/api/")) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
+      }
+      return context.redirect("/dashboard");
+    }
   }
 
   return next();
