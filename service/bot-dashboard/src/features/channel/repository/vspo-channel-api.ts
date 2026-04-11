@@ -84,7 +84,23 @@ const adjustAndEnqueue = async (
   const discord = appWorker.newDiscordUsecase();
   const result = await discord.adjustBotChannel(params);
   if (result.err) return result;
-  await discord.batchUpsertEnqueue([result.val]);
+
+  // Prevent cross-channel initial-message contamination:
+  // adjustBotChannel returns the FULL server with ALL channels.
+  // Only the target channel should retain isInitialAdd; strip it from others
+  // so the queue consumer does not send initial messages to unrelated channels.
+  // We use undefined (field removal) rather than false so that any legitimately
+  // pending initial-add state on other channels is not overwritten in the store.
+  const sanitized = {
+    ...result.val,
+    discordChannels: result.val.discordChannels.map((ch) => {
+      if (ch.rawId === params.targetChannelId) return ch;
+      const { isInitialAdd: _, ...rest } = ch;
+      return rest;
+    }),
+  };
+
+  await discord.batchUpsertEnqueue([sanitized]);
   return Ok(undefined);
 };
 

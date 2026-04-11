@@ -43,13 +43,34 @@ const STATIC_HEADERS: ReadonlyArray<readonly [string, string]> = [
  */
 const CSP_HEADER = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "img-src 'self' https://cdn.discordapp.com https://yt3.ggpht.com https://lh3.googleusercontent.com data:",
-  "connect-src 'self' https://discord.com",
+  "connect-src 'self' https://discord.com https://cloudflareinsights.com",
   "frame-ancestors 'none'",
 ].join("; ");
+
+/** Discord Snowflake pattern: 17-20 digit string */
+const SNOWFLAKE_RE = /^\d{17,20}$/;
+
+/**
+ * Extract guildId from guild-scoped URL paths.
+ * Matches `/dashboard/:guildId` and `/api/guilds/:guildId/*`.
+ * @postcondition Returns a valid snowflake string or null
+ */
+const extractGuildId = (pathname: string): string | null => {
+  const segments = pathname.split("/");
+  // /dashboard/:guildId → segments = ["", "dashboard", guildId, ...]
+  if (segments[1] === "dashboard" && segments[2]) {
+    return SNOWFLAKE_RE.test(segments[2]) ? segments[2] : null;
+  }
+  // /api/guilds/:guildId/* → segments = ["", "api", "guilds", guildId, ...]
+  if (segments[1] === "api" && segments[2] === "guilds" && segments[3]) {
+    return SNOWFLAKE_RE.test(segments[3]) ? segments[3] : null;
+  }
+  return null;
+};
 
 /** Middleware: sets security headers on every response. */
 const securityHeaders = defineMiddleware(async (_context, next) => {
@@ -79,14 +100,21 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Read session values in parallel to reduce KV round-trips
-  const [sessionLocale, user, expiresAt, accessToken, lastActivity] =
-    await Promise.all([
-      context.session?.get("locale"),
-      context.session?.get("user"),
-      context.session?.get("expiresAt"),
-      context.session?.get("accessToken"),
-      context.session?.get("lastActivity"),
-    ]);
+  const [
+    sessionLocale,
+    user,
+    expiresAt,
+    accessToken,
+    lastActivity,
+    guildSummaries,
+  ] = await Promise.all([
+    context.session?.get("locale"),
+    context.session?.get("user"),
+    context.session?.get("expiresAt"),
+    context.session?.get("accessToken"),
+    context.session?.get("lastActivity"),
+    context.session?.get("guildSummaries"),
+  ]);
 
   // Idle timeout — destroy session if inactive for 2 hours
   const now = getCurrentUTCDate().getTime();
@@ -144,6 +172,25 @@ const auth = defineMiddleware(async (context, next) => {
     context.locals.accessToken = tokens.access_token;
   } else {
     context.locals.accessToken = accessToken ?? null;
+  }
+
+  // Guild-level authorization for guild-scoped routes.
+  // The session cache (set by /dashboard page) only contains guilds where
+  // the user is admin. A guild NOT in the cache means the user is not admin.
+  // Mutations still perform a real-time RPC check in their action handlers.
+  const guildId = extractGuildId(context.url.pathname);
+  if (guildId) {
+    const isGuildAdmin = (
+      guildSummaries as
+        | ReadonlyArray<{ id: string; isAdmin: boolean }>
+        | undefined
+    )?.some((g) => g.id === guildId && g.isAdmin);
+    if (!isGuildAdmin) {
+      if (context.url.pathname.startsWith("/api/")) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
+      }
+      return context.redirect("/dashboard");
+    }
   }
 
   return next();

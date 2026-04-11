@@ -84,9 +84,11 @@ dist
 
 # claude hooks state
 .claude/.post_edit_check_pending
+.claude/logs/
 
 docs/superpowers/
 .claude/settings.local.json
+.claude/logs/
 
 # Cloudflare generated types
 **/worker-configuration.d.ts

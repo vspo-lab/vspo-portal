@@ -162,9 +162,6 @@ export class VSPOApi {
 
         if (i < this.retry.attempts) {
           const backoff = this.retry.backoff(i);
-          console.debug(
-            `Attempt ${i + 1} of ${this.retry.attempts + 1} failed, retrying in ${backoff}ms: ${err.message}`,
-          );
           await new Promise((r) => setTimeout(r, backoff));
         }
         continue;
@@ -204,9 +201,6 @@ export class VSPOApi {
 
       if (i < this.retry.attempts) {
         const backoff = this.retry.backoff(i);
-        console.debug(
-          `Attempt ${i + 1} of ${this.retry.attempts + 1} failed, retrying in ${backoff}ms: ${errorMessage}`,
-        );
         await new Promise((r) => setTimeout(r, backoff));
       }
     }
