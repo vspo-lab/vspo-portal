@@ -87,6 +87,7 @@ dist
 
 docs/superpowers/
 .claude/settings.local.json
+.claude/logs/
 
 # Cloudflare generated types
 **/worker-configuration.d.ts
