@@ -4,19 +4,15 @@ import { env } from "cloudflare:workers";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { AddChannelUsecase } from "~/features/channel/usecase/add-channel";
 import { DeleteChannelUsecase } from "~/features/channel/usecase/delete-channel";
+import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
 /** Discord Snowflake ID: 17-20 digit numeric string */
 const snowflake = z
   .string()
   .regex(/^\d{17,20}$/, "Invalid Discord Snowflake ID");
 
-type ActionContext = {
-  locals: { user: unknown };
-  session?: { get: (key: string) => Promise<unknown> };
-};
-
 /** Throws UNAUTHORIZED if user is not authenticated. Returns the verified user. */
-const requireAuth = (context: ActionContext): { id: string } => {
+const requireAuth = (context: { locals: { user: unknown } }): { id: string } => {
   if (!context.locals.user) {
     throw new ActionError({ code: "UNAUTHORIZED" });
   }
@@ -24,23 +20,22 @@ const requireAuth = (context: ActionContext): { id: string } => {
 };
 
 /**
- * Verifies the user is an admin of the specified guild using session-cached
- * guildSummaries (populated when the user visits /dashboard).
- * Throws FORBIDDEN if the guild is not in the admin cache.
- * @precondition guildId must be a valid Discord snowflake
- * @postcondition On success, the user is confirmed as a guild admin
+ * Verifies the user is an admin of the specified guild via real-time RPC.
+ * Uses checkUserGuildAdmin (bot token) to get current Discord role status.
+ * Throws FORBIDDEN if the user does not have admin permissions.
+ * @precondition userId and guildId must be valid Discord snowflakes
+ * @postcondition On success, the user is confirmed as a guild admin in real-time
  */
 const requireGuildAdmin = async (
-  context: ActionContext,
+  userId: string,
   guildId: string,
 ): Promise<void> => {
-  const guildSummaries = await context.session?.get("guildSummaries");
-  const isAdmin = (
-    guildSummaries as
-      | ReadonlyArray<{ id: string; isAdmin: boolean }>
-      | undefined
-  )?.some((g) => g.id === guildId && g.isAdmin);
-  if (!isAdmin) {
+  const result = await VspoGuildApiRepository.checkUserGuildAdmin(
+    env.APP_WORKER,
+    userId,
+    [guildId],
+  );
+  if (result.err || !result.val[guildId]) {
     throw new ActionError({ code: "FORBIDDEN" });
   }
 };
@@ -68,7 +63,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(context, input.guildId);
+      await requireGuildAdmin(user.id, input.guildId);
 
       const result = await AddChannelUsecase.execute({
         appWorker: env.APP_WORKER,
@@ -92,7 +87,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(context, input.guildId);
+      await requireGuildAdmin(user.id, input.guildId);
 
       const result = await VspoChannelApiRepository.updateChannel(
         env.APP_WORKER,
@@ -118,7 +113,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(context, input.guildId);
+      await requireGuildAdmin(user.id, input.guildId);
 
       const result = await VspoChannelApiRepository.updateChannel(
         env.APP_WORKER,
@@ -140,7 +135,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(context, input.guildId);
+      await requireGuildAdmin(user.id, input.guildId);
 
       const result = await DeleteChannelUsecase.execute({
         appWorker: env.APP_WORKER,
