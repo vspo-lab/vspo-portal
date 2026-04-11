@@ -168,7 +168,9 @@ const auth = defineMiddleware(async (context, next) => {
     context.locals.accessToken = accessToken ?? null;
   }
 
-  // Guild-level authorization for guild-scoped routes
+  // Guild-level authorization for guild-scoped routes.
+  // On RPC error, fail-open to avoid blocking the entire dashboard.
+  // On a definitive "not admin" response, deny access.
   const guildId = extractGuildId(context.url.pathname);
   if (guildId) {
     const userId = (user as { id: string }).id;
@@ -177,7 +179,7 @@ const auth = defineMiddleware(async (context, next) => {
       userId,
       [guildId],
     );
-    if (adminResult.err || !adminResult.val[guildId]) {
+    if (!adminResult.err && adminResult.val[guildId] === false) {
       if (context.url.pathname.startsWith("/api/")) {
         return Response.json({ error: "Forbidden" }, { status: 403 });
       }
