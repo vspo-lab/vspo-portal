@@ -4,17 +4,19 @@ import { env } from "cloudflare:workers";
 import { VspoChannelApiRepository } from "~/features/channel/repository/vspo-channel-api";
 import { AddChannelUsecase } from "~/features/channel/usecase/add-channel";
 import { DeleteChannelUsecase } from "~/features/channel/usecase/delete-channel";
-import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
 /** Discord Snowflake ID: 17-20 digit numeric string */
 const snowflake = z
   .string()
   .regex(/^\d{17,20}$/, "Invalid Discord Snowflake ID");
 
-/** Throws UNAUTHORIZED if user is not authenticated. Returns the verified user. */
-const requireAuth = (context: {
+type ActionContext = {
   locals: { user: unknown };
-}): { id: string } => {
+  session?: { get: (key: string) => Promise<unknown> };
+};
+
+/** Throws UNAUTHORIZED if user is not authenticated. Returns the verified user. */
+const requireAuth = (context: ActionContext): { id: string } => {
   if (!context.locals.user) {
     throw new ActionError({ code: "UNAUTHORIZED" });
   }
@@ -22,21 +24,23 @@ const requireAuth = (context: {
 };
 
 /**
- * Verifies the user is an admin of the specified guild via bot token.
- * Throws FORBIDDEN if the user does not have admin permissions.
- * @precondition userId and guildId must be valid Discord snowflakes
+ * Verifies the user is an admin of the specified guild using session-cached
+ * guildSummaries (populated when the user visits /dashboard).
+ * Throws FORBIDDEN if the guild is not in the admin cache.
+ * @precondition guildId must be a valid Discord snowflake
  * @postcondition On success, the user is confirmed as a guild admin
  */
 const requireGuildAdmin = async (
-  userId: string,
+  context: ActionContext,
   guildId: string,
 ): Promise<void> => {
-  const result = await VspoGuildApiRepository.checkUserGuildAdmin(
-    env.APP_WORKER,
-    userId,
-    [guildId],
-  );
-  if (result.err || !result.val[guildId]) {
+  const guildSummaries = await context.session?.get("guildSummaries");
+  const isAdmin = (
+    guildSummaries as
+      | ReadonlyArray<{ id: string; isAdmin: boolean }>
+      | undefined
+  )?.some((g) => g.id === guildId && g.isAdmin);
+  if (!isAdmin) {
     throw new ActionError({ code: "FORBIDDEN" });
   }
 };
@@ -64,7 +68,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(user.id, input.guildId);
+      await requireGuildAdmin(context, input.guildId);
 
       const result = await AddChannelUsecase.execute({
         appWorker: env.APP_WORKER,
@@ -88,7 +92,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(user.id, input.guildId);
+      await requireGuildAdmin(context, input.guildId);
 
       const result = await VspoChannelApiRepository.updateChannel(
         env.APP_WORKER,
@@ -114,7 +118,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(user.id, input.guildId);
+      await requireGuildAdmin(context, input.guildId);
 
       const result = await VspoChannelApiRepository.updateChannel(
         env.APP_WORKER,
@@ -136,7 +140,7 @@ export const server = {
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
-      await requireGuildAdmin(user.id, input.guildId);
+      await requireGuildAdmin(context, input.guildId);
 
       const result = await DeleteChannelUsecase.execute({
         appWorker: env.APP_WORKER,
