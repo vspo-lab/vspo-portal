@@ -95,7 +95,20 @@ const adjustAndEnqueue = async (
   const sanitized = {
     ...result.val,
     discordChannels: result.val.discordChannels.map((ch) => {
-      if (ch.rawId === params.targetChannelId) return ch;
+      if (ch.rawId === params.targetChannelId) {
+        // adjustBotChannel RPC does not accept selectedMemberIds in its params,
+        // and may not apply memberType reliably. Patch the target channel with
+        // the intended values so that batchUpsertEnqueue persists the correct state.
+        return {
+          ...ch,
+          ...(params.memberType !== undefined && {
+            memberType: params.memberType,
+          }),
+          ...(params.selectedMemberIds !== undefined && {
+            selectedMemberIds: params.selectedMemberIds,
+          }),
+        };
+      }
       const { isInitialAdd: _, ...rest } = ch;
       return rest;
     }),
