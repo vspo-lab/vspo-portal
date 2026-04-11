@@ -8,9 +8,7 @@ import type { MemberTypeValue } from "../domain/member-type";
 
 type AdjustBotChannelRpcParams = Parameters<
   ReturnType<ApplicationService["newDiscordUsecase"]>["adjustBotChannel"]
->[0] & {
-  selectedMemberIds?: string[];
-};
+>[0];
 
 /**
  * Maps the vspo-server memberType to the bot-dashboard's MemberType domain value.
@@ -24,6 +22,7 @@ const toFrontendMemberType = (
     | "vspo_ch"
     | "vspo_all"
     | "general"
+    | "custom"
     | undefined,
   selectedMemberIds?: string[],
 ): MemberTypeValue => {
@@ -32,6 +31,8 @@ const toFrontendMemberType = (
       return "vspo_jp";
     case "vspo_en":
       return "vspo_en";
+    case "custom":
+      return "custom";
     case "vspo_all":
       return selectedMemberIds && selectedMemberIds.length > 0
         ? "custom"
@@ -51,14 +52,14 @@ const toFrontendMemberType = (
  */
 const toServerMemberType = (
   frontendMemberType: MemberTypeValue,
-): "vspo_jp" | "vspo_en" | "vspo_all" | "general" => {
+): "vspo_jp" | "vspo_en" | "vspo_all" | "general" | "custom" => {
   switch (frontendMemberType) {
     case "vspo_jp":
       return "vspo_jp";
     case "vspo_en":
       return "vspo_en";
     case "custom":
-      return "vspo_all";
+      return "custom";
     case "all":
       return "vspo_all";
     default:

@@ -1774,7 +1774,8 @@ type AdjustBotChannelParams = {
   targetChannelId: string;
   serverLangaugeCode?: string;
   channelLangaugeCode?: string;
-  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general" | "custom";
+  selectedMemberIds?: string[];
 };
 type ListDiscordServerParam = {
   limit: number;
