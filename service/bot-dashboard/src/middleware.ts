@@ -43,11 +43,11 @@ const STATIC_HEADERS: ReadonlyArray<readonly [string, string]> = [
  */
 const CSP_HEADER = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "img-src 'self' https://cdn.discordapp.com https://yt3.ggpht.com https://lh3.googleusercontent.com data:",
-  "connect-src 'self' https://discord.com",
+  "connect-src 'self' https://discord.com https://cloudflareinsights.com",
   "frame-ancestors 'none'",
 ].join("; ");
 
