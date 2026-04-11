@@ -84,7 +84,7 @@ export const server = {
       channelId: snowflake,
       language: z.string(),
       memberType: z.enum(["vspo_jp", "vspo_en", "all", "custom"]),
-      customMemberIds: z.array(snowflake).optional(),
+      customMemberIds: z.array(z.string()).optional(),
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
