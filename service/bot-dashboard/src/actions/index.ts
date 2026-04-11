@@ -95,7 +95,7 @@ export const server = {
         "default",
       ]),
       memberType: z.enum(["vspo_jp", "vspo_en", "all", "custom"]),
-      customMemberIds: z.array(snowflake).optional(),
+      customMemberIds: z.array(z.string().min(1).max(128)).optional(),
     }),
     handler: async (input, context) => {
       const user = requireAuth(context);
