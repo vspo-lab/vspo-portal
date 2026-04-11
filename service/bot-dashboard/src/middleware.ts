@@ -175,17 +175,17 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Guild-level authorization for guild-scoped routes.
-  // Uses session-cached guildSummaries (set by /dashboard page) to avoid
-  // an extra RPC round-trip on every request. Mutations still perform a
-  // real-time RPC check in their action handlers.
-  // If no cache exists (direct bookmark), allow through — the page itself
-  // will fetch and verify via ListGuildsUsecase.
+  // The session cache (set by /dashboard page) only contains guilds where
+  // the user is admin. A guild NOT in the cache means the user is not admin.
+  // Mutations still perform a real-time RPC check in their action handlers.
   const guildId = extractGuildId(context.url.pathname);
-  if (guildId && guildSummaries) {
-    const cached = (
-      guildSummaries as ReadonlyArray<{ id: string; isAdmin: boolean }>
-    ).find((g) => g.id === guildId);
-    if (cached && !cached.isAdmin) {
+  if (guildId) {
+    const isGuildAdmin = (
+      guildSummaries as
+        | ReadonlyArray<{ id: string; isAdmin: boolean }>
+        | undefined
+    )?.some((g) => g.id === guildId && g.isAdmin);
+    if (!isGuildAdmin) {
       if (context.url.pathname.startsWith("/api/")) {
         return Response.json({ error: "Forbidden" }, { status: 403 });
       }
