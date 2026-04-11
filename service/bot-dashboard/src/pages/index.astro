@@ -92,6 +92,16 @@ const errorKey = errorParam === "auth_failed" || errorParam === "no_code" || err
                 </button>
               </div>
             )}
+            {/* Clean up error param from URL after rendering so it doesn't persist on refresh */}
+            {errorKey && (
+              <script is:inline>
+                if (window.location.search.includes("error=")) {
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete("error");
+                  window.history.replaceState({}, "", url.pathname + url.search);
+                }
+              </script>
+            )}
 
             {/* CTA Buttons */}
             <div class="hero-cta mb-10 flex w-full max-w-sm flex-col items-center gap-3 sm:w-auto sm:max-w-none sm:flex-row">
