@@ -3,7 +3,6 @@ import { defineMiddleware, sequence } from "astro:middleware";
 import { env } from "cloudflare:workers";
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
 import { DiscordOAuthRpcRepository } from "~/features/auth/repository/discord-oauth-rpc";
-import { VspoGuildApiRepository } from "~/features/guild/repository/vspo-guild-api";
 
 /** Buffer in ms — refresh 5 minutes before actual expiry. */
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;
@@ -101,13 +100,14 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Read session values in parallel to reduce KV round-trips
-  const [sessionLocale, user, expiresAt, accessToken, lastActivity] =
+  const [sessionLocale, user, expiresAt, accessToken, lastActivity, guildSummaries] =
     await Promise.all([
       context.session?.get("locale"),
       context.session?.get("user"),
       context.session?.get("expiresAt"),
       context.session?.get("accessToken"),
       context.session?.get("lastActivity"),
+      context.session?.get("guildSummaries"),
     ]);
 
   // Idle timeout — destroy session if inactive for 2 hours
@@ -169,17 +169,17 @@ const auth = defineMiddleware(async (context, next) => {
   }
 
   // Guild-level authorization for guild-scoped routes.
-  // On RPC error, fail-open to avoid blocking the entire dashboard.
-  // On a definitive "not admin" response, deny access.
+  // Uses session-cached guildSummaries (set by /dashboard page) to avoid
+  // an extra RPC round-trip on every request. Mutations still perform a
+  // real-time RPC check in their action handlers.
+  // If no cache exists (direct bookmark), allow through — the page itself
+  // will fetch and verify via ListGuildsUsecase.
   const guildId = extractGuildId(context.url.pathname);
-  if (guildId) {
-    const userId = (user as { id: string }).id;
-    const adminResult = await VspoGuildApiRepository.checkUserGuildAdmin(
-      env.APP_WORKER,
-      userId,
-      [guildId],
-    );
-    if (!adminResult.err && adminResult.val[guildId] === false) {
+  if (guildId && guildSummaries) {
+    const cached = (
+      guildSummaries as ReadonlyArray<{ id: string; isAdmin: boolean }>
+    ).find((g) => g.id === guildId);
+    if (cached && !cached.isAdmin) {
       if (context.url.pathname.startsWith("/api/")) {
         return Response.json({ error: "Forbidden" }, { status: 403 });
       }
