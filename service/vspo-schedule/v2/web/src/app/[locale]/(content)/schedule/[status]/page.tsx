@@ -1,4 +1,5 @@
 import { getCurrentUTCDate } from "@vspo-lab/dayjs";
+import { AppError, wrap } from "@vspo-lab/error";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
@@ -87,16 +88,27 @@ async function ScheduleContent({
   const validatedQuery = safeQuery.success ? safeQuery.data : {};
 
   const favoriteCookie = cookieStore.get("favorite-search-condition")?.value;
-  const favoriteCondition = (() => {
-    if (!favoriteCookie) return null;
-    try {
-      const parsed = JSON.parse(favoriteCookie);
-      const result = favoriteSearchConditionSchema.safeParse(parsed);
-      return result.success ? result.data : null;
-    } catch {
-      return null;
-    }
-  })();
+  const parsedFavoriteCookieResult = favoriteCookie
+    ? await wrap(
+        Promise.resolve().then(() => JSON.parse(favoriteCookie)),
+        (error) =>
+          new AppError({
+            message: "Failed to parse favorite-search-condition cookie.",
+            code: "BAD_REQUEST",
+            cause: error,
+            context: { favoriteCookie },
+          }),
+      )
+    : null;
+  const favoriteCondition =
+    parsedFavoriteCookieResult && !parsedFavoriteCookieResult.err
+      ? (() => {
+          const result = favoriteSearchConditionSchema.safeParse(
+            parsedFavoriteCookieResult.val,
+          );
+          return result.success ? result.data : null;
+        })()
+      : null;
 
   const startedDate =
     validatedQuery.date ??

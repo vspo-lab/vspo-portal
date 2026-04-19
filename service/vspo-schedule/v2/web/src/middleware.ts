@@ -1,3 +1,4 @@
+import { AppError, wrap } from "@vspo-lab/error";
 import type { NextRequest, NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
@@ -21,27 +22,38 @@ const isProd = process.env.NODE_ENV === "production";
  * Anything else is silently replaced with the default, so attacker-chosen
  * cookie values cannot flow into `formatInTimeZone` / downstream logs.
  */
-const isValidTimeZone = (tz: string): boolean => {
+const isValidTimeZone = async (tz: string): Promise<boolean> => {
   if (tz.length > 64) return false;
   if (!/^[A-Za-z0-9_\-+/]+$/.test(tz)) return false;
-  try {
-    Intl.DateTimeFormat(undefined, { timeZone: tz });
-    return true;
-  } catch {
-    return false;
-  }
+
+  const validationResult = await wrap(
+    Promise.resolve().then(() => {
+      Intl.DateTimeFormat(undefined, { timeZone: tz });
+      return true;
+    }),
+    (error) =>
+      new AppError({
+        message: "Failed to validate time zone cookie.",
+        code: "BAD_REQUEST",
+        cause: error,
+        context: { tz },
+      }),
+  );
+
+  return !validationResult.err;
 };
 
 export default async function middleware(request: NextRequest) {
   const response = intlMiddleware(request);
-  setTimeZone(request, response);
+  await setTimeZone(request, response);
   await setSessionId(request, response);
   return response;
 }
 
-const setTimeZone = (req: NextRequest, res: NextResponse) => {
+const setTimeZone = async (req: NextRequest, res: NextResponse) => {
   const raw = req.cookies.get(TIME_ZONE_COOKIE)?.value;
-  const timeZone = raw && isValidTimeZone(raw) ? raw : DEFAULT_TIME_ZONE;
+  const timeZone =
+    raw && (await isValidTimeZone(raw)) ? raw : DEFAULT_TIME_ZONE;
   res.cookies.set({
     name: TIME_ZONE_COOKIE,
     value: timeZone,
