@@ -1,6 +1,9 @@
 import { useCallback } from "react";
 import { useCookie } from "@/hooks/cookie";
-import type { FavoriteSearchCondition } from "../types/favorite";
+import {
+  type FavoriteSearchCondition,
+  favoriteSearchConditionSchema,
+} from "../types/favorite";
 
 const FAVORITE_SEARCH_CONDITION_COOKIE = "favorite-search-condition";
 
@@ -11,9 +14,10 @@ export const useFavoriteSearchCondition = () => {
 
   const getFavorite = useCallback((): FavoriteSearchCondition | null => {
     if (!cookieValue) return null;
-
     try {
-      return JSON.parse(cookieValue) as FavoriteSearchCondition;
+      const raw = JSON.parse(cookieValue);
+      const parsed = favoriteSearchConditionSchema.safeParse(raw);
+      return parsed.success ? parsed.data : null;
     } catch {
       return null;
     }

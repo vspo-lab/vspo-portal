@@ -5,6 +5,7 @@ declare namespace Cloudflare {
   interface Env {
     ENV: string;
     API_URL_V2: string;
+    SESSION_COOKIE_SECRET: string;
     APP_WORKER: Fetcher;
     ASSETS: Fetcher;
   }

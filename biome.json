@@ -31,7 +31,8 @@
       "!**/meta/**/*",
       "!**/coverage/**/*",
       "!**/service/vspo-schedule/v2/web/src/features/multiview/**/*",
-      "!**/.astro/**/*"
+      "!**/.astro/**/*",
+      "!**/.claude/**/*"
     ]
   },
   "overrides": []

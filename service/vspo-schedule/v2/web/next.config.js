@@ -44,18 +44,16 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 3600,
     remotePatterns: [
-      {
-        hostname: "localhost",
-        protocol: "http",
-        port: "3000",
-        pathname: "**",
-      },
-      {
-        hostname: "imagegw03.twitcasting.tv",
-        protocol: "http",
-        port: "",
-        pathname: "**",
-      },
+      ...(process.env.NODE_ENV !== "production"
+        ? [
+            {
+              hostname: "localhost",
+              protocol: "http",
+              port: "3000",
+              pathname: "**",
+            },
+          ]
+        : []),
       ...[
         "i.ytimg.com",
         "vod-secure.twitch.tv",
@@ -73,8 +71,25 @@ const nextConfig = {
       })),
     ],
   },
-  skipProxyUrlNormalize: true,
   async headers() {
+    // Keep media/YouTube embeds working while hardening the top frame.
+    // See docs/security/vspo-schedule-review.md for rationale.
+    const csp = [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "frame-ancestors 'none'",
+      "object-src 'none'",
+      "img-src 'self' data: blob: https://i.ytimg.com https://yt3.googleusercontent.com https://yt3.ggpht.com https://static-cdn.jtvnw.net https://vod-secure.twitch.tv https://clips-media-assets2.twitch.tv https://secure-dcdn.cdn.nimg.jp https://imagegw03.twitcasting.tv",
+      "media-src 'self' blob:",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self' data:",
+      "connect-src 'self' https: wss:",
+      "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.twitch.tv https://clips.twitch.tv https://twitcasting.tv https://embed.nicovideo.jp",
+      "form-action 'self'",
+      "upgrade-insecure-requests",
+    ].join("; ");
+
     return [
       {
         source: "/(.*)",
@@ -86,6 +101,13 @@ const nextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          { key: "Content-Security-Policy", value: csp },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
         ],
       },
       {
