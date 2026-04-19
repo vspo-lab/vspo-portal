@@ -14,7 +14,7 @@
   },
   "observability": {
     "enabled": true,
-    "invocation_logs": false
+    "invocation_logs": true
   },
   "build": {
     "command": "pnpm cf:build",
@@ -57,7 +57,7 @@
     {
       "binding": "APP_WORKER",
       "service": "dev-vspo-portal-app",
-      "entrypoint": "ApplicationService"
+      "entrypoint": "PublicReadService"
     },
     {
       "binding": "WORKER_SELF_REFERENCE",

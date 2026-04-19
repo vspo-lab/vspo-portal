@@ -16,8 +16,8 @@ type FetchScheduleParams = {
   status: "live" | "upcoming" | "archive" | "all";
   order: "asc" | "desc";
   timeZone: string;
-  memberType?: string;
-  platform?: string;
+  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
+  platform?: "youtube" | "twitch" | "twitcasting" | "niconico";
   sessionId?: string;
 };
 

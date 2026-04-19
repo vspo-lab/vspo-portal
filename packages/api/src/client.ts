@@ -71,7 +71,12 @@ export class VSPOApi {
     this.cfAccessClientId = opts.cfAccessClientId;
     this.cfAccessClientSecret = opts.cfAccessClientSecret;
     this.sessionId = opts.sessionId;
-    this.baseUrl = opts.baseUrl ?? "http://localhost:3000";
+    if (!opts.baseUrl) {
+      throw new Error(
+        "[VSPOApi] `baseUrl` is required. Set the API_URL_V2 environment variable (or pass `baseUrl` explicitly). The previous localhost default was removed to avoid accidentally sending API traffic to attacker-controlled origins when env is missing.",
+      );
+    }
+    this.baseUrl = opts.baseUrl;
 
     this.retry = {
       attempts: opts.retry?.attempts ?? 3,

@@ -9,6 +9,7 @@ import {
   paginationSchema,
 } from "../domain/clip";
 import type { Platform } from "../domain/video";
+import { getApiBaseUrl } from "./config";
 
 type FetchClipsParams = {
   page: number;
@@ -120,7 +121,7 @@ export const fetchClips = async (
       // Use regular VSPO API
       const { page, limit, platform, order, orderKey } = params;
       const client = new VSPOApi({
-        baseUrl: process.env.API_URL_V2 || "",
+        baseUrl: getApiBaseUrl(),
         sessionId: params.sessionId,
       });
 

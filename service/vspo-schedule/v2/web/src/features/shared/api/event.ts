@@ -5,6 +5,7 @@ import { AppError, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import type { Event } from "../domain/event";
 import { eventSchema } from "../domain/event";
+import { getApiBaseUrl } from "./config";
 
 type FetchEventsParams = {
   lang: string;
@@ -76,7 +77,7 @@ export const fetchEvents = async ({
     } else {
       // Use regular VSPO API
       const client = new VSPOApi({
-        baseUrl: process.env.API_URL_V2 || "",
+        baseUrl: getApiBaseUrl(),
         sessionId,
       });
 

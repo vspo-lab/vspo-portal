@@ -1,6 +1,10 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useCookie } from "@/hooks/cookie";
-import type { FavoriteSearchCondition } from "../types/favorite";
+import { safeParseJson } from "@/lib/json";
+import {
+  type FavoriteSearchCondition,
+  favoriteSearchConditionSchema,
+} from "../types/favorite";
 
 const FAVORITE_SEARCH_CONDITION_COOKIE = "favorite-search-condition";
 
@@ -8,15 +12,27 @@ export const useFavoriteSearchCondition = () => {
   const [cookieValue, setCookieValue] = useCookie(
     FAVORITE_SEARCH_CONDITION_COOKIE,
   );
+  const [favorite, setFavorite] = useState<FavoriteSearchCondition | null>(
+    null,
+  );
 
-  const getFavorite = useCallback((): FavoriteSearchCondition | null => {
-    if (!cookieValue) return null;
-
-    try {
-      return JSON.parse(cookieValue) as FavoriteSearchCondition;
-    } catch {
-      return null;
+  useEffect(() => {
+    if (!cookieValue) {
+      setFavorite(null);
+      return;
     }
+
+    let cancelled = false;
+    void safeParseJson(cookieValue, favoriteSearchConditionSchema).then(
+      (parsed) => {
+        if (cancelled) return;
+        setFavorite(parsed.val ?? null);
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
   }, [cookieValue]);
 
   const saveFavorite = useCallback(
@@ -37,9 +53,9 @@ export const useFavoriteSearchCondition = () => {
   }, [setCookieValue]);
 
   return {
-    favorite: getFavorite(),
+    favorite,
     saveFavorite,
     deleteFavorite,
-    hasFavorite: !!getFavorite(),
+    hasFavorite: favorite !== null,
   };
 };
