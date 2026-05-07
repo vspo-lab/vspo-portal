@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { useFavoriteSearchCondition } from "./useFavoriteSearchConditions";
 
 // ---------------------------------------------------------------------------
@@ -27,7 +27,7 @@ describe("useFavoriteSearchCondition", () => {
     expect(result.current.hasFavorite).toBe(false);
   });
 
-  it("parses a valid JSON cookie into a FavoriteSearchCondition", async () => {
+  it("parses a valid JSON cookie into a FavoriteSearchCondition", () => {
     mockCookieValue = JSON.stringify({
       memberType: "vspo_jp",
       platform: "youtube",
@@ -36,14 +36,12 @@ describe("useFavoriteSearchCondition", () => {
 
     const { result } = renderHook(() => useFavoriteSearchCondition());
 
-    await waitFor(() => {
-      expect(result.current.favorite).toEqual({
-        memberType: "vspo_jp",
-        platform: "youtube",
-        createdAt: "2024-01-15T00:00:00Z",
-      });
-      expect(result.current.hasFavorite).toBe(true);
+    expect(result.current.favorite).toEqual({
+      memberType: "vspo_jp",
+      platform: "youtube",
+      createdAt: "2024-01-15T00:00:00Z",
     });
+    expect(result.current.hasFavorite).toBe(true);
   });
 
   it("returns null for invalid JSON cookie", () => {

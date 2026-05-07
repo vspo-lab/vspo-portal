@@ -5,7 +5,7 @@ import {
 } from "@opennextjs/cloudflare";
 import type { BaseError } from "@vspo-lab/error";
 import { AppError, type Result, wrap } from "@vspo-lab/error";
-import type { PublicReadService } from "../../features/shared/types/api";
+import type { ApplicationService } from "../../features/shared/types/api";
 
 // Define Service type
 type Service<T> = {
@@ -16,7 +16,7 @@ type CloudflareEnvironmentContext = {
   context: Result<CloudflareContext, BaseError>;
   isValid: boolean;
   cfEnv?: {
-    APP_WORKER: Service<PublicReadService>;
+    APP_WORKER: Service<ApplicationService>;
   };
 };
 
@@ -42,7 +42,7 @@ export const getCloudflareEnvironmentContext =
     // Add typed environment if in valid Cloudflare environment
     const cfEnv = isValid
       ? (context.val?.env as unknown as {
-          APP_WORKER: Service<PublicReadService>;
+          APP_WORKER: Service<ApplicationService>;
         })
       : undefined;
 

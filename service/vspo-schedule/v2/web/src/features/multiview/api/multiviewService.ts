@@ -12,8 +12,8 @@ export type FetchMultiviewServiceParams = {
   timezone?: string;
   limit?: number;
   includeUpcoming?: boolean;
-  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
-  platform?: "youtube" | "twitch" | "twitcasting" | "niconico";
+  memberType?: string;
+  platform?: string;
 };
 
 /**

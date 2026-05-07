@@ -16,7 +16,6 @@ import type { BaseError, Result } from "@vspo-lab/error";
 import { AppError, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import { type Livestream, livestreamSchema, type Status } from "../domain";
-import { getApiBaseUrl } from "./config";
 
 type FetchLivestreamsParams = {
   limit: number;
@@ -25,8 +24,8 @@ type FetchLivestreamsParams = {
   order: "asc" | "desc";
   timezone: string;
   startedDate?: string;
-  memberType?: "vspo_jp" | "vspo_en" | "vspo_ch" | "vspo_all" | "general";
-  platform?: "youtube" | "twitch" | "twitcasting" | "niconico";
+  memberType?: string;
+  platform?: string;
   sessionId?: string;
 };
 
@@ -165,7 +164,7 @@ export const fetchLivestreams = async (
     } else {
       // Use regular VSPO API
       const client = new VSPOApi({
-        baseUrl: getApiBaseUrl(),
+        baseUrl: process.env.API_URL_V2 || "",
         sessionId: params.sessionId,
       });
 

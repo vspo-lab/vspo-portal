@@ -3,7 +3,6 @@ import { type ListFreechats200FreechatsItem, VSPOApi } from "@vspo-lab/api";
 import { AppError, type BaseError, type Result, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import { type Freechat, freechatSchema } from "../domain/freechat";
-import { getApiBaseUrl } from "./config";
 
 type FetchFreechatsParams = {
   lang?: string;
@@ -98,7 +97,7 @@ export const fetchFreechats = async (
     } else {
       // Use regular VSPO API
       const api = new VSPOApi({
-        baseUrl: getApiBaseUrl(),
+        baseUrl: process.env.API_URL_V2 || "",
         sessionId: params.sessionId,
       });
 
