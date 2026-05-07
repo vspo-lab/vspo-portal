@@ -3,7 +3,6 @@ import { type ListCreators200CreatorsItem, VSPOApi } from "@vspo-lab/api";
 import { AppError, type BaseError, type Result, wrap } from "@vspo-lab/error";
 import { getCloudflareEnvironmentContext } from "@/lib/cloudflare/context";
 import type { Channel } from "../domain/channel";
-import { getApiBaseUrl } from "./config";
 
 type FetchVspoMembersResult = Result<
   {
@@ -81,7 +80,7 @@ export const fetchVspoMembers = async ({
     } else {
       // Use regular VSPO API
       const client = new VSPOApi({
-        baseUrl: getApiBaseUrl(),
+        baseUrl: process.env.API_URL_V2 || "",
         sessionId: sessionId,
       });
 

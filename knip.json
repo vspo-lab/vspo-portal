@@ -32,6 +32,5 @@
     "textlint-rule-preset-ja-technical-writing"
   ],
   "ignoreBinaries": ["wrangler", "report"],
-  "ignoreWorkspaces": ["service/bot-dashboard"],
-  "ignore": [".claude/**", ".claude/worktrees/**"]
+  "ignoreWorkspaces": ["service/bot-dashboard"]
 }

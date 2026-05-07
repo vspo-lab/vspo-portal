@@ -2659,42 +2659,4 @@ declare class ApplicationService extends WorkerEntrypoint<AppWorkerEnv> {
   private setup;
 }
 
-declare class ReadOnlyStreamService extends RpcTarget {
-  #private;
-  list(params: ListParam): ReturnType<StreamService["list"]>;
-}
-declare class ReadOnlyClipService extends RpcTarget {
-  #private;
-  list(params: ListClipsQuery): ReturnType<ClipService["list"]>;
-}
-declare class ReadOnlyCreatorService extends RpcTarget {
-  #private;
-  list(params: ListByMemberTypeParam): ReturnType<CreatorService["list"]>;
-}
-declare class ReadOnlyEventService extends RpcTarget {
-  #private;
-  list(params: ListEventsQuery): ReturnType<EventService["list"]>;
-  get(id: string): ReturnType<EventService["get"]>;
-}
-declare class ReadOnlyFreechatService extends RpcTarget {
-  #private;
-  list(params: ListFreechatsQuery): ReturnType<FreechatService["list"]>;
-}
-declare class PublicReadService extends WorkerEntrypoint<AppWorkerEnv> {
-  newStreamUsecase(): ReadOnlyStreamService;
-  newClipUsecase(): ReadOnlyClipService;
-  newCreatorUsecase(): ReadOnlyCreatorService;
-  newEventUsecase(): ReadOnlyEventService;
-  newFreechatUsecase(): ReadOnlyFreechatService;
-  private setup;
-}
-
-export {
-  ApplicationService,
-  PublicReadService,
-  ReadOnlyStreamService,
-  ReadOnlyClipService,
-  ReadOnlyCreatorService,
-  ReadOnlyEventService,
-  ReadOnlyFreechatService,
-};
+export { ApplicationService };

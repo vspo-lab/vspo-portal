@@ -6,11 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { fetchSchedule } from "@/features/schedule/api/scheduleService";
 import { ScheduleStatusContainer } from "@/features/schedule/pages/ScheduleStatus/container";
-import { favoriteSearchConditionSchema } from "@/features/schedule/types/favorite";
-import {
-  normalizeScheduleStatus,
-  scheduleSearchParamsSchema,
-} from "@/features/schedule/types/scheduleQuery";
+import type { FavoriteSearchCondition } from "@/features/schedule/types/favorite";
 import { groupLivestreamsByDate } from "@/features/schedule/utils/groupLivestreamsByDate";
 import { ScheduleSkeleton } from "@/features/shared/components/Elements/Loading/ScheduleSkeleton";
 import { ContentLayout } from "@/features/shared/components/Layout/ContentLayout";
@@ -20,7 +16,6 @@ import {
   TIME_ZONE_COOKIE,
 } from "@/lib/Const";
 import { generateAlternates } from "@/lib/metadata";
-import { getSessionSecret, verifySessionId } from "@/lib/session";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -74,66 +69,70 @@ async function ScheduleContent({
 }: {
   locale: string;
   status: string;
-  query: unknown;
+  query: {
+    limit?: string;
+    date?: string;
+    memberType?: string;
+    platform?: string;
+  };
 }) {
   const cookieStore = await cookies();
   const timeZone =
     cookieStore.get(TIME_ZONE_COOKIE)?.value ?? DEFAULT_TIME_ZONE;
-  const rawSessionId = cookieStore.get(SESSION_ID_COOKIE)?.value;
-  const sessionId =
-    (await verifySessionId(rawSessionId, getSessionSecret())) ?? undefined;
+  const sessionId = cookieStore.get(SESSION_ID_COOKIE)?.value;
 
-  const normalizedStatus = normalizeScheduleStatus(status);
-  const safeQuery = scheduleSearchParamsSchema.safeParse(query);
-  const validatedQuery = safeQuery.success ? safeQuery.data : {};
-
+  // Favorite search conditions from cookie
   const favoriteCookie = cookieStore.get("favorite-search-condition")?.value;
-  const parsedFavoriteCookieResult = favoriteCookie
+  const parsedResult = favoriteCookie
     ? await wrap(
-        Promise.resolve().then(() => JSON.parse(favoriteCookie)),
+        Promise.resolve().then(
+          () => JSON.parse(favoriteCookie) as FavoriteSearchCondition,
+        ),
         (error) =>
           new AppError({
-            message: "Failed to parse favorite-search-condition cookie.",
-            code: "BAD_REQUEST",
+            message: "Invalid favorite cookie JSON",
+            code: "INTERNAL_SERVER_ERROR",
             cause: error,
-            context: { favoriteCookie },
+            context: {},
           }),
       )
-    : null;
-  const favoriteCondition =
-    parsedFavoriteCookieResult && !parsedFavoriteCookieResult.err
-      ? (() => {
-          const result = favoriteSearchConditionSchema.safeParse(
-            parsedFavoriteCookieResult.val,
-          );
-          return result.success ? result.data : null;
-        })()
-      : null;
+    : { val: null, err: undefined };
+  const favoriteCondition = parsedResult.err ? null : parsedResult.val;
 
   const startedDate =
-    validatedQuery.date ??
-    formatDate(getCurrentUTCDate(), "yyyy-MM-dd", { timeZone });
+    typeof query.date === "string"
+      ? query.date
+      : formatDate(getCurrentUTCDate(), "yyyy-MM-dd", { timeZone });
 
   const limit =
-    validatedQuery.limit ?? (normalizedStatus === "archive" ? 300 : 50);
+    typeof query.limit === "string"
+      ? Number.parseInt(query.limit, 10)
+      : status === "archive"
+        ? 300
+        : 50;
 
-  const order: "asc" | "desc" = normalizedStatus === "archive" ? "desc" : "asc";
+  const order = status === "archive" ? "desc" : "asc";
 
+  // Use favorite conditions if available and valid, otherwise use query parameters
   const memberType =
     favoriteCondition?.memberType && favoriteCondition.memberType !== "vspo_all"
       ? favoriteCondition.memberType
-      : validatedQuery.memberType;
+      : typeof query.memberType === "string"
+        ? query.memberType
+        : undefined;
 
-  const platform =
-    (favoriteCondition?.platform !== "" ? favoriteCondition?.platform : null) ??
-    validatedQuery.platform;
+  const platform = favoriteCondition?.platform
+    ? favoriteCondition.platform
+    : typeof query.platform === "string"
+      ? query.platform
+      : undefined;
 
   const schedule = await fetchSchedule({
     startedDate,
     limit,
     locale: locale ?? "ja",
-    status: normalizedStatus,
-    order,
+    status: (status as "live" | "upcoming" | "archive" | "all") || "all",
+    order: order as "asc" | "desc",
     timeZone,
     memberType,
     platform,
@@ -150,8 +149,8 @@ async function ScheduleContent({
       events={schedule.events}
       timeZone={timeZone}
       locale={locale}
-      liveStatus={normalizedStatus}
-      isArchivePage={normalizedStatus === "archive"}
+      liveStatus={status}
+      isArchivePage={status === "archive"}
     />
   );
 }
