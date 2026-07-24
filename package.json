@@ -27,7 +27,7 @@
     "@biomejs/biome": "^2.4.8",
     "@textlint/textlint-plugin-markdown": "^15.5.2",
     "@types/node": "catalog:",
-    "cspell": "^9.7.0",
+    "cspell": "^10.0.0",
     "knip": "^6.0.1",
     "markdownlint-cli2": "^0.22.0",
     "textlint": "^15.5.2",
