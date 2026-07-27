@@ -51,9 +51,6 @@ jobs:
             API_URL_V2
             CF_ACCESS_CLIENT_ID
             CF_ACCESS_CLIENT_SECRET
-            NEXT_PUBLIC_AD_CLIENT
-            NEXT_PUBLIC_AD_SLOT
-            NEXT_PUBLIC_ADS_GOOGLE
             NEXT_PUBLIC_GOOGLE_ANALYTICS
             NEXT_PUBLIC_FORM
             NEXT_PUBLIC_DISCORD_LINK
@@ -64,9 +61,6 @@ jobs:
           API_URL_V2: ${{ secrets.API_URL_V2 }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-          NEXT_PUBLIC_AD_CLIENT: ${{ secrets.NEXT_PUBLIC_AD_CLIENT }}
-          NEXT_PUBLIC_AD_SLOT: ${{ secrets.NEXT_PUBLIC_AD_SLOT }}
-          NEXT_PUBLIC_ADS_GOOGLE: ${{ secrets.NEXT_PUBLIC_ADS_GOOGLE }}
           NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
           NEXT_PUBLIC_FORM: ${{ secrets.NEXT_PUBLIC_FORM }}
           NEXT_PUBLIC_DISCORD_LINK: ${{ secrets.NEXT_PUBLIC_DISCORD_LINK }}

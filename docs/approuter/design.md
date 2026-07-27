@@ -133,7 +133,6 @@ The existing Container/Presenter pattern maps naturally:
 The following tags currently in `_document.tsx` `<Head>` move to root layout metadata:
 
 - `preconnect` links (yt3.ggpht.com, googletagmanager.com)
-- Google Ads script (production only)
 - `charset`, `keywords`, `og:type`, `og:image`, `twitter:card`, `twitter:image`
 - `robots`, `manifest`, `apple-touch-icon`, `theme-color`
 
