@@ -439,7 +439,6 @@ This is the main layout that renders `<html>` and `<body>` with the dynamic `lan
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import Script from "next/script";
 import { notFound } from "next/navigation";
 import { AppProviders } from "@/components/AppProviders";
 import { GoogleAnalytics } from "@/features/shared/components/Elements";
@@ -478,14 +477,6 @@ export default async function LocaleLayout({
           <AppProviders>{children}</AppProviders>
         </NextIntlClientProvider>
         <GoogleAnalytics />
-        {process.env.ENV === "production" &&
-          process.env.NEXT_PUBLIC_ADS_GOOGLE && (
-            <Script
-              src={process.env.NEXT_PUBLIC_ADS_GOOGLE}
-              strategy="afterInteractive"
-              crossOrigin="anonymous"
-            />
-          )}
       </body>
     </html>
   );

@@ -14,7 +14,7 @@ Metadata (title, description, OG tags) is handled by `generateMetadata` exported
 
 ```text
 ContentLayout
-├── Header (fixed AppBar + menu toggle + logo + social links)
+├── Header (fixed AppBar + menu toggle + logo + X link)
 ├── AlertSnackbar
 ├── StyledContainer (children)
 ├── Footer (last update time, legal links, copyright)
@@ -39,7 +39,7 @@ Fixed AppBar with:
 
 - Menu toggle button (opens sidebar drawer)
 - Logo linking to `/schedule/all`
-- Social icons (GitHub, Twitter/X)
+- X (Twitter) link
 - Custom VSPO purple/dark theme colors
 
 ### Footer

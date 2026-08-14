@@ -88,9 +88,6 @@ Defined in `.github/workflows/deploy-web-workers.yaml`.
 | `CF_ACCESS_CLIENT_ID` | Cloudflare Access client ID |
 | `CF_ACCESS_CLIENT_SECRET` | Cloudflare Access client secret |
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Google Analytics ID |
-| `NEXT_PUBLIC_AD_CLIENT` | Google AdSense client ID |
-| `NEXT_PUBLIC_AD_SLOT` | Google AdSense slot ID |
-| `NEXT_PUBLIC_ADS_GOOGLE` | Google Ads ID |
 | `NEXT_PUBLIC_FORM` | Contact form URL |
 | `NEXT_PUBLIC_DISCORD_LINK` | Discord invite link |
 

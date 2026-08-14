@@ -23,7 +23,7 @@ Phase 5: PWA + Cleanup          ← next-pwa → @serwist/next, sitemap, pages/ 
 | Step | Task | Details |
 |------|------|---------|
 | 1-1 | Create `app/layout.tsx` | Root Server Component: `<html>`, `<body>`, `<InitColorSchemeScript attribute="class" />`, global CSS imports (`@fortawesome/fontawesome-svg-core/styles.css`, `globals.css`, `normalize.css`), FontAwesome `config.autoAddCss = false`, `<GoogleAnalytics />` |
-| 1-2 | Migrate global `<Head>` tags | Move `_document.tsx` head content to `app/layout.tsx` metadata export: preconnect links, Google Ads script, charset, keywords, og:type, og:image, twitter:card, robots, manifest, apple-touch-icon, theme-color |
+| 1-2 | Migrate global `<Head>` tags | Move `_document.tsx` head content to `app/layout.tsx` metadata export: preconnect links, charset, keywords, og:type, og:image, twitter:card, robots, manifest, apple-touch-icon, theme-color |
 | 1-3 | Create `AppRouterCacheProvider` setup | Use `@mui/material-nextjs/v15-appRouter` `AppRouterCacheProvider`. Note: `ThemeModeProvider` already wraps `ThemeProvider` + `CssBaseline`, so do NOT duplicate them. The cache provider wraps around `ThemeModeProvider`. |
 | 1-4 | Create `AppProviders` Client Component | Wrap: `AppRouterCacheProvider` → `ThemeModeProvider` → `TimeZoneContextProvider` → `VideoModalContextProvider` |
 | 1-5 | Create `app/[locale]/layout.tsx` | Placeholder for now. `NextIntlClientProvider` added in Phase 3. |
