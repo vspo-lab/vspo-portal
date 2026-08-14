@@ -15,3 +15,13 @@ catalog:
   zod: ^4.0.0
 
 sharedWorkspaceLockfile: true
+
+# Supply-chain cooldown: refuse to resolve a version published less than 7 days
+# ago (value is in minutes). Matches the npm cooldown in the shared Renovate
+# preset (vspo-lab/config//renovate), so a manual install cannot pull in a
+# version that Renovate would still be holding back. Covers installs that do not
+# go through Renovate, including local development and CI. Requires
+# sharedWorkspaceLockfile: true, otherwise pnpm 10.x silently ignores it.
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - '@vspo-lab/*'

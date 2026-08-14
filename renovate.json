@@ -1,4 +1,88 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>vspo-lab/config//renovate"]
+  "extends": ["local>vspo-lab/config//renovate", ":dependencyDashboard"],
+  "timezone": "Asia/Tokyo",
+  "baseBranches": ["develop"],
+  "schedule": ["* 0-3 * * *"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "internalChecksFilter": "strict",
+  "automerge": false,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": true,
+  "osvVulnerabilityAlerts": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* 0-3 * * 1"],
+    "automerge": true
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": null,
+    "schedule": ["at any time"],
+    "labels": ["dependencies", "security"],
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "description": "Dev tooling: never reaches the production bundle, automerge on green CI",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "dev-dependencies",
+      "automerge": true
+    },
+    {
+      "description": "Type definitions: type-only, verified by pnpm tsc",
+      "matchPackageNames": ["@types/**"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "type-definitions",
+      "automerge": true
+    },
+    {
+      "description": "GitHub Actions: verified by the workflows themselves",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch", "minor", "digest"],
+      "groupName": "github-actions",
+      "automerge": true
+    },
+    {
+      "description": "Production patch updates: automerge once every check is green",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "production-patch",
+      "automerge": true
+    },
+    {
+      "description": "Production minor updates: grouped into one PR, merged deliberately",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "production-minor",
+      "automerge": false
+    },
+    {
+      "description": "Core frameworks: reviewed individually with a longer cooldown",
+      "matchPackageNames": [
+        "next",
+        "react",
+        "react-dom",
+        "wrangler",
+        "@opennextjs/cloudflare",
+        "@cloudflare/workers-types",
+        "typescript",
+        "@biomejs/biome"
+      ],
+      "groupName": null,
+      "automerge": false,
+      "addLabels": ["high-risk"]
+    },
+    {
+      "description": "Major updates: handled as feature work via the dependency dashboard",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "addLabels": ["major"]
+    }
+  ]
 }

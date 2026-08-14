@@ -21,9 +21,9 @@ echo ""
 # 1. Trivy filesystem scan
 echo -e "${YELLOW}[1/4] Running Trivy filesystem scan...${NC}"
 if command -v trivy &>/dev/null; then
-  TRIVY_CMD="trivy fs --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore ."
+  TRIVY_CMD="trivy fs --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore.yaml ."
 else
-  TRIVY_CMD="docker run --rm -v $(pwd):/work -w /work aquasec/trivy:${TRIVY_VERSION} fs --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore ."
+  TRIVY_CMD="docker run --rm -v $(pwd):/work -w /work aquasec/trivy:${TRIVY_VERSION} fs --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore.yaml ."
 fi
 if eval "$TRIVY_CMD"; then
   echo -e "${GREEN}Trivy filesystem scan passed${NC}"
@@ -40,9 +40,9 @@ if [ "$1" == "--docker" ]; then
     echo -e "${YELLOW}[2/4] Building and scanning Docker image...${NC}"
     docker build -f "$DOCKERFILE" --target api -t api:scan . --quiet
     if command -v trivy &>/dev/null; then
-      TRIVY_IMG_CMD="trivy image --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore api:scan"
+      TRIVY_IMG_CMD="trivy image --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore.yaml api:scan"
     else
-      TRIVY_IMG_CMD="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/work -w /work aquasec/trivy:${TRIVY_VERSION} image --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore api:scan"
+      TRIVY_IMG_CMD="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/work -w /work aquasec/trivy:${TRIVY_VERSION} image --severity CRITICAL,HIGH --exit-code 1 --ignorefile .trivyignore.yaml api:scan"
     fi
     if eval "$TRIVY_IMG_CMD"; then
       echo -e "${GREEN}Trivy container scan passed${NC}"

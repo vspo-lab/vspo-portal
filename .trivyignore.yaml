@@ -1,0 +1,29 @@
+# Trivy ignore rules.
+#
+# Every entry MUST carry both `statement` (why this is not reachable in
+# production) and `expired_at` (max 90 days out). When an entry expires the
+# finding reappears and the decision is made again, so a suppression can never
+# become a permanent hole.
+#
+# See docs/security/dependency-policy.md for the triage rules and decision ledger.
+
+vulnerabilities:
+  - id: CVE-2026-1526
+    statement: "undici DoS via WebSocket. Development dependency only; the Workers runtime uses the platform fetch implementation, not undici."
+    expired_at: 2026-11-12
+
+  - id: CVE-2026-1528
+    statement: "undici DoS via WebSocket. Development dependency only; the Workers runtime uses the platform fetch implementation, not undici."
+    expired_at: 2026-11-12
+
+  - id: CVE-2026-2229
+    statement: "undici DoS via WebSocket. Development dependency only; the Workers runtime uses the platform fetch implementation, not undici."
+    expired_at: 2026-11-12
+
+  - id: CVE-2026-33036
+    statement: "fast-xml-parser entity expansion. Transitive dependency; the application never calls the XML parser, so no request-derived input reaches it."
+    expired_at: 2026-11-12
+
+  - id: GHSA-5c6j-r48x-rmvq
+    statement: "serialize-javascript RCE via RegExp.flags. Build-time only; not present in the deployed Workers bundle."
+    expired_at: 2026-11-12

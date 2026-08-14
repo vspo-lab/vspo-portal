@@ -38,10 +38,13 @@ All infrastructure changes are reviewed through Pull Requests and automatically 
 | `deploy-bot-dashboard.yaml` | Push to `main`/`develop`, paths `service/bot-dashboard/**` | Build and deploy bot dashboard to Cloudflare Workers |
 | `deploy-storybook.yml` | Push to `develop`, paths `.storybook/**`, `*.stories.*`, `components/**` | Build and deploy Storybook (bot-dashboard + vspo-schedule) to Cloudflare Workers via Composition (`storybook.vspo-schedule.com`) |
 | `pr-check.yaml` | PR with web/packages/docs changes | Biome, TypeScript, Knip, Textlint, Markdownlint, cspell, and bundle size checks |
-| `security-scan.yaml` | PR, push to `main`/`develop`, weekly (Mon 00:00 UTC) | CodeQL, Trivy filesystem scan, gitleaks secret detection |
+| `security-scan.yaml` | PR, push to `main`/`develop`, weekly (Mon 00:00 UTC) | CodeQL, Trivy filesystem scan (blocking + dev-deps report), gitleaks secret detection |
 | `lighthouse.yaml` | PR with web/packages changes | Lighthouse performance audits |
 | `autofix.yaml` | PR (opened/synchronize/reopened) | Auto-fix lint and format with Biome, auto-commit |
 | `bundle-size-main.yaml` | Push to `main`/`develop`, paths web/packages | Save bundle size baseline for PR comparison |
+| `release-pr.yaml` | Push to `develop`, `workflow_dispatch` | Create or update the `develop` -> `main` release PR with a generated summary |
+
+Dependency updates flow through these workflows as described in [Dependency Auto Flow](./dependency-auto-flow.md).
 
 ### Planned Terraform Workflows (Not Yet Implemented)
 
@@ -216,7 +219,8 @@ The `security-scan.yaml` workflow runs automatically on PRs, pushes to `main`/`d
 | Job | Tool | What it detects |
 |-----|------|-----------------|
 | `codeql` | CodeQL (`github/codeql-action@v3`) | Static analysis for JavaScript/TypeScript security issues |
-| `trivy` | Trivy (`aquasecurity/trivy-action@0.35.0`) | CRITICAL/HIGH severity CVEs in filesystem dependencies |
+| `trivy` | Trivy (`aquasecurity/trivy-action@0.35.0`) | CRITICAL/HIGH severity CVEs in production dependencies. Blocking |
+| `trivy-dev` | Trivy with `TRIVY_INCLUDE_DEV_DEPS` | The same CVEs including development dependencies. Report only, never blocks |
 | `gitleaks` | gitleaks (`v8.24.3`) | Hardcoded secrets and credentials |
 
 ### Trivy
@@ -229,9 +233,13 @@ Scans both infrastructure configurations and application filesystem for vulnerab
   with:
     scan-type: 'fs'
     severity: 'CRITICAL,HIGH'
-    trivyignores: '.trivyignore'
+    trivyignores: '.trivyignore.yaml'
     exit-code: '1'
 ```
+
+Trivy excludes development dependencies by default, and `pnpm-lock.yaml` v9 carries the `Dev` field needed to classify them, so the blocking job reports only what is reachable in the production bundle. The `trivy-dev` job re-runs the same scan with `TRIVY_INCLUDE_DEV_DEPS` and never blocks, keeping build-time CVEs visible without turning dependency PRs red.
+
+Suppressions live in `.trivyignore.yaml`, where every entry requires a `statement` and an `expired_at` no more than 90 days out. An expired entry stops being honoured, so the finding resurfaces and is decided again. See [Dependency Security Policy](../security/dependency-policy.md).
 
 ### gitleaks
 
@@ -298,18 +306,7 @@ packages:
 
 Managed via automatic updates with Renovate or Dependabot.
 
-```json
-// renovate.json
-{
-  "extends": ["config:base"],
-  "packageRules": [
-    {
-      "matchManagers": ["terraform"],
-      "groupName": "terraform"
-    }
-  ]
-}
-```
+Renovate is the single source of dependency updates; Dependabot security updates are disabled to avoid duplicate PRs for the same advisory. `renovate.json` groups updates, applies a 3-day supply-chain cooldown, and automerges the low-risk groups once every required check is green. See [Dependency Auto Flow](./dependency-auto-flow.md) for the full design and [Dependency Security Policy](../security/dependency-policy.md) for the policy.
 
 ---
 
@@ -404,7 +401,9 @@ Runs on PRs touching web or packages changes. Performs automated Lighthouse audi
 
 ## Autofix (`autofix.yaml`)
 
-Runs on PRs (opened/synchronize/reopened) from the same repository (not forks). Automatically fixes lint and format issues with Biome and auto-commits the changes via `stefanzweifel/git-auto-commit-action@v5`.
+Runs on PRs (opened/synchronize/reopened) from the same repository (not forks). Automatically fixes lint and format issues with Biome and auto-commits the changes via `stefanzweifel/git-auto-commit-action@v7`.
+
+`renovate/**` branches are excluded: a commit from another author makes Renovate stop rebasing its own branch. Lint failures on dependency PRs are repaired by the `dep-triage` routine instead.
 
 ---
 
@@ -489,6 +488,7 @@ on:
 | Security | CodeQL, filesystem scan, secret detection | CodeQL, Trivy, gitleaks |
 | Performance | Lighthouse audit, bundle size tracking | Lighthouse CI, nextjs-bundle-analysis |
 | Autofix | Auto-fix lint/format on PRs | Biome, git-auto-commit |
+| Release PR | Keep the `develop` -> `main` PR present and current | `release-pr.yaml`, `scripts/release-pr-body.sh` |
 | Web Deploy | Build and deploy to Cloudflare Workers | OpenNextJS, Wrangler v4.76.0 |
 | Bot Dashboard Deploy | Build and deploy to Cloudflare Workers | Turbo, Wrangler v4.76.0 |
 | CI (Plan) | Change detection, lint, scan, plan (planned) | tfaction, tflint, trivy |

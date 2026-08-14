@@ -38,6 +38,7 @@ fullscreen
 ggpht
 ghcp
 gitleaks
+ghsa
 gstatic
 hankaku
 hiragino
@@ -105,6 +106,7 @@ rerenders
 resvg
 reviewee
 rgba
+rmvq
 ryte
 scrollbar
 semgrep

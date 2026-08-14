@@ -9,10 +9,19 @@ on:
       - 'docs/**'
       - 'README.md'
       - '.github/workflows/pr-check.yaml'
+      # Root manifests: without these, a lockfile-only dependency PR would run no
+      # checks at all and "every check green" would be vacuously true.
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
 
 permissions:
   contents: read
   pull-requests: write
+
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   changes:
@@ -23,6 +32,7 @@ jobs:
       packages: ${{ steps.filter.outputs.packages }}
       docs: ${{ steps.filter.outputs.docs }}
       code: ${{ steps.filter.outputs.code }}
+      deps: ${{ steps.filter.outputs.deps }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v4
@@ -45,6 +55,15 @@ jobs:
               - '**/*.js'
               - '**/*.jsx'
               - '**/*.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+            # A dependency update can change runtime behaviour anywhere, so it must
+            # pull in the build and test jobs even when no service path changed.
+            deps:
+              - 'package.json'
+              - '**/package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
 
   biome-check:
     needs: changes
@@ -72,7 +91,7 @@ jobs:
 
   knip-check:
     needs: changes
-    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true'
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -126,7 +145,7 @@ jobs:
 
   bundle-size:
     needs: changes
-    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true'
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -147,7 +166,7 @@ jobs:
 
   test:
     needs: changes
-    if: needs.changes.outputs.web == 'true' || needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true'
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -166,7 +185,7 @@ jobs:
 
       - name: Test web (schedule)
         id: web-test
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true'
+        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
         env:
           NO_COLOR: 1
         run: |
@@ -179,7 +198,7 @@ jobs:
 
       - name: Test bot-dashboard
         id: bot-test
-        if: needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true'
+        if: needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
         env:
           NO_COLOR: 1
         run: |

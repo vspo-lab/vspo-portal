@@ -7,13 +7,21 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: autofix-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   autofix:
     name: Auto-fix lint and format
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Only run on same-repo PRs (not forks)
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # Only run on same-repo PRs (not forks), and never on Renovate branches: a
+    # third-party commit makes Renovate stop rebasing its own branch. Lint
+    # failures on dependency PRs are repaired by the dep-triage routine instead.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !startsWith(github.head_ref, 'renovate/')
     steps:
       - uses: actions/checkout@v6
         with:
