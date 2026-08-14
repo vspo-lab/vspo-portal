@@ -1,6 +1,6 @@
 "use client";
 
-import { faGithub, faXTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AppBar, IconButton, Toolbar, Typography } from "@mui/material";
@@ -120,11 +120,6 @@ export const Header: React.FC<Props> = ({ title }) => {
                 marginLeft: "12px",
               }}
             >
-              <SocialIconNextLink
-                url="https://github.com/sugar-cat7/vspo-portal"
-                icon={<FontAwesomeIcon icon={faGithub} />}
-                label="GitHub"
-              />
               <SocialIconNextLink
                 url="https://twitter.com/vspodule"
                 icon={<FontAwesomeIcon icon={faXTwitter} />}

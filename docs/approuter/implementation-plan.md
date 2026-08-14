@@ -77,7 +77,6 @@ Migrate from `_document.tsx` and `_app.tsx`:
 - FontAwesome `config.autoAddCss = false` (from `_app.tsx` line 16)
 - `InitColorSchemeScript` (from `_document.tsx` line 61)
 - Global `<Head>` tags (from `_document.tsx` lines 27-58): preconnect links, keywords, og:type, og:image, twitter:card, robots, manifest, apple-touch-icon, theme-color
-- Google Ads script (from `_document.tsx` lines 33-38, production only)
 - `GoogleAnalytics` component (from `_app.tsx` line 41)
 - `AppProviders` wrapping children
 
@@ -89,7 +88,6 @@ import "@/styles/normalize.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import type { Metadata } from "next";
-import Script from "next/script";
 import { AppProviders } from "@/components/AppProviders";
 import { GoogleAnalytics } from "@/features/shared/components/Elements";
 
@@ -131,14 +129,6 @@ export default function RootLayout({
         <InitColorSchemeScript attribute="class" />
         <AppProviders>{children}</AppProviders>
         <GoogleAnalytics />
-        {process.env.ENV === "production" &&
-          process.env.NEXT_PUBLIC_ADS_GOOGLE && (
-            <Script
-              src={process.env.NEXT_PUBLIC_ADS_GOOGLE}
-              strategy="afterInteractive"
-              crossOrigin="anonymous"
-            />
-          )}
       </body>
     </html>
   );

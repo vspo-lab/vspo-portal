@@ -1,6 +1,5 @@
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { notFound } from "next/navigation";
-import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AppProviders } from "@/components/AppProviders";
@@ -44,14 +43,6 @@ export default async function LocaleLayout({
           </AppProviders>
         </NextIntlClientProvider>
         <GoogleAnalytics />
-        {process.env.ENV === "production" &&
-          process.env.NEXT_PUBLIC_ADS_GOOGLE && (
-            <Script
-              src={process.env.NEXT_PUBLIC_ADS_GOOGLE}
-              strategy="afterInteractive"
-              crossOrigin="anonymous"
-            />
-          )}
       </body>
     </html>
   );

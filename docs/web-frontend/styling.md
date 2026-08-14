@@ -60,6 +60,6 @@ Shared layout components in `features/shared/components/Layout/`:
 | Component | Purpose |
 |-----------|---------|
 | `ContentLayout` | Main page wrapper (Head, Header, Footer, BottomNav) |
-| `Header` | Fixed AppBar with logo, menu toggle, social links |
+| `Header` | Fixed AppBar with logo, menu toggle, and X link |
 | `Footer` | Last update time, legal links, copyright |
 | `Navigation` | Bottom navigation bar (mobile) + sidebar drawer |
