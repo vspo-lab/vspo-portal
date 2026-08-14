@@ -96,13 +96,13 @@ describe("ScheduleStatusContainer", () => {
     { input: "upcoming", expected: "upcoming" },
     { input: "invalid-status", expected: "all" },
     { input: "", expected: "all" },
-  ])("validates liveStatus=$input -> statusFilter=$expected", ({
-    input,
-    expected,
-  }) => {
-    render(<ScheduleStatusContainer {...defaultProps} liveStatus={input} />);
-    expect(screen.getByTestId("status-filter")).toHaveTextContent(expected);
-  });
+  ])(
+    "validates liveStatus=$input -> statusFilter=$expected",
+    ({ input, expected }) => {
+      render(<ScheduleStatusContainer {...defaultProps} liveStatus={input} />);
+      expect(screen.getByTestId("status-filter")).toHaveTextContent(expected);
+    },
+  );
 
   it("navigates on tab change via onStatusFilterChange", () => {
     render(<ScheduleStatusContainer {...defaultProps} locale="ja-JP" />);

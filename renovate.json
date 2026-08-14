@@ -9,14 +9,11 @@
   "prHourlyLimit": 2,
   "internalChecksFilter": "strict",
   "automerge": false,
-  "automergeType": "pr",
-  "automergeStrategy": "squash",
-  "platformAutomerge": true,
   "osvVulnerabilityAlerts": true,
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["* 0-3 * * 1"],
-    "automerge": true
+    "automerge": false
   },
   "vulnerabilityAlerts": {
     "enabled": true,
@@ -27,42 +24,88 @@
   },
   "packageRules": [
     {
-      "description": "Dev tooling: never reaches the production bundle, automerge on green CI",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "groupName": "dev-dependencies",
-      "automerge": true
-    },
-    {
-      "description": "Type definitions: type-only, verified by pnpm tsc",
+      "description": "Type definitions: erased at compile time, so a passing tsc proves no runtime change",
       "matchPackageNames": ["@types/**"],
       "matchUpdateTypes": ["patch", "minor"],
       "groupName": "type-definitions",
-      "automerge": true
+      "addLabels": ["no-runtime-impact"]
     },
     {
-      "description": "GitHub Actions: verified by the workflows themselves",
+      "description": "GitHub Actions: CI only, never part of a deployed artifact",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["patch", "minor", "digest"],
       "groupName": "github-actions",
-      "automerge": true
+      "addLabels": ["no-runtime-impact"]
     },
     {
-      "description": "Production patch updates: automerge once every check is green",
+      "description": "Lint, format and docs tooling: runs in CI only, emits no shipped code",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "matchPackageNames": [
+        "@biomejs/biome",
+        "cspell",
+        "knip",
+        "markdownlint-cli2",
+        "textlint",
+        "textlint-**",
+        "@textlint/**",
+        "lefthook"
+      ],
+      "groupName": "lint-tooling",
+      "addLabels": ["no-runtime-impact"]
+    },
+    {
+      "description": "Test tooling: never imported by production code",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/**",
+        "@testing-library/**",
+        "jsdom",
+        "happy-dom"
+      ],
+      "groupName": "test-tooling",
+      "addLabels": ["no-runtime-impact"]
+    },
+    {
+      "description": "Build-chain devDependencies: change emitted output, so impact is not provable from CI alone",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "matchPackageNames": [
+        "tsup",
+        "turbo",
+        "typescript",
+        "storybook",
+        "@storybook/**",
+        "@vitejs/**",
+        "@tailwindcss/**",
+        "wrangler",
+        "@opennextjs/cloudflare",
+        "@astrojs/**"
+      ],
+      "groupName": "build-tooling"
+    },
+    {
+      "description": "Remaining devDependencies",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "dev-dependencies"
+    },
+    {
+      "description": "Production patch updates: runtime behavior can change, reviewed before merge",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["patch"],
-      "groupName": "production-patch",
-      "automerge": true
+      "groupName": "production-patch"
     },
     {
       "description": "Production minor updates: grouped into one PR, merged deliberately",
       "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["minor"],
-      "groupName": "production-minor",
-      "automerge": false
+      "groupName": "production-minor"
     },
     {
-      "description": "Core frameworks: reviewed individually with a longer cooldown",
+      "description": "Core frameworks: reviewed individually",
       "matchPackageNames": [
         "next",
         "react",
@@ -71,17 +114,16 @@
         "@opennextjs/cloudflare",
         "@cloudflare/workers-types",
         "typescript",
-        "@biomejs/biome"
+        "@biomejs/biome",
+        "astro"
       ],
       "groupName": null,
-      "automerge": false,
       "addLabels": ["high-risk"]
     },
     {
       "description": "Major updates: handled as feature work via the dependency dashboard",
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true,
-      "automerge": false,
       "addLabels": ["major"]
     }
   ]

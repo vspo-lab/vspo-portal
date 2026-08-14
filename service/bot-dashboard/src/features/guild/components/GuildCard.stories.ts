@@ -58,7 +58,7 @@ const meta: Meta<GuildCardArgs> = {
                         .join("")}
                     </div>`
                  : ""
-             }
+}
            </div>`
       : "";
 

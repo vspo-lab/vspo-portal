@@ -19,7 +19,7 @@ release PR is still maintained; only failure repair and security triage stop.
                                     v
 +--------------------------------------------------------------------------+
 |  L1  Deterministic automation - GitHub Actions                            |
-|      platformAutomerge, release-pr.yaml, concurrency groups               |
+|      release-pr.yaml, concurrency groups                                  |
 +--------------------------------------------------------------------------+
                                     |
                                     v
@@ -45,20 +45,25 @@ transitive `pnpm.overrides` pins.
 | `minimumReleaseAge` | 7 days for npm, from the shared preset | Supply-chain cooldown. Removes the "should I wait?" judgement |
 | `prConcurrentLimit` / `prHourlyLimit` | 5 / 2 | Caps simultaneous CI usage |
 | `internalChecksFilter` | `strict` | No PR is raised until the cooldown has elapsed |
-| `platformAutomerge` | `true` | GitHub performs the merge once required checks pass |
 | `osvVulnerabilityAlerts` | `true` | Advisory source, replacing Dependabot |
-| `lockFileMaintenance` | weekly, automerged | Keeps transitive dependencies fresh |
+| `lockFileMaintenance` | weekly | Keeps transitive dependencies fresh; merged like any other PR |
 
-### Grouping and automerge policy
+### Grouping and merge eligibility
 
-| Group | Matches | Automerge |
-|-------|---------|-----------|
-| `dev-dependencies` | devDependencies, patch + minor | Yes |
+Renovate has `automerge` disabled everywhere and never merges. Grouping exists to
+batch PRs, and the `no-runtime-impact` label marks the only classes the routine is
+permitted to merge.
+
+| Group | Matches | `no-runtime-impact` |
+|-------|---------|---------------------|
 | `type-definitions` | `@types/**`, patch + minor | Yes |
 | `github-actions` | github-actions manager, patch + minor + digest | Yes |
-| `production-patch` | dependencies, patch | Yes |
-| `production-minor` | dependencies, minor | No |
-| high-risk | `next`, `react`, `react-dom`, `wrangler`, `@opennextjs/cloudflare`, `@cloudflare/workers-types`, `typescript`, `@biomejs/biome` | No, ungrouped, 7-day cooldown |
+| `lint-tooling` | Biome, cspell, knip, textlint, markdownlint, lefthook | Yes |
+| `test-tooling` | Vitest, Testing Library, jsdom | Yes |
+| `build-tooling` | TypeScript, tsup, turbo, Storybook, Vite, Tailwind, Wrangler, OpenNext, Astro | No, changes emitted output |
+| `dev-dependencies` | remaining devDependencies, patch + minor | No |
+| `production-patch` / `production-minor` | dependencies | No, runtime behavior can change |
+| high-risk | `next`, `react`, `react-dom`, `wrangler`, `@opennextjs/cloudflare`, `@cloudflare/workers-types`, `typescript`, `@biomejs/biome`, `astro` | No, ungrouped |
 | major | any major | No, requires dashboard approval |
 
 `vulnerabilityAlerts` overrides the cooldown with `minimumReleaseAge: null`, so a
@@ -68,9 +73,16 @@ fix for a known CVE is never delayed.
 
 ### Merge criterion
 
-A dependency PR merges into `develop` when, and only when, every required status
-check is green. There is no separate approval gate. `platformAutomerge` delegates
-the merge to GitHub, so it happens even when no automation is running.
+Merging is performed only by the `dep-triage` routine, never by Renovate or by
+GitHub auto-merge. Two conditions must both hold:
+
+1. The PR carries `no-runtime-impact`, meaning the class of change cannot alter
+   product behavior, and the diff touches only manifests and `pnpm-lock.yaml`
+2. Every required status check has run and passed
+
+Anything else, production dependencies and build-chain tooling included, waits for
+a human. A green check suite alone is not sufficient to merge, because a green
+suite does not prove that emitted output is unchanged.
 
 For that criterion to mean anything, the checks must actually run. `pr-check.yaml`
 therefore triggers on the root `package.json`, `pnpm-lock.yaml` and

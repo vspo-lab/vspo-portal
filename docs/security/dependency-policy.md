@@ -10,8 +10,9 @@ over time.
 |-------|------|
 | Update bot | Renovate only. Dependabot security updates are disabled; advisories arrive through `osvVulnerabilityAlerts` |
 | Cooldown | 7 days for npm packages, inherited from the shared preset; none for known-CVE fixes |
-| Merge criterion | Every required check green. No separate approval gate on `develop` |
-| Automerge scope | devDependencies, `@types/*`, GitHub Actions, and production `patch` |
+| Merge criterion | `no-runtime-impact` label **and** every required check green. Both required |
+| Who may merge | The `dep-triage` routine only. Renovate automerge is disabled everywhere |
+| Automated merge scope | Only `no-runtime-impact` classes: `@types/*`, GitHub Actions, lint tooling, test tooling |
 | Blocking scan | Trivy, production dependencies only, CRITICAL and HIGH |
 | Non-blocking scan | Trivy with `--include-dev-deps`, report only |
 | Suppression | Requires `statement` and `expired_at`, maximum 90 days |

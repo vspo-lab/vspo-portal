@@ -1,20 +1,24 @@
 packages:
   - packages/**/*
   - service/**/*
+  # Build output re-emits the workspace manifests: `next build` writes a copy to
+  # .next/standalone/service/..., which matches `service/**/*`. Without these
+  # exclusions any build after the first fails with a duplicate-workspace error.
+  - '!**/.next/**'
+  - '!**/.open-next/**'
+  - '!**/dist/**'
 
 catalog:
-  '@cloudflare/workers-types': ^4.20260317.1
-  '@types/node': ^25.5.0
-  dayjs: ^1.11.19
+  '@cloudflare/workers-types': ^4.20260702.1
+  '@types/node': ^25.9.5
+  dayjs: ^1.11.21
   next: 16.2.12
-  react: ^19.2.4
-  react-dom: ^19.2.4
-  tsup: ^8.5.0
-  typescript: ^6.0.0
-  wrangler: ^4.76.0
-  zod: ^4.0.0
-
-sharedWorkspaceLockfile: true
+  react: ^19.2.8
+  react-dom: ^19.2.8
+  tsup: ^8.5.1
+  typescript: ^6.0.3
+  wrangler: ^4.119.0
+  zod: ^4.4.3
 
 # Supply-chain cooldown: refuse to resolve a version published less than 7 days
 # ago (value is in minutes). Matches the npm cooldown in the shared Renovate
@@ -25,3 +29,5 @@ sharedWorkspaceLockfile: true
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - '@vspo-lab/*'
+
+sharedWorkspaceLockfile: true

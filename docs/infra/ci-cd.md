@@ -306,7 +306,7 @@ packages:
 
 Managed via automatic updates with Renovate or Dependabot.
 
-Renovate is the single source of dependency updates; Dependabot security updates are disabled to avoid duplicate PRs for the same advisory. `renovate.json` groups updates, applies a 3-day supply-chain cooldown, and automerges the low-risk groups once every required check is green. See [Dependency Auto Flow](./dependency-auto-flow.md) for the full design and [Dependency Security Policy](../security/dependency-policy.md) for the policy.
+Renovate is the single source of dependency updates; Dependabot security updates are disabled to avoid duplicate PRs for the same advisory. `renovate.json` groups updates and inherits the shared preset's 7-day supply-chain cooldown. Renovate itself never merges: the `dep-triage` routine is the only automated merger, and it merges only changes labelled `no-runtime-impact` whose checks are fully green. See [Dependency Auto Flow](./dependency-auto-flow.md) for the full design and [Dependency Security Policy](../security/dependency-policy.md) for the policy.
 
 ---
 
