@@ -6,6 +6,13 @@ user_invocable: true
 
 # Overview
 
+Covers two repositories:
+
+| Repository | What it holds |
+|------------|---------------|
+| `vspo-lab/vspo-portal` | The application. Full check suite |
+| `vspo-lab/config` | Shared Renovate presets. Validated by `validate-config.yml` |
+
 Handles the dependency updates that automation cannot decide on its own. Grouping
 and cooldown are handled by `renovate.json`; merging is not. Renovate has
 `automerge` disabled everywhere, so this skill is the only automated merger, and it
@@ -88,10 +95,32 @@ For each red PR, find the first failing check and classify the cause:
 | Build or bundle failure | Investigate. Escalate if an application change is required |
 | Trivy or OSV finding | Apply the decision tree in Step 3 |
 | Conflict with `develop` | Request a Renovate rebase, or rebase directly if Renovate has released the branch |
+| Renovate config validation error (`config`) | Read the validator's `message` field: it names the rule index and the offending key. Fix the rule, then re-validate by exit code |
+| Dangling preset reference (`config`) | `scripts/check-preset-references.sh` names the missing preset. Add the file, or drop the reference from the `extends` list |
+| A field Renovate removed | Migrate to the replacement. A wildcard cannot be combined with a negation in `matchPackageNames`: express "all except X" as two rules, the later one narrowing the earlier |
 
-Verify locally with `./scripts/post-edit-check.sh` before pushing. Do not wait for
-CI afterwards: the PR is re-evaluated against Step 2a on the next run, once the
-checks have settled.
+### Reproducing a failure
+
+Before proposing any repair, reproduce the failure the way CI produces it.
+
+- Run the **exact command from the workflow file**, not an approximation of it
+- Judge the result by **exit code**. Never conclude "fixed" from grepping the
+  output for error strings: a tool can change its wording, print an error the
+  grep does not match, or fail for a reason the pattern never anticipated
+- Use the **same tool version CI resolves**. A workflow running `npx --package
+  renovate` gets the latest release; a stale local cache can be several versions
+  behind and miss the very rule that failed
+- Reproduce the failure first, then fix it, then confirm the command passes. A
+  repair that was never seen failing locally is a guess
+
+This is not hypothetical: an invalid `matchPackageNames` pattern once reached CI
+because the local check grepped output instead of using the exit code, and ran
+against a cached older Renovate.
+
+Verify locally with `./scripts/post-edit-check.sh` for `vspo-portal`, or
+`scripts/check-preset-references.sh` plus `renovate-config-validator` for
+`config`, before pushing. Do not wait for CI afterwards: the PR is re-evaluated
+against Step 2a on the next run, once the checks have settled.
 
 Cap repairs at **two attempts per PR**. On a third failure, stop, label the PR
 `needs-human`, and escalate.
@@ -169,6 +198,9 @@ Never:
 - An absent check is not a passing check. If a PR shows no checks at all, treat it
   as red and investigate why the trigger did not fire
 - Never disable or weaken a check to make a PR green
+- A local verification that is weaker than CI is worse than none, because it
+  produces confident wrong answers. Match the command, the version and the exit
+  code, or state plainly that the failure was not reproduced locally
 - Every push must leave the PR in a consistent state; revert rather than leaving a
   partial repair
 - In `report` mode, describe the action that would be taken instead of taking it

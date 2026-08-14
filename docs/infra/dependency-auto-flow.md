@@ -114,7 +114,8 @@ manually.
 ## L2. Daily Routine
 
 The procedure is the `dep-triage` skill (`.agent/skills/dep-triage/SKILL.md`), run
-by a scheduled routine at 09:00 JST. Keeping it in the repository means it is
+by a scheduled routine at 09:00 JST. It covers this repository and
+`vspo-lab/config`, which holds the shared Renovate presets. Keeping it in the repository means it is
 reviewed through pull requests and can also be run by hand with `/dep-triage`.
 
 Steps: collect open dependency PRs, repair red CI, triage security findings, prune
