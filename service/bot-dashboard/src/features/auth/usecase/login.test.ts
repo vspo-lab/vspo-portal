@@ -3,6 +3,14 @@ import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { ApplicationService } from "~/types/api";
 import { LoginUsecase } from "./login";
 
+// isRpcUnavailable() returns DEV_MOCK_AUTH !== false whenever import.meta.env.DEV
+// is set, and Vitest always sets it. Without this stub the repository serves
+// devMock and the injected appWorker below is never called, so these tests would
+// assert against mock fixtures instead of the code under test.
+vi.mock("astro:env/server", () => ({
+  DEV_MOCK_AUTH: false,
+}));
+
 const createMockAppWorker = (overrides?: {
   exchangeOAuthCode?: ReturnType<typeof vi.fn>;
   getOAuthUser?: ReturnType<typeof vi.fn>;
