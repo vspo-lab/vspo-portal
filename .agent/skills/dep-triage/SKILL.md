@@ -47,11 +47,26 @@ only automated merger, and it merges only what Step 2a proves safe.
 
 ## Step 2a: Decide what may be merged
 
-A PR may be merged only when **both** conditions hold. If either is unmet, leave
-the PR for a human; never merge on a judgement call.
+Two gates, and a PR needs **one of them**, plus green checks in every case. If
+neither gate is open, leave the PR alone and report it; never merge on a
+judgement call of your own.
 
-**Condition 1 - the change cannot affect product behavior.** Renovate labels the
-qualifying classes `no-runtime-impact`:
+### Gate A - a human approved it
+
+An approving review from someone with write access is the human saying "this is
+fine to merge". Take it at face value and merge, whatever the change contains,
+once the checks are green.
+
+- The approval must be on the **current head commit**. If the PR was pushed to
+  after the approval, the approval is stale and Gate A is closed
+- `CHANGES_REQUESTED` from anyone closes Gate A regardless of other approvals
+- An approval is not a licence to merge past a failing check. Green checks are
+  required under both gates
+
+### Gate B - the change cannot affect product behavior
+
+For updates nobody needs to look at. Renovate labels the qualifying classes
+`no-runtime-impact`:
 
 | Class | Why behavior cannot change |
 |-------|------------------------------|
@@ -68,12 +83,13 @@ bumps, because each of those can change emitted output.
 The label alone is not sufficient. Check it against the diff: if the PR touches
 anything beyond manifests and `pnpm-lock.yaml`, the label does not apply.
 
-**Condition 2 - the evidence is complete.**
+### Required under both gates
 
 - Every required check has run and passed. A check that is absent, pending or
   skipped is not a pass
-- The diff contains no source changes, only manifests and `pnpm-lock.yaml`
-- For anything that could reach the bundle, `bundle-size` reports no delta
+- Under Gate B only: the diff contains no source changes, only manifests and
+  `pnpm-lock.yaml`, and `bundle-size` reports no delta for anything that could
+  reach the bundle
 
 If a check fails identically on the base branch, that is a base-branch defect.
 Escalate it; it is not a licence to merge past a red check.
@@ -178,7 +194,7 @@ suppressed, and awaiting-human items. One comment per run, never one per PR.
 Allowed:
 
 - Push repair commits to `renovate/**` branches
-- Merge dependency PRs into `develop`, but only those satisfying Step 2a
+- Merge dependency PRs into `develop` that satisfy Step 2a, by approval or by class
 - Edit `.trivyignore.yaml`, `pnpm.overrides`, `docs/security/dependency-policy.md`
 - Create or update the `develop -> main` PR, open issues, comment
 
@@ -186,8 +202,11 @@ Never:
 
 - Merge into `main`
 - Merge while any required check is failing, pending, or absent
-- Merge anything lacking the `no-runtime-impact` label, however safe it looks
+- Merge an unapproved PR lacking the `no-runtime-impact` label, however safe it looks
 - Add the `no-runtime-impact` label to a PR in order to merge it
+- Approve a PR yourself, or treat your own review as satisfying Gate A. The
+  approval must come from a human
+- Treat an approval on a superseded commit as current
 - Merge a PR labelled `major` or `high-risk`
 - Edit files under `.github/workflows/`
 - Change application source beyond what the upgrade requires

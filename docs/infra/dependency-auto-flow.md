@@ -74,15 +74,22 @@ fix for a known CVE is never delayed.
 ### Merge criterion
 
 Merging is performed only by the `dep-triage` routine, never by Renovate or by
-GitHub auto-merge. Two conditions must both hold:
+GitHub auto-merge. Every required check must be green, and one of two gates must
+be open:
 
-1. The PR carries `no-runtime-impact`, meaning the class of change cannot alter
-   product behavior, and the diff touches only manifests and `pnpm-lock.yaml`
-2. Every required status check has run and passed
+| Gate | Condition | Covers |
+|------|-----------|--------|
+| A | A human with write access approved the current head commit | Anything. The approval is the human's judgement, taken at face value |
+| B | The PR carries `no-runtime-impact` and the diff touches only manifests and `pnpm-lock.yaml` | Updates nobody needs to look at |
 
-Anything else, production dependencies and build-chain tooling included, waits for
-a human. A green check suite alone is not sufficient to merge, because a green
-suite does not prove that emitted output is unchanged.
+An approval on a superseded commit is stale and does not open Gate A, and a
+`CHANGES_REQUESTED` review closes it. Neither gate permits merging past a failing,
+pending or absent check.
+
+Gate B exists so routine noise (type definitions, CI tooling) never reaches a
+human. Everything else, production dependencies and build-chain tooling included,
+waits for an approval. A green check suite alone is not sufficient, because a
+green suite does not prove that emitted output is unchanged.
 
 For that criterion to mean anything, the checks must actually run. `pr-check.yaml`
 therefore triggers on the root `package.json`, `pnpm-lock.yaml` and
