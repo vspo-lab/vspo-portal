@@ -1,0 +1,60 @@
+name: Release PR
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# Serialized so two pushes cannot race on the same PR, but never cancelled: the
+# last push must always be reflected in the PR body.
+concurrency:
+  group: release-pr
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Create or update the develop -> main PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Create or update the release PR
+        env:
+          # A PR opened with the default GITHUB_TOKEN does not trigger other
+          # workflows, so pr-check would not run on it. RELEASE_PR_TOKEN (a GitHub
+          # App installation token or PAT) is preferred; without it the PR is still
+          # created and kept current, but its checks must be started manually.
+          GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin main develop --quiet
+
+          if [ "$(git rev-list --count origin/main..origin/develop)" -eq 0 ]; then
+            echo "develop is not ahead of main; nothing to do."
+            exit 0
+          fi
+
+          ./scripts/release-pr-body.sh > /tmp/release-pr-body.md
+
+          NUMBER=$(gh pr list --base main --head develop --state open \
+            --json number --jq '.[0].number // empty')
+
+          if [ -n "$NUMBER" ]; then
+            echo "Updating existing release PR #${NUMBER}"
+            gh pr edit "$NUMBER" --body-file /tmp/release-pr-body.md
+          else
+            echo "Creating a new release PR"
+            gh pr create \
+              --base main \
+              --head develop \
+              --title "dev -> prd" \
+              --body-file /tmp/release-pr-body.md
+          fi

@@ -1,17 +1,52 @@
 packages:
   - packages/**/*
   - service/**/*
+  # Build output re-emits the workspace manifests: `next build` writes a copy to
+  # .next/standalone/service/..., which matches `service/**/*`. Without these
+  # exclusions any build after the first fails with a duplicate-workspace error.
+  - '!**/.next/**'
+  - '!**/.open-next/**'
+  - '!**/dist/**'
 
 catalog:
-  '@cloudflare/workers-types': ^4.20260317.1
-  '@types/node': ^25.5.0
-  dayjs: ^1.11.19
+  '@cloudflare/workers-types': ^4.20260702.1
+  '@types/node': ^25.9.5
+  dayjs: ^1.11.21
   next: 16.2.12
-  react: ^19.2.4
-  react-dom: ^19.2.4
-  tsup: ^8.5.0
-  typescript: ^6.0.0
-  wrangler: ^4.76.0
-  zod: ^4.0.0
+  react: ^19.2.8
+  react-dom: ^19.2.8
+  tsup: ^8.5.1
+  typescript: ^6.0.3
+  wrangler: ^4.119.0
+  zod: ^4.4.3
+
+# Supply-chain cooldown: refuse to resolve a version published less than 7 days
+# ago (value is in minutes). Matches the npm cooldown in the shared Renovate
+# preset (vspo-lab/config//renovate), so a manual install cannot pull in a
+# version that Renovate would still be holding back. Covers installs that do not
+# go through Renovate, including local development and CI. Requires
+# sharedWorkspaceLockfile: true, otherwise pnpm 10.x silently ignores it.
+minimumReleaseAge: 10080
+# Packages pinned to an exact version in pnpm.overrides are there because of a
+# CVE. The override already fixes the version, so the cooldown adds no safety and
+# would only delay the security fix; Renovate exempts vulnerabilityAlerts from
+# the cooldown for the same reason. Range-valued overrides are deliberately not
+# listed here, since the cooldown still constrains which version they resolve to.
+minimumReleaseAgeExclude:
+  - '@vspo-lab/*'
+  - 'brace-expansion'
+  - 'devalue'
+  - 'fast-uri'
+  - 'fast-xml-builder'
+  - 'form-data'
+  - 'js-yaml'
+  - 'minimatch'
+  - 'nanoid'
+  - 'postcss'
+  - 'sharp'
+  - 'svgo'
+  - 'undici'
+  - 'vite'
+  - 'ws'
 
 sharedWorkspaceLockfile: true

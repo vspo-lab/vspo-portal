@@ -88,7 +88,7 @@ describe("ScheduleStatusPresenter", () => {
         onSearchDialogOpen={onSearchDialogOpen}
       />,
     );
-    const fab = screen.getByRole("button", { name: /search\.dateSearch/i });
+    const fab = screen.getByRole("button", { name: /search\.title/i });
     await userEvent.click(fab);
     expect(onSearchDialogOpen).toHaveBeenCalledOnce();
   });
