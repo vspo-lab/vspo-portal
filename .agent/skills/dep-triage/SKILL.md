@@ -80,16 +80,36 @@ dependencies at any level, build-chain tooling (`typescript`, `tsup`, `wrangler`
 `@opennextjs/cloudflare`, Storybook, Vite, Astro), and lockfile-only transitive
 bumps, because each of those can change emitted output.
 
-The label alone is not sufficient. Check it against the diff: if the PR touches
-anything beyond manifests and `pnpm-lock.yaml`, the label does not apply.
+**The label alone is not sufficient**, for a concrete reason. Renovate applies
+`addLabels` per matching rule, but a label lands on the whole PR. A single PR can
+span more than one manager, so a rule matching one part of it can put
+`no-runtime-impact` on a PR whose other half is not covered by that rule at all.
+
+This has already happened: a pnpm version bump matched the `github-actions` rule
+and arrived labelled `no-runtime-impact`, while also editing
+`.github/actions/setup-pnpm/action.yml`, a deploy workflow, and `package.json`.
+Nothing about that change is free of build impact.
+
+So Gate B opens only when **all** of these hold:
+
+- The `no-runtime-impact` label is present
+- The PR carries neither `major` nor `high-risk`
+- The diff touches only `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml`.
+  Anything under `.github/`, any source file, any config file closes the gate
+
+Check the diff yourself; do not take the label's word for it.
 
 ### Required under both gates
 
 - Every required check has run and passed. A check that is absent, pending or
   skipped is not a pass
-- Under Gate B only: the diff contains no source changes, only manifests and
-  `pnpm-lock.yaml`, and `bundle-size` reports no delta for anything that could
-  reach the bundle
+- Under Gate B only: the diff restrictions above hold, and `bundle-size` reports
+  no delta for anything that could reach the bundle
+
+`scripts/dep-triage-report.py` evaluates both gates against the live API and
+prints the decision per PR. Run it rather than judging by eye, and treat its
+output as the answer. It exists so the gates are machine-checked instead of
+re-derived from prose on every run.
 
 If a check fails identically on the base branch, that is a base-branch defect.
 Escalate it; it is not a licence to merge past a red check.

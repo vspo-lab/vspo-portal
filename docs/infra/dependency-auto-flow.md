@@ -80,11 +80,22 @@ be open:
 | Gate | Condition | Covers |
 |------|-----------|--------|
 | A | A human with write access approved the current head commit | Anything. The approval is the human's judgement, taken at face value |
-| B | The PR carries `no-runtime-impact` and the diff touches only manifests and `pnpm-lock.yaml` | Updates nobody needs to look at |
+| B | The PR carries `no-runtime-impact`, carries neither `major` nor `high-risk`, and the diff touches only `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml` | Updates nobody needs to look at |
 
 An approval on a superseded commit is stale and does not open Gate A, and a
 `CHANGES_REQUESTED` review closes it. Neither gate permits merging past a failing,
 pending or absent check.
+
+Gate B never trusts the label on its own. Renovate applies `addLabels` per matching
+rule but the label lands on the whole PR, so a PR spanning two managers can arrive
+labelled from a rule that covers only half of it. A pnpm bump did exactly that: it
+matched the `github-actions` rule, arrived `no-runtime-impact`, and also edited
+`.github/actions/setup-pnpm/action.yml`, a deploy workflow and `package.json`. The
+label check, the `major`/`high-risk` exclusion and the diff check are three
+independent conditions for that reason.
+
+`scripts/dep-triage-report.py` evaluates the gates against the live API and prints
+a decision per PR, so the policy is machine-checked rather than re-derived by hand.
 
 Gate B exists so routine noise (type definitions, CI tooling) never reaches a
 human. Everything else, production dependencies and build-chain tooling included,
