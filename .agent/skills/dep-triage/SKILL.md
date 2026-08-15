@@ -47,9 +47,17 @@ only automated merger, and it merges only what Step 2a proves safe.
 
 ## Step 2a: Decide what may be merged
 
-Two gates, and a PR needs **one of them**, plus green checks in every case. If
-neither gate is open, leave the PR alone and report it; never merge on a
-judgement call of your own.
+**You do not merge.** `.github/workflows/dep-auto-merge.yaml` performs merges, by
+executing the output of `scripts/dep-triage-report.py`. That split exists for a
+concrete reason: a routine session has no GitHub write credentials, while the
+workflow has them natively, and keeping the decision in one reviewable script
+stops the policy from being re-derived by a model on every run.
+
+Your job at this step is to run the evaluator, confirm its decisions look right,
+and investigate anything surprising. The gates below are what it implements; know
+them so you can tell a correct HOLD from a bug.
+
+Two gates, and a PR needs **one of them**, plus green checks in every case.
 
 ### Gate A - a human approved it
 
@@ -80,16 +88,36 @@ dependencies at any level, build-chain tooling (`typescript`, `tsup`, `wrangler`
 `@opennextjs/cloudflare`, Storybook, Vite, Astro), and lockfile-only transitive
 bumps, because each of those can change emitted output.
 
-The label alone is not sufficient. Check it against the diff: if the PR touches
-anything beyond manifests and `pnpm-lock.yaml`, the label does not apply.
+**The label alone is not sufficient**, for a concrete reason. Renovate applies
+`addLabels` per matching rule, but a label lands on the whole PR. A single PR can
+span more than one manager, so a rule matching one part of it can put
+`no-runtime-impact` on a PR whose other half is not covered by that rule at all.
+
+This has already happened: a pnpm version bump matched the `github-actions` rule
+and arrived labelled `no-runtime-impact`, while also editing
+`.github/actions/setup-pnpm/action.yml`, a deploy workflow, and `package.json`.
+Nothing about that change is free of build impact.
+
+So Gate B opens only when **all** of these hold:
+
+- The `no-runtime-impact` label is present
+- The PR carries neither `major` nor `high-risk`
+- The diff touches only `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml`.
+  Anything under `.github/`, any source file, any config file closes the gate
+
+Check the diff yourself; do not take the label's word for it.
 
 ### Required under both gates
 
 - Every required check has run and passed. A check that is absent, pending or
   skipped is not a pass
-- Under Gate B only: the diff contains no source changes, only manifests and
-  `pnpm-lock.yaml`, and `bundle-size` reports no delta for anything that could
-  reach the bundle
+- Under Gate B only: the diff restrictions above hold, and `bundle-size` reports
+  no delta for anything that could reach the bundle
+
+`scripts/dep-triage-report.py` evaluates both gates against the live API and
+prints the decision per PR. Run it rather than judging by eye, and treat its
+output as the answer. It exists so the gates are machine-checked instead of
+re-derived from prose on every run.
 
 If a check fails identically on the base branch, that is a base-branch defect.
 Escalate it; it is not a licence to merge past a red check.
@@ -194,19 +222,17 @@ suppressed, and awaiting-human items. One comment per run, never one per PR.
 Allowed:
 
 - Push repair commits to `renovate/**` branches
-- Merge dependency PRs into `develop` that satisfy Step 2a, by approval or by class
 - Edit `.trivyignore.yaml`, `pnpm.overrides`, `docs/security/dependency-policy.md`
 - Create or update the `develop -> main` PR, open issues, comment
 
 Never:
 
-- Merge into `main`
-- Merge while any required check is failing, pending, or absent
-- Merge an unapproved PR lacking the `no-runtime-impact` label, however safe it looks
-- Add the `no-runtime-impact` label to a PR in order to merge it
-- Approve a PR yourself, or treat your own review as satisfying Gate A. The
-  approval must come from a human
-- Treat an approval on a superseded commit as current
+- Merge any pull request. That is the workflow's job, not yours
+- Add the `no-runtime-impact` label to a PR, or remove `major` or `high-risk`
+  from one. Editing labels to change a gate's outcome is out of bounds
+- Approve a pull request. Gate A must be opened by a human
+- Edit `scripts/dep-triage-report.py` to make a specific PR mergeable. Change it
+  only to fix a policy defect, in its own PR, explaining the defect
 - Merge a PR labelled `major` or `high-risk`
 - Edit files under `.github/workflows/`
 - Change application source beyond what the upgrade requires
