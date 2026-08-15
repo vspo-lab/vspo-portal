@@ -73,9 +73,20 @@ fix for a known CVE is never delayed.
 
 ### Merge criterion
 
-Merging is performed only by the `dep-triage` routine, never by Renovate or by
-GitHub auto-merge. Every required check must be green, and one of two gates must
-be open:
+Merging is performed by `.github/workflows/dep-auto-merge.yaml`, never by Renovate
+and never by GitHub auto-merge. The workflow decides nothing: it runs
+`scripts/dep-triage-report.py` and executes the result.
+
+Renovate's automerge was rejected because it merges on "CI green" alone. These
+gates are strictly stronger, so that concern is met without giving Renovate the
+merge button.
+
+The workflow holds the credentials; the routine holds the judgement. A routine
+session has no GitHub write access, so putting the merge there would have meant
+inventing a way to grant it. Keeping the decision in one script also means the
+policy is reviewed as code rather than reconstructed from prose each morning.
+
+Every required check must be green, and one of two gates must be open:
 
 | Gate | Condition | Covers |
 |------|-----------|--------|
@@ -129,6 +140,13 @@ manually.
 | `lighthouse` skipped for PRs labelled `dependencies` | The most expensive job, already `continue-on-error`, and it adds no signal to a lockfile bump |
 | `autofix` excludes `renovate/**` | A commit from another author makes Renovate stop rebasing its own branch |
 
+### Auto merge (`dep-auto-merge.yaml`)
+
+Runs on `pull_request_review` (so an approval acts within the minute), hourly on a
+schedule (so Gate B PRs merge once their checks land), and on demand. It checks out
+the default branch rather than the PR's version of the script, so a pull request
+cannot rewrite the policy that admits it.
+
 ## L2. Daily Routine
 
 The procedure is the `dep-triage` skill (`.agent/skills/dep-triage/SKILL.md`), run
@@ -145,13 +163,11 @@ is labelled `needs-human`.
 
 ### Permission boundary
 
-The routine may push repair commits to `renovate/**`, merge dependency PRs into
-`develop` once every check is green, edit `.trivyignore.yaml`, `pnpm.overrides` and
-the security ledger, and create or update the release PR.
+The routine may push repair commits to `renovate/**`, edit `.trivyignore.yaml`,
+`pnpm.overrides` and the security ledger, and create or update the release PR.
 
-It may never merge into `main`, merge while any required check is failing, pending
-or absent, merge a `major` or `high-risk` PR, or edit files under
-`.github/workflows/`.
+It may not merge anything, approve anything, or edit labels to change a gate's
+outcome. Merging belongs to `dep-auto-merge.yaml`; approving belongs to a human.
 
 ### Rollout
 

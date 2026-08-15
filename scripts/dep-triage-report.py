@@ -16,8 +16,14 @@ every run drifts. This makes the decision reproducible and reviewable, and it is
 the mechanism that caught `no-runtime-impact` leaking onto a PR that also edited
 workflow files.
 
+This script never writes to GitHub. It only decides. Acting on its decisions is
+the caller's job: `.github/workflows/dep-auto-merge.yaml` consumes `--json` and
+performs the merges with a token, so the policy and the action that applies it
+stay separable and separately reviewable.
+
 Usage:
     python3 scripts/dep-triage-report.py [owner/repo ...]
+    python3 scripts/dep-triage-report.py --json [owner/repo ...]
 """
 
 import json
@@ -116,7 +122,9 @@ def evaluate(repo: str, pr: dict) -> dict:
 
 
 def main() -> int:
-    repos = sys.argv[1:] or DEFAULT_REPOS
+    args = sys.argv[1:]
+    as_json = "--json" in args
+    repos = [a for a in args if not a.startswith("--")] or DEFAULT_REPOS
     results, failures = [], []
 
     for repo in repos:
@@ -130,6 +138,18 @@ def main() -> int:
                 results.append(evaluate(repo, pr))
             except urllib.error.URLError as exc:
                 failures.append(f"{repo}#{pr['number']}: {exc}")
+
+    if as_json:
+        # Emit only what the merge step needs to act, so a change to the human
+        # readable output cannot alter what gets merged.
+        print(json.dumps([
+            {"repo": r["repo"], "number": r["number"], "decision": r["decision"],
+             "why": r["why"], "title": r["title"], "base": r["base"]}
+            for r in results
+        ]))
+        for f in failures:
+            print(f"ERROR {f}", file=sys.stderr)
+        return 1 if failures else 0
 
     for r in sorted(results, key=lambda r: (r["repo"], -r["number"])):
         total, failed, pending = r["checks"]

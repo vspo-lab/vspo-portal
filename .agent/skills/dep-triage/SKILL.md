@@ -47,9 +47,17 @@ only automated merger, and it merges only what Step 2a proves safe.
 
 ## Step 2a: Decide what may be merged
 
-Two gates, and a PR needs **one of them**, plus green checks in every case. If
-neither gate is open, leave the PR alone and report it; never merge on a
-judgement call of your own.
+**You do not merge.** `.github/workflows/dep-auto-merge.yaml` performs merges, by
+executing the output of `scripts/dep-triage-report.py`. That split exists for a
+concrete reason: a routine session has no GitHub write credentials, while the
+workflow has them natively, and keeping the decision in one reviewable script
+stops the policy from being re-derived by a model on every run.
+
+Your job at this step is to run the evaluator, confirm its decisions look right,
+and investigate anything surprising. The gates below are what it implements; know
+them so you can tell a correct HOLD from a bug.
+
+Two gates, and a PR needs **one of them**, plus green checks in every case.
 
 ### Gate A - a human approved it
 
@@ -214,19 +222,17 @@ suppressed, and awaiting-human items. One comment per run, never one per PR.
 Allowed:
 
 - Push repair commits to `renovate/**` branches
-- Merge dependency PRs into `develop` that satisfy Step 2a, by approval or by class
 - Edit `.trivyignore.yaml`, `pnpm.overrides`, `docs/security/dependency-policy.md`
 - Create or update the `develop -> main` PR, open issues, comment
 
 Never:
 
-- Merge into `main`
-- Merge while any required check is failing, pending, or absent
-- Merge an unapproved PR lacking the `no-runtime-impact` label, however safe it looks
-- Add the `no-runtime-impact` label to a PR in order to merge it
-- Approve a PR yourself, or treat your own review as satisfying Gate A. The
-  approval must come from a human
-- Treat an approval on a superseded commit as current
+- Merge any pull request. That is the workflow's job, not yours
+- Add the `no-runtime-impact` label to a PR, or remove `major` or `high-risk`
+  from one. Editing labels to change a gate's outcome is out of bounds
+- Approve a pull request. Gate A must be opened by a human
+- Edit `scripts/dep-triage-report.py` to make a specific PR mergeable. Change it
+  only to fix a policy defect, in its own PR, explaining the defect
 - Merge a PR labelled `major` or `high-risk`
 - Edit files under `.github/workflows/`
 - Change application source beyond what the upgrade requires

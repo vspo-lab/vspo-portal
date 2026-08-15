@@ -1,0 +1,83 @@
+name: Dependency Auto Merge
+
+# Merges dependency PRs that satisfy the dep-triage gates. This workflow makes no
+# decisions of its own: scripts/dep-triage-report.py evaluates the gates and this
+# job executes the result, so the policy stays reviewable in one place.
+#
+# Renovate's own automerge is disabled, because it merges on "CI green" alone.
+# The gates here are strictly stronger: green checks AND either a human approval
+# on the current head commit, or a change whose class cannot affect the product.
+
+on:
+  # A review is the usual way Gate A opens, so react to it immediately.
+  pull_request_review:
+    types: [submitted]
+  # Gate B PRs open when their checks finish, which no review event covers.
+  schedule:
+    - cron: '15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dep-auto-merge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    name: Merge PRs that pass the gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Always evaluate against the workflow's own branch, never a PR's version
+      # of the script: a PR must not be able to rewrite the policy that admits it.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Evaluate the merge gates
+        id: evaluate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 scripts/dep-triage-report.py --json vspo-lab/vspo-portal > /tmp/decisions.json
+          python3 scripts/dep-triage-report.py vspo-lab/vspo-portal
+
+      - name: Merge everything the evaluator approved
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          COUNT=$(python3 -c "import json;print(sum(1 for d in json.load(open('/tmp/decisions.json')) if d['decision']=='MERGE'))")
+          if [ "$COUNT" -eq 0 ]; then
+            echo "Nothing satisfies the gates. This is a normal outcome."
+            exit 0
+          fi
+
+          python3 -c "
+          import json
+          for d in json.load(open('/tmp/decisions.json')):
+              if d['decision'] == 'MERGE':
+                  print('%s\t%s\t%s' % (d['repo'], d['number'], d['why']))
+          " > /tmp/to-merge.tsv
+
+          while IFS=$'\t' read -r repo number why; do
+            echo "::group::Merging ${repo}#${number}"
+            echo "reason: ${why}"
+            # Squash to match the repository's history style. A merge that GitHub
+            # refuses (branch protection, a race with a new push) fails loudly
+            # rather than being retried blindly.
+            if gh api -X PUT "repos/${repo}/pulls/${number}/merge" \
+                 -f merge_method=squash \
+                 -f commit_title="$(gh pr view "${number}" --repo "${repo}" --json title --jq .title) (#${number})" \
+                 -f commit_message="Merged by dep-auto-merge. ${why}"; then
+              echo "merged"
+            else
+              echo "::warning::Could not merge ${repo}#${number}; leaving it open"
+            fi
+            echo "::endgroup::"
+          done < /tmp/to-merge.tsv
