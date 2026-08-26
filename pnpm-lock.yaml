@@ -46,7 +46,7 @@ overrides:
   fast-xml-builder@>=1.0.0 <1.1.7: 1.1.7
   form-data@>=4.0.0 <4.0.6: 4.0.6
   js-yaml@>=4.0.0 <4.3.1: 4.3.1
-  minimatch@>=8.0.0 <10.0.0: 10.2.5
+  minimatch@>=8.0.0 <10.0.0: 10.2.6
   nanoid@>=3.0.0 <3.3.18: 3.3.18
   path-to-regexp@>=8.0.0 <8.4.0: '>=8.4.0'
   picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
@@ -7316,10 +7316,6 @@ packages:
 
   minimalistic-crypto-utils@1.0.1:
     resolution: {integrity: sha512-JIYlbt6g8i5jKfJ3xz7rF0LXmv2TkDxBLUkiBeZ7bAx4GnnNMr8xFpGnOxn6GhTEHx3SjRrZEoU+j04prX1ktg==}
-
-  minimatch@10.2.5:
-    resolution: {integrity: sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==}
-    engines: {node: 18 || 20 || >=22}
 
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
@@ -16321,7 +16317,7 @@ snapshots:
   glob@9.3.5:
     dependencies:
       fs.realpath: 1.0.0
-      minimatch: 10.2.5
+      minimatch: 10.2.6
       minipass: 4.2.8
       path-scurry: 1.11.1
 
@@ -17814,10 +17810,6 @@ snapshots:
   minimalistic-assert@1.0.1: {}
 
   minimalistic-crypto-utils@1.0.1: {}
-
-  minimatch@10.2.5:
-    dependencies:
-      brace-expansion: 5.0.9
 
   minimatch@10.2.6:
     dependencies:
