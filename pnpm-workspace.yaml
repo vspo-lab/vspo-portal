@@ -48,5 +48,7 @@ minimumReleaseAgeExclude:
   - 'undici'
   - 'vite'
   - 'ws'
+  # Renovate security update: pnpm@10.34.4
+  - pnpm@10.34.4
 
 sharedWorkspaceLockfile: true
