@@ -1,2 +1,21 @@
 # CODEOWNERS docs: https://docs.github.com/ja/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 *                    @sugar-cat7
+
+# Dependency manifests have no code owner.
+#
+# dep-auto-merge only ever merges a PR whose diff is confined to these files
+# (Gate B), and it was refused with:
+#
+#   gh: Waiting on code owner review from sugar-cat7. (HTTP 405)
+#
+# Requiring a code-owner review on a lockfile bump blocks the automation without
+# adding review value: the gates already require every check green plus either a
+# human approval or a change class that cannot affect the product.
+#
+# CODEOWNERS is last-match-wins and an empty owner list removes ownership, so
+# these three lines must stay below the `*` rule above. `!` negation is not
+# supported here. No leading slash, so they match in every workspace package too,
+# matching how the evaluator classifies a manifest-only diff.
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
