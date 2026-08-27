@@ -14,10 +14,10 @@ Covers two repositories:
 | `vspo-lab/config` | Shared Renovate presets. Validated by `validate-config.yml` |
 
 Handles the dependency updates that automation cannot decide on its own. Grouping
-and cooldown are handled by `renovate.json`; merging is not. Renovate has
-`automerge` disabled everywhere, so this skill is the only automated merger, and it
-merges strictly the classes whose effect on product behavior is nil. Everything
-else it repairs, triages, or hands to a human.
+and cooldown are handled by `renovate.json`. Merging is handled by
+`dep-auto-merge.yaml`, which merges a PR once a human has approved it and the
+checks are green. This skill repairs what is red, triages security findings, and
+reports what is waiting.
 
 # Modes
 
@@ -42,82 +42,29 @@ The invocation states the mode. Default to `report` when it is not given.
 List open PRs labelled `dependencies` with their check status. Classify each as
 green, red, stale-conflicted, or awaiting cooldown.
 
-Renovate never merges anything: `automerge` is off everywhere. This skill is the
-only automated merger, and it merges only what Step 2a proves safe.
+Renovate never merges anything: `automerge` is off everywhere. Merges are performed
+by `dep-auto-merge.yaml`, on approved and green PRs only.
 
 ## Step 2a: Decide what may be merged
 
-**You do not merge.** `.github/workflows/dep-auto-merge.yaml` performs merges, by
-executing the output of `scripts/dep-triage-report.py`. That split exists for a
-concrete reason: a routine session has no GitHub write credentials, while the
-workflow has them natively, and keeping the decision in one reviewable script
-stops the policy from being re-derived by a model on every run.
+**You do not merge.** `.github/workflows/dep-auto-merge.yaml` performs merges by
+executing the output of `scripts/dep-triage-report.py`. Run the evaluator, sanity
+check its decisions, and investigate anything surprising.
 
-Your job at this step is to run the evaluator, confirm its decisions look right,
-and investigate anything surprising. The gates below are what it implements; know
-them so you can tell a correct HOLD from a bug.
+The rule is one line: **a pull request merges when a human with write access has
+approved its current head commit and every required check has passed.**
 
-Two gates, and a PR needs **one of them**, plus green checks in every case.
+- An approval on a superseded commit is stale. The approver never saw what would
+  actually be merged, so it does not count
+- `CHANGES_REQUESTED` blocks the merge regardless of other approvals
+- A check that is absent, pending or skipped is not a pass
 
-### Gate A - a human approved it
-
-An approving review from someone with write access is the human saying "this is
-fine to merge". Take it at face value and merge, whatever the change contains,
-once the checks are green.
-
-- The approval must be on the **current head commit**. If the PR was pushed to
-  after the approval, the approval is stale and Gate A is closed
-- `CHANGES_REQUESTED` from anyone closes Gate A regardless of other approvals
-- An approval is not a licence to merge past a failing check. Green checks are
-  required under both gates
-
-### Gate B - the change cannot affect product behavior
-
-For updates nobody needs to look at. Renovate labels the qualifying classes
-`no-runtime-impact`:
-
-| Class | Why behavior cannot change |
-|-------|------------------------------|
-| `@types/**` | Type declarations are erased at compile time; nothing reaches the bundle |
-| GitHub Actions | CI configuration only, never part of a deployed artifact |
-| Lint, format and docs tooling | Runs in CI only and emits no shipped code |
-| Test tooling | Never imported by production code |
-
-Everything else is out of scope for automated merging, including production
-dependencies at any level, build-chain tooling (`typescript`, `tsup`, `wrangler`,
-`@opennextjs/cloudflare`, Storybook, Vite, Astro), and lockfile-only transitive
-bumps, because each of those can change emitted output.
-
-**The label alone is not sufficient**, for a concrete reason. Renovate applies
-`addLabels` per matching rule, but a label lands on the whole PR. A single PR can
-span more than one manager, so a rule matching one part of it can put
-`no-runtime-impact` on a PR whose other half is not covered by that rule at all.
-
-This has already happened: a pnpm version bump matched the `github-actions` rule
-and arrived labelled `no-runtime-impact`, while also editing
-`.github/actions/setup-pnpm/action.yml`, a deploy workflow, and `package.json`.
-Nothing about that change is free of build impact.
-
-So Gate B opens only when **all** of these hold:
-
-- The `no-runtime-impact` label is present
-- The PR carries neither `major` nor `high-risk`
-- The diff touches only `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml`.
-  Anything under `.github/`, any source file, any config file closes the gate
-
-Check the diff yourself; do not take the label's word for it.
-
-### Required under both gates
-
-- Every required check has run and passed. A check that is absent, pending or
-  skipped is not a pass
-- Under Gate B only: the diff restrictions above hold, and `bundle-size` reports
-  no delta for anything that could reach the bundle
-
-`scripts/dep-triage-report.py` evaluates both gates against the live API and
-prints the decision per PR. Run it rather than judging by eye, and treat its
-output as the answer. It exists so the gates are machine-checked instead of
-re-derived from prose on every run.
+There is deliberately no second path. An earlier design added one for changes
+whose class "cannot affect the product", and it cost more than it was worth: it
+collided with `CODEOWNERS`, collided again with the branch protection approval
+requirement, and admitted a PR that edited deploy workflows because Renovate
+applies labels per rule while the label lands on the whole PR. Approving is
+cheap; a second gate that merges without anyone looking was not.
 
 If a check fails identically on the base branch, that is a base-branch defect.
 Escalate it; it is not a licence to merge past a red check.
@@ -228,9 +175,8 @@ Allowed:
 Never:
 
 - Merge any pull request. That is the workflow's job, not yours
-- Add the `no-runtime-impact` label to a PR, or remove `major` or `high-risk`
-  from one. Editing labels to change a gate's outcome is out of bounds
-- Approve a pull request. Gate A must be opened by a human
+- Approve a pull request, or ask someone to approve one. The approval is the
+  whole gate, and it has to come from a human who chose to give it
 - Edit `scripts/dep-triage-report.py` to make a specific PR mergeable. Change it
   only to fix a policy defect, in its own PR, explaining the defect
 - Merge a PR labelled `major` or `high-risk`

@@ -24,70 +24,19 @@
   },
   "packageRules": [
     {
-      "description": "Type definitions: erased at compile time, so a passing tsc proves no runtime change",
+      "description": "Type definitions: grouped to keep the PR count down",
       "matchPackageNames": ["@types/**"],
       "matchUpdateTypes": ["patch", "minor"],
-      "groupName": "type-definitions",
-      "addLabels": ["no-runtime-impact"]
+      "groupName": "type-definitions"
     },
     {
-      "description": "GitHub Actions: CI only, never part of a deployed artifact",
+      "description": "GitHub Actions: grouped to keep the PR count down",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["patch", "minor", "digest"],
-      "groupName": "github-actions",
-      "addLabels": ["no-runtime-impact"]
+      "groupName": "github-actions"
     },
     {
-      "description": "Lint, format and docs tooling: runs in CI only, emits no shipped code",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "matchPackageNames": [
-        "@biomejs/biome",
-        "cspell",
-        "knip",
-        "markdownlint-cli2",
-        "textlint",
-        "textlint-**",
-        "@textlint/**",
-        "lefthook"
-      ],
-      "groupName": "lint-tooling",
-      "addLabels": ["no-runtime-impact"]
-    },
-    {
-      "description": "Test tooling: never imported by production code",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "matchPackageNames": [
-        "vitest",
-        "@vitest/**",
-        "@testing-library/**",
-        "jsdom",
-        "happy-dom"
-      ],
-      "groupName": "test-tooling",
-      "addLabels": ["no-runtime-impact"]
-    },
-    {
-      "description": "Build-chain devDependencies: change emitted output, so impact is not provable from CI alone",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "matchPackageNames": [
-        "tsup",
-        "turbo",
-        "typescript",
-        "storybook",
-        "@storybook/**",
-        "@vitejs/**",
-        "@tailwindcss/**",
-        "wrangler",
-        "@opennextjs/cloudflare",
-        "@astrojs/**"
-      ],
-      "groupName": "build-tooling"
-    },
-    {
-      "description": "Remaining devDependencies",
+      "description": "All devDependencies below major, in one PR",
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch", "minor"],
       "groupName": "dev-dependencies"

@@ -1,18 +1,19 @@
 name: Dependency Auto Merge
 
-# Merges dependency PRs that satisfy the dep-triage gates. This workflow makes no
-# decisions of its own: scripts/dep-triage-report.py evaluates the gates and this
-# job executes the result, so the policy stays reviewable in one place.
+# Merges a pull request once a human has approved it and every check is green.
+# This workflow makes no decisions of its own: scripts/dep-triage-report.py
+# decides and this job executes the result, so the policy stays reviewable in one
+# place.
 #
 # Renovate's own automerge is disabled, because it merges on "CI green" alone.
-# The gates here are strictly stronger: green checks AND either a human approval
-# on the current head commit, or a change whose class cannot affect the product.
+# An approval is the part that makes a merge deliberate.
 
 on:
-  # A review is the usual way Gate A opens, so react to it immediately.
+  # The usual path: approve, and the merge follows within the minute.
   pull_request_review:
     types: [submitted]
-  # Gate B PRs open when their checks finish, which no review event covers.
+  # Covers approving a PR whose checks are still running. No further review event
+  # fires when they finish, so without this the PR would wait for the next push.
   schedule:
     - cron: '15 * * * *'
   workflow_dispatch:
@@ -37,7 +38,7 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
 
-      - name: Evaluate the merge gates
+      - name: Decide what may be merged
         id: evaluate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,7 +47,7 @@ jobs:
           python3 scripts/dep-triage-report.py --json vspo-lab/vspo-portal > /tmp/decisions.json
           python3 scripts/dep-triage-report.py vspo-lab/vspo-portal
 
-      - name: Merge everything the evaluator approved
+      - name: Merge what the evaluator cleared
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -54,7 +55,7 @@ jobs:
 
           COUNT=$(python3 -c "import json;print(sum(1 for d in json.load(open('/tmp/decisions.json')) if d['decision']=='MERGE'))")
           if [ "$COUNT" -eq 0 ]; then
-            echo "Nothing satisfies the gates. This is a normal outcome."
+            echo "Nothing is approved and green. This is a normal outcome."
             exit 0
           fi
 
