@@ -97,6 +97,12 @@ An approval on a superseded commit is stale and does not open Gate A, and a
 `CHANGES_REQUESTED` review closes it. Neither gate permits merging past a failing,
 pending or absent check.
 
+Opening a gate is necessary but not sufficient: GitHub still applies branch
+protection. `CODEOWNERS` originally assigned every file to a single owner, so the
+first Gate B merge was refused with `Waiting on code owner review` even though the
+gate was open and all seventeen checks were green. The dependency manifests
+therefore carry no code owner, which is exactly the set Gate B is allowed to touch.
+
 Gate B never trusts the label on its own. Renovate applies `addLabels` per matching
 rule but the label lands on the whole PR, so a PR spanning two managers can arrive
 labelled from a rule that covers only half of it. A pnpm bump did exactly that: it
