@@ -119,6 +119,27 @@ therefore triggers on the root `package.json`, `pnpm-lock.yaml` and
 `bundle-size` and `test` jobs. Without it, a lockfile-only PR would run no jobs at
 all and "every check green" would be vacuously true.
 
+### Lockfile sync (`lockfile-sync.yaml`)
+
+A dependency PR that changes a manifest without regenerating `pnpm-lock.yaml`
+fails at install. Because every job installs first, a one-line bump turns six
+checks red with an error that names none of them.
+
+Renovate produced exactly that on #1125: `package.json` moved
+`markdownlint-cli2` to `^0.23.0` with no lockfile change, `CI=true` made the
+install frozen, and the PR sat unmergeable for twelve days. It was the only PR
+that had ever opened Gate B, so the whole flow had nothing to merge.
+
+The workflow runs frozen install and judges by exit code. On `renovate/**` and
+`dependabot/**` it regenerates the lockfile and pushes; anywhere else it fails
+with a single legible message instead of six opaque ones. The push retriggers
+CI, where the frozen install now succeeds and the workflow does nothing, so it
+terminates.
+
+Pushing to a Renovate branch does make Renovate stop rebasing it. That is worth
+accepting here: without the push the PR is unmergeable regardless, so there is
+nothing left for a rebase to preserve.
+
 ### Release PR (`release-pr.yaml`)
 
 On every push to `develop`, the workflow creates the `develop` -> `main` PR or

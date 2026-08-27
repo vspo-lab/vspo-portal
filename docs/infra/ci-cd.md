@@ -43,6 +43,8 @@ All infrastructure changes are reviewed through Pull Requests and automatically 
 | `autofix.yaml` | PR (opened/synchronize/reopened) | Auto-fix lint and format with Biome, auto-commit |
 | `bundle-size-main.yaml` | Push to `main`/`develop`, paths web/packages | Save bundle size baseline for PR comparison |
 | `release-pr.yaml` | Push to `develop`, `workflow_dispatch` | Create or update the `develop` -> `main` release PR with a generated summary |
+| `lockfile-sync.yaml` | PR touching a manifest or the lockfile | Regenerate `pnpm-lock.yaml` on bot branches when it drifts from the manifests |
+| `dep-auto-merge.yaml` | Approval, hourly, `workflow_dispatch` | Merge PRs that pass the dep-triage gates |
 
 Dependency updates flow through these workflows as described in [Dependency Auto Flow](./dependency-auto-flow.md).
 
