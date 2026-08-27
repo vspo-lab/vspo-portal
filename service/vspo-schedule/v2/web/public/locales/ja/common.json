@@ -55,6 +55,16 @@
     "watch": "視聴",
     "share": "共有"
   },
+  "videoCard": {
+    "watch": "視聴",
+    "watchOn": {
+      "youtube": "YouTubeで視聴",
+      "twitch": "Twitchで視聴",
+      "twitcasting": "ツイキャスで視聴",
+      "niconico": "ニコニコで視聴",
+      "unknown": "配信ページを開く"
+    }
+  },
   "relatedVideos": {
     "dataLoadError": "データの取得に失敗しました。",
     "loadMore": "もっと見る"
