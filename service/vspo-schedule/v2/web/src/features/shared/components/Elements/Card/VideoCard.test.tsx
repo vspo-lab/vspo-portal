@@ -89,8 +89,13 @@ describe("VideoCard", () => {
     expect(mockPushVideo).toHaveBeenCalledWith(video);
   });
 
-  it("omits the watch link when the video has no link", () => {
-    renderCard(makeVideo({ link: "" }));
+  it.each([
+    ["an empty link", ""],
+    ["a javascript: link", "javascript:alert(1)"],
+    ["a data: link", "data:text/html,<script>alert(1)</script>"],
+    ["a scheme-relative link", "//www.youtube.com/watch?v=abc123"],
+  ])("omits the watch link for %s", (_name, link) => {
+    renderCard(makeVideo({ link }));
 
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });

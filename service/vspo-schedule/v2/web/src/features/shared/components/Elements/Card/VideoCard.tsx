@@ -79,6 +79,12 @@ const StyledCardMedia = styled(Box)({
 });
 
 /**
+ * `link` is an unconstrained string on `videoSchema`, so an unexpected value could put a
+ * `javascript:` or `data:` URL into `href`. Allowlist absolute http(s) URLs instead.
+ */
+const HTTP_URL_PATTERN = /^https?:\/\//i;
+
+/**
  * Mirrors the thumbnail box so the watch link can be anchored to it while living
  * outside `CardActionArea` (an anchor may not be nested inside a button).
  * Transparent to pointer events so the thumbnail still opens the detail modal.
@@ -129,7 +135,7 @@ const watchLinkButtonSx = (theme: Theme) => ({
  * detail modal, and the watch link opens `video.link` on its source platform in a new tab.
  *
  * @precondition Must be rendered inside a `VideoModalContext` provider.
- * @postcondition Renders the watch link only when `video.link` is non-empty.
+ * @postcondition Renders the watch link only when `video.link` is an absolute http(s) URL.
  * Clicking the watch link never opens the detail modal.
  * @remarks Rendering is idempotent -- the component holds no state of its own.
  */
@@ -143,6 +149,7 @@ export const VideoCard: React.FC<Props> = ({
   const t = useTranslations("common");
   const platform = video.platform;
   const watchLabel = t(`videoCard.watchOn.${platform}`);
+  const watchUrl = HTTP_URL_PATTERN.test(video.link) ? video.link : undefined;
   return (
     <Box sx={{ position: "relative" }}>
       {highlight && (
@@ -172,11 +179,11 @@ export const VideoCard: React.FC<Props> = ({
           </StyledCardMedia>
           {children}
         </CardActionArea>
-        {video.link && (
+        {watchUrl && (
           <WatchLinkOverlay>
             <Tooltip title={watchLabel}>
               <IconButton
-                href={video.link}
+                href={watchUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={watchLabel}
