@@ -48,23 +48,19 @@ transitive `pnpm.overrides` pins.
 | `osvVulnerabilityAlerts` | `true` | Advisory source, replacing Dependabot |
 | `lockFileMaintenance` | weekly | Keeps transitive dependencies fresh; merged like any other PR |
 
-### Grouping and merge eligibility
+### Grouping
 
-Renovate has `automerge` disabled everywhere and never merges. Grouping exists to
-batch PRs, and the `no-runtime-impact` label marks the only classes the routine is
-permitted to merge.
+Renovate has `automerge` disabled everywhere and never merges. Grouping exists
+only to keep the PR count down.
 
-| Group | Matches | `no-runtime-impact` |
-|-------|---------|---------------------|
-| `type-definitions` | `@types/**`, patch + minor | Yes |
-| `github-actions` | github-actions manager, patch + minor + digest | Yes |
-| `lint-tooling` | Biome, cspell, knip, textlint, markdownlint, lefthook | Yes |
-| `test-tooling` | Vitest, Testing Library, jsdom | Yes |
-| `build-tooling` | TypeScript, tsup, turbo, Storybook, Vite, Tailwind, Wrangler, OpenNext, Astro | No, changes emitted output |
-| `dev-dependencies` | remaining devDependencies, patch + minor | No |
-| `production-patch` / `production-minor` | dependencies | No, runtime behavior can change |
-| high-risk | `next`, `react`, `react-dom`, `wrangler`, `@opennextjs/cloudflare`, `@cloudflare/workers-types`, `typescript`, `@biomejs/biome`, `astro` | No, ungrouped |
-| major | any major | No, requires dashboard approval |
+| Group | Matches |
+|-------|---------|
+| `type-definitions` | `@types/**`, patch + minor |
+| `github-actions` | github-actions manager, patch + minor + digest |
+| `dev-dependencies` | all devDependencies below major |
+| `production-patch` / `production-minor` | dependencies |
+| high-risk | `next`, `react`, `react-dom`, `wrangler`, `@opennextjs/cloudflare`, `@cloudflare/workers-types`, `typescript`, `@biomejs/biome`, `astro`. Ungrouped and labelled, so they are obvious when deciding whether to approve |
+| major | any major. Requires dashboard approval |
 
 `vulnerabilityAlerts` overrides the cooldown with `minimumReleaseAge: null`, so a
 fix for a known CVE is never delayed.
@@ -73,53 +69,40 @@ fix for a known CVE is never delayed.
 
 ### Merge criterion
 
+A pull request merges when a human with write access has approved its current head
+commit and every required check has passed. That is the whole rule.
+
 Merging is performed by `.github/workflows/dep-auto-merge.yaml`, never by Renovate
 and never by GitHub auto-merge. The workflow decides nothing: it runs
-`scripts/dep-triage-report.py` and executes the result.
+`scripts/dep-triage-report.py` and executes the result, so the policy lives in one
+reviewable place instead of being re-derived from prose on every run.
 
-Renovate's automerge was rejected because it merges on "CI green" alone. These
-gates are strictly stronger, so that concern is met without giving Renovate the
-merge button.
+Renovate's own automerge is disabled because it merges on "CI green" alone. The
+approval is what makes a merge deliberate.
 
-The workflow holds the credentials; the routine holds the judgement. A routine
-session has no GitHub write access, so putting the merge there would have meant
-inventing a way to grant it. Keeping the decision in one script also means the
-policy is reviewed as code rather than reconstructed from prose each morning.
+- An approval on a superseded commit is stale: the approver never saw what would
+  actually be merged
+- `CHANGES_REQUESTED` blocks the merge regardless of other approvals
+- A check that is absent, pending or skipped is not a pass
 
-Every required check must be green, and one of two gates must be open:
+#### Why there is no approval-free path
 
-| Gate | Condition | Covers |
-|------|-----------|--------|
-| A | A human with write access approved the current head commit | Anything. The approval is the human's judgement, taken at face value |
-| B | The PR carries `no-runtime-impact`, carries neither `major` nor `high-risk`, and the diff touches only `package.json`, `pnpm-lock.yaml` and `pnpm-workspace.yaml` | Updates nobody needs to look at |
+An earlier design had a second gate that merged changes whose class "cannot affect
+the product" — type definitions, CI tooling — without anyone approving. It was
+removed, because it cost more than it saved:
 
-An approval on a superseded commit is stale and does not open Gate A, and a
-`CHANGES_REQUESTED` review closes it. Neither gate permits merging past a failing,
-pending or absent check.
+- It required a `CODEOWNERS` carve-out, since a repository-wide code owner blocks
+  any merge the owner has not reviewed
+- It then hit the branch protection approval requirement anyway, which the human
+  maintainer routinely bypasses as an admin but a bot cannot
+- It admitted a PR that edited `.github/actions/setup-pnpm/action.yml` and a deploy
+  workflow, because Renovate applies `addLabels` per matching rule while the label
+  lands on the whole PR
 
-Opening a gate is necessary but not sufficient: GitHub still applies branch
-protection. `CODEOWNERS` originally assigned every file to a single owner, so the
-first Gate B merge was refused with `Waiting on code owner review` even though the
-gate was open and all seventeen checks were green. The dependency manifests
-therefore carry no code owner, which is exactly the set Gate B is allowed to touch.
+Approving a dependency PR is cheap. A path that merges without anyone looking was
+not, and every incident above came from it.
 
-Gate B never trusts the label on its own. Renovate applies `addLabels` per matching
-rule but the label lands on the whole PR, so a PR spanning two managers can arrive
-labelled from a rule that covers only half of it. A pnpm bump did exactly that: it
-matched the `github-actions` rule, arrived `no-runtime-impact`, and also edited
-`.github/actions/setup-pnpm/action.yml`, a deploy workflow and `package.json`. The
-label check, the `major`/`high-risk` exclusion and the diff check are three
-independent conditions for that reason.
-
-`scripts/dep-triage-report.py` evaluates the gates against the live API and prints
-a decision per PR, so the policy is machine-checked rather than re-derived by hand.
-
-Gate B exists so routine noise (type definitions, CI tooling) never reaches a
-human. Everything else, production dependencies and build-chain tooling included,
-waits for an approval. A green check suite alone is not sufficient, because a
-green suite does not prove that emitted output is unchanged.
-
-For that criterion to mean anything, the checks must actually run. `pr-check.yaml`
+For the criterion to mean anything, the checks must actually run. `pr-check.yaml`
 therefore triggers on the root `package.json`, `pnpm-lock.yaml` and
 `pnpm-workspace.yaml`, and carries a `deps` path filter that pulls in the `knip`,
 `bundle-size` and `test` jobs. Without it, a lockfile-only PR would run no jobs at
@@ -134,7 +117,7 @@ checks red with an error that names none of them.
 Renovate produced exactly that on #1125: `package.json` moved
 `markdownlint-cli2` to `^0.23.0` with no lockfile change, `CI=true` made the
 install frozen, and the PR sat unmergeable for twelve days. It was the only PR
-that had ever opened Gate B, so the whole flow had nothing to merge.
+eligible to merge at the time, so the whole flow had nothing to act on.
 
 The workflow runs frozen install and judges by exit code. On `renovate/**` and
 `dependabot/**` it regenerates the lockfile and pushes; anywhere else it fails
@@ -170,7 +153,7 @@ manually.
 ### Auto merge (`dep-auto-merge.yaml`)
 
 Runs on `pull_request_review` (so an approval acts within the minute), hourly on a
-schedule (so Gate B PRs merge once their checks land), and on demand. It checks out
+schedule (so a PR approved while its checks were still running still merges), and on demand. It checks out
 the default branch rather than the PR's version of the script, so a pull request
 cannot rewrite the policy that admits it.
 
