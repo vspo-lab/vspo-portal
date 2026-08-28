@@ -69,8 +69,8 @@ fix for a known CVE is never delayed.
 
 ### Merge criterion
 
-A pull request merges when a human with write access has approved its current head
-commit and every required check has passed. That is the whole rule.
+A pull request merges when its current head commit is approved and every required
+check has passed. That is the whole rule.
 
 Merging is performed by `.github/workflows/dep-auto-merge.yaml`, never by Renovate
 and never by GitHub auto-merge. The workflow decides nothing: it runs
@@ -80,10 +80,29 @@ reviewable place instead of being re-derived from prose on every run.
 Renovate's own automerge is disabled because it merges on "CI green" alone. The
 approval is what makes a merge deliberate.
 
+The approval comes from the maintainer, or from the daily `dep-triage` run acting
+on their behalf after reading the diff. What that run may and may not approve is
+set out in `.agent/skills/dep-triage/SKILL.md`; in short, it never approves a
+`major`, anything labelled `high-risk`, or a branch it repaired itself.
+
 - An approval on a superseded commit is stale: the approver never saw what would
   actually be merged
 - `CHANGES_REQUESTED` blocks the merge regardless of other approvals
 - A check that is absent, pending or skipped is not a pass
+
+#### The gate must not count itself
+
+The workflow's own job registers a check run against the head commit of the pull
+request under review, and that check is in progress while the evaluator reads it.
+Counting it makes the gate wait for itself: every PR is held as "not green" and
+nothing ever merges through the `pull_request_review` path.
+
+This is not hypothetical. It is why no approval-triggered merge succeeded between
+2026-08-14 and 2026-08-28; the hourly schedule was doing all the merging, because
+a scheduled run attaches its check to `develop` rather than to the PR. The
+evaluator now skips the check named by `SELF_CHECK_NAME`, and the workflow greps
+the script for that constant so a rename fails the run instead of silently
+deadlocking it again.
 
 #### Why there is no approval-free path
 
@@ -152,9 +171,10 @@ manually.
 
 ### Auto merge (`dep-auto-merge.yaml`)
 
-Runs on `pull_request_review` (so an approval acts within the minute), hourly on a
-schedule (so a PR approved while its checks were still running still merges), and on demand. It checks out
-the default branch rather than the PR's version of the script, so a pull request
+Runs on `pull_request_review` (so an approval acts within the minute), every 15
+minutes on a schedule (so a PR approved while its checks were still running still
+merges, without waiting up to an hour for it), and on demand. It checks out the
+default branch rather than the PR's version of the script, so a pull request
 cannot rewrite the policy that admits it.
 
 ## L2. Daily Routine

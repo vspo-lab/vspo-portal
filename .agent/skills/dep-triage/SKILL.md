@@ -15,8 +15,9 @@ Covers two repositories:
 
 Handles the dependency updates that automation cannot decide on its own. Grouping
 and cooldown are handled by `renovate.json`. Merging is handled by
-`dep-auto-merge.yaml`, which merges a PR once a human has approved it and the
-checks are green. This skill repairs what is red, triages security findings, and
+`dep-auto-merge.yaml`, which merges a PR once it is approved and the checks are
+green. This skill is what supplies that approval: it reads each diff, approves
+the ones that are sound, repairs what is red, triages security findings, and
 reports what is waiting.
 
 # Modes
@@ -45,32 +46,63 @@ green, red, stale-conflicted, or awaiting cooldown.
 Renovate never merges anything: `automerge` is off everywhere. Merges are performed
 by `dep-auto-merge.yaml`, on approved and green PRs only.
 
-## Step 2a: Decide what may be merged
+## Step 2a: Review and approve
 
-**You do not merge.** `.github/workflows/dep-auto-merge.yaml` performs merges by
-executing the output of `scripts/dep-triage-report.py`. Run the evaluator, sanity
-check its decisions, and investigate anything surprising.
+The rule is one line: **a pull request merges when its current head commit is
+approved and every required check has passed.**
 
-The rule is one line: **a pull request merges when a human with write access has
-approved its current head commit and every required check has passed.**
+**You approve; you do not merge.** `.github/workflows/dep-auto-merge.yaml`
+performs the merge by executing the output of `scripts/dep-triage-report.py`.
+Run the evaluator to see the current state, approve what deserves it, and leave
+the merging to the workflow.
+
+There is deliberately no second path. An earlier design added one for changes
+whose class "cannot affect the product", and it cost more than it was worth: it
+collided with `CODEOWNERS`, collided again with the branch protection approval
+requirement, and admitted a PR that edited deploy workflows because Renovate
+applies labels per rule while the label lands on the whole PR. Reviewing is
+cheap; a second gate that merges without anyone looking was not.
+
+### What approving requires
+
+Read the diff. An approval states that you read the change and found nothing
+wrong, so it has to be true. For each PR:
+
+- Every changed file is a manifest, a lockfile, or a config the update needs. A
+  dependency PR that touches application source, a workflow, or a deploy config
+  is not a dependency PR: escalate it
+- The version movement matches what the title claims, and the lockfile moves
+  with the manifest rather than lagging behind it
+- The release notes carry no breaking change relevant to how the package is used
+  here. For a major, or anything with a migration note, escalate
+- Every check is green. A check that is absent or pending is not a pass
+
+Write what you checked and what you concluded into the review body, so the
+approval carries its own reasoning. Say plainly that Claude Code produced it on
+the maintainer's behalf; an approval must never read as if a person reviewed the
+diff by hand.
+
+### What you do not approve
+
+- Anything labelled `major` or `high-risk`. Those change behaviour by
+  definition. Report them and let the maintainer decide
+- Anything you repaired in this same run. A diff you wrote is not a diff you
+  reviewed independently
+- Anything you do not understand. A green check suite is a necessary condition,
+  never a sufficient one, and never a substitute for reading the change
+
+### Reading the evaluator
 
 - An approval on a superseded commit is stale. The approver never saw what would
   actually be merged, so it does not count
 - `CHANGES_REQUESTED` blocks the merge regardless of other approvals
 - A check that is absent, pending or skipped is not a pass
 
-There is deliberately no second path. An earlier design added one for changes
-whose class "cannot affect the product", and it cost more than it was worth: it
-collided with `CODEOWNERS`, collided again with the branch protection approval
-requirement, and admitted a PR that edited deploy workflows because Renovate
-applies labels per rule while the label lands on the whole PR. Approving is
-cheap; a second gate that merges without anyone looking was not.
-
 If a check fails identically on the base branch, that is a base-branch defect.
 Escalate it; it is not a licence to merge past a red check.
 
-Everything left unmerged is reported in Step 6 with the reason, so a human sees
-exactly what is waiting and why.
+Everything left unapproved is reported in Step 6 with the reason, so the
+maintainer sees exactly what is waiting and why.
 
 ## Step 2: Repair failures
 
@@ -78,6 +110,7 @@ For each red PR, find the first failing check and classify the cause:
 
 | Cause | Repair |
 |-------|--------|
+| Environmental failure, not caused by the diff | Re-run the failed jobs. See below |
 | Biome lint or format | `pnpm biome check --fix --unsafe` then `pnpm biome format --write .` |
 | TypeScript error | Update call sites for changed signatures. Type-level only, no behavior change |
 | Knip unused export | Remove the unused export, or update `knip.json` when the dependency is genuinely required at runtime |
@@ -89,6 +122,22 @@ For each red PR, find the first failing check and classify the cause:
 | Renovate config validation error (`config`) | Read the validator's `message` field: it names the rule index and the offending key. Fix the rule, then re-validate by exit code |
 | Dangling preset reference (`config`) | `scripts/check-preset-references.sh` names the missing preset. Add the file, or drop the reference from the `extends` list |
 | A field Renovate removed | Migrate to the replacement. A wildcard cannot be combined with a negation in `matchPackageNames`: express "all except X" as two rules, the later one narrowing the earlier |
+
+### Environmental failures
+
+Some failures are the runner's, not the diff's. `astro build` fetches every
+Google Font file it needs over the network, so `bot-dashboard#build` fails with
+`[CannotFetchFontFile] ... Caused by: fetch failed` whenever one of those
+requests is dropped. That surfaces as a red `knip-check`, which is misleading:
+the job runs a build first.
+
+Re-run the failed jobs when, and only when, the log shows a cause outside the
+diff: a network fetch, a runner timeout, a registry 5xx, a cancelled job. State
+in the report which check failed and what the log said.
+
+An unexplained failure is not environmental. Re-running until something passes
+is how a real regression gets merged, so if the log does not name an external
+cause, treat it as a genuine failure and diagnose it.
 
 ### Reproducing a failure
 
@@ -168,6 +217,9 @@ suppressed, and awaiting-human items. One comment per run, never one per PR.
 
 Allowed:
 
+- Approve a dependency PR you have read and found sound, within the limits set
+  out in Step 2a
+- Re-run failed jobs when the log shows the failure was environmental
 - Push repair commits to `renovate/**` branches
 - Edit `.trivyignore.yaml`, `pnpm.overrides`, `docs/security/dependency-policy.md`
 - Create or update the `develop -> main` PR, open issues, comment
@@ -175,11 +227,12 @@ Allowed:
 Never:
 
 - Merge any pull request. That is the workflow's job, not yours
-- Approve a pull request, or ask someone to approve one. The approval is the
-  whole gate, and it has to come from a human who chose to give it
+- Approve without reading the diff, or approve a PR you repaired in this run
+- Approve anything labelled `major` or `high-risk`
+- Re-run a failed job without first reading the log and establishing an external
+  cause
 - Edit `scripts/dep-triage-report.py` to make a specific PR mergeable. Change it
   only to fix a policy defect, in its own PR, explaining the defect
-- Merge a PR labelled `major` or `high-risk`
 - Edit files under `.github/workflows/`
 - Change application source beyond what the upgrade requires
 - Widen a suppression to a whole package or path instead of a specific advisory

@@ -15,7 +15,7 @@ on:
   # Covers approving a PR whose checks are still running. No further review event
   # fires when they finish, so without this the PR would wait for the next push.
   schedule:
-    - cron: '15 * * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -37,6 +37,16 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.repository.default_branch }}
+
+      # This job registers a check run named after itself against the head commit
+      # of the pull request under review, and that check is in progress while the
+      # evaluator reads it. The evaluator skips it by name; if the two ever drift
+      # apart the gate silently waits for itself and merges nothing, so fail here
+      # instead. This is not hypothetical: it is the defect this guard replaced.
+      - name: Guard against the self-check deadlock
+        run: |
+          grep -qF 'SELF_CHECK_NAME = "Merge PRs that pass the gates"' \
+            scripts/dep-triage-report.py
 
       - name: Decide what may be merged
         id: evaluate

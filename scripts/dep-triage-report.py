@@ -35,6 +35,14 @@ DEFAULT_REPOS = ["vspo-lab/vspo-portal", "vspo-lab/config"]
 # A check in one of these states has produced no evidence, so it is not a pass.
 PASSING_CONCLUSIONS = ("success", "skipped", "neutral")
 
+# This script runs inside .github/workflows/dep-auto-merge.yaml, whose job
+# registers a check run of this name against the head commit of the pull request
+# under review. That check is still in progress while this script decides, so
+# counting it makes the gate wait for itself and nothing ever merges. Skip it.
+# Must stay in step with the job's `name:` in that workflow, which greps for this
+# line so a rename fails the workflow instead of silently deadlocking it again.
+SELF_CHECK_NAME = "Merge PRs that pass the gates"
+
 
 def api(repo: str, path: str):
     """Fetch a GitHub REST endpoint, returning parsed JSON."""
@@ -59,7 +67,11 @@ def evaluate(repo: str, pr: dict) -> dict:
     ]
     changes_requested = [r for r in reviews if r["state"] == "CHANGES_REQUESTED"]
 
-    runs = api(repo, f"/commits/{head}/check-runs")["check_runs"]
+    runs = [
+        c
+        for c in api(repo, f"/commits/{head}/check-runs")["check_runs"]
+        if c["name"] != SELF_CHECK_NAME
+    ]
     pending = [c["name"] for c in runs if c["status"] != "completed"]
     failed = [
         c["name"]
