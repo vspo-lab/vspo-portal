@@ -1,6 +1,9 @@
 name: Dependency Auto Merge
 
-# Merges a pull request once a human has approved it and every check is green.
+# Merges a pull request once it is approved and every check is green. The
+# approval comes from the maintainer, or from the daily dep-triage run acting on
+# their behalf within the limits in .agent/skills/dep-triage/SKILL.md.
+#
 # This workflow makes no decisions of its own: scripts/dep-triage-report.py
 # decides and this job executes the result, so the policy stays reviewable in one
 # place.
@@ -21,6 +24,10 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # Declaring any permission sets every scope not listed here to none, so this
+  # has to be explicit: the evaluate step reads its own run to resolve
+  # check_suite_id, and without it that call 403s and the job fails outright.
+  actions: read
 
 concurrency:
   group: dep-auto-merge

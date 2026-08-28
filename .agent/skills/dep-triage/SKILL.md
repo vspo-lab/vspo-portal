@@ -96,7 +96,11 @@ diff by hand.
 - An approval on a superseded commit is stale. The approver never saw what would
   actually be merged, so it does not count
 - `CHANGES_REQUESTED` blocks the merge regardless of other approvals
-- A check that is absent, pending or skipped is not a pass
+- A check that is absent or still pending is not a pass
+- `skipped` and `neutral` do count as passing, because the path filters in
+  `pr-check.yaml` skip jobs a given diff cannot affect and `lighthouse` is
+  skipped for `dependencies` PRs deliberately. A PR showing *no* checks at all is
+  still red: that means the trigger never fired, which is a different problem
 
 If a check fails identically on the base branch, that is a base-branch defect.
 Escalate it; it is not a licence to merge past a red check.

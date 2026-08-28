@@ -88,7 +88,11 @@ set out in `.agent/skills/dep-triage/SKILL.md`; in short, it never approves a
 - An approval on a superseded commit is stale: the approver never saw what would
   actually be merged
 - `CHANGES_REQUESTED` blocks the merge regardless of other approvals
-- A check that is absent, pending or skipped is not a pass
+- A check that is absent or still pending is not a pass
+- `skipped` and `neutral` do count as passing. The path filters in
+  `pr-check.yaml` deliberately skip jobs a given diff cannot affect, and
+  `lighthouse` is skipped for `dependencies` PRs on purpose. Treating a skip as a
+  failure would block every dependency PR the flow exists to merge
 
 #### The gate must not count itself
 
@@ -184,9 +188,11 @@ cannot rewrite the policy that admits it.
 ## L2. Daily Routine
 
 The procedure is the `dep-triage` skill (`.agent/skills/dep-triage/SKILL.md`), run
-by a scheduled routine at 09:00 JST. It covers this repository and
-`vspo-lab/config`, which holds the shared Renovate presets. Keeping it in the repository means it is
-reviewed through pull requests and can also be run by hand with `/dep-triage`.
+by a scheduled routine at 09:00 JST. It covers this repository, and
+`vspo-lab/config` (which holds the shared Renovate presets) when the run can
+reach it; a run that cannot says so and skips it rather than guessing. Keeping
+the procedure in the repository means it is reviewed through pull requests and
+can also be run by hand with `/dep-triage`.
 
 Steps: collect open dependency PRs, repair red CI, triage security findings, prune
 stale `pnpm.overrides` pins, refresh the release PR, and post one summary comment
@@ -197,17 +203,25 @@ is labelled `needs-human`.
 
 ### Permission boundary
 
-The routine may push repair commits to `renovate/**`, edit `.trivyignore.yaml`,
-`pnpm.overrides` and the security ledger, and create or update the release PR.
+The routine may approve a dependency PR whose diff it has read and found sound,
+re-run failed jobs when the log names an external cause, push repair commits to
+`renovate/**`, edit `.trivyignore.yaml`, `pnpm.overrides` and the security
+ledger, and create or update the release PR.
 
-It may not merge anything, approve anything, or edit labels to change a gate's
-outcome. Merging belongs to `dep-auto-merge.yaml`; approving belongs to a human.
+It may not merge anything, or edit labels to change a gate's outcome. Merging
+belongs to `dep-auto-merge.yaml`.
+
+Approval is bounded rather than open: never a `major`, never anything labelled
+`high-risk`, and never a branch the same run repaired, since a diff the routine
+wrote is not a diff it reviewed. The full conditions are in
+`.agent/skills/dep-triage/SKILL.md`, which is the operative text; this is a
+summary of it.
 
 ### Rollout
 
-The routine ships in `report` mode, performing the full analysis and posting the
-summary without pushing or merging. It is switched to `apply` mode once its output
-has matched human judgement for one to two weeks.
+The routine ran in `report` mode from 2026-08-14, and in `apply` mode from
+2026-08-28. Reverting the approval step alone is enough to put it back: the merge
+criterion does not change, only who supplies the approval.
 
 ## References
 
