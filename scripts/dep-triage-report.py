@@ -35,13 +35,16 @@ DEFAULT_REPOS = ["vspo-lab/vspo-portal", "vspo-lab/config"]
 # A check in one of these states has produced no evidence, so it is not a pass.
 PASSING_CONCLUSIONS = ("success", "skipped", "neutral")
 
-# This script runs inside .github/workflows/dep-auto-merge.yaml, whose job
-# registers a check run of this name against the head commit of the pull request
-# under review. That check is still in progress while this script decides, so
-# counting it makes the gate wait for itself and nothing ever merges. Skip it.
-# Must stay in step with the job's `name:` in that workflow, which greps for this
-# line so a rename fails the workflow instead of silently deadlocking it again.
-SELF_CHECK_NAME = "Merge PRs that pass the gates"
+# The workflow that runs this script registers its own check run against the head
+# commit of the pull request under review, and that check is necessarily still in
+# progress while this script decides. Counting it makes the gate wait for itself:
+# every PR is held as "not green" and nothing ever merges.
+#
+# The caller passes the id of its own check suite so those checks can be skipped.
+# Matching on the suite rather than on a job name keeps the two files from having
+# to agree about a string. Unset means no suite to skip, which is right for a
+# local run: it creates no check of its own.
+SELF_CHECK_SUITE_ID = os.environ.get("SELF_CHECK_SUITE_ID") or None
 
 
 def api(repo: str, path: str):
@@ -70,7 +73,7 @@ def evaluate(repo: str, pr: dict) -> dict:
     runs = [
         c
         for c in api(repo, f"/commits/{head}/check-runs")["check_runs"]
-        if c["name"] != SELF_CHECK_NAME
+        if str(c.get("check_suite", {}).get("id")) != SELF_CHECK_SUITE_ID
     ]
     pending = [c["name"] for c in runs if c["status"] != "completed"]
     failed = [

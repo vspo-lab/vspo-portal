@@ -38,22 +38,22 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
 
-      # This job registers a check run named after itself against the head commit
-      # of the pull request under review, and that check is in progress while the
-      # evaluator reads it. The evaluator skips it by name; if the two ever drift
-      # apart the gate silently waits for itself and merges nothing, so fail here
-      # instead. This is not hypothetical: it is the defect this guard replaced.
-      - name: Guard against the self-check deadlock
-        run: |
-          grep -qF 'SELF_CHECK_NAME = "Merge PRs that pass the gates"' \
-            scripts/dep-triage-report.py
-
       - name: Decide what may be merged
         id: evaluate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          # This job's own check run lands on the head commit of the pull request
+          # under review and is still in progress right here, so the evaluator has
+          # to skip it. Otherwise the gate waits for itself and merges nothing —
+          # which is exactly what it did, silently, until 2026-08-28.
+          SELF_CHECK_SUITE_ID=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            --jq .check_suite_id)
+          export SELF_CHECK_SUITE_ID
+          echo "skipping checks in suite ${SELF_CHECK_SUITE_ID}"
           python3 scripts/dep-triage-report.py --json vspo-lab/vspo-portal > /tmp/decisions.json
           python3 scripts/dep-triage-report.py vspo-lab/vspo-portal
 

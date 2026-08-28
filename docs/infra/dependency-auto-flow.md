@@ -99,10 +99,14 @@ nothing ever merges through the `pull_request_review` path.
 
 This is not hypothetical. It is why no approval-triggered merge succeeded between
 2026-08-14 and 2026-08-28; the hourly schedule was doing all the merging, because
-a scheduled run attaches its check to `develop` rather than to the PR. The
-evaluator now skips the check named by `SELF_CHECK_NAME`, and the workflow greps
-the script for that constant so a rename fails the run instead of silently
-deadlocking it again.
+a scheduled run attaches its check to `develop` rather than to the PR.
+
+The workflow now resolves its own `check_suite_id` and passes it to the evaluator
+as `SELF_CHECK_SUITE_ID`, and every check in that suite is skipped. Matching on
+the suite rather than on a job name means the workflow and the script never have
+to agree about a string, so there is nothing to keep in step and nothing that can
+silently drift. An unset value skips nothing, which is correct for a local run:
+it creates no check of its own.
 
 #### Why there is no approval-free path
 
