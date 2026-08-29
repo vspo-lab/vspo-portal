@@ -32,8 +32,8 @@
 
 ## Execution Commands
 
-- `pnpm --filter web vrt`
-- Update: `pnpm --filter web vrt:update`
+- `pnpm --filter vspo-schedule-v2-web vrt`
+- Update: `pnpm --filter vspo-schedule-v2-web vrt:update`
 
 ## References (Primary Sources)
 

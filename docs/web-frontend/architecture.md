@@ -261,5 +261,5 @@ src/
 | Routing | App Router | Astro file-based routing |
 | State | React hooks | Server-side only (no client state) |
 | Forms | React state + fetch | HTML forms + Astro Actions |
-| i18n | next-i18next | Custom dict.ts |
+| i18n | next-intl | Custom dict.ts |
 | Interactivity | Client-side React | Inline `<script>` (minimal JS) |

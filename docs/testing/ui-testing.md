@@ -34,7 +34,7 @@
 
 ## Execution Commands
 
-- `pnpm --filter web vitest run`
+- `pnpm --filter vspo-schedule-v2-web vitest run`
 
 ## References (Primary Sources)
 

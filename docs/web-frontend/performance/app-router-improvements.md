@@ -566,7 +566,7 @@ async function ScheduleContent() {
 **現状の制約:**
 
 - OpenNext Cloudflare で PPR は未サポート ("cache interception does not work with PPR")
-- 参照: [cloudflare-barriers.md](../approuter/cloudflare-barriers.md) Barrier #3
+- 参照: [cloudflare-barriers.md](../../approuter/cloudflare-barriers.md) Barrier #3
 
 **PPR が使えた場合の影響:**
 

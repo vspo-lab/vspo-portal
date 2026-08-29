@@ -1,4 +1,4 @@
-# vspo-portal (Next.js 15 + Cloudflare Workers)
+# vspo-portal (Next.js 16 + Cloudflare Workers)
 
 ## Guiding Principles
 
@@ -24,5 +24,5 @@
 
 - Permission policies and hooks are managed in `.claude/settings.json`.
 - Custom `/` commands are placed as skills in `.claude/skills/` (symlinked to `.agent/skills/`).
-- `PreToolUse` hook blocks dangerous Bash operations (`git push`, `git add -A`, `git reset --hard`).
+- `PreToolUse` hook blocks dangerous Bash operations (`git push` to `main`/`master`, force push to `main`/`master`/`develop`, broad `git add -A`, `git reset --hard`).
 - On code edits, a hook sets `.claude/.post_edit_check_pending`, and `./scripts/post-edit-check.sh` runs at response end.

@@ -54,11 +54,12 @@ This template **adopts the `MCP Tool Server` as the standard for reproducible op
 
 - `docs/infra/diagrams/template-services-architecture.drawio`
 
-This diagram shows the following separation of responsibilities:
-
-- Browser / Next.js Web / Hono API / Database
-- OAuth Provider (Google)
-- IaC and deployment via Terraform + GitHub Actions
+This diagram is carried over from the project template and does not reflect
+vspo-portal's actual architecture (there is no Hono API, no database, and
+Discord OAuth is used rather than Google). It has not yet been regenerated
+for this project -- see [Server Architecture](../backend/server-architecture.md)
+and [Cloudflare Workers](./cloudflare-workers.md) for the current architecture,
+and regenerate this diagram from those docs when next updating it.
 
 ## Recommended Prompt Examples
 

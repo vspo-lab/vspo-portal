@@ -468,7 +468,7 @@ on:
 ### Pipeline
 
 1. Checkout code (`actions/checkout@v6`)
-2. Setup Node.js 22 and pnpm 10.28.0
+2. Setup Node.js 24 and pnpm 10.33.0
 3. Install dependencies and build via Turbo (`pnpm turbo build --filter=bot-dashboard...`)
 4. Upload Discord secrets via `wrangler secret bulk`
 5. Deploy via `cloudflare/wrangler-action@v3.14.1` (Wrangler CLI v4.76.0)

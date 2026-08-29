@@ -169,7 +169,7 @@ For frontend directory structure and feature modules, see [Frontend Architecture
 
 ## Bot Dashboard Backend (Astro SSR)
 
-The bot-dashboard (`service/bot-dashboard/`) uses Astro 6 SSR as its backend, not the Hono-based server described above. It follows the same Clean Architecture principles but with Astro-specific patterns.
+The bot-dashboard (`service/bot-dashboard/`) uses Astro 6 SSR as its backend, not the Next.js App Router pattern described above. It follows the same Clean Architecture principles but with Astro-specific patterns.
 
 ### Feature Module Structure
 

@@ -1,6 +1,6 @@
 # t_wada-style TDD Strategy
 
-This document defines the minimal rules for practicing t_wada-based TDD in this template.
+This document defines the minimal rules for practicing t_wada-based TDD in this project.
 
 ## Purpose
 
@@ -33,11 +33,11 @@ This document defines the minimal rules for practicing t_wada-based TDD in this 
 - When the implementation is sufficiently clear, write the real implementation directly
 - However, do not break the test-first approach
 
-## Application Order in This Template
+## Application Order in vspo-portal
 
 1. Domain models
 2. Use cases
-3. Hono endpoints
+3. API integration (Cloudflare Service Binding / `VSPOApi` client)
 4. Critical frontend use cases
 
 Use the table-driven tests from [docs/testing/unit-testing.md](../testing/unit-testing.md) as the base format.

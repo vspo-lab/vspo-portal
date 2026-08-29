@@ -1,6 +1,6 @@
 ---
 name: Frontend Development
-description: "Next.js 15 Pages Router frontend development. Feature-based + Container/Presenter pattern, MUI v7 + Emotion CSS-in-JS."
+description: "Next.js 16 App Router frontend development. Feature-based + Container/Presenter pattern, MUI v7 + Emotion CSS-in-JS."
 ---
 
 # Trigger

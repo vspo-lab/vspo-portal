@@ -24,7 +24,7 @@ Configs are in `service/vspo-schedule/v2/web/config/wrangler/{env}/wrangler.json
 |---------|-----|------|
 | Worker name | `dev-vspo-schedule-web` | `prd-vspo-schedule-web` |
 | Entry point | `.open-next/worker.js` | `.open-next/worker.js` |
-| Compatibility date | `2025-03-01` | `2025-03-01` |
+| Compatibility date | `2025-05-05` | `2025-05-05` |
 | Compatibility flags | `nodejs_compat`, `global_fetch_strictly_public` | Same |
 | Smart Placement | Enabled | Enabled |
 | Observability | Enabled (invocation logs off) | Same |
@@ -47,7 +47,8 @@ Static assets (JS bundles, images, locales) are served via the `ASSETS` binding 
 
 `service/vspo-schedule/v2/web/open-next.config.ts`:
 
-- Incremental caching disabled (R2 cache commented out)
+- R2 incremental cache enabled (`r2-incremental-cache`, wrapped with `withRegionalCache` in `long-lived` mode), backed by the `NEXT_INC_CACHE_R2_BUCKET` R2 bucket
+- Tag cache via `doShardedTagCache`, queue via `doQueue` (Durable Objects `DOShardedTagCache` / `DOQueueHandler`)
 - `useWorkerdCondition: false` -- disables the workerd esbuild condition to prevent `@emotion/*` packages from resolving edge-light variants that are not included by Next.js file tracing. The default condition falls back to runtime is-browser detection, which works correctly on Workers.
 
 ## Build & Deploy Commands
@@ -98,11 +99,11 @@ Defined in `.github/workflows/deploy-web-workers.yaml`.
 In application code, use `getCloudflareEnvironmentContext()` from `lib/cloudflare/context.ts`:
 
 ```typescript
-const cfEnv = getCloudflareEnvironmentContext();
+const { cfEnv } = await getCloudflareEnvironmentContext();
 
 if (cfEnv) {
   // Running on Cloudflare Workers -- use service binding
-  const result = await cfEnv.APP_WORKER.usecases.listStreams({ ... });
+  const result = await cfEnv.APP_WORKER.newStreamUsecase().list({ ... });
 } else {
   // Local dev / Node.js -- use REST API fallback
   const api = new VSPOApi({ baseUrl, apiKey });

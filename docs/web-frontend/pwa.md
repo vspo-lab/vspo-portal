@@ -14,7 +14,7 @@ import withSerwistInit from "@serwist/next";
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
-  disable: process.env.NODE_ENV === "development",
+  disable: process.env.NODE_ENV !== "production",
 });
 
 export default withSerwist(withNextIntl(nextConfig));
@@ -24,7 +24,7 @@ export default withSerwist(withNextIntl(nextConfig));
 |---------|-------|-------------|
 | `swSrc` | `src/app/sw.ts` | Service worker source file |
 | `swDest` | `public/sw.js` | Compiled service worker output |
-| `disable` | dev only | Disabled in development mode |
+| `disable` | non-production only | Disabled outside of `NODE_ENV=production` |
 
 ## Service Worker
 

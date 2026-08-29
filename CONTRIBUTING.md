@@ -2,7 +2,7 @@
 
 ## Reporting Issues
 
-If you have found what you think is a bug, please [file an issue](https://github.com/sugar-cat7/vspo-portal/issues).
+If you have found what you think is a bug, please [file an issue](https://github.com/vspo-lab/vspo-portal/issues).
 
 ## Suggesting new features
 

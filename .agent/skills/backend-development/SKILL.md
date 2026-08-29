@@ -1,6 +1,6 @@
 ---
 name: Backend Development
-description: "Next.js 15 + Cloudflare Workers + @vspo-lab/api client. Result-type error handling, OpenAPI-generated client, feature-based architecture."
+description: "Next.js 16 + Cloudflare Workers + @vspo-lab/api client. Result-type error handling, OpenAPI-generated client, feature-based architecture."
 ---
 
 # Trigger
@@ -19,7 +19,7 @@ description: "Next.js 15 + Cloudflare Workers + @vspo-lab/api client. Result-typ
 
 # Reference Documents
 
-- `docs/backend/server-architecture.md` - Next.js 15 on Cloudflare Workers, VSPOApi client, Result type, mock system
+- `docs/backend/server-architecture.md` - Next.js 16 on Cloudflare Workers, VSPOApi client, Result type, mock system
 - `docs/backend/function-documentation.md` - JSDoc conventions (preconditions, postconditions)
 - `docs/backend/pr-guidelines.md` - PR guidelines (current state, problem, implementation)
 - `docs/backend/datetime-handling.md` - UTC-first date handling with @vspo-lab/dayjs

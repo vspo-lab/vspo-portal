@@ -3,7 +3,7 @@
 ## Purpose
 
 `textlint` is a tool for mechanically detecting inconsistent terminology and hard-to-read text in documentation.
-In this template, it is used to maintain readability and maintainability of `docs/`.
+In this project, it is used to maintain readability and maintainability of `docs/`.
 
 ## Operational Policy
 

@@ -8,8 +8,10 @@ Pages live in `src/app/[locale]/` using the App Router convention. Each page is 
 src/app/
 ├── layout.tsx                    # Root layout (metadata only, returns children)
 ├── sitemap.ts                    # App Router native sitemap
+├── robots.ts                     # App Router native robots.txt
 ├── sw.ts                         # Service worker (@serwist/next)
 ├── not-found.tsx
+├── global-error.tsx              # Root-level error boundary
 ├── page.tsx                      # Root redirect
 └── [locale]/
     ├── layout.tsx                # Locale layout (html, body, providers, NextIntlClientProvider)
