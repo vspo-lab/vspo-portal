@@ -1,6 +1,9 @@
 name: Dependency Auto Merge
 
-# Merges a pull request once a human has approved it and every check is green.
+# Merges a pull request once it is approved and every check is green. The
+# approval comes from the maintainer, or from the daily dep-triage run acting on
+# their behalf within the limits in .agent/skills/dep-triage/SKILL.md.
+#
 # This workflow makes no decisions of its own: scripts/dep-triage-report.py
 # decides and this job executes the result, so the policy stays reviewable in one
 # place.
@@ -15,12 +18,16 @@ on:
   # Covers approving a PR whose checks are still running. No further review event
   # fires when they finish, so without this the PR would wait for the next push.
   schedule:
-    - cron: '15 * * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
+  # Declaring any permission sets every scope not listed here to none, so this
+  # has to be explicit: the evaluate step reads its own run to resolve
+  # check_suite_id, and without it that call 403s and the job fails outright.
+  actions: read
 
 concurrency:
   group: dep-auto-merge
@@ -42,8 +49,18 @@ jobs:
         id: evaluate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          # This job's own check run lands on the head commit of the pull request
+          # under review and is still in progress right here, so the evaluator has
+          # to skip it. Otherwise the gate waits for itself and merges nothing —
+          # which is exactly what it did, silently, until 2026-08-28.
+          SELF_CHECK_SUITE_ID=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            --jq .check_suite_id)
+          export SELF_CHECK_SUITE_ID
+          echo "skipping checks in suite ${SELF_CHECK_SUITE_ID}"
           python3 scripts/dep-triage-report.py --json vspo-lab/vspo-portal > /tmp/decisions.json
           python3 scripts/dep-triage-report.py vspo-lab/vspo-portal
 

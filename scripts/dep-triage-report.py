@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """Decide which open pull requests may be merged automatically.
 
-A pull request qualifies when a human with write access has approved its current
-head commit and every required check has passed. Nothing else qualifies.
+A pull request qualifies when its current head commit is approved and every
+required check has passed. Nothing else qualifies. The approval comes from the
+maintainer, or from the daily dep-triage run acting on their behalf within the
+limits in .agent/skills/dep-triage/SKILL.md.
 
 Preconditions:
     - The repository is public, or GITHUB_TOKEN is set in the environment.
       Reads only; nothing is written to GitHub.
+    - SELF_CHECK_SUITE_ID, when the caller is itself a check on the commits being
+      evaluated, holds that caller's check suite id. Omitting it is safe only for
+      a caller that registers no check of its own: a caller that does register one
+      and omits this will find every pull request held, because the gate counts
+      its own in-progress check and waits for itself.
 Postconditions:
     - Prints one block per open pull request with the decision and its reason,
       then a one-line verdict. Exit 0 when every PR was evaluated, 1 when any
@@ -22,6 +29,10 @@ stay separable and separately reviewable.
 Usage:
     python3 scripts/dep-triage-report.py [owner/repo ...]
     python3 scripts/dep-triage-report.py --json [owner/repo ...]
+
+Environment:
+    GITHUB_TOKEN          Authenticates the reads. Optional for a public repo.
+    SELF_CHECK_SUITE_ID   Check suite to ignore; see Preconditions.
 """
 
 import json
@@ -32,8 +43,24 @@ import urllib.request
 
 DEFAULT_REPOS = ["vspo-lab/vspo-portal", "vspo-lab/config"]
 
-# A check in one of these states has produced no evidence, so it is not a pass.
+# Conclusions that count as passing. `skipped` and `neutral` belong here: the
+# path filters in pr-check.yaml deliberately skip jobs a given diff cannot affect,
+# and lighthouse is skipped for `dependencies` PRs on purpose, so treating a skip
+# as a failure would hold every pull request this gate exists to merge. A check in
+# any other completed state has produced no evidence of a pass and blocks. So does
+# a check still running, and so does a commit with no checks at all.
 PASSING_CONCLUSIONS = ("success", "skipped", "neutral")
+
+# The workflow that runs this script registers its own check run against the head
+# commit of the pull request under review, and that check is necessarily still in
+# progress while this script decides. Counting it makes the gate wait for itself:
+# every PR is held as "not green" and nothing ever merges.
+#
+# The caller passes the id of its own check suite so those checks can be skipped.
+# Matching on the suite rather than on a job name keeps the two files from having
+# to agree about a string. Unset means no suite to skip, which is right for a
+# local run: it creates no check of its own.
+SELF_CHECK_SUITE_ID = os.environ.get("SELF_CHECK_SUITE_ID") or None
 
 
 def api(repo: str, path: str):
@@ -59,7 +86,11 @@ def evaluate(repo: str, pr: dict) -> dict:
     ]
     changes_requested = [r for r in reviews if r["state"] == "CHANGES_REQUESTED"]
 
-    runs = api(repo, f"/commits/{head}/check-runs")["check_runs"]
+    runs = [
+        c
+        for c in api(repo, f"/commits/{head}/check-runs")["check_runs"]
+        if str(c.get("check_suite", {}).get("id")) != SELF_CHECK_SUITE_ID
+    ]
     pending = [c["name"] for c in runs if c["status"] != "completed"]
     failed = [
         c["name"]

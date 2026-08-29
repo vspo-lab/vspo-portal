@@ -69,8 +69,8 @@ fix for a known CVE is never delayed.
 
 ### Merge criterion
 
-A pull request merges when a human with write access has approved its current head
-commit and every required check has passed. That is the whole rule.
+A pull request merges when its current head commit is approved and every required
+check has passed. That is the whole rule.
 
 Merging is performed by `.github/workflows/dep-auto-merge.yaml`, never by Renovate
 and never by GitHub auto-merge. The workflow decides nothing: it runs
@@ -80,10 +80,37 @@ reviewable place instead of being re-derived from prose on every run.
 Renovate's own automerge is disabled because it merges on "CI green" alone. The
 approval is what makes a merge deliberate.
 
+The approval comes from the maintainer, or from the daily `dep-triage` run acting
+on their behalf after reading the diff. What that run may and may not approve is
+set out in `.agent/skills/dep-triage/SKILL.md`; in short, it never approves a
+`major`, anything labelled `high-risk`, or a branch it repaired itself.
+
 - An approval on a superseded commit is stale: the approver never saw what would
   actually be merged
 - `CHANGES_REQUESTED` blocks the merge regardless of other approvals
-- A check that is absent, pending or skipped is not a pass
+- A check that is absent or still pending is not a pass
+- `skipped` and `neutral` do count as passing. The path filters in
+  `pr-check.yaml` deliberately skip jobs a given diff cannot affect, and
+  `lighthouse` is skipped for `dependencies` PRs on purpose. Treating a skip as a
+  failure would block every dependency PR the flow exists to merge
+
+#### The gate must not count itself
+
+The workflow's own job registers a check run against the head commit of the pull
+request under review, and that check is in progress while the evaluator reads it.
+Counting it makes the gate wait for itself: every PR is held as "not green" and
+nothing ever merges through the `pull_request_review` path.
+
+This is not hypothetical. It is why no approval-triggered merge succeeded between
+2026-08-14 and 2026-08-28; the hourly schedule was doing all the merging, because
+a scheduled run attaches its check to `develop` rather than to the PR.
+
+The workflow now resolves its own `check_suite_id` and passes it to the evaluator
+as `SELF_CHECK_SUITE_ID`, and every check in that suite is skipped. Matching on
+the suite rather than on a job name means the workflow and the script never have
+to agree about a string, so there is nothing to keep in step and nothing that can
+silently drift. An unset value skips nothing, which is correct for a local run:
+it creates no check of its own.
 
 #### Why there is no approval-free path
 
@@ -152,17 +179,20 @@ manually.
 
 ### Auto merge (`dep-auto-merge.yaml`)
 
-Runs on `pull_request_review` (so an approval acts within the minute), hourly on a
-schedule (so a PR approved while its checks were still running still merges), and on demand. It checks out
-the default branch rather than the PR's version of the script, so a pull request
+Runs on `pull_request_review` (so an approval acts within the minute), every 15
+minutes on a schedule (so a PR approved while its checks were still running still
+merges, without waiting up to an hour for it), and on demand. It checks out the
+default branch rather than the PR's version of the script, so a pull request
 cannot rewrite the policy that admits it.
 
 ## L2. Daily Routine
 
 The procedure is the `dep-triage` skill (`.agent/skills/dep-triage/SKILL.md`), run
-by a scheduled routine at 09:00 JST. It covers this repository and
-`vspo-lab/config`, which holds the shared Renovate presets. Keeping it in the repository means it is
-reviewed through pull requests and can also be run by hand with `/dep-triage`.
+by a scheduled routine at 09:00 JST. It covers this repository, and
+`vspo-lab/config` (which holds the shared Renovate presets) when the run can
+reach it; a run that cannot says so and skips it rather than guessing. Keeping
+the procedure in the repository means it is reviewed through pull requests and
+can also be run by hand with `/dep-triage`.
 
 Steps: collect open dependency PRs, repair red CI, triage security findings, prune
 stale `pnpm.overrides` pins, refresh the release PR, and post one summary comment
@@ -173,17 +203,25 @@ is labelled `needs-human`.
 
 ### Permission boundary
 
-The routine may push repair commits to `renovate/**`, edit `.trivyignore.yaml`,
-`pnpm.overrides` and the security ledger, and create or update the release PR.
+The routine may approve a dependency PR whose diff it has read and found sound,
+re-run failed jobs when the log names an external cause, push repair commits to
+`renovate/**`, edit `.trivyignore.yaml`, `pnpm.overrides` and the security
+ledger, and create or update the release PR.
 
-It may not merge anything, approve anything, or edit labels to change a gate's
-outcome. Merging belongs to `dep-auto-merge.yaml`; approving belongs to a human.
+It may not merge anything, or edit labels to change a gate's outcome. Merging
+belongs to `dep-auto-merge.yaml`.
+
+Approval is bounded rather than open: never a `major`, never anything labelled
+`high-risk`, and never a branch the same run repaired, since a diff the routine
+wrote is not a diff it reviewed. The full conditions are in
+`.agent/skills/dep-triage/SKILL.md`, which is the operative text; this is a
+summary of it.
 
 ### Rollout
 
-The routine ships in `report` mode, performing the full analysis and posting the
-summary without pushing or merging. It is switched to `apply` mode once its output
-has matched human judgement for one to two weeks.
+The routine ran in `report` mode from 2026-08-14, and in `apply` mode from
+2026-08-28. Reverting the approval step alone is enough to put it back: the merge
+criterion does not change, only who supplies the approval.
 
 ## References
 
