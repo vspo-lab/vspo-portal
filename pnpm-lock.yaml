@@ -41,7 +41,7 @@ overrides:
   brace-expansion@<1.1.16: 5.0.9
   brace-expansion@>=5.0.0 <5.0.9: 5.0.9
   defu@>=6.0.0 <6.1.5: '>=6.1.5'
-  devalue@>=5.0.0 <5.8.1: 5.8.2
+  devalue@>=5.0.0 <5.8.1: 5.9.2
   fast-uri@>=3.0.0 <3.1.5: 3.1.6
   fast-xml-builder@>=1.0.0 <1.1.7: 1.1.7
   form-data@>=4.0.0 <4.0.6: 4.0.6
