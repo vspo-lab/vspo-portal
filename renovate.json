@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>vspo-lab/config//renovate", ":dependencyDashboard"],
+  "extends": ["local>vspo-lab/config//renovate/default", ":dependencyDashboard"],
   "timezone": "Asia/Tokyo",
   "baseBranches": ["develop"],
   "schedule": ["* 0-3 * * *"],
@@ -9,6 +9,9 @@
   "prHourlyLimit": 2,
   "internalChecksFilter": "strict",
   "automerge": false,
+  "pin": {
+    "automerge": false
+  },
   "osvVulnerabilityAlerts": true,
   "lockFileMaintenance": {
     "enabled": true,
@@ -74,6 +77,11 @@
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true,
       "addLabels": ["major"]
+    },
+    {
+      "description": "Renovate never merges anything here. dep-auto-merge.yaml is the only merge path, and it requires an approval on the current head plus green checks. The shared preset enables automerge for @types below major (automergeTypesMinor) and for pin updates (automergePin); both would bypass that gate, so this rule -- last, and matching everything -- turns automerge back off. Remove it only together with those presets.",
+      "matchPackageNames": ["*"],
+      "automerge": false
     }
   ]
 }
