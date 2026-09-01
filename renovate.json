@@ -1,6 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>vspo-lab/config//renovate/default", ":dependencyDashboard"],
+  "extends": [
+    "local>vspo-lab/config//renovate/default",
+    ":dependencyDashboard"
+  ],
   "timezone": "Asia/Tokyo",
   "baseBranches": ["develop"],
   "schedule": ["* 0-3 * * *"],
