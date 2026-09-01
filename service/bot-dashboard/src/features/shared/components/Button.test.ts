@@ -11,20 +11,20 @@ describe("Button", () => {
     { variant: "outline", expectedClass: "border" },
     { variant: "ghost", expectedClass: "hover:bg-accent" },
     { variant: "discord", expectedClass: "bg-discord" },
-  ] as const)("renders $variant variant with correct classes", async ({
-    variant,
-    expectedClass,
-  }) => {
-    const container = await AstroContainer.create();
-    const html = await container.renderToString(Button, {
-      props: { variant },
-      slots: { default: "Click me" },
-    });
-    const body = parseHtml(html);
-    const el = body.firstElementChild;
-    expect(el?.className).toContain(expectedClass);
-    expect(el?.textContent).toContain("Click me");
-  });
+  ] as const)(
+    "renders $variant variant with correct classes",
+    async ({ variant, expectedClass }) => {
+      const container = await AstroContainer.create();
+      const html = await container.renderToString(Button, {
+        props: { variant },
+        slots: { default: "Click me" },
+      });
+      const body = parseHtml(html);
+      const el = body.firstElementChild;
+      expect(el?.className).toContain(expectedClass);
+      expect(el?.textContent).toContain("Click me");
+    },
+  );
 
   it.each([
     { size: "sm", expectedClass: "h-9" },

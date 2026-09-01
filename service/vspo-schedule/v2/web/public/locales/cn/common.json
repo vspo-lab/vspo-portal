@@ -58,6 +58,16 @@
     "watch": "观看",
     "share": "分享"
   },
+  "videoCard": {
+    "watch": "观看",
+    "watchOn": {
+      "youtube": "在 YouTube 上观看",
+      "twitch": "在 Twitch 上观看",
+      "twitcasting": "在 TwitCasting 上观看",
+      "niconico": "在 Niconico 上观看",
+      "unknown": "打开视频页面"
+    }
+  },
   "relatedVideos": {
     "dataLoadError": "数据加载失败。",
     "loadMore": "加载更多"

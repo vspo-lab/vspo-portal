@@ -6,11 +6,18 @@ on:
       - 'service/vspo-schedule/v2/web/**'
       - 'packages/**'
 
+concurrency:
+  group: lighthouse-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   lighthouse:
     name: Lighthouse Audit
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The most expensive job in the repository, and it already runs with
+    # continue-on-error. A dependency bump gains no signal from it.
+    if: "!contains(github.event.pull_request.labels.*.name, 'dependencies')"
     steps:
       - uses: actions/checkout@v6
 

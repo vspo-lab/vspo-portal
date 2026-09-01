@@ -58,6 +58,16 @@
     "watch": "시청",
     "share": "공유"
   },
+  "videoCard": {
+    "watch": "시청",
+    "watchOn": {
+      "youtube": "YouTube에서 시청",
+      "twitch": "Twitch에서 시청",
+      "twitcasting": "트윗캐스팅에서 시청",
+      "niconico": "니코니코에서 시청",
+      "unknown": "영상 페이지 열기"
+    }
+  },
   "relatedVideos": {
     "dataLoadError": "데이터 로드 오류.",
     "loadMore": "더 많은 영상"

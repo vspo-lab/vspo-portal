@@ -36,16 +36,14 @@ describe("AvatarFallback", () => {
     expect(fallback.textContent).toBe("B");
   });
 
-  it.each([
-    "xs",
-    "sm",
-    "md",
-    "lg",
-  ] as const)("renders without error for size=%s", async (size) => {
-    const html = await container.renderToString(AvatarFallback, {
-      props: { src: null, name: "Test", size },
-    });
-    const body = parseHtml(html);
-    expect(getByRole(body, "img", { name: "Test" })).toBeTruthy();
-  });
+  it.each(["xs", "sm", "md", "lg"] as const)(
+    "renders without error for size=%s",
+    async (size) => {
+      const html = await container.renderToString(AvatarFallback, {
+        props: { src: null, name: "Test", size },
+      });
+      const body = parseHtml(html);
+      expect(getByRole(body, "img", { name: "Test" })).toBeTruthy();
+    },
+  );
 });

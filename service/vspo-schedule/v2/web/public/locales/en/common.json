@@ -57,6 +57,16 @@
     "watch": "Watch",
     "share": "Share"
   },
+  "videoCard": {
+    "watch": "Watch",
+    "watchOn": {
+      "youtube": "Watch on YouTube",
+      "twitch": "Watch on Twitch",
+      "twitcasting": "Watch on TwitCasting",
+      "niconico": "Watch on Niconico",
+      "unknown": "Open the video page"
+    }
+  },
   "relatedVideos": {
     "dataLoadError": "Error loading data.",
     "loadMore": "More videos"

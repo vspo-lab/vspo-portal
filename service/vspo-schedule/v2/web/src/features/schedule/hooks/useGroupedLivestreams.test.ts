@@ -106,33 +106,32 @@ describe("useGroupedLivestreams", () => {
       expectedCount: 2,
       label: "upcoming",
     },
-  ])('filters $label streams when currentStatusFilter="$filter"', ({
-    filter,
-    statuses,
-    expectedCount,
-  }) => {
-    const streams = statuses.map((status, i) =>
-      makeLivestream({
-        scheduledStartTime: "2024-01-15T10:00:00Z",
-        status,
-        id: `stream-${i}`,
-      }),
-    );
+  ])(
+    'filters $label streams when currentStatusFilter="$filter"',
+    ({ filter, statuses, expectedCount }) => {
+      const streams = statuses.map((status, i) =>
+        makeLivestream({
+          scheduledStartTime: "2024-01-15T10:00:00Z",
+          status,
+          id: `stream-${i}`,
+        }),
+      );
 
-    const { result } = renderHook(() =>
-      useGroupedLivestreams({
-        ...defaultParams,
-        livestreams: streams,
-        currentStatusFilter: filter,
-      }),
-    );
+      const { result } = renderHook(() =>
+        useGroupedLivestreams({
+          ...defaultParams,
+          livestreams: streams,
+          currentStatusFilter: filter,
+        }),
+      );
 
-    const allStreams = Object.values(result.current.livestreamsByDate).flat();
-    expect(allStreams).toHaveLength(expectedCount);
-    for (const s of allStreams) {
-      expect(s.status).toBe(filter);
-    }
-  });
+      const allStreams = Object.values(result.current.livestreamsByDate).flat();
+      expect(allStreams).toHaveLength(expectedCount);
+      for (const s of allStreams) {
+        expect(s.status).toBe(filter);
+      }
+    },
+  );
 
   it("removes date groups that become empty after filtering", () => {
     const streams = [

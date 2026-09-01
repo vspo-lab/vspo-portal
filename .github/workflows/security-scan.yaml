@@ -12,6 +12,11 @@ permissions:
   security-events: write
   contents: read
 
+# Serialized per ref, but never cancelled: these jobs publish security results.
+concurrency:
+  group: security-scan-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   codeql:
     name: CodeQL Analysis
@@ -32,6 +37,9 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
 
+  # Blocking scan. Trivy excludes development dependencies by default, and
+  # pnpm-lock.yaml v9 carries the Dev field needed to classify them, so this job
+  # reports only what is reachable in the production bundle.
   trivy:
     name: Trivy Vulnerability Scan
     runs-on: ubuntu-latest
@@ -45,8 +53,31 @@ jobs:
           scan-type: 'fs'
           scan-ref: '.'
           severity: 'CRITICAL,HIGH'
-          trivyignores: '.trivyignore'
+          trivyignores: '.trivyignore.yaml'
           exit-code: '1'
+
+  # Report only. Build-time and test-time CVEs stay visible without blocking a
+  # merge, which is the largest source of red-CI noise on dependency PRs.
+  trivy-dev:
+    name: Trivy Vulnerability Scan (dev deps, report only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run Trivy (including dev dependencies)
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH'
+          trivyignores: '.trivyignore.yaml'
+          exit-code: '0'
+          scanners: 'vuln'
+        env:
+          # trivy-action has no passthrough input for --include-dev-deps, so the
+          # flag is set through its environment variable equivalent.
+          TRIVY_INCLUDE_DEV_DEPS: 'true'
 
   gitleaks:
     name: Secret Detection

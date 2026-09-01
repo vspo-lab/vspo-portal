@@ -18,6 +18,7 @@
     ".open-next",
     "coverage",
     "pnpm-lock.yaml",
+    "**/*.tsbuildinfo",
     "packages/api/src/generated/**",
     "packages/api/src/gen/**",
     "packages/api/src/mock/**",

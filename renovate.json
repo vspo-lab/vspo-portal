@@ -1,4 +1,90 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>vspo-lab/config//renovate"]
+  "extends": [
+    "local>vspo-lab/config//renovate/default",
+    ":dependencyDashboard"
+  ],
+  "timezone": "Asia/Tokyo",
+  "baseBranches": ["develop"],
+  "schedule": ["* 0-3 * * *"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "internalChecksFilter": "strict",
+  "automerge": false,
+  "pin": {
+    "automerge": false
+  },
+  "osvVulnerabilityAlerts": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* 0-3 * * 1"],
+    "automerge": false
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": null,
+    "schedule": ["at any time"],
+    "labels": ["dependencies", "security"],
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "description": "Type definitions: grouped to keep the PR count down",
+      "matchPackageNames": ["@types/**"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "type-definitions"
+    },
+    {
+      "description": "GitHub Actions: grouped to keep the PR count down",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch", "minor", "digest"],
+      "groupName": "github-actions"
+    },
+    {
+      "description": "All devDependencies below major, in one PR",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "dev-dependencies"
+    },
+    {
+      "description": "Production patch updates: runtime behavior can change, reviewed before merge",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "production-patch"
+    },
+    {
+      "description": "Production minor updates: grouped into one PR, merged deliberately",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "production-minor"
+    },
+    {
+      "description": "Core frameworks: reviewed individually",
+      "matchPackageNames": [
+        "next",
+        "react",
+        "react-dom",
+        "wrangler",
+        "@opennextjs/cloudflare",
+        "@cloudflare/workers-types",
+        "typescript",
+        "@biomejs/biome",
+        "astro"
+      ],
+      "groupName": null,
+      "addLabels": ["high-risk"]
+    },
+    {
+      "description": "Major updates: handled as feature work via the dependency dashboard",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "addLabels": ["major"]
+    },
+    {
+      "description": "Renovate never merges anything here. dep-auto-merge.yaml is the only merge path, and it requires an approval on the current head plus green checks. The shared preset enables automerge for @types below major (automergeTypesMinor) and for pin updates (automergePin); both would bypass that gate, so this rule -- last, and matching everything -- turns automerge back off. Remove it only together with those presets.",
+      "matchPackageNames": ["*"],
+      "automerge": false
+    }
+  ]
 }
