@@ -116,7 +116,9 @@ const watchLinkButtonSx = (theme: Theme) => ({
   fontSize: "0.75rem",
   fontWeight: 600,
   lineHeight: 1.4,
-  color: theme.vars.palette.text.primary,
+  // Background stays white in both color schemes, so the text color must not
+  // follow the color scheme (dark mode would otherwise render white-on-white).
+  color: theme.vars.palette.common.black,
   backgroundColor: "rgba(255, 255, 255, 0.9)",
   boxShadow: theme.shadows[2],
   "&:hover": {
