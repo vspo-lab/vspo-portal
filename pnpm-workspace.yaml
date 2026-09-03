@@ -35,6 +35,7 @@ minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - '@vspo-lab/*'
   - 'brace-expansion'
+  - 'browserslist'
   - 'devalue'
   - 'fast-uri'
   - 'fast-xml-builder'
@@ -48,5 +49,7 @@ minimumReleaseAgeExclude:
   - 'undici'
   - 'vite'
   - 'ws'
+  # Renovate security update: pnpm@10.34.5
+  - pnpm@10.34.5
 
 sharedWorkspaceLockfile: true
