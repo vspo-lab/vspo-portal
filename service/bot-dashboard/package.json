@@ -23,7 +23,7 @@
     "@nanostores/react": "^1.1.0",
     "@vspo-lab/dayjs": "workspace:^",
     "@vspo-lab/error": "workspace:^",
-    "astro": "^6.4.8",
+    "astro": "^7.0.0",
     "nanostores": "^1.4.2",
     "react": "catalog:",
     "react-dom": "catalog:",

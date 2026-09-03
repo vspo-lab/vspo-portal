@@ -51,5 +51,7 @@ minimumReleaseAgeExclude:
   - 'ws'
   # Renovate security update: pnpm@10.34.5
   - pnpm@10.34.5
+  # Renovate security update: astro@7.1.0
+  - astro@7.1.0
 
 sharedWorkspaceLockfile: true
