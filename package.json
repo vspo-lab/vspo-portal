@@ -24,7 +24,7 @@
   "author": "sugar-cat7",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.5.7",
+    "@biomejs/biome": "^2.5.11",
     "@textlint/textlint-plugin-markdown": "^15.8.0",
     "@types/node": "catalog:",
     "cspell": "^9.8.0",
