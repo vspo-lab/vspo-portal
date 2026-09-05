@@ -193,6 +193,7 @@ jobs:
         env:
           NO_COLOR: 1
         run: |
+          set -o pipefail
           cd service/vspo-schedule/v2/web
           pnpm test:coverage 2>&1 | tee /tmp/web-test-output.txt
           echo "summary=$("$GITHUB_WORKSPACE/scripts/coverage-summary-row.sh" /tmp/web-test-output.txt coverage/coverage-summary.json)" >> "$GITHUB_OUTPUT"
@@ -203,6 +204,7 @@ jobs:
         env:
           NO_COLOR: 1
         run: |
+          set -o pipefail
           cd service/bot-dashboard
           pnpm test:coverage 2>&1 | tee /tmp/bot-test-output.txt
           echo "summary=$("$GITHUB_WORKSPACE/scripts/coverage-summary-row.sh" /tmp/bot-test-output.txt coverage/coverage-summary.json)" >> "$GITHUB_OUTPUT"

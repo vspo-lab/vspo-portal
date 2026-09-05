@@ -6,7 +6,7 @@ set -euo pipefail
 output_file="$1"
 summary_json="$2"
 
-tests=$(grep -E '^\s*Tests\s' "$output_file" | tail -1 | sed -E 's/^\s*Tests\s+//; s/\s+\([^)]*\)$//' | xargs)
+tests=$( (grep -E '^\s*Tests\s' "$output_file" || true) | tail -1 | sed -E 's/^\s*Tests\s+//; s/\s+\([^)]*\)$//' | xargs)
 if [ ! -f "$summary_json" ]; then
   echo "${tests:-n/a} | n/a | n/a | n/a | n/a"
   exit 0
