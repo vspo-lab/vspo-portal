@@ -17,7 +17,7 @@ catalog:
   react-dom: ^19.2.8
   tsup: ^8.5.1
   typescript: ^6.0.3
-  wrangler: ^4.119.0
+  wrangler: ^4.125.0
   zod: ^4.4.3
 
 # Supply-chain cooldown: refuse to resolve a version published less than 7 days
