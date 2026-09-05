@@ -197,7 +197,8 @@ const VspoChannelApiRepository = {
       devMockChannelStore.update(guildId, channelId, {
         language: data.language,
         memberType: data.memberType,
-        customMembers: data.memberType === "custom" ? data.customMembers : [],
+        customMembers:
+          data.memberType === "custom" ? (data.customMembers ?? []) : [],
       });
       return Ok(undefined);
     }
