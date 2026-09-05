@@ -16,7 +16,7 @@
 
 1. Use Playwright Locators and Web-first assertions
 2. Keep tests mutually independent (no shared state)
-3. Reuse authentication via `storageState` and avoid duplicating login operations
+3. Reuse authentication via `storageState` when the session lives in the browser (cookies, storage); apps with server-side sessions, such as bot-dashboard, mock the login at the boundary instead
 4. Prepare test data via API to minimize UI operation prerequisites
 
 ## Mocking Policy

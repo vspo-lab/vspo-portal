@@ -142,8 +142,11 @@ const VspoChannelApiRepository = {
     appWorker: ApplicationService,
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
-    if (isRpcUnavailable(appWorker)) {
+    if (isDevMockActive()) {
       return Ok(devMockChannelStore.list(guildId));
+    }
+    if (isRpcUnavailable(appWorker)) {
+      return Ok(devMock.guildConfig(guildId));
     }
 
     const discord = appWorker.newDiscordUsecase();
