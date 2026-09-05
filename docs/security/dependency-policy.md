@@ -105,7 +105,7 @@ Format:
 
 ### 2026-09-05 CVE-2026-73422 astro
 
-- Outcome: `[ESCALATE]`
+- Outcome: [ESCALATE]
 - Reason: The fix is `astro@7.1.0`, a major. `service/bot-dashboard` also needs
   `@astrojs/cloudflare` 14 and `@astrojs/react` 6 (and the `wrangler` catalog at
   `^4.125.0`) before `astro build` succeeds on Astro 7, so this is a migration,

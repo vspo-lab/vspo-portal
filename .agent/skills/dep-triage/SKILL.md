@@ -289,8 +289,10 @@ rather than writing one by hand.
 ## Step 6: Report
 
 Post one summary comment for the whole run on the run-log issue
-(`dep-triage run log`, vspo-lab/vspo-portal#1151; recreate it with that title if
-it has been closed). Cover: which GitHub tools the run had, approved (with the
+(`dep-triage run log`, vspo-lab/vspo-portal#1151). If it has been closed, an
+`apply` run recreates it with that title; a `report` run creates no issues, so
+it comments on the closed issue when that is possible and otherwise states in
+its output that an `apply` run must recreate the log. Cover: which GitHub tools the run had, approved (with the
 one-line reason), merged, repaired or re-run, escalated (PR link plus reason),
 security findings and their outcome, and anything the maintainer must do. One
 comment per run, never one per PR, and never edit an earlier run's comment. A
