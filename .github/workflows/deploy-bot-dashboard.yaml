@@ -20,9 +20,9 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
         with:
-          version: 10.33.0
+          version: 10.34.5
           run_install: false
       - name: Install dependencies
         run: pnpm install
@@ -33,7 +33,7 @@ jobs:
       - name: Turbo Build
         run: pnpm turbo build --filter=bot-dashboard...
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3.14.1
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

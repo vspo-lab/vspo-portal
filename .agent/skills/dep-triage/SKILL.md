@@ -70,7 +70,8 @@ wrong, so it has to be true. For each PR:
 
 - Every changed file is a manifest, a lockfile, or a config the update needs. A
   dependency PR that touches application source, a workflow, or a deploy config
-  is not a dependency PR: escalate it
+  is not a dependency PR: escalate it. The one exception is a digest-pin PR,
+  below
 - The version movement matches what the title claims, and the lockfile moves
   with the manifest rather than lagging behind it
 - The release notes carry no breaking change relevant to how the package is used
@@ -82,10 +83,34 @@ approval carries its own reasoning. Say plainly that Claude Code produced it on
 the maintainer's behalf; an approval must never read as if a person reviewed the
 diff by hand.
 
+### Digest-pin pull requests
+
+`pinGitHubActionDigests` raises a PR whenever a third-party action publishes, so
+this shape recurs forever. It always edits workflows, which the rule above would
+otherwise send to a human every time.
+
+Approve one only when **all** of these hold, checked against the diff rather than
+the title:
+
+- Every changed file is under `.github/`
+- Every changed line is a `uses:` line
+- Each one only replaces a tag with a `@<40-hex-sha> # <tag>`, or moves an
+  existing digest, and the trailing comment names the **same** tag as before
+- No `with:`, `env:`, `run:`, `if:` or input value changes anywhere in the diff
+- No version moves. `@v5` to `@<sha> # v5` is a pin; `@v5` to `@<sha> # v6` is an
+  upgrade wearing a pin's clothes, and goes to a human
+
+Fail any one of them and the PR is not a digest pin: escalate it whole, do not
+approve the part that qualifies. This carve-out is deliberately mechanical
+because #1122 was the opposite case -- a pnpm bump that also edited
+`setup-pnpm/action.yml` and a deploy workflow, and changed versions while doing
+it. The version-move condition is what separates the two.
+
 ### What you do not approve
 
-- Anything labelled `major` or `high-risk`. Those change behaviour by
-  definition. Report them and let the maintainer decide
+- Anything labelled `major` or `high-risk`. `high-risk` marks a major of a core
+  framework, so both mean the same thing: behaviour can change. Report them and
+  let the maintainer decide
 - Anything you repaired in this same run. A diff you wrote is not a diff you
   reviewed independently
 - Anything you do not understand. A green check suite is a necessary condition,
@@ -223,6 +248,8 @@ Allowed:
 
 - Approve a dependency PR you have read and found sound, within the limits set
   out in Step 2a
+- Approve a digest-pin PR that meets every condition in Step 2a. This is the only
+  case where approving a diff that touches `.github/` is allowed
 - Re-run failed jobs when the log shows the failure was environmental
 - Push repair commits to `renovate/**` branches
 - Edit `.trivyignore.yaml`, `pnpm.overrides`, `docs/security/dependency-policy.md`

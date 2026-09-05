@@ -60,7 +60,7 @@
       "groupName": "production-minor"
     },
     {
-      "description": "Core frameworks: reviewed individually",
+      "description": "Core frameworks: never grouped, so each lands in its own PR and can be read on its own",
       "matchPackageNames": [
         "next",
         "react",
@@ -72,7 +72,22 @@
         "@biomejs/biome",
         "astro"
       ],
-      "groupName": null,
+      "groupName": null
+    },
+    {
+      "description": "Core frameworks, major only: high-risk means a human decides. It used to cover every update type, which left patch releases of the fastest-moving packages here permanently blocked for dep-triage and stacking up unread. Individual review is what groupName: null buys; high-risk is a stronger claim and belongs where behavior actually changes.",
+      "matchPackageNames": [
+        "next",
+        "react",
+        "react-dom",
+        "wrangler",
+        "@opennextjs/cloudflare",
+        "@cloudflare/workers-types",
+        "typescript",
+        "@biomejs/biome",
+        "astro"
+      ],
+      "matchUpdateTypes": ["major"],
       "addLabels": ["high-risk"]
     },
     {
