@@ -1,4 +1,5 @@
 import { DEV_MOCK_AUTH } from "astro:env/server";
+import type { ChannelConfigType } from "~/features/channel/domain/channel-config";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 import type { CreatorType } from "~/features/shared/domain/creator";
 import type { ApplicationService } from "~/types/api";
@@ -19,6 +20,10 @@ export const isRpcUnavailable = (appWorker: ApplicationService): boolean => {
   return typeof appWorker.newDiscordUsecase !== "function";
 };
 
+/** Only the dev server with the mock enabled may write to the in-memory store. */
+export const isDevMockActive = (): boolean =>
+  import.meta.env.DEV && DEV_MOCK_AUTH !== false;
+
 const DEV_GUILD_ID = "111111111111111111";
 
 /** ローカル開発用のモックデータ。APP_WORKER が利用不可な場合に使用する。 */
@@ -29,7 +34,7 @@ export const devMock = {
       guildId === DEV_GUILD_ID
         ? [
             {
-              channelId: "ch-001",
+              channelId: "100000000000000001",
               channelName: "vspo-notifications",
               enabled: true,
               language: "ja",
@@ -37,7 +42,7 @@ export const devMock = {
               customMembers: undefined,
             },
             {
-              channelId: "ch-002",
+              channelId: "100000000000000002",
               channelName: "schedule-en",
               enabled: true,
               language: "en",
@@ -45,7 +50,7 @@ export const devMock = {
               customMembers: undefined,
             },
             {
-              channelId: "ch-003",
+              channelId: "100000000000000003",
               channelName: "archives",
               enabled: false,
               language: "ja",
@@ -53,7 +58,7 @@ export const devMock = {
               customMembers: undefined,
             },
             {
-              channelId: "ch-004",
+              channelId: "100000000000000004",
               channelName: "custom-picks",
               enabled: true,
               language: "ja",
@@ -71,12 +76,12 @@ export const devMock = {
   guildChannels: (guildId: string): { id: string; name: string }[] =>
     guildId === DEV_GUILD_ID
       ? [
-          { id: "ch-001", name: "vspo-notifications" },
-          { id: "ch-002", name: "schedule-en" },
-          { id: "ch-003", name: "archives" },
-          { id: "ch-004", name: "custom-picks" },
-          { id: "ch-mock-1", name: "general" },
-          { id: "ch-mock-2", name: "random" },
+          { id: "100000000000000001", name: "vspo-notifications" },
+          { id: "100000000000000002", name: "schedule-en" },
+          { id: "100000000000000003", name: "archives" },
+          { id: "100000000000000004", name: "custom-picks" },
+          { id: "100000000000000005", name: "general" },
+          { id: "100000000000000006", name: "random" },
         ]
       : [],
 
@@ -185,4 +190,63 @@ export const devMock = {
       permissions: "0",
     },
   ],
+} as const;
+
+// Mutations must round-trip in dev-mock mode so the dashboard can be exercised end to end.
+const mockChannels = new Map<string, ChannelConfigType[]>();
+
+const channelsOf = (guildId: string): ChannelConfigType[] => {
+  const existing = mockChannels.get(guildId);
+  if (existing) return existing;
+  const seeded = devMock.guildConfig(guildId).channels;
+  mockChannels.set(guildId, seeded);
+  return seeded;
+};
+
+export const devMockChannelStore = {
+  list: (guildId: string): GuildBotConfigType => ({
+    guildId,
+    channels: channelsOf(guildId),
+  }),
+
+  add: (guildId: string, channelId: string): void => {
+    const channels = channelsOf(guildId);
+    if (channels.some((ch) => ch.channelId === channelId)) return;
+    const name =
+      devMock.guildChannels(guildId).find((ch) => ch.id === channelId)?.name ??
+      channelId;
+    mockChannels.set(guildId, [
+      ...channels,
+      {
+        channelId,
+        channelName: name,
+        enabled: true,
+        language: "default",
+        memberType: "all",
+      },
+    ]);
+  },
+
+  update: (
+    guildId: string,
+    channelId: string,
+    patch: Pick<
+      Partial<ChannelConfigType>,
+      "language" | "memberType" | "customMembers"
+    >,
+  ): void => {
+    mockChannels.set(
+      guildId,
+      channelsOf(guildId).map((ch) =>
+        ch.channelId === channelId ? { ...ch, ...patch } : ch,
+      ),
+    );
+  },
+
+  remove: (guildId: string, channelId: string): void => {
+    mockChannels.set(
+      guildId,
+      channelsOf(guildId).filter((ch) => ch.channelId !== channelId),
+    );
+  },
 } as const;

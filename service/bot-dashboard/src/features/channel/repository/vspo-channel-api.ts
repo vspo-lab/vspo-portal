@@ -1,7 +1,12 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
-import { devMock, isRpcUnavailable } from "~/features/shared/dev-mock";
+import {
+  devMock,
+  devMockChannelStore,
+  isDevMockActive,
+  isRpcUnavailable,
+} from "~/features/shared/dev-mock";
 import type { CreatorType } from "~/features/shared/domain/creator";
 import type { ApplicationService } from "~/types/api";
 import type { MemberTypeValue } from "../domain/member-type";
@@ -128,13 +133,18 @@ const VspoChannelApiRepository = {
    * @param guildId - Discord guild ID
    * @returns GuildBotConfig with all registered channels marked as enabled
    * @precondition appWorker is a valid service binding with DiscordService RPC
-   * @postcondition On Ok, all channels in the result have enabled === true
+   * @postcondition On Ok from the RPC path, all channels in the result have
+   *   enabled === true. When the RPC is unavailable, the dev-mock config is
+   *   returned as stored, including channels with enabled === false.
    * @idempotent true
    */
   getGuildConfig: async (
     appWorker: ApplicationService,
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
+    if (isDevMockActive()) {
+      return Ok(devMockChannelStore.list(guildId));
+    }
     if (isRpcUnavailable(appWorker)) {
       return Ok(devMock.guildConfig(guildId));
     }
@@ -183,6 +193,15 @@ const VspoChannelApiRepository = {
       customMembers?: string[] | undefined;
     },
   ): Promise<Result<void, AppError>> => {
+    if (isDevMockActive()) {
+      devMockChannelStore.update(guildId, channelId, {
+        language: data.language,
+        memberType: data.memberType,
+        customMembers:
+          data.memberType === "custom" ? (data.customMembers ?? []) : [],
+      });
+      return Ok(undefined);
+    }
     if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
@@ -274,6 +293,10 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
+    if (isDevMockActive()) {
+      devMockChannelStore.add(guildId, channelId);
+      return Ok(undefined);
+    }
     if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
@@ -334,6 +357,10 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
+    if (isDevMockActive()) {
+      devMockChannelStore.remove(guildId, channelId);
+      return Ok(undefined);
+    }
     if (isRpcUnavailable(appWorker)) {
       return Err(
         new AppError({
