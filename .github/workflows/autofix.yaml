@@ -38,7 +38,7 @@ jobs:
           pnpm biome format --write .
 
       - name: Auto-commit fixes
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7
         with:
           commit_message: "style: auto-fix lint and format"
           commit_options: "--no-verify"
