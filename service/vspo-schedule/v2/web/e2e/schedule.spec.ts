@@ -19,14 +19,18 @@ test.describe("配信スケジュール", () => {
     ).toHaveAttribute("aria-selected", "true");
   });
 
-  test("イベント一覧と日付ごとの配信が表示される", async ({ page }) => {
+  test("イベント一覧が表示される", async ({ page }) => {
     await page.goto("/schedule/all");
     const main = page.getByRole("main");
     await expect(
       main.getByRole("heading", { name: "イベント一覧" }),
     ).toBeVisible();
     await expect(main.getByText("一ノ瀬うるは誕生日")).toBeVisible();
+  });
 
+  test("配信は日付と時間帯ごとにカードで表示される", async ({ page }) => {
+    await page.goto("/schedule/all");
+    const main = page.getByRole("main");
     await expect(
       main.getByRole("heading", { name: "05/10 (土)" }),
     ).toBeVisible();
@@ -36,8 +40,15 @@ test.describe("配信スケジュール", () => {
     const card = videoCard(page, UPCOMING_STREAM.title);
     await expect(card).toContainText(UPCOMING_STREAM.channel);
     await expect(card).toContainText("23:45~");
+  });
+
+  test("視聴リンクと注意書きが表示される", async ({ page }) => {
+    await page.goto("/schedule/all");
     await expect(
-      main.getByRole("link", { name: "YouTubeで視聴" }).first(),
+      page
+        .getByRole("main")
+        .getByRole("link", { name: "YouTubeで視聴" })
+        .first(),
     ).toHaveAttribute("href", /youtube\.com\/watch/);
     await expect(
       page.getByText("※メン限の配信は掲載しておりません。"),

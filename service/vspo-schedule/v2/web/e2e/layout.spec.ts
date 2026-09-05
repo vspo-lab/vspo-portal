@@ -73,7 +73,7 @@ test.describe("共通レイアウト", () => {
     ).toHaveAttribute("href", "/multiview");
   });
 
-  test("ドロワーの各リンクが対応するページへ遷移する", async ({ page }) => {
+  test("ドロワーの各リンク先が正しい", async ({ page }) => {
     await page.goto("/schedule/all");
     const drawer = await openDrawer(page);
 
@@ -96,7 +96,11 @@ test.describe("共通レイアウト", () => {
     await expect(
       drawer.getByRole("button", { name: "Discord Bot", includeHidden: true }),
     ).toBeVisible();
+  });
 
+  test("ドロワーのリンクから別ページへ遷移できる", async ({ page }) => {
+    await page.goto("/schedule/all");
+    const drawer = await openDrawer(page);
     await drawerLink(drawer, "アーカイブ").click();
     await expect(page).toHaveURL(/\/schedule\/archive$/);
     await closeDrawer(page, drawer);

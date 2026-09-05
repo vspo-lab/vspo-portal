@@ -18,9 +18,7 @@ test.describe("静的コンテンツ", () => {
     );
   });
 
-  test("お知らせ一覧から詳細へ遷移でき、パンくずが表示される", async ({
-    page,
-  }) => {
+  test("お知らせ一覧がテーブルとパンくずで表示される", async ({ page }) => {
     await page.goto("/site-news");
     await expect(page.getByRole("banner")).toContainText(
       "すぽじゅーるからのお知らせ",
@@ -40,8 +38,12 @@ test.describe("静的コンテンツ", () => {
         .getByRole("navigation", { name: "breadcrumb" })
         .getByText("お知らせ"),
     ).toBeVisible();
+  });
 
-    await table
+  test("お知らせ詳細へ遷移でき、パンくずから一覧へ戻れる", async ({ page }) => {
+    await page.goto("/site-news");
+    await page
+      .getByRole("table")
       .getByRole("link", {
         name: "マルチビュー機能をリリースしました！複数配信の同時視聴が可能に",
       })
