@@ -1,7 +1,11 @@
 import type { Result } from "@vspo-lab/error";
 import { AppError, Err, Ok } from "@vspo-lab/error";
 import type { GuildBotConfigType } from "~/features/guild/domain/guild";
-import { devMock, isRpcUnavailable } from "~/features/shared/dev-mock";
+import {
+  devMock,
+  devMockChannelStore,
+  isRpcUnavailable,
+} from "~/features/shared/dev-mock";
 import type { CreatorType } from "~/features/shared/domain/creator";
 import type { ApplicationService } from "~/types/api";
 import type { MemberTypeValue } from "../domain/member-type";
@@ -136,7 +140,7 @@ const VspoChannelApiRepository = {
     guildId: string,
   ): Promise<Result<GuildBotConfigType, AppError>> => {
     if (isRpcUnavailable(appWorker)) {
-      return Ok(devMock.guildConfig(guildId));
+      return Ok(devMockChannelStore.list(guildId));
     }
 
     const discord = appWorker.newDiscordUsecase();
@@ -184,13 +188,12 @@ const VspoChannelApiRepository = {
     },
   ): Promise<Result<void, AppError>> => {
     if (isRpcUnavailable(appWorker)) {
-      return Err(
-        new AppError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "APP_WORKER is not available",
-          context: {},
-        }),
-      );
+      devMockChannelStore.update(guildId, channelId, {
+        language: data.language,
+        memberType: data.memberType,
+        customMembers: data.memberType === "custom" ? data.customMembers : [],
+      });
+      return Ok(undefined);
     }
 
     return adjustAndEnqueue(appWorker, {
@@ -275,13 +278,8 @@ const VspoChannelApiRepository = {
     channelId: string,
   ): Promise<Result<void, AppError>> => {
     if (isRpcUnavailable(appWorker)) {
-      return Err(
-        new AppError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "APP_WORKER is not available",
-          context: {},
-        }),
-      );
+      devMockChannelStore.add(guildId, channelId);
+      return Ok(undefined);
     }
 
     return adjustAndEnqueue(appWorker, {
@@ -335,13 +333,8 @@ const VspoChannelApiRepository = {
     channelId: string,
   ): Promise<Result<void, AppError>> => {
     if (isRpcUnavailable(appWorker)) {
-      return Err(
-        new AppError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "APP_WORKER is not available",
-          context: {},
-        }),
-      );
+      devMockChannelStore.remove(guildId, channelId);
+      return Ok(undefined);
     }
 
     return adjustAndEnqueue(appWorker, {

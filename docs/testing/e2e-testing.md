@@ -1,6 +1,6 @@
 # E2E Testing Implementation Guidelines
 
-> **Status:** Not yet implemented. Playwright is not installed. This document describes the target architecture.
+> **Status:** Implemented for `service/bot-dashboard` (Playwright). `service/vspo-schedule/v2/web` is not yet covered.
 
 ## Purpose
 
@@ -68,11 +68,40 @@ test("Entire item creation flow", async ({ page }) => {
 - Write test names as business scenarios (e.g., "A new order can be created")
 - Maintain a lean set of key scenarios and complement coverage with Unit/Integration/API tests
 
-## Recommended File Structure
+## bot-dashboard
 
-- `service/vspo-schedule/v2/web/e2e/auth.setup.ts`
-- `service/vspo-schedule/v2/web/e2e/*.spec.ts`
-- `service/vspo-schedule/v2/web/playwright.config.ts`
+### Layout
+
+- `service/bot-dashboard/playwright.config.ts` - config, including the `webServer` that boots `astro dev`
+- `service/bot-dashboard/astro.config.e2e.ts` - the app config with the dev toolbar disabled
+- `service/bot-dashboard/e2e/helpers.ts` - guild ids, island hydration wait, shared locators
+- `service/bot-dashboard/e2e/*.spec.ts` - one file per screen or concern: `landing`, `auth`, `dashboard`, `guild-channels`, `announcements`, `api`
+
+### Running
+
+```bash
+cd service/bot-dashboard
+pnpm exec playwright install chromium   # once
+pnpm test:e2e
+pnpm test:e2e:ui                        # interactive
+```
+
+`pnpm test:e2e` starts the dev server on port 4341 by itself. Locally it reuses a server that is already listening there; in CI (`CI=1`) it always starts a fresh one. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` points the run at a preinstalled Chromium when the browser download is unavailable.
+
+### Where the external boundary is
+
+The dashboard has two external dependencies: Discord OAuth and the `APP_WORKER` service binding (the `vspo-portal-app` Worker, which lives in another repository). Both are replaced by the dev mock the app already ships (`src/features/shared/dev-mock.ts`, active when `astro dev` runs with `DEV_MOCK_AUTH=true`). Everything in this repository runs for real: Astro pages, middleware, session storage, Astro Actions, API routes, React islands.
+
+Consequences to keep in mind:
+
+- The mock user is always logged in, so the landing page is reached with `/?preview` and the OAuth flow is exercised at the HTTP level (`/auth/discord` redirect, `/auth/callback` state and code handling) rather than by following Discord's redirect.
+- The mock middleware skips the guild-admin guard and token refresh, so those branches are not covered here. They are the middleware's job and belong in unit tests.
+- Channel mutations are persisted in a process-wide in-memory store inside the dev mock. Tests therefore run with one worker, and every mutation test restores the seed state it changed.
+- `storageState` is deliberately not used: sessions are server-side, so sharing a cookie between tests would leak the locale one test set into the next. Each test gets a fresh context and therefore a fresh session.
+
+### CI
+
+`.github/workflows/pr-check.yaml` runs the suite in the `e2e-bot-dashboard` job whenever `service/bot-dashboard/**`, `packages/**` or the root manifests change. The HTML report is uploaded as an artifact on failure, and the result appears in the PR Check Summary comment.
 
 ## References (Primary Sources)
 

@@ -226,9 +226,34 @@ jobs:
           flags: bot-dashboard
           fail_ci_if_error: false
 
+  e2e-bot-dashboard:
+    needs: changes
+    if: needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+      - name: Build package dependencies
+        run: pnpm --filter "@vspo-lab/*" build
+      - name: Install Playwright browser
+        run: pnpm --filter bot-dashboard exec playwright install --with-deps chromium
+      - name: Run Playwright
+        run: pnpm --filter bot-dashboard test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-bot-dashboard
+          path: service/bot-dashboard/playwright-report
+          retention-days: 7
+
   # Post a summary comment on the PR with all check results
   pr-summary:
-    needs: [changes, biome-check, typescript-check, knip-check, textlint-check, markdownlint-check, cspell-check, bundle-size, test]
+    needs: [changes, biome-check, typescript-check, knip-check, textlint-check, markdownlint-check, cspell-check, bundle-size, test, e2e-bot-dashboard]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -244,6 +269,7 @@ jobs:
           CSPELL: ${{ needs.cspell-check.result }}
           BUNDLE: ${{ needs.bundle-size.result }}
           TEST: ${{ needs.test.result }}
+          E2E_BOT: ${{ needs.e2e-bot-dashboard.result }}
           WEB_SUMMARY: ${{ needs.test.outputs.web-summary }}
           BOT_SUMMARY: ${{ needs.test.outputs.bot-summary }}
         run: |
@@ -270,6 +296,7 @@ jobs:
             echo "| CSpell | $(icon "$CSPELL") ${CSPELL} |"
             echo "| Bundle Size | $(icon "$BUNDLE") ${BUNDLE} |"
             echo "| Tests | $(icon "$TEST") ${TEST} |"
+            echo "| E2E (bot-dashboard) | $(icon "$E2E_BOT") ${E2E_BOT} |"
             echo ""
 
             if [ -n "$WEB_SUMMARY" ] || [ -n "$BOT_SUMMARY" ]; then
