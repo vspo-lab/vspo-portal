@@ -14,7 +14,7 @@ over time.
 | Who may merge | `dep-auto-merge.yaml` only. Renovate automerge is disabled everywhere |
 | Who may approve | The maintainer, or the `dep-triage` skill acting on their behalf, having read the diff |
 | Merge without review | Never. There is no approval-free path |
-| Never auto-approved | `major`, `high-risk`, and anything the triage run repaired itself |
+| Never auto-approved | `major`, `high-risk`, and (in the same run) a repair that changed more than manifests and the lockfile |
 | Blocking scan | Trivy, production dependencies only, CRITICAL and HIGH |
 | Non-blocking scan | Trivy with `--include-dev-deps`, report only |
 | Suppression | Requires `statement` and `expired_at`, maximum 90 days |
@@ -102,6 +102,21 @@ Format:
 - Evidence: what was checked, such as a search for the vulnerable API
 - Follow-up: expiry date, or the issue tracking the fix
 ```
+
+### 2026-09-05 CVE-2026-73422 astro
+
+- Outcome: [ESCALATE]
+- Reason: The fix is `astro@7.1.0`, a major. `service/bot-dashboard` also needs
+  `@astrojs/cloudflare` 14 and `@astrojs/react` 6 (and the `wrangler` catalog at
+  `^4.125.0`) before `astro build` succeeds on Astro 7, so this is a migration,
+  not a repair. The vulnerable path (attacker-controlled View Transition
+  animation properties) is not reachable: the service uses `ClientRouter` only,
+  with no `transition:animate` and no request-derived animation values.
+- Evidence: `pnpm build` on `renovate/npm-astro-vulnerability` fails in the
+  Cloudflare adapter's build runner (`Missing field moduleType`); search of
+  `service/bot-dashboard/src` for `transition:animate` and `astro:transitions`.
+- Follow-up: #1152 tracks the migration; #1142 is labelled
+  `awaiting-maintainer-review`.
 
 ### 2026-08-14 Migration from .trivyignore
 
