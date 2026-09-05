@@ -12,6 +12,7 @@ export default getViteConfig(
         include: ["src/**/*.{ts,tsx,astro}"],
         exclude: [
           "src/**/*.test.{ts,tsx}",
+          "src/**/*.stories.{ts,tsx}",
           "src/**/index.ts",
           "src/**/*.d.ts",
           "src/types/**",

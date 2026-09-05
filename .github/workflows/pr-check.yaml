@@ -9,6 +9,7 @@ on:
       - 'docs/**'
       - 'README.md'
       - '.github/workflows/pr-check.yaml'
+      - 'scripts/coverage-summary-row.sh'
       # Root manifests: without these, a lockfile-only dependency PR would run no
       # checks at all and "every check green" would be vacuously true.
       - 'package.json'
@@ -39,10 +40,13 @@ jobs:
         id: filter
         with:
           filters: |
+            # The coverage summary helper feeds both service rows, so it runs both test paths.
             web:
               - 'service/vspo-schedule/v2/web/**'
+              - 'scripts/coverage-summary-row.sh'
             bot-dashboard:
               - 'service/bot-dashboard/**'
+              - 'scripts/coverage-summary-row.sh'
             packages:
               - 'packages/**'
             docs:
