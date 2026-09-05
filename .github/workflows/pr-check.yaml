@@ -251,9 +251,39 @@ jobs:
           path: service/bot-dashboard/playwright-report
           retention-days: 7
 
+  e2e-web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+      - name: Build package dependencies
+        run: pnpm --filter "@vspo-lab/*" build
+      - name: Install Playwright browser
+        run: pnpm --filter vspo-schedule-v2-web exec playwright install --with-deps chromium
+      - name: Run Playwright
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+        run: pnpm --filter vspo-schedule-v2-web test:e2e
+      - name: Show page snapshots of failed tests
+        if: failure()
+        run: find service/vspo-schedule/v2/web/test-results -name error-context.md -exec sh -c 'echo "=== $1"; cat "$1"' _ {} \;
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-web
+          path: service/vspo-schedule/v2/web/playwright-report
+          retention-days: 7
+
   # Post a summary comment on the PR with all check results
   pr-summary:
-    needs: [changes, biome-check, typescript-check, knip-check, textlint-check, markdownlint-check, cspell-check, bundle-size, test, e2e-bot-dashboard]
+    needs: [changes, biome-check, typescript-check, knip-check, textlint-check, markdownlint-check, cspell-check, bundle-size, test, e2e-bot-dashboard, e2e-web]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -270,6 +300,7 @@ jobs:
           BUNDLE: ${{ needs.bundle-size.result }}
           TEST: ${{ needs.test.result }}
           E2E_BOT: ${{ needs.e2e-bot-dashboard.result }}
+          E2E_WEB: ${{ needs.e2e-web.result }}
           WEB_SUMMARY: ${{ needs.test.outputs.web-summary }}
           BOT_SUMMARY: ${{ needs.test.outputs.bot-summary }}
         run: |
@@ -297,6 +328,7 @@ jobs:
             echo "| Bundle Size | $(icon "$BUNDLE") ${BUNDLE} |"
             echo "| Tests | $(icon "$TEST") ${TEST} |"
             echo "| E2E (bot-dashboard) | $(icon "$E2E_BOT") ${E2E_BOT} |"
+            echo "| E2E (web) | $(icon "$E2E_WEB") ${E2E_WEB} |"
             echo ""
 
             if [ -n "$WEB_SUMMARY" ] || [ -n "$BOT_SUMMARY" ]; then

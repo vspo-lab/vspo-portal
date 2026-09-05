@@ -1,6 +1,6 @@
 # E2E Testing Implementation Guidelines
 
-> **Status:** Implemented for `service/bot-dashboard` (Playwright). `service/vspo-schedule/v2/web` is not yet covered.
+> **Status:** Implemented for `service/bot-dashboard` and `service/vspo-schedule/v2/web` (Playwright).
 
 ## Purpose
 
@@ -102,6 +102,40 @@ Consequences to keep in mind:
 ### CI
 
 `.github/workflows/pr-check.yaml` runs the suite in the `e2e-bot-dashboard` job whenever `service/bot-dashboard/**`, `packages/**` or the root manifests change. The HTML report is uploaded as an artifact on failure, and the result appears in the PR Check Summary comment.
+
+## vspo-schedule web
+
+### Layout
+
+- `service/vspo-schedule/v2/web/playwright.config.ts` - config, including the `webServer` that runs `next start`
+- `service/vspo-schedule/v2/web/e2e/helpers.ts` - mock stream constants, drawer / modal / search-dialog helpers
+- `service/vspo-schedule/v2/web/e2e/*.spec.ts` - one file per screen or concern: `layout`, `schedule`, `clips`, `multiview`, `content`, `http`
+
+### Running
+
+```bash
+cd service/vspo-schedule/v2/web
+pnpm exec playwright install chromium   # once
+pnpm test:e2e                           # next build + playwright test
+pnpm test:e2e:ui                        # interactive, expects a built app
+```
+
+The suite runs against a production build (`next start` on port 4010) rather than `next dev`: the dev overlay intercepts pointer events and per-route compilation makes timings unreliable. Locally a server already listening on 4010 is reused; in CI (`CI=1`) a fresh one is started. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` points the run at a preinstalled Chromium when the browser download is unavailable.
+
+### Where the external boundary is
+
+The only external dependency is the VSPO API. The `webServer` sets `ENV=local`, which makes `@vspo-lab/api` return its bundled mock data (`packages/api/src/mock`) instead of calling the API, so streams, clips, events and freechats are fixed. Everything in this repository runs for real: Next.js routing and redirects, `next-intl`, middleware cookies (time zone, session id), server components, MUI client components.
+
+Consequences to keep in mind:
+
+- The mock ignores request parameters, so date navigation, tabs and search are asserted through the URL and through client-side filtering, not through a different data set.
+- Stream times are asserted in `Asia/Tokyo` (the browser time zone fixed in the config); the time-zone test switches to `America/New_York` and expects the converted time.
+- Adding a stream by URL in multiview uses a Twitcasting URL because YouTube and Twitch URLs trigger an oEmbed request to the platform.
+- The navigation drawer is rendered with `disablePortal`, so MUI marks its ancestor `aria-hidden` while it is open. Locators inside the drawer use `includeHidden: true` until that is fixed in the app.
+
+### CI
+
+`.github/workflows/pr-check.yaml` runs the suite in the `e2e-web` job whenever `service/vspo-schedule/v2/web/**`, `packages/**` or the root manifests change. The HTML report is uploaded as an artifact on failure, and the result appears in the PR Check Summary comment.
 
 ## References (Primary Sources)
 
