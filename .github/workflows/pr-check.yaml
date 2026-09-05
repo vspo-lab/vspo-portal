@@ -270,6 +270,9 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: 1
         run: pnpm --filter vspo-schedule-v2-web test:e2e
+      - name: Show page snapshots of failed tests
+        if: failure()
+        run: find service/vspo-schedule/v2/web/test-results -name error-context.md -exec sh -c 'echo "=== $1"; cat "$1"' _ {} \;
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v7
