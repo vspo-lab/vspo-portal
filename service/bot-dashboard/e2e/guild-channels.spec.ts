@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import {
   channelCount,
   channelRow,
@@ -152,149 +152,205 @@ test.describe("チャンネル追加モーダル", () => {
   });
 });
 
-// These tests mutate the dev-mock store, which lives in the dev server process.
-// They run serially and each one restores the seed state it changed.
-test.describe
-  .serial("チャンネル設定の変更", () => {
-    test("チャンネルを追加すると一覧に表示され、再読み込み後も残る", async ({
-      page,
-    }) => {
-      await gotoGuild(page);
-      const dialog = await openAddModal(page);
-      await dialog.getByRole("option", { name: /general/ }).click();
+// The dev-mock store is process-wide, so these tests run on one worker and each
+// test arranges the state it needs and restores the seed before it ends.
+const addChannel = async (page: Page, name: string): Promise<void> => {
+  await gotoGuild(page);
+  if ((await channelRow(page, name).count()) > 0) return;
+  const dialog = await openAddModal(page);
+  await dialog.getByRole("option", { name: new RegExp(name) }).click();
+  await expect(dialog).toBeHidden();
+  await expect(channelRow(page, name)).toBeVisible();
+};
 
-      await expect(dialog).toBeHidden();
-      await expect(flash(page)).toContainText("チャンネルを追加しました。");
-      const row = channelRow(page, "general");
-      await expect(row).toContainText("デフォルト");
-      await expect(row).toContainText("全メンバー");
-      await expect(row).toContainText("有効");
-
-      await gotoGuild(page);
-      await expect(channelCount(page)).toContainText("5");
-      await expect(channelRow(page, "general")).toBeVisible();
-    });
-
-    test("追加したチャンネルは追加モーダルで登録済みになる", async ({
-      page,
-    }) => {
-      await gotoGuild(page);
-      const dialog = await openAddModal(page);
-      await expect(dialog.getByRole("option", { name: /general/ })).toHaveCount(
-        0,
-      );
-      await expect(dialog.getByRole("option")).toHaveCount(1);
-    });
-
-    test("削除ダイアログはキャンセルできる", async ({ page }) => {
-      await gotoGuild(page);
-      await page.getByRole("button", { name: "削除 #general" }).click();
-      const dialog = page.getByRole("dialog", {
-        name: "#general を削除しますか？",
-      });
-      await expect(dialog).toContainText("この操作は取り消せません");
-      await dialog.getByRole("button", { name: "キャンセル" }).click();
-      await expect(dialog).toBeHidden();
-      await expect(channelRow(page, "general")).toBeVisible();
-    });
-
-    test("チャンネルを削除すると一覧から消え、再読み込み後も残らない", async ({
-      page,
-    }) => {
-      await gotoGuild(page);
-      await page.getByRole("button", { name: "削除 #general" }).click();
-      const dialog = page.getByRole("dialog", {
-        name: "#general を削除しますか？",
-      });
-      await dialog.getByRole("button", { name: "削除する" }).click();
-
-      await expect(dialog).toBeHidden();
-      await expect(flash(page)).toContainText("チャンネル設定を削除しました。");
-      await expect(channelRow(page, "general")).toHaveCount(0);
-
-      await gotoGuild(page);
-      await expect(channelCount(page)).toContainText("4");
-      await expect(channelRow(page, "general")).toHaveCount(0);
-    });
-
-    test("言語を変更すると変更プレビューが出て、保存で一覧に反映される", async ({
-      page,
-    }) => {
-      await gotoGuild(page);
-      const dialog = await openEditModal(page, "vspo-notifications");
-      const language = dialog.getByRole("combobox", { name: "言語" });
-      await expect(language).toHaveValue("ja");
-      await expect(dialog.getByText("変更プレビュー")).toHaveCount(0);
-
-      await language.selectOption("en");
-      const preview = dialog.getByText("変更プレビュー").locator("..");
-      await expect(preview).toContainText("言語");
-      await expect(preview).toContainText("日本語");
-      await expect(preview).toContainText("英語");
-
-      await dialog.getByRole("button", { name: "保存" }).click();
-      await expect(dialog).toBeHidden();
-      await expect(flash(page)).toContainText("チャンネル設定を更新しました。");
-      await expect(channelRow(page, "vspo-notifications")).toContainText(
-        "英語",
-      );
-
-      await gotoGuild(page);
-      await expect(channelRow(page, "vspo-notifications")).toContainText(
-        "英語",
-      );
-    });
-
-    test("言語を日本語に戻せる", async ({ page }) => {
-      await gotoGuild(page);
-      const dialog = await openEditModal(page, "vspo-notifications");
-      await dialog.getByRole("combobox", { name: "言語" }).selectOption("ja");
-      await dialog.getByRole("button", { name: "保存" }).click();
-      await expect(flash(page)).toContainText("チャンネル設定を更新しました。");
-      await expect(channelRow(page, "vspo-notifications")).toContainText(
-        "日本語",
-      );
-    });
-
-    test("デフォルトに戻すと言語とメンバータイプが初期化される", async ({
-      page,
-    }) => {
-      await gotoGuild(page);
-      const dialog = await openEditModal(page, "archives");
-      await dialog.getByRole("button", { name: "デフォルトに戻す" }).click();
-
-      await expect(dialog).toBeHidden();
-      await expect(flash(page)).toContainText(
-        "チャンネル設定をデフォルトに戻しました。",
-      );
-      const row = channelRow(page, "archives");
-      await expect(row).toContainText("デフォルト");
-      await expect(row).toContainText("全メンバー");
-
-      await gotoGuild(page);
-      await expect(channelRow(page, "archives")).toContainText("デフォルト");
-    });
-
-    test("メンバータイプと言語を同時に変更すると両方がプレビューされ保存される", async ({
-      page,
-    }) => {
-      await gotoGuild(page);
-      const dialog = await openEditModal(page, "archives");
-      await dialog.getByRole("radio", { name: "VSPO JP" }).check();
-      await dialog.getByRole("combobox", { name: "言語" }).selectOption("ja");
-
-      const preview = dialog.getByText("変更プレビュー").locator("..");
-      await expect(preview).toContainText("メンバー");
-      await expect(preview).toContainText("VSPO JP");
-      await expect(preview).toContainText("日本語");
-
-      await dialog.getByRole("button", { name: "保存" }).click();
-      await expect(flash(page)).toContainText("チャンネル設定を更新しました。");
-      const row = channelRow(page, "archives");
-      await expect(row).toContainText("日本語");
-      await expect(row).toContainText("VSPO JP");
-    });
+const deleteChannel = async (page: Page, name: string): Promise<void> => {
+  await gotoGuild(page);
+  if ((await channelRow(page, name).count()) === 0) return;
+  await page.getByRole("button", { name: `削除 #${name}` }).click();
+  const dialog = page.getByRole("dialog", {
+    name: `#${name} を削除しますか？`,
   });
+  await dialog.getByRole("button", { name: "削除する" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(channelRow(page, name)).toHaveCount(0);
+};
+
+const saveLanguage = async (
+  page: Page,
+  name: string,
+  language: string,
+): Promise<void> => {
+  await gotoGuild(page);
+  const dialog = await openEditModal(page, name);
+  await dialog.getByRole("combobox", { name: "言語" }).selectOption(language);
+  await dialog.getByRole("button", { name: "保存" }).click();
+  await expect(dialog).toBeHidden();
+};
+
+const resetToDefault = async (page: Page, name: string): Promise<void> => {
+  await gotoGuild(page);
+  const dialog = await openEditModal(page, name);
+  await dialog.getByRole("button", { name: "デフォルトに戻す" }).click();
+  await expect(dialog).toBeHidden();
+};
+
+/** The seed configures `archives` as VSPO JP / 日本語. */
+const restoreArchivesSeed = async (page: Page): Promise<void> => {
+  await gotoGuild(page);
+  const dialog = await openEditModal(page, "archives");
+  await dialog.getByRole("radio", { name: "VSPO JP" }).check();
+  await dialog.getByRole("combobox", { name: "言語" }).selectOption("ja");
+  await dialog.getByRole("button", { name: "保存" }).click();
+  await expect(dialog).toBeHidden();
+};
+
+test.describe("チャンネル設定の変更", () => {
+  test("チャンネルを追加すると一覧に表示され、再読み込み後も残る", async ({
+    page,
+  }) => {
+    await gotoGuild(page);
+    const dialog = await openAddModal(page);
+    await dialog.getByRole("option", { name: /general/ }).click();
+
+    await expect(dialog).toBeHidden();
+    await expect(flash(page)).toContainText("チャンネルを追加しました。");
+    const row = channelRow(page, "general");
+    await expect(row).toContainText("デフォルト");
+    await expect(row).toContainText("全メンバー");
+    await expect(row).toContainText("有効");
+
+    await gotoGuild(page);
+    await expect(channelCount(page)).toContainText("5");
+    await expect(channelRow(page, "general")).toBeVisible();
+
+    await deleteChannel(page, "general");
+  });
+
+  test("追加したチャンネルは追加モーダルで登録済みになる", async ({ page }) => {
+    await addChannel(page, "general");
+
+    const dialog = await openAddModal(page);
+    await expect(dialog.getByRole("option", { name: /general/ })).toHaveCount(
+      0,
+    );
+    await expect(dialog.getByRole("option")).toHaveCount(1);
+    await page.keyboard.press("Escape");
+
+    await deleteChannel(page, "general");
+  });
+
+  test("削除ダイアログはキャンセルできる", async ({ page }) => {
+    await gotoGuild(page);
+    await page.getByRole("button", { name: "削除 #custom-picks" }).click();
+    const dialog = page.getByRole("dialog", {
+      name: "#custom-picks を削除しますか？",
+    });
+    await expect(dialog).toContainText("この操作は取り消せません");
+    await dialog.getByRole("button", { name: "キャンセル" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(channelRow(page, "custom-picks")).toBeVisible();
+  });
+
+  test("チャンネルを削除すると一覧から消え、再読み込み後も残らない", async ({
+    page,
+  }) => {
+    await addChannel(page, "general");
+
+    await page.getByRole("button", { name: "削除 #general" }).click();
+    const dialog = page.getByRole("dialog", {
+      name: "#general を削除しますか？",
+    });
+    await dialog.getByRole("button", { name: "削除する" }).click();
+
+    await expect(dialog).toBeHidden();
+    await expect(flash(page)).toContainText("チャンネル設定を削除しました。");
+    await expect(channelRow(page, "general")).toHaveCount(0);
+
+    await gotoGuild(page);
+    await expect(channelCount(page)).toContainText("4");
+    await expect(channelRow(page, "general")).toHaveCount(0);
+  });
+
+  test("言語を変更すると変更プレビューが出て、保存で一覧に反映される", async ({
+    page,
+  }) => {
+    await gotoGuild(page);
+    const dialog = await openEditModal(page, "vspo-notifications");
+    const language = dialog.getByRole("combobox", { name: "言語" });
+    await expect(language).toHaveValue("ja");
+    await expect(dialog.getByText("変更プレビュー")).toHaveCount(0);
+
+    await language.selectOption("en");
+    const preview = dialog.getByText("変更プレビュー").locator("..");
+    await expect(preview).toContainText("言語");
+    await expect(preview).toContainText("日本語");
+    await expect(preview).toContainText("英語");
+
+    await dialog.getByRole("button", { name: "保存" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(flash(page)).toContainText("チャンネル設定を更新しました。");
+    await expect(channelRow(page, "vspo-notifications")).toContainText("英語");
+
+    await gotoGuild(page);
+    await expect(channelRow(page, "vspo-notifications")).toContainText("英語");
+
+    await saveLanguage(page, "vspo-notifications", "ja");
+  });
+
+  test("言語を日本語に戻せる", async ({ page }) => {
+    await saveLanguage(page, "vspo-notifications", "en");
+
+    const dialog = await openEditModal(page, "vspo-notifications");
+    await dialog.getByRole("combobox", { name: "言語" }).selectOption("ja");
+    await dialog.getByRole("button", { name: "保存" }).click();
+    await expect(flash(page)).toContainText("チャンネル設定を更新しました。");
+    await expect(channelRow(page, "vspo-notifications")).toContainText(
+      "日本語",
+    );
+  });
+
+  test("デフォルトに戻すと言語とメンバータイプが初期化される", async ({
+    page,
+  }) => {
+    await gotoGuild(page);
+    const dialog = await openEditModal(page, "archives");
+    await dialog.getByRole("button", { name: "デフォルトに戻す" }).click();
+
+    await expect(dialog).toBeHidden();
+    await expect(flash(page)).toContainText(
+      "チャンネル設定をデフォルトに戻しました。",
+    );
+    const row = channelRow(page, "archives");
+    await expect(row).toContainText("デフォルト");
+    await expect(row).toContainText("全メンバー");
+
+    await gotoGuild(page);
+    await expect(channelRow(page, "archives")).toContainText("デフォルト");
+
+    await restoreArchivesSeed(page);
+  });
+
+  test("メンバータイプと言語を同時に変更すると両方がプレビューされ保存される", async ({
+    page,
+  }) => {
+    await resetToDefault(page, "archives");
+
+    const dialog = await openEditModal(page, "archives");
+    await dialog.getByRole("radio", { name: "VSPO JP" }).check();
+    await dialog.getByRole("combobox", { name: "言語" }).selectOption("ja");
+
+    const preview = dialog.getByText("変更プレビュー").locator("..");
+    await expect(preview).toContainText("メンバー");
+    await expect(preview).toContainText("VSPO JP");
+    await expect(preview).toContainText("日本語");
+
+    await dialog.getByRole("button", { name: "保存" }).click();
+    await expect(flash(page)).toContainText("チャンネル設定を更新しました。");
+    const row = channelRow(page, "archives");
+    await expect(row).toContainText("日本語");
+    await expect(row).toContainText("VSPO JP");
+  });
+});
 
 test.describe("チャンネル設定モーダル（カスタムメンバー）", () => {
   test.beforeEach(async ({ page }) => {

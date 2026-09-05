@@ -9,8 +9,10 @@ const startLogin = async (request: APIRequestContext): Promise<string> => {
   expect(response.status()).toBe(302);
   const location = new URL(response.headers().location);
   const state = location.searchParams.get("state");
-  expect(state).toBeTruthy();
-  return state as string;
+  if (state === null) {
+    throw new Error("Discord redirect has no state parameter");
+  }
+  return state;
 };
 
 test.describe("Discord ログイン（Discord 側はモック）", () => {

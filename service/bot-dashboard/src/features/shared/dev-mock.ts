@@ -20,6 +20,10 @@ export const isRpcUnavailable = (appWorker: ApplicationService): boolean => {
   return typeof appWorker.newDiscordUsecase !== "function";
 };
 
+/** Only the dev server with the mock enabled may write to the in-memory store. */
+export const isDevMockActive = (): boolean =>
+  import.meta.env.DEV && DEV_MOCK_AUTH !== false;
+
 const DEV_GUILD_ID = "111111111111111111";
 
 /** ローカル開発用のモックデータ。APP_WORKER が利用不可な場合に使用する。 */

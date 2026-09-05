@@ -49,7 +49,8 @@ export default defineConfig({
   webServer: {
     command: `pnpm exec astro dev --config astro.config.e2e.ts --port ${PORT}`,
     url: `${baseURL}/robots.txt`,
-    reuseExistingServer: !process.env.CI,
+    // The dev-mock store lives in the server process, so reuse is opt-in to keep runs deterministic.
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === "1",
     timeout: 180_000,
     env: webServerEnv,
   },

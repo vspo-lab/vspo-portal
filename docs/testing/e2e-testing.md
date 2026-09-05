@@ -86,7 +86,7 @@ pnpm test:e2e
 pnpm test:e2e:ui                        # interactive
 ```
 
-`pnpm test:e2e` starts the dev server on port 4341 by itself. Locally it reuses a server that is already listening there; in CI (`CI=1`) it always starts a fresh one. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` points the run at a preinstalled Chromium when the browser download is unavailable.
+`pnpm test:e2e` starts the dev server on port 4341 by itself. A server that is already listening there is reused only with `PLAYWRIGHT_REUSE_SERVER=1`, because its in-memory channel store may have drifted from the seed. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` points the run at a preinstalled Chromium when the browser download is unavailable.
 
 ### Where the external boundary is
 
@@ -96,7 +96,7 @@ Consequences to keep in mind:
 
 - The mock user is always logged in, so the landing page is reached with `/?preview` and the OAuth flow is exercised at the HTTP level (`/auth/discord` redirect, `/auth/callback` state and code handling) rather than by following Discord's redirect.
 - The mock middleware skips the guild-admin guard and token refresh, so those branches are not covered here. They are the middleware's job and belong in unit tests.
-- Channel mutations are persisted in a process-wide in-memory store inside the dev mock. Tests therefore run with one worker, and every mutation test restores the seed state it changed.
+- Channel mutations are persisted in a process-wide in-memory store inside the dev mock, and only while `astro dev` runs with the mock enabled; without the mock, mutations still fail when `APP_WORKER` is unavailable. Tests therefore run with one worker, and every mutation test arranges the state it needs and restores the seed before it ends, so a single test can be run with `--grep`.
 - `storageState` is deliberately not used: sessions are server-side, so sharing a cookie between tests would leak the locale one test set into the next. Each test gets a fresh context and therefore a fresh session.
 
 ### CI

@@ -4,6 +4,7 @@ import type { GuildBotConfigType } from "~/features/guild/domain/guild";
 import {
   devMock,
   devMockChannelStore,
+  isDevMockActive,
   isRpcUnavailable,
 } from "~/features/shared/dev-mock";
 import type { CreatorType } from "~/features/shared/domain/creator";
@@ -187,13 +188,22 @@ const VspoChannelApiRepository = {
       customMembers?: string[] | undefined;
     },
   ): Promise<Result<void, AppError>> => {
-    if (isRpcUnavailable(appWorker)) {
+    if (isDevMockActive()) {
       devMockChannelStore.update(guildId, channelId, {
         language: data.language,
         memberType: data.memberType,
         customMembers: data.memberType === "custom" ? data.customMembers : [],
       });
       return Ok(undefined);
+    }
+    if (isRpcUnavailable(appWorker)) {
+      return Err(
+        new AppError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "APP_WORKER is not available",
+          context: {},
+        }),
+      );
     }
 
     return adjustAndEnqueue(appWorker, {
@@ -277,9 +287,18 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
-    if (isRpcUnavailable(appWorker)) {
+    if (isDevMockActive()) {
       devMockChannelStore.add(guildId, channelId);
       return Ok(undefined);
+    }
+    if (isRpcUnavailable(appWorker)) {
+      return Err(
+        new AppError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "APP_WORKER is not available",
+          context: {},
+        }),
+      );
     }
 
     return adjustAndEnqueue(appWorker, {
@@ -332,9 +351,18 @@ const VspoChannelApiRepository = {
     guildId: string,
     channelId: string,
   ): Promise<Result<void, AppError>> => {
-    if (isRpcUnavailable(appWorker)) {
+    if (isDevMockActive()) {
       devMockChannelStore.remove(guildId, channelId);
       return Ok(undefined);
+    }
+    if (isRpcUnavailable(appWorker)) {
+      return Err(
+        new AppError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "APP_WORKER is not available",
+          context: {},
+        }),
+      );
     }
 
     return adjustAndEnqueue(appWorker, {
