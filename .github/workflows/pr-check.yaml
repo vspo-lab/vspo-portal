@@ -9,6 +9,7 @@ on:
       - 'docs/**'
       - 'README.md'
       - '.github/workflows/pr-check.yaml'
+      - 'scripts/coverage-summary-row.sh'
       # Root manifests: without these, a lockfile-only dependency PR would run no
       # checks at all and "every check green" would be vacuously true.
       - 'package.json'
@@ -39,10 +40,13 @@ jobs:
         id: filter
         with:
           filters: |
+            # The coverage summary helper feeds both service rows, so it runs both test paths.
             web:
               - 'service/vspo-schedule/v2/web/**'
+              - 'scripts/coverage-summary-row.sh'
             bot-dashboard:
               - 'service/bot-dashboard/**'
+              - 'scripts/coverage-summary-row.sh'
             packages:
               - 'packages/**'
             docs:
@@ -189,12 +193,10 @@ jobs:
         env:
           NO_COLOR: 1
         run: |
+          set -o pipefail
           cd service/vspo-schedule/v2/web
           pnpm test:coverage 2>&1 | tee /tmp/web-test-output.txt
-          FILES=$(grep "Test Files" /tmp/web-test-output.txt | tail -1 | xargs)
-          TESTS=$(grep "Tests" /tmp/web-test-output.txt | tail -1 | xargs)
-          COVERAGE=$(grep "All files" /tmp/web-test-output.txt | head -1 | awk -F'|' '{printf "Stmts:%s/ Branch:%s/ Funcs:%s/ Lines:%s", $2, $3, $4, $5}' | xargs)
-          echo "summary=${FILES} — ${TESTS} — ${COVERAGE}" >> "$GITHUB_OUTPUT"
+          echo "summary=$("$GITHUB_WORKSPACE/scripts/coverage-summary-row.sh" /tmp/web-test-output.txt coverage/coverage-summary.json)" >> "$GITHUB_OUTPUT"
 
       - name: Test bot-dashboard
         id: bot-test
@@ -202,12 +204,10 @@ jobs:
         env:
           NO_COLOR: 1
         run: |
+          set -o pipefail
           cd service/bot-dashboard
           pnpm test:coverage 2>&1 | tee /tmp/bot-test-output.txt
-          FILES=$(grep "Test Files" /tmp/bot-test-output.txt | tail -1 | xargs)
-          TESTS=$(grep "Tests" /tmp/bot-test-output.txt | tail -1 | xargs)
-          COVERAGE=$(grep "All files" /tmp/bot-test-output.txt | head -1 | awk -F'|' '{printf "Stmts:%s/ Branch:%s/ Funcs:%s/ Lines:%s", $2, $3, $4, $5}' | xargs)
-          echo "summary=${FILES} — ${TESTS} — ${COVERAGE}" >> "$GITHUB_OUTPUT"
+          echo "summary=$("$GITHUB_WORKSPACE/scripts/coverage-summary-row.sh" /tmp/bot-test-output.txt coverage/coverage-summary.json)" >> "$GITHUB_OUTPUT"
 
       - name: Upload coverage (web)
         if: always() && steps.web-test.outcome == 'success'
@@ -332,13 +332,15 @@ jobs:
             echo ""
 
             if [ -n "$WEB_SUMMARY" ] || [ -n "$BOT_SUMMARY" ]; then
-              echo "### Test Results"
+              echo "### Tests and coverage (whole \`src/\` of each service)"
               echo ""
+              echo "| Service | Tests | Statements | Branches | Functions | Lines |"
+              echo "|---------|-------|------------|----------|-----------|-------|"
               if [ -n "$WEB_SUMMARY" ]; then
-                echo "**Schedule (web):** ${WEB_SUMMARY}"
+                echo "| Schedule (web) | ${WEB_SUMMARY} |"
               fi
               if [ -n "$BOT_SUMMARY" ]; then
-                echo "**Bot Dashboard:** ${BOT_SUMMARY}"
+                echo "| Bot Dashboard | ${BOT_SUMMARY} |"
               fi
               echo ""
             fi
