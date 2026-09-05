@@ -133,7 +133,9 @@ const VspoChannelApiRepository = {
    * @param guildId - Discord guild ID
    * @returns GuildBotConfig with all registered channels marked as enabled
    * @precondition appWorker is a valid service binding with DiscordService RPC
-   * @postcondition On Ok, all channels in the result have enabled === true
+   * @postcondition On Ok from the RPC path, all channels in the result have
+   *   enabled === true. When the RPC is unavailable, the dev-mock config is
+   *   returned as stored, including channels with enabled === false.
    * @idempotent true
    */
   getGuildConfig: async (

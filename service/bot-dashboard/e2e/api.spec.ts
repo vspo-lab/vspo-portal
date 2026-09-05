@@ -10,10 +10,17 @@ test.describe("API ルート", () => {
   }) => {
     const response = await request.get(`/api/guilds/${DEV_GUILD_ID}/channels`);
     expect(response.status()).toBe(200);
-    const channels = (await response.json()) as { id: string; name: string }[];
+    const channels: unknown = await response.json();
     expect(channels).toHaveLength(6);
-    expect(channels.map((ch) => ch.name)).toEqual(
-      expect.arrayContaining(["vspo-notifications", "general", "random"]),
+    expect(channels).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "100000000000000001",
+          name: "vspo-notifications",
+        }),
+        expect.objectContaining({ id: "100000000000000005", name: "general" }),
+        expect.objectContaining({ id: "100000000000000006", name: "random" }),
+      ]),
     );
   });
 
