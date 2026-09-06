@@ -27,3 +27,11 @@ vulnerabilities:
   - id: GHSA-5c6j-r48x-rmvq
     statement: "serialize-javascript RCE via RegExp.flags. Build-time only; not present in the deployed Workers bundle."
     expired_at: 2026-11-12
+
+  - id: CVE-2025-71329
+    statement: "image-size DoS via crafted image buffer. Reached only through @storybook/nextjs (development dependency); not present in the deployed Workers bundles. No fixed version published."
+    expired_at: 2026-12-05
+
+  - id: CVE-2025-71330
+    statement: "image-size DoS via crafted ICNS buffer. Reached only through @storybook/nextjs (development dependency); not present in the deployed Workers bundles. No fixed version published."
+    expired_at: 2026-12-05

@@ -103,6 +103,28 @@ Format:
 - Follow-up: expiry date, or the issue tracking the fix
 ```
 
+### 2026-09-06 CVE-2025-71329 image-size
+
+- Outcome: [SUPPRESS]
+- Reason: `image-size@2.0.2` is a transitive dependency of `@storybook/nextjs`
+  only, a development dependency. It is not in the Workers bundle of either
+  service, so no request-derived buffer reaches it. No fixed version exists:
+  2.0.2 is the latest release on the registry.
+- Evidence: `pnpm-lock.yaml` lists `image-size` under the `@storybook/nextjs`
+  snapshot and nowhere else; the blocking Trivy job (production dependencies
+  only) reports it clean and the finding appears only in the dev-deps,
+  report-only job.
+- Follow-up: expires 2026-12-05. Re-check the registry for a fixed release
+  before any renewal.
+
+### 2026-09-06 CVE-2025-71330 image-size
+
+- Outcome: [SUPPRESS]
+- Reason: Same package and reachability as CVE-2025-71329 above (ICNS
+  buffer variant). Development dependency only; no fixed version exists.
+- Evidence: Same as CVE-2025-71329.
+- Follow-up: expires 2026-12-05.
+
 ### 2026-09-05 CVE-2026-73422 astro
 
 - Outcome: [ESCALATE]
