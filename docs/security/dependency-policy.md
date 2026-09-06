@@ -77,6 +77,8 @@ the rationale is readable alongside the rest of the security documentation.
 | CVE-2026-2229 | undici | Same as above | 2026-11-12 |
 | CVE-2026-33036 | fast-xml-parser | Entity expansion. Transitive dependency; the application never calls the XML parser | 2026-11-12 |
 | GHSA-5c6j-r48x-rmvq | serialize-javascript | RCE via `RegExp.flags`. Build-time only; absent from the deployed Workers bundle | 2026-11-12 |
+| CVE-2025-71329 | image-size | DoS via crafted image buffer. Reached only through `@storybook/nextjs`, a development dependency; absent from the Workers bundles. No fixed version | 2026-12-05 |
+| CVE-2025-71330 | image-size | Same as above (ICNS buffer variant) | 2026-12-05 |
 
 ## Version Pins
 
