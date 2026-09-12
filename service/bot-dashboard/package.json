@@ -45,7 +45,7 @@
     "@types/react-dom": "^19.2.4",
     "@vitest/coverage-v8": "^4.1.10",
     "happy-dom": "^20.11.1",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.4",
     "storybook": "^10.5.7",
     "tailwindcss": "^4.3.3",
     "tslib": "^2.8.1",
