@@ -39,9 +39,11 @@ catalogs:
 
 overrides:
   browserslist@>=4.0.0 <4.28.7: 4.28.7
+  js-yaml@>=3.0.0 <3.15.2: 3.15.2
   js-yaml@>=4.0.0 <4.3.1: 4.3.2
   minimatch@>=8.0.0 <10.0.0: 10.2.5
   sharp@<0.35.4: 0.35.4
+  smol-toml@<1.7.1: 1.7.1
   vite@>=7.0.0 <7.3.5: 7.3.6
 
 importers:
@@ -6798,8 +6800,8 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@3.15.1:
-    resolution: {integrity: sha512-S99WuO3HlhO3XN41EtYUNl9zzXjoJx7QvmipxsJVxtCBT0YHEFy+iOJhjSvrmV12nYhWpZaM8lPHkJm0yUMbag==}
+  js-yaml@3.15.2:
+    resolution: {integrity: sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w==}
     hasBin: true
 
   js-yaml@4.3.2:
@@ -8601,10 +8603,6 @@ packages:
 
   slide@1.1.6:
     resolution: {integrity: sha512-NwrtjCg+lZoqhFU8fOwl4ay2ei8PaqCBOUV3/ektPY9trO1yQ1oXEfmHAhKArUVUr/hOHvy5f6AdP17dCM0zMw==}
-
-  smol-toml@1.7.0:
-    resolution: {integrity: sha512-aqVvWoyO21L23mb+drl4RmMXbf6N7FdHjAhTRA9ZBL7apWBgfWC16KjrASI+1p9GAroljyMHj6fK67i0UiTNvQ==}
-    engines: {node: '>= 18'}
 
   smol-toml@1.7.1:
     resolution: {integrity: sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ+UyVFoQ==}
@@ -17055,7 +17053,7 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@3.15.1:
+  js-yaml@3.15.2:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
@@ -17388,7 +17386,7 @@ snapshots:
       markdownlint: 0.41.1
       markdownlint-cli2-formatter-default: 0.0.6(markdownlint-cli2@0.23.2)
       micromatch: 4.0.8
-      smol-toml: 1.7.0
+      smol-toml: 1.7.1
     transitivePeerDependencies:
       - supports-color
 
@@ -18655,7 +18653,7 @@ snapshots:
     dependencies:
       commandpost: 1.4.0
       diff: 4.0.4
-      js-yaml: 3.15.1
+      js-yaml: 3.15.2
 
   prismjs@1.30.0: {}
 
@@ -19417,8 +19415,6 @@ snapshots:
       is-fullwidth-code-point: 3.0.0
 
   slide@1.1.6: {}
-
-  smol-toml@1.7.0: {}
 
   smol-toml@1.7.1: {}
 
