@@ -387,9 +387,10 @@ The `test` job runs per-service coverage and uploads results to Codecov:
 2. Run `pnpm --filter vspo-schedule-v2-web test:coverage`
 3. Run `pnpm --filter bot-dashboard test:coverage`
 4. Upload `coverage-final.json` to Codecov with separate flags (`web`, `bot-dashboard`)
-5. Post a PR summary comment via `peter-evans/create-or-update-comment`
+5. Build one table row per service from `coverage/coverage-summary.json` with `scripts/coverage-summary-row.sh`
+6. Post a PR summary comment via `peter-evans/create-or-update-comment` with a per-service table (tests, statements, branches, functions, lines)
 
-Coverage configuration is in `codecov.yml` at the repository root, with `flags` mapping to each service's `src/` directory.
+Each service's `vitest.config.ts` measures its whole `src/` (excluding tests, stories, type declarations and `index.ts` barrels; bot-dashboard also excludes `src/pages/**`, which the Playwright suite covers). Coverage configuration for Codecov is in `codecov.yml` at the repository root, with `flags` mapping to each service's `src/` directory.
 
 ---
 

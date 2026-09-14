@@ -1,6 +1,6 @@
 # E2E Testing Implementation Guidelines
 
-> **Status:** Not yet implemented. Playwright is not installed. This document describes the target architecture.
+> **Status:** Implemented for `service/bot-dashboard` and `service/vspo-schedule/v2/web` (Playwright).
 
 ## Purpose
 
@@ -16,7 +16,7 @@
 
 1. Use Playwright Locators and Web-first assertions
 2. Keep tests mutually independent (no shared state)
-3. Reuse authentication via `storageState` and avoid duplicating login operations
+3. Reuse authentication via `storageState` when the session lives in the browser (cookies, storage); apps with server-side sessions, such as bot-dashboard, mock the login at the boundary instead
 4. Prepare test data via API to minimize UI operation prerequisites
 
 ## Mocking Policy
@@ -68,11 +68,74 @@ test("Entire item creation flow", async ({ page }) => {
 - Write test names as business scenarios (e.g., "A new order can be created")
 - Maintain a lean set of key scenarios and complement coverage with Unit/Integration/API tests
 
-## Recommended File Structure
+## bot-dashboard
 
-- `service/vspo-schedule/v2/web/e2e/auth.setup.ts`
-- `service/vspo-schedule/v2/web/e2e/*.spec.ts`
-- `service/vspo-schedule/v2/web/playwright.config.ts`
+### Layout
+
+- `service/bot-dashboard/playwright.config.ts` - config, including the `webServer` that boots `astro dev`
+- `service/bot-dashboard/astro.config.e2e.ts` - the app config with the dev toolbar disabled
+- `service/bot-dashboard/e2e/helpers.ts` - guild ids, island hydration wait, shared locators
+- `service/bot-dashboard/e2e/*.spec.ts` - one file per screen or concern: `landing`, `auth`, `dashboard`, `guild-channels`, `announcements`, `api`
+
+### Running
+
+```bash
+cd service/bot-dashboard
+pnpm exec playwright install chromium   # once
+pnpm test:e2e
+pnpm test:e2e:ui                        # interactive
+```
+
+`pnpm test:e2e` starts the dev server on port 4341 by itself. A server that is already listening there is reused only with `PLAYWRIGHT_REUSE_SERVER=1`, because its in-memory channel store may have drifted from the seed. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` points the run at a preinstalled Chromium when the browser download is unavailable.
+
+### Where the external boundary is
+
+The dashboard has two external dependencies: Discord OAuth and the `APP_WORKER` service binding (the `vspo-portal-app` Worker, which lives in another repository). Both are replaced by the dev mock the app already ships (`src/features/shared/dev-mock.ts`, active when `astro dev` runs with `DEV_MOCK_AUTH=true`). Everything in this repository runs for real: Astro pages, middleware, session storage, Astro Actions, API routes, React islands.
+
+Consequences to keep in mind:
+
+- The mock user is always logged in, so the landing page is reached with `/?preview` and the OAuth flow is exercised at the HTTP level (`/auth/discord` redirect, `/auth/callback` state and code handling) rather than by following Discord's redirect.
+- The mock middleware skips the guild-admin guard and token refresh, so those branches are not covered here. They are the middleware's job and belong in unit tests.
+- Channel mutations are persisted in a process-wide in-memory store inside the dev mock, and only while `astro dev` runs with the mock enabled; without the mock, mutations still fail when `APP_WORKER` is unavailable. Tests therefore run with one worker, and every mutation test arranges the state it needs and restores the seed before it ends, so a single test can be run with `--grep`.
+- `storageState` is deliberately not used: sessions are server-side, so sharing a cookie between tests would leak the locale one test set into the next. Each test gets a fresh context and therefore a fresh session.
+
+### CI
+
+`.github/workflows/pr-check.yaml` runs the suite in the `e2e-bot-dashboard` job whenever `service/bot-dashboard/**`, `packages/**` or the root manifests change. The HTML report is uploaded as an artifact on failure, and the result appears in the PR Check Summary comment.
+
+## vspo-schedule web
+
+### Layout
+
+- `service/vspo-schedule/v2/web/playwright.config.ts` - config, including the `webServer` that runs `next start`
+- `service/vspo-schedule/v2/web/e2e/helpers.ts` - mock stream constants, drawer / modal / search-dialog helpers
+- `service/vspo-schedule/v2/web/e2e/*.spec.ts` - one file per screen or concern: `layout`, `schedule`, `clips`, `multiview`, `content`, `http`
+
+### Running
+
+```bash
+cd service/vspo-schedule/v2/web
+pnpm exec playwright install chromium   # once
+pnpm test:e2e                           # next build + playwright test
+pnpm test:e2e:ui                        # interactive, expects a built app
+```
+
+The suite runs against a production build (`next start` on port 4010) rather than `next dev`: the dev overlay intercepts pointer events and per-route compilation makes timings unreliable. Locally a server already listening on 4010 is reused; in CI (`CI=1`) a fresh one is started. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` points the run at a preinstalled Chromium when the browser download is unavailable.
+
+### Where the external boundary is
+
+The only external dependency is the VSPO API. The `webServer` sets `ENV=local`, which makes `@vspo-lab/api` return its bundled mock data (`packages/api/src/mock`) instead of calling the API, so streams, clips, events and freechats are fixed. Everything in this repository runs for real: Next.js routing and redirects, `next-intl`, middleware cookies (time zone, session id), server components, MUI client components.
+
+Consequences to keep in mind:
+
+- The mock ignores request parameters, so date navigation, tabs and search are asserted through the URL and through client-side filtering, not through a different data set.
+- Stream times are asserted in `Asia/Tokyo` (the browser time zone fixed in the config); the time-zone test switches to `America/New_York` and expects the converted time.
+- Adding a stream by URL in multiview uses a Twitcasting URL because YouTube and Twitch URLs trigger an oEmbed request to the platform.
+- The navigation drawer is rendered with `disablePortal`, so MUI marks its ancestor `aria-hidden` while it is open. Locators inside the drawer use `includeHidden: true` until that is fixed in the app.
+
+### CI
+
+`.github/workflows/pr-check.yaml` runs the suite in the `e2e-web` job whenever `service/vspo-schedule/v2/web/**`, `packages/**` or the root manifests change. The HTML report is uploaded as an artifact on failure, and the result appears in the PR Check Summary comment.
 
 ## References (Primary Sources)
 

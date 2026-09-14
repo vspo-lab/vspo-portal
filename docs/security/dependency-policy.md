@@ -14,7 +14,7 @@ over time.
 | Who may merge | `dep-auto-merge.yaml` only. Renovate automerge is disabled everywhere |
 | Who may approve | The maintainer, or the `dep-triage` skill acting on their behalf, having read the diff |
 | Merge without review | Never. There is no approval-free path |
-| Never auto-approved | `major`, `high-risk`, and anything the triage run repaired itself |
+| Never auto-approved | `major`, `high-risk`, and (in the same run) a repair that changed more than manifests and the lockfile |
 | Blocking scan | Trivy, production dependencies only, CRITICAL and HIGH |
 | Non-blocking scan | Trivy with `--include-dev-deps`, report only |
 | Suppression | Requires `statement` and `expired_at`, maximum 90 days |
@@ -77,6 +77,8 @@ the rationale is readable alongside the rest of the security documentation.
 | CVE-2026-2229 | undici | Same as above | 2026-11-12 |
 | CVE-2026-33036 | fast-xml-parser | Entity expansion. Transitive dependency; the application never calls the XML parser | 2026-11-12 |
 | GHSA-5c6j-r48x-rmvq | serialize-javascript | RCE via `RegExp.flags`. Build-time only; absent from the deployed Workers bundle | 2026-11-12 |
+| CVE-2025-71329 | image-size | DoS via crafted image buffer. Reached only through `@storybook/nextjs`, a development dependency; absent from the Workers bundles. No fixed version | 2026-12-05 |
+| CVE-2025-71330 | image-size | Same as above (ICNS buffer variant) | 2026-12-05 |
 
 ## Version Pins
 
@@ -102,6 +104,43 @@ Format:
 - Evidence: what was checked, such as a search for the vulnerable API
 - Follow-up: expiry date, or the issue tracking the fix
 ```
+
+### 2026-09-06 CVE-2025-71329 image-size
+
+- Outcome: [SUPPRESS]
+- Reason: `image-size@2.0.2` is a transitive dependency of `@storybook/nextjs`
+  only, a development dependency. It is not in the Workers bundle of either
+  service, so no request-derived buffer reaches it. No fixed version exists:
+  2.0.2 is the latest release on the registry.
+- Evidence: `pnpm-lock.yaml` lists `image-size` under the `@storybook/nextjs`
+  snapshot and nowhere else; the blocking Trivy job (production dependencies
+  only) reports it clean and the finding appears only in the dev-deps,
+  report-only job.
+- Follow-up: expires 2026-12-05. Re-check the registry for a fixed release
+  before any renewal.
+
+### 2026-09-06 CVE-2025-71330 image-size
+
+- Outcome: [SUPPRESS]
+- Reason: Same package and reachability as CVE-2025-71329 above (ICNS
+  buffer variant). Development dependency only; no fixed version exists.
+- Evidence: Same as CVE-2025-71329.
+- Follow-up: expires 2026-12-05.
+
+### 2026-09-05 CVE-2026-73422 astro
+
+- Outcome: [ESCALATE]
+- Reason: The fix is `astro@7.1.0`, a major. `service/bot-dashboard` also needs
+  `@astrojs/cloudflare` 14 and `@astrojs/react` 6 (and the `wrangler` catalog at
+  `^4.125.0`) before `astro build` succeeds on Astro 7, so this is a migration,
+  not a repair. The vulnerable path (attacker-controlled View Transition
+  animation properties) is not reachable: the service uses `ClientRouter` only,
+  with no `transition:animate` and no request-derived animation values.
+- Evidence: `pnpm build` on `renovate/npm-astro-vulnerability` fails in the
+  Cloudflare adapter's build runner (`Missing field moduleType`); search of
+  `service/bot-dashboard/src` for `transition:animate` and `astro:transitions`.
+- Follow-up: #1152 tracks the migration; #1142 is labelled
+  `awaiting-maintainer-review`.
 
 ### 2026-08-14 Migration from .trivyignore
 

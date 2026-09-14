@@ -8,18 +8,17 @@ export default getViteConfig(
       include: ["src/**/*.test.{ts,tsx}"],
       coverage: {
         provider: "v8",
-        reporter: ["text", "json", "html"],
-        include: [
-          "src/features/**/*.ts",
-          "src/features/**/*.tsx",
-          "src/components/**/*.astro",
-        ],
+        reporter: ["text", "json", "json-summary", "html"],
+        include: ["src/**/*.{ts,tsx,astro}"],
         exclude: [
           "src/**/*.test.{ts,tsx}",
+          "src/**/*.stories.{ts,tsx}",
           "src/**/index.ts",
-          "src/features/auth/repository/**",
-          "src/features/channel/repository/**",
-          "src/features/guild/repository/**",
+          "src/**/*.d.ts",
+          "src/types/**",
+          "src/test-utils/**",
+          // Route files are covered by the Playwright suite; v8 cannot remap every .astro page.
+          "src/pages/**",
         ],
       },
       clearMocks: true,

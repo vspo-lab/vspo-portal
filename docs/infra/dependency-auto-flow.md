@@ -83,7 +83,8 @@ approval is what makes a merge deliberate.
 The approval comes from the maintainer, or from the daily `dep-triage` run acting
 on their behalf after reading the diff. What that run may and may not approve is
 set out in `.agent/skills/dep-triage/SKILL.md`; in short, it never approves a
-`major`, anything labelled `high-risk`, or a branch it repaired itself.
+`major`, anything labelled `high-risk`, or, in the same run, a repair that
+changed more than the manifests and the lockfile.
 
 - An approval on a superseded commit is stale: the approver never saw what would
   actually be merged
@@ -196,10 +197,21 @@ can also be run by hand with `/dep-triage`.
 
 Steps: collect open dependency PRs, repair red CI, triage security findings, prune
 stale `pnpm.overrides` pins, refresh the release PR, and post one summary comment
-per run.
+per run on the `dep-triage run log` issue (#1151), so every run is auditable
+without opening the routine's session.
 
-Repairs are capped at two attempts per PR; a third failure is escalated and the PR
-is labelled `needs-human`.
+Repairs are capped at two attempts per PR. Anything the routine may not decide
+(a `major`, a `high-risk` update, a failure that needs an application change, a
+third repair attempt) is escalated once: an English comment on the PR with the
+reproduced failure, the release-notes assessment and the decision required, plus
+the label `awaiting-maintainer-review`. The label is for a person; the merge gate
+does not read it.
+
+After a repair push Renovate stops rebasing the branch, so the routine keeps it
+mergeable itself: it waits for the checks on the new head and approves in the
+same run when the diff against `develop` is still only manifests plus lockfile,
+and merges `develop` in when the branch falls behind. Leaving a repaired PR to
+the next day is what left #1138 and #1148 green and unmerged.
 
 ### Permission boundary
 
@@ -212,8 +224,10 @@ It may not merge anything, or edit labels to change a gate's outcome. Merging
 belongs to `dep-auto-merge.yaml`.
 
 Approval is bounded rather than open: never a `major`, never anything labelled
-`high-risk`, and never a branch the same run repaired, since a diff the routine
-wrote is not a diff it reviewed. The full conditions are in
+`high-risk`, and never, in the same run, a repair that changed application
+source, tests or config, since a diff the routine wrote is not a diff it
+reviewed. A merge of `develop` or a lockfile regeneration leaves Renovate's diff
+intact and may be approved once its checks are green. The full conditions are in
 `.agent/skills/dep-triage/SKILL.md`, which is the operative text; this is a
 summary of it.
 
