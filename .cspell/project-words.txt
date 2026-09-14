@@ -117,6 +117,7 @@ shiki
 Shinomiya
 signin
 signup
+smol
 snowflake
 spodule
 squoosh
