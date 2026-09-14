@@ -73,12 +73,45 @@ def api(repo: str, path: str):
         return json.load(response)
 
 
+# GitHub returns at most 100 items per page and only 30 by default. A commit
+# that has been re-checked many times (the release PR collects one run of
+# dep-auto-merge every 15 minutes) can carry more check runs than one page, and
+# a failure that has scrolled past the page boundary would then look like a
+# pass. Every list this gate reads is therefore fetched to its end.
+PAGE_SIZE = 100
+
+
+def api_all(repo: str, path: str, key: str | None = None) -> list:
+    """Fetch every page of a paginated GitHub REST list.
+
+    Preconditions:
+        - `path` carries no `page` or `per_page` query parameter; both are added
+          here. It may carry other parameters.
+        - `key` names the array inside an object response (`check_runs`), or is
+          None when the endpoint returns a bare array (`reviews`).
+    Postconditions:
+        - Returns the concatenation of every page, in API order. Raises
+          urllib.error.URLError like `api` when any page fails.
+    Idempotency:
+        - Pure read.
+    """
+    joiner = "&" if "?" in path else "?"
+    items, page = [], 1
+    while True:
+        payload = api(repo, f"{path}{joiner}per_page={PAGE_SIZE}&page={page}")
+        batch = payload[key] if key else payload
+        items.extend(batch)
+        if len(batch) < PAGE_SIZE:
+            return items
+        page += 1
+
+
 def evaluate(repo: str, pr: dict) -> dict:
     """Decide whether one pull request may be merged."""
     number = pr["number"]
     head = pr["head"]["sha"]
 
-    reviews = api(repo, f"/pulls/{number}/reviews?per_page=100")
+    reviews = api_all(repo, f"/pulls/{number}/reviews")
     # An approval on a superseded commit is stale: the approver never saw what
     # would actually be merged.
     approvals = [
@@ -88,7 +121,7 @@ def evaluate(repo: str, pr: dict) -> dict:
 
     runs = [
         c
-        for c in api(repo, f"/commits/{head}/check-runs")["check_runs"]
+        for c in api_all(repo, f"/commits/{head}/check-runs", "check_runs")
         if str(c.get("check_suite", {}).get("id")) != SELF_CHECK_SUITE_ID
     ]
     pending = [c["name"] for c in runs if c["status"] != "completed"]
@@ -140,7 +173,7 @@ def main() -> int:
 
     for repo in repos:
         try:
-            pulls = api(repo, "/pulls?state=open&per_page=50")
+            pulls = api_all(repo, "/pulls?state=open")
         except urllib.error.URLError as exc:
             failures.append(f"{repo}: {exc}")
             continue
