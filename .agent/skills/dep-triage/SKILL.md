@@ -109,10 +109,15 @@ it. The version-move condition is what separates the two.
 ### What you do not approve
 
 - Anything labelled `major` or `high-risk`. `high-risk` marks a major of a core
-  framework, so both mean the same thing: behaviour can change. Report them and
-  let the maintainer decide
-- Anything you repaired in this same run. A diff you wrote is not a diff you
-  reviewed independently
+  framework, so both mean the same thing: behaviour can change. Escalate them
+  (below) so the maintainer decides with the release notes in front of them
+- A repair that touched anything beyond a manifest or the lockfile, in the run
+  that wrote it. A merge of `develop`, a lockfile regeneration or a re-run leaves
+  the PR's diff against `develop` exactly what Renovate proposed, so review that
+  diff (`git diff origin/develop...HEAD --stat` must list only manifests and
+  `pnpm-lock.yaml`) and approve in the same run once the checks on the new head
+  are green. A repair that changed application source, tests or config waits
+  for the next run, which reviews it fresh
 - Anything you do not understand. A green check suite is a necessary condition,
   never a sufficient one, and never a substitute for reading the change
 
@@ -130,8 +135,37 @@ it. The version-move condition is what separates the two.
 If a check fails identically on the base branch, that is a base-branch defect.
 Escalate it; it is not a licence to merge past a red check.
 
-Everything left unapproved is reported in Step 6 with the reason, so the
-maintainer sees exactly what is waiting and why.
+### After approving
+
+Approval alone does not merge. `dep-auto-merge.yaml` runs on the review event
+and every 15 minutes, but do not leave the outcome to the schedule: dispatch the
+workflow (`workflow_dispatch` on `dep-auto-merge.yaml`, ref `develop`), wait for
+the run to finish, then re-run the evaluator and confirm the PR is gone or
+`MERGE`. A PR that is approved, green and still open at the end of the run is a
+finding to report, not a normal state.
+
+Everything left unapproved is either escalated (below) or reported in Step 6
+with the reason, so the maintainer sees exactly what is waiting and why.
+
+### Escalating to the maintainer
+
+Some PRs are not yours to decide: a `major`, anything labelled `high-risk`, a
+failure that needs an application change, or a third repair attempt. Do not
+leave those as a line in the report. Escalate each one exactly once:
+
+- Post **one comment on the PR, in English**, stating: which check fails and
+  the reproduced error, what you tried, the release-notes assessment (breaking
+  changes relevant to how the package is used here, quoted, not paraphrased into
+  "may have changes"), the security context if the PR is a vulnerability fix,
+  and the concrete decision the maintainer has to make
+- Add the label `awaiting-maintainer-review`. Create it if it is missing
+- Do not comment again on later runs while the label is present and the head
+  commit is unchanged. A new head (Renovate rebase, a maintainer push) means a
+  fresh evaluation: re-run the checks above, and remove the label only when the
+  PR has become approvable under Step 2a
+
+The label is a signal to a person, never an input to the merge gate. Nothing in
+`scripts/dep-triage-report.py` reads it.
 
 ## Step 2: Repair failures
 
@@ -188,11 +222,26 @@ against a cached older Renovate.
 
 Verify locally with `./scripts/post-edit-check.sh` for `vspo-portal`, or
 `scripts/check-preset-references.sh` plus `renovate-config-validator` for
-`config`, before pushing. Do not wait for CI afterwards: the PR is re-evaluated
-against Step 2a on the next run, once the checks have settled.
+`config`, before pushing. Then wait for the checks on the new head and finish
+Step 2a in the same run, as described under "After a repair push" below.
 
-Cap repairs at **two attempts per PR**. On a third failure, stop, label the PR
-`needs-human`, and escalate.
+Cap repairs at **two attempts per PR**. On a third failure, stop and escalate as
+described in Step 2a: one comment, and the label `awaiting-maintainer-review`.
+
+### After a repair push
+
+The first commit from a non-Renovate author makes Renovate stop rebasing the
+branch ("Edited/Blocked"). From then on the branch is yours to keep mergeable:
+
+- Wait for the checks on the new head to finish (poll the check runs, up to 20
+  minutes) and continue with Step 2a in the **same run**. A repaired PR left for
+  the next day sits green and unmerged while `develop` moves on, which is how
+  #1138 and #1148 stalled
+- When the branch falls behind `develop` and a check depends on state that
+  `develop` has since fixed, merge `develop` into the branch. Never rebase or
+  force-push a Renovate branch
+- If the repair leaves the diff against `develop` wider than manifests plus
+  lockfile, say so in the report; the next run reviews it
 
 ## Step 3: Security triage
 
@@ -239,8 +288,15 @@ rather than writing one by hand.
 
 ## Step 6: Report
 
-Post one summary comment for the whole run covering merged, repaired, escalated,
-suppressed, and awaiting-human items. One comment per run, never one per PR.
+Post one summary comment for the whole run on the run-log issue
+(`dep-triage run log`, vspo-lab/vspo-portal#1151). If it has been closed, an
+`apply` run recreates it with that title; a `report` run creates no issues, so
+it comments on the closed issue when that is possible and otherwise states in
+its output that an `apply` run must recreate the log. Cover: which GitHub tools the run had, approved (with the
+one-line reason), merged, repaired or re-run, escalated (PR link plus reason),
+security findings and their outcome, and anything the maintainer must do. One
+comment per run, never one per PR, and never edit an earlier run's comment. A
+run with nothing to do posts one sentence.
 
 # Permission Boundary
 
@@ -254,11 +310,17 @@ Allowed:
 - Push repair commits to `renovate/**` branches
 - Edit `.trivyignore.yaml`, `pnpm.overrides`, `docs/security/dependency-policy.md`
 - Create or update the `develop -> main` PR, open issues, comment
+- Add or remove `awaiting-maintainer-review`, and post the escalation comment
+  that goes with it
+- Dispatch `dep-auto-merge.yaml` after approving, so the merge happens in this
+  run rather than on the next schedule tick
 
 Never:
 
-- Merge any pull request. That is the workflow's job, not yours
-- Approve without reading the diff, or approve a PR you repaired in this run
+- Merge any pull request directly. That is the workflow's job, not yours; you
+  may only dispatch it
+- Approve without reading the diff, or approve, in the same run, a repair that
+  changed anything beyond manifests and `pnpm-lock.yaml`
 - Approve anything labelled `major` or `high-risk`
 - Re-run a failed job without first reading the log and establishing an external
   cause

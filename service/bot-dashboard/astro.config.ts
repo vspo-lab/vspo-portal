@@ -54,6 +54,8 @@ export default defineConfig({
     },
   ],
   site: "https://discord.vspo-schedule.com",
+  // Astro 7 defaults to "jsx", which drops spaces around inline elements (e.g. the hero heading). Keep the 6.x output.
+  compressHTML: true,
   output: "server",
   trailingSlash: "never",
   security: {

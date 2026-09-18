@@ -9,6 +9,7 @@ on:
       - 'docs/**'
       - 'README.md'
       - '.github/workflows/pr-check.yaml'
+      - 'scripts/coverage-summary-row.sh'
       # Root manifests: without these, a lockfile-only dependency PR would run no
       # checks at all and "every check green" would be vacuously true.
       - 'package.json'
@@ -39,10 +40,13 @@ jobs:
         id: filter
         with:
           filters: |
+            # The coverage summary helper feeds both service rows, so it runs both test paths.
             web:
               - 'service/vspo-schedule/v2/web/**'
+              - 'scripts/coverage-summary-row.sh'
             bot-dashboard:
               - 'service/bot-dashboard/**'
+              - 'scripts/coverage-summary-row.sh'
             packages:
               - 'packages/**'
             docs:
@@ -189,12 +193,10 @@ jobs:
         env:
           NO_COLOR: 1
         run: |
+          set -o pipefail
           cd service/vspo-schedule/v2/web
           pnpm test:coverage 2>&1 | tee /tmp/web-test-output.txt
-          FILES=$(grep "Test Files" /tmp/web-test-output.txt | tail -1 | xargs)
-          TESTS=$(grep "Tests" /tmp/web-test-output.txt | tail -1 | xargs)
-          COVERAGE=$(grep "All files" /tmp/web-test-output.txt | head -1 | awk -F'|' '{printf "Stmts:%s/ Branch:%s/ Funcs:%s/ Lines:%s", $2, $3, $4, $5}' | xargs)
-          echo "summary=${FILES} — ${TESTS} — ${COVERAGE}" >> "$GITHUB_OUTPUT"
+          echo "summary=$("$GITHUB_WORKSPACE/scripts/coverage-summary-row.sh" /tmp/web-test-output.txt coverage/coverage-summary.json)" >> "$GITHUB_OUTPUT"
 
       - name: Test bot-dashboard
         id: bot-test
@@ -202,12 +204,10 @@ jobs:
         env:
           NO_COLOR: 1
         run: |
+          set -o pipefail
           cd service/bot-dashboard
           pnpm test:coverage 2>&1 | tee /tmp/bot-test-output.txt
-          FILES=$(grep "Test Files" /tmp/bot-test-output.txt | tail -1 | xargs)
-          TESTS=$(grep "Tests" /tmp/bot-test-output.txt | tail -1 | xargs)
-          COVERAGE=$(grep "All files" /tmp/bot-test-output.txt | head -1 | awk -F'|' '{printf "Stmts:%s/ Branch:%s/ Funcs:%s/ Lines:%s", $2, $3, $4, $5}' | xargs)
-          echo "summary=${FILES} — ${TESTS} — ${COVERAGE}" >> "$GITHUB_OUTPUT"
+          echo "summary=$("$GITHUB_WORKSPACE/scripts/coverage-summary-row.sh" /tmp/bot-test-output.txt coverage/coverage-summary.json)" >> "$GITHUB_OUTPUT"
 
       - name: Upload coverage (web)
         if: always() && steps.web-test.outcome == 'success'
@@ -226,9 +226,64 @@ jobs:
           flags: bot-dashboard
           fail_ci_if_error: false
 
+  e2e-bot-dashboard:
+    needs: changes
+    if: needs.changes.outputs['bot-dashboard'] == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+      - name: Build package dependencies
+        run: pnpm --filter "@vspo-lab/*" build
+      - name: Install Playwright browser
+        run: pnpm --filter bot-dashboard exec playwright install --with-deps chromium
+      - name: Run Playwright
+        run: pnpm --filter bot-dashboard test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-bot-dashboard
+          path: service/bot-dashboard/playwright-report
+          retention-days: 7
+
+  e2e-web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PNPM
+        uses: ./.github/actions/setup-pnpm
+        with:
+          build: 'false'
+      - name: Build package dependencies
+        run: pnpm --filter "@vspo-lab/*" build
+      - name: Install Playwright browser
+        run: pnpm --filter vspo-schedule-v2-web exec playwright install --with-deps chromium
+      - name: Run Playwright
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+        run: pnpm --filter vspo-schedule-v2-web test:e2e
+      - name: Show page snapshots of failed tests
+        if: failure()
+        run: find service/vspo-schedule/v2/web/test-results -name error-context.md -exec sh -c 'echo "=== $1"; cat "$1"' _ {} \;
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-web
+          path: service/vspo-schedule/v2/web/playwright-report
+          retention-days: 7
+
   # Post a summary comment on the PR with all check results
   pr-summary:
-    needs: [changes, biome-check, typescript-check, knip-check, textlint-check, markdownlint-check, cspell-check, bundle-size, test]
+    needs: [changes, biome-check, typescript-check, knip-check, textlint-check, markdownlint-check, cspell-check, bundle-size, test, e2e-bot-dashboard, e2e-web]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -244,6 +299,8 @@ jobs:
           CSPELL: ${{ needs.cspell-check.result }}
           BUNDLE: ${{ needs.bundle-size.result }}
           TEST: ${{ needs.test.result }}
+          E2E_BOT: ${{ needs.e2e-bot-dashboard.result }}
+          E2E_WEB: ${{ needs.e2e-web.result }}
           WEB_SUMMARY: ${{ needs.test.outputs.web-summary }}
           BOT_SUMMARY: ${{ needs.test.outputs.bot-summary }}
         run: |
@@ -270,16 +327,20 @@ jobs:
             echo "| CSpell | $(icon "$CSPELL") ${CSPELL} |"
             echo "| Bundle Size | $(icon "$BUNDLE") ${BUNDLE} |"
             echo "| Tests | $(icon "$TEST") ${TEST} |"
+            echo "| E2E (bot-dashboard) | $(icon "$E2E_BOT") ${E2E_BOT} |"
+            echo "| E2E (web) | $(icon "$E2E_WEB") ${E2E_WEB} |"
             echo ""
 
             if [ -n "$WEB_SUMMARY" ] || [ -n "$BOT_SUMMARY" ]; then
-              echo "### Test Results"
+              echo "### Tests and coverage (whole \`src/\` of each service)"
               echo ""
+              echo "| Service | Tests | Statements | Branches | Functions | Lines |"
+              echo "|---------|-------|------------|----------|-----------|-------|"
               if [ -n "$WEB_SUMMARY" ]; then
-                echo "**Schedule (web):** ${WEB_SUMMARY}"
+                echo "| Schedule (web) | ${WEB_SUMMARY} |"
               fi
               if [ -n "$BOT_SUMMARY" ]; then
-                echo "**Bot Dashboard:** ${BOT_SUMMARY}"
+                echo "| Bot Dashboard | ${BOT_SUMMARY} |"
               fi
               echo ""
             fi
