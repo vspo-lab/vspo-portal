@@ -12,7 +12,7 @@ catalog:
   '@cloudflare/workers-types': ^4.20260702.1
   '@types/node': ^25.9.5
   dayjs: ^1.11.21
-  next: 16.3.3
+  next: 16.3.6
   react: ^19.2.8
   react-dom: ^19.2.8
   tsup: ^8.5.1
@@ -51,5 +51,7 @@ minimumReleaseAgeExclude:
   - 'ws'
   # Renovate security update: pnpm@10.34.5
   - pnpm@10.34.5
+  # Renovate security update: next@16.3.6
+  - next@16.3.6
 
 sharedWorkspaceLockfile: true
