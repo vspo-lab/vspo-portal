@@ -76,7 +76,10 @@ const transformLivestreamsToDomain = (
 };
 
 /**
- * Fetch livestreams from the API
+ * Fetch livestreams without requesting unused RPC pagination counts.
+ * @precondition Date parameters and timezone describe the requested display window.
+ * @postcondition Returns displayable streams with the existing filters and ordering.
+ * @idempotent Yes - read-only data fetching.
  */
 export const fetchLivestreams = async (
   params: FetchLivestreamsParams,
@@ -117,6 +120,7 @@ export const fetchLivestreams = async (
         platform?: string;
         startDateFrom?: Date;
         startDateTo?: Date;
+        skipCount: boolean;
       } = {
         limit: params.limit,
         page: 0,
@@ -125,6 +129,7 @@ export const fetchLivestreams = async (
         languageCode: lang,
         memberType: params.memberType || "vspo_all",
         platform: params.platform,
+        skipCount: true,
       };
 
       if (params.status === "all") {
