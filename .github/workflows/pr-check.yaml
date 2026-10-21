@@ -34,6 +34,7 @@ jobs:
       docs: ${{ steps.filter.outputs.docs }}
       code: ${{ steps.filter.outputs.code }}
       deps: ${{ steps.filter.outputs.deps }}
+      ci: ${{ steps.filter.outputs.ci }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4
@@ -68,6 +69,9 @@ jobs:
               - '**/package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
+            # Run Knip when changing its CI wiring, even without source changes.
+            ci:
+              - '.github/workflows/pr-check.yaml'
 
   biome-check:
     needs: changes
@@ -95,13 +99,17 @@ jobs:
 
   knip-check:
     needs: changes
-    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true'
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.packages == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - name: Setup PNPM
         uses: ./.github/actions/setup-pnpm
+        with:
+          # Knip analyzes source/config, not compiled app bundles. Building all
+          # services here triggered intermittent Google Fonts downloads in Astro.
+          build: 'false'
       - name: Knip Check
         run: pnpm knip
 
