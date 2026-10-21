@@ -93,6 +93,18 @@ test suites, and are never bundled with an unrelated change.
 
 ## Decision Log
 
+### 2026-10-21 Blocking Trivy security remediation
+
+- Fixable production findings are handled by the narrowly scoped root overrides
+  for `brace-expansion`, `devalue`, `fast-uri`, `proxy-addr`, `sharp`,
+  `source-map-js`, and `undici`, plus the `next` catalog update.
+- `vitest` and its coverage provider are updated together for the mocker
+  advisory; `js-yaml` 5.x is updated within the same major only.
+- The older `js-yaml` 3.x/4.x overrides remain in place because forcing their
+  consumers onto 5.x changes the library's API. The separate Renovate proposals
+  (#1167/#1168) require compatibility testing before merge.
+
+
 Append new entries at the top. One entry per `[SUPPRESS]` or `[ESCALATE]`.
 
 Format:
