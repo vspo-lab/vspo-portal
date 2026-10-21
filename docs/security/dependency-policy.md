@@ -72,6 +72,7 @@ the rationale is readable alongside the rest of the security documentation.
 
 | Advisory | Package | Reason | Expires |
 |----------|---------|--------|---------|
+| CVE-2026-93748 | http-cache-semantics | Astro transitive dependency; dashboard config has no route cache provider and code has no Astro.cache calls, so the vulnerable shared-response cache path is unused. No fix published | 2026-12-20 |
 | CVE-2026-1526 | undici | DoS via WebSocket. Development dependency only; the Workers runtime uses the platform fetch implementation | 2026-11-12 |
 | CVE-2026-1528 | undici | Same as above | 2026-11-12 |
 | CVE-2026-2229 | undici | Same as above | 2026-11-12 |
@@ -92,6 +93,17 @@ test suites, and are never bundled with an unrelated change.
 
 ## Decision Log
 
+### 2026-10-21 Blocking Trivy security remediation
+
+- Fixable production findings are handled by the narrowly scoped root overrides
+  for `brace-expansion`, `devalue`, `fast-uri`, `proxy-addr`, `sharp`,
+  `source-map-js`, and `undici`, plus the `next` catalog update.
+- `vitest` and its coverage provider are updated together for the mocker
+  advisory; `js-yaml` 5.x is updated within the same major only.
+- The older `js-yaml` 3.x/4.x overrides remain in place because forcing their
+  consumers onto 5.x changes the library's API. The separate Renovate proposals
+  (#1167/#1168) require compatibility testing before merge.
+
 Append new entries at the top. One entry per `[SUPPRESS]` or `[ESCALATE]`.
 
 Format:
@@ -104,6 +116,13 @@ Format:
 - Evidence: what was checked, such as a search for the vulnerable API
 - Follow-up: expiry date, or the issue tracking the fix
 ```
+
+### 2026-10-21 CVE-2026-93748 http-cache-semantics
+
+- Outcome: [SUPPRESS]
+- Reason: `http-cache-semantics@4.2.0` is pulled in only by `astro@7.2.9`; the vulnerability requires a shared response cache that can serve client-controlled `max-stale` requests. The bot dashboard does not configure an Astro route cache provider, so this library's vulnerable shared-response cache path is not enabled in production.
+- Evidence: `pnpm-lock.yaml` lists only `astro` as its direct consumer; `service/bot-dashboard/astro.config.ts` does not set `cache.provider`, and repository code search found no `Astro.cache` or `cacheCloudflare` usage. No upstream patched release is listed in [GHSA-ch52-4w7c-c8xp](https://github.com/advisories/GHSA-ch52-4w7c-c8xp) (checked 2026-10-21).
+- Follow-up: expires 2026-12-20. Re-check upstream fixes and actual runtime bundle/reachability; do not renew this suppression without verification.
 
 ### 2026-09-06 CVE-2025-71329 image-size
 
