@@ -26,10 +26,11 @@ This directory is the Single Source of Truth for implementation guidelines per t
 | Target | Minimum Coverage | CI Enforced |
 | --- | --- | --- |
 | `packages/**` | 60% | Yes |
-| `service/vspo-schedule/v2/web/` (schedule Container/Presenter) | 100% | No (Codecov informational) |
-| `service/bot-dashboard/` (components/domain/usecase) | 100% | No (Codecov informational) |
+| `service/vspo-schedule/v2/web/src/**` (whole service) | Informational | No (Codecov informational) |
+| `service/bot-dashboard/src/**` (whole service, route files excluded) | Informational | No (Codecov informational) |
 
-- Coverage is uploaded to Codecov per service with separate flags (`web`, `bot-dashboard`)
+- Coverage is measured over each service's whole `src/` (tests, stories, type declarations and `index.ts` barrels excluded), so the number reflects the service, not a single feature
+- Coverage is uploaded to Codecov per service with separate flags (`web`, `bot-dashboard`), and the PR Check Summary comment shows a per-service table (tests, statements, branches, functions, lines) built from `coverage/coverage-summary.json` by `scripts/coverage-summary-row.sh`
 - Do not write meaningless tests just for coverage. Achieve coverage naturally through tests that verify behavior
 
 ## Current Test Infrastructure

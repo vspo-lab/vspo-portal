@@ -14,7 +14,7 @@ over time.
 | Who may merge | `dep-auto-merge.yaml` only. Renovate automerge is disabled everywhere |
 | Who may approve | The maintainer, or the `dep-triage` skill acting on their behalf, having read the diff |
 | Merge without review | Never. There is no approval-free path |
-| Never auto-approved | `major`, `high-risk`, and anything the triage run repaired itself |
+| Never auto-approved | `major`, `high-risk`, and (in the same run) a repair that changed more than manifests and the lockfile |
 | Blocking scan | Trivy, production dependencies only, CRITICAL and HIGH |
 | Non-blocking scan | Trivy with `--include-dev-deps`, report only |
 | Suppression | Requires `statement` and `expired_at`, maximum 90 days |
@@ -72,11 +72,14 @@ the rationale is readable alongside the rest of the security documentation.
 
 | Advisory | Package | Reason | Expires |
 |----------|---------|--------|---------|
+| CVE-2026-93748 | http-cache-semantics | Astro transitive dependency; dashboard config has no route cache provider and code has no Astro.cache calls, so the vulnerable shared-response cache path is unused. No fix published | 2026-12-20 |
 | CVE-2026-1526 | undici | DoS via WebSocket. Development dependency only; the Workers runtime uses the platform fetch implementation | 2026-11-12 |
 | CVE-2026-1528 | undici | Same as above | 2026-11-12 |
 | CVE-2026-2229 | undici | Same as above | 2026-11-12 |
 | CVE-2026-33036 | fast-xml-parser | Entity expansion. Transitive dependency; the application never calls the XML parser | 2026-11-12 |
 | GHSA-5c6j-r48x-rmvq | serialize-javascript | RCE via `RegExp.flags`. Build-time only; absent from the deployed Workers bundle | 2026-11-12 |
+| CVE-2025-71329 | image-size | DoS via crafted image buffer. Reached only through `@storybook/nextjs`, a development dependency; absent from the Workers bundles. No fixed version | 2026-12-05 |
+| CVE-2025-71330 | image-size | Same as above (ICNS buffer variant) | 2026-12-05 |
 
 ## Version Pins
 
@@ -88,7 +91,25 @@ Pins are reviewed for removal whenever the resolved tree already satisfies the
 constraint without the override. Removals are verified with `pnpm tsc` and both
 test suites, and are never bundled with an unrelated change.
 
+For [CVE-2026-112942](https://github.com/advisories/GHSA-587h-7wmj-h5pm),
+the Vite 7.x and 8.2.x override ranges are patched independently to
+`7.3.7` and `8.2.4`. This preserves the existing major versions used by
+Storybook, Vitest, and Astro. The previous lockfile contained affected
+`7.3.6` and `8.2.2` resolutions. PR #1160 may proceed only after its
+refreshed security check passes on `develop`.
+
 ## Decision Log
+
+### 2026-10-21 Blocking Trivy security remediation
+
+- Fixable production findings are handled by the narrowly scoped root overrides
+  for `brace-expansion`, `devalue`, `fast-uri`, `proxy-addr`, `sharp`,
+  `source-map-js`, and `undici`, plus the `next` catalog update.
+- `vitest` and its coverage provider are updated together for the mocker
+  advisory; `js-yaml` 5.x is updated within the same major only.
+- The older `js-yaml` 3.x/4.x overrides remain in place because forcing their
+  consumers onto 5.x changes the library's API. The separate Renovate proposals
+  (#1167/#1168) require compatibility testing before merge.
 
 Append new entries at the top. One entry per `[SUPPRESS]` or `[ESCALATE]`.
 
@@ -102,6 +123,50 @@ Format:
 - Evidence: what was checked, such as a search for the vulnerable API
 - Follow-up: expiry date, or the issue tracking the fix
 ```
+
+### 2026-10-21 CVE-2026-93748 http-cache-semantics
+
+- Outcome: [SUPPRESS]
+- Reason: `http-cache-semantics@4.2.0` is pulled in only by `astro@7.2.9`; the vulnerability requires a shared response cache that can serve client-controlled `max-stale` requests. The bot dashboard does not configure an Astro route cache provider, so this library's vulnerable shared-response cache path is not enabled in production.
+- Evidence: `pnpm-lock.yaml` lists only `astro` as its direct consumer; `service/bot-dashboard/astro.config.ts` does not set `cache.provider`, and repository code search found no `Astro.cache` or `cacheCloudflare` usage. No upstream patched release is listed in [GHSA-ch52-4w7c-c8xp](https://github.com/advisories/GHSA-ch52-4w7c-c8xp) (checked 2026-10-21).
+- Follow-up: expires 2026-12-20. Re-check upstream fixes and actual runtime bundle/reachability; do not renew this suppression without verification.
+
+### 2026-09-06 CVE-2025-71329 image-size
+
+- Outcome: [SUPPRESS]
+- Reason: `image-size@2.0.2` is a transitive dependency of `@storybook/nextjs`
+  only, a development dependency. It is not in the Workers bundle of either
+  service, so no request-derived buffer reaches it. No fixed version exists:
+  2.0.2 is the latest release on the registry.
+- Evidence: `pnpm-lock.yaml` lists `image-size` under the `@storybook/nextjs`
+  snapshot and nowhere else; the blocking Trivy job (production dependencies
+  only) reports it clean and the finding appears only in the dev-deps,
+  report-only job.
+- Follow-up: expires 2026-12-05. Re-check the registry for a fixed release
+  before any renewal.
+
+### 2026-09-06 CVE-2025-71330 image-size
+
+- Outcome: [SUPPRESS]
+- Reason: Same package and reachability as CVE-2025-71329 above (ICNS
+  buffer variant). Development dependency only; no fixed version exists.
+- Evidence: Same as CVE-2025-71329.
+- Follow-up: expires 2026-12-05.
+
+### 2026-09-05 CVE-2026-73422 astro
+
+- Outcome: [ESCALATE]
+- Reason: The fix is `astro@7.1.0`, a major. `service/bot-dashboard` also needs
+  `@astrojs/cloudflare` 14 and `@astrojs/react` 6 (and the `wrangler` catalog at
+  `^4.125.0`) before `astro build` succeeds on Astro 7, so this is a migration,
+  not a repair. The vulnerable path (attacker-controlled View Transition
+  animation properties) is not reachable: the service uses `ClientRouter` only,
+  with no `transition:animate` and no request-derived animation values.
+- Evidence: `pnpm build` on `renovate/npm-astro-vulnerability` fails in the
+  Cloudflare adapter's build runner (`Missing field moduleType`); search of
+  `service/bot-dashboard/src` for `transition:animate` and `astro:transitions`.
+- Follow-up: #1152 tracks the migration; #1142 is labelled
+  `awaiting-maintainer-review`.
 
 ### 2026-08-14 Migration from .trivyignore
 
