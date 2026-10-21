@@ -122,7 +122,7 @@ Format:
 
 - Outcome: [SUPPRESS]
 - Reason: `http-cache-semantics@4.2.0` is pulled in only by `astro@7.2.9`; the vulnerability requires a shared response cache that can serve client-controlled `max-stale` requests. The bot dashboard does not configure an Astro route cache provider, so this library's vulnerable shared-response cache path is not enabled in production.
-- Evidence: `pnpm-lock.yaml` lists only `astro` as its direct consumer; `service/bot-dashboard/astro.config.ts` does not set `cache.provider`, and repository code search found no `Astro.cache` or `cacheCloudflare` usage. No upstream patched release is listed at https://github.com/advisories/GHSA-ch52-4w7c-c8xp (checked 2026-10-21).
+- Evidence: `pnpm-lock.yaml` lists only `astro` as its direct consumer; `service/bot-dashboard/astro.config.ts` does not set `cache.provider`, and repository code search found no `Astro.cache` or `cacheCloudflare` usage. No upstream patched release is listed in [GHSA-ch52-4w7c-c8xp](https://github.com/advisories/GHSA-ch52-4w7c-c8xp) (checked 2026-10-21).
 - Follow-up: expires 2026-12-20. Re-check upstream fixes and actual runtime bundle/reachability; do not renew this suppression without verification.
 
 ### 2026-09-06 CVE-2025-71329 image-size
