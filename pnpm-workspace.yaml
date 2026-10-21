@@ -12,7 +12,7 @@ catalog:
   '@cloudflare/workers-types': ^4.20260702.1
   '@types/node': ^25.9.5
   dayjs: ^1.11.21
-  next: 16.3.6
+  next: 16.3.8
   react: ^19.2.8
   react-dom: ^19.2.8
   tsup: ^8.5.1
@@ -44,6 +44,8 @@ minimumReleaseAgeExclude:
   - 'minimatch'
   - 'nanoid'
   - 'postcss'
+  - 'proxy-addr'
+  - 'source-map-js'
   - 'sharp'
   - 'svgo'
   - 'undici'
@@ -51,7 +53,9 @@ minimumReleaseAgeExclude:
   - 'ws'
   # Renovate security update: pnpm@10.34.5
   - pnpm@10.34.5
-  # Renovate security update: next@16.3.6
-  - next@16.3.6
+  # Security updates: Next.js image optimization and Vitest mocker
+  - next@16.3.8
+  - vitest@4.1.11
+  - '@vitest/coverage-v8@4.1.11'
 
 sharedWorkspaceLockfile: true
