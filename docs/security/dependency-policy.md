@@ -104,7 +104,6 @@ test suites, and are never bundled with an unrelated change.
   consumers onto 5.x changes the library's API. The separate Renovate proposals
   (#1167/#1168) require compatibility testing before merge.
 
-
 Append new entries at the top. One entry per `[SUPPRESS]` or `[ESCALATE]`.
 
 Format:
