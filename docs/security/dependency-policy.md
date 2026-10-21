@@ -91,6 +91,13 @@ Pins are reviewed for removal whenever the resolved tree already satisfies the
 constraint without the override. Removals are verified with `pnpm tsc` and both
 test suites, and are never bundled with an unrelated change.
 
+For [CVE-2026-112942](https://github.com/advisories/GHSA-587h-7wmj-h5pm),
+the Vite 7.x and 8.2.x override ranges are patched independently to
+`7.3.7` and `8.2.4`. This preserves the existing major versions used by
+Storybook, Vitest, and Astro. The previous lockfile contained affected
+`7.3.6` and `8.2.2` resolutions. PR #1160 may proceed only after its
+refreshed security check passes on `develop`.
+
 ## Decision Log
 
 ### 2026-10-21 Blocking Trivy security remediation
