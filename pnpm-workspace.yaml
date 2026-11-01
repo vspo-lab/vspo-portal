@@ -57,5 +57,7 @@ minimumReleaseAgeExclude:
   - next@16.3.8
   - vitest@4.1.11
   - '@vitest/coverage-v8@4.1.11'
+  # Renovate security update: smol-toml@1.9.0
+  - smol-toml@1.9.0
 
 sharedWorkspaceLockfile: true
